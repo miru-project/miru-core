@@ -4,11 +4,17 @@ go 1.23.3
 
 require (
 	entgo.io/ent v0.14.3
+	github.com/dop251/goja v0.0.0-20250125213203-5ef83b82af17
+	github.com/dop251/goja_nodejs v0.0.0-20250306164425-a0199362a3ae
 	github.com/gofiber/fiber/v2 v2.52.6
 )
 
 require (
+	github.com/adrg/xdg v0.5.3 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
+	github.com/dlclark/regexp2 v1.11.4 // indirect
+	github.com/go-sourcemap/sourcemap v2.1.4+incompatible // indirect
+	github.com/google/pprof v0.0.0-20240727154555-813a5fbdbec8 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -19,4 +25,5 @@ require (
 	github.com/valyala/fasthttp v1.51.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 )
