@@ -27,3 +27,4 @@ go.work.sum
 /tmp
 libhellomiru.h
 .vscode/launch.json
+miru-core

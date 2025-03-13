@@ -1,42 +1,89 @@
-package ext
+package extension
 
 import (
 	"errors"
+	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"regexp"
 	"runtime/debug"
 	"strings"
 
-	// "time"
-
 	"github.com/adrg/xdg"
 	"github.com/dop251/goja"
+	"github.com/dop251/goja_nodejs/eventloop"
 	"github.com/dop251/goja_nodejs/require"
 )
+
+type ExtBaseService struct {
+	// User extension compile into goja program
+	program *goja.Program
+	// Base runtime (v1 or v2) compiles into goja program
+	base *goja.Program
+}
 
 var SharedRegistry *require.Registry = require.NewRegistry()
 
 var miruDir = xdg.UserDirs.Documents + "/miru"
 
+// Entry point of miru extension runtime
 func InitRuntime() {
 	// vm := goja.New()
 
 	exts := filterExt(miruDir)
+	scriptV2 := string(handlerror(os.ReadFile("./assets/runtime_v2.js")))
+
 	for _, ext := range exts {
+		// V2
 		if ext.api == "2" {
-			api := &ExtApiV2{runtime: goja.New(), ext: ext}
+			scriptV2 := fmt.Sprintf(scriptV2, ext.pkg, ext.name, ext.website)
+			// log.Println(scriptV2)
+			compile := handlerror(goja.Compile(ext.pkg+".js", *ext.context, true))
+			runtimeV2 := handlerror(goja.Compile("runtime_v2.js", scriptV2, true))
+			api := &ExtApiV2{ext: &ext, service: &ExtBaseService{program: compile, base: runtimeV2}}
+
+			Api2Cache[ext.name] = api
 			api.loadApiV2()
+
 		} else {
-			api := &ExtApiV1{runtime: goja.New(), ext: ext}
-			api.loadApiV1()
+			// V1
+			// api := &ExtApiV1{&ExtBaseService{ext: &ext, runtime: goja.New()}}
+			// api.loadApiV1()
 		}
 	}
 }
 
-func request(url string, options map[string]map[string]string) {
-	log.Println(url)
+func request(url string, headers map[string]string) (string, error) {
+	log.Println("Making request to:", url)
 
+	// Create a new request
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return "", err
+	}
+
+	// Add headers if provided in options
+	for key, value := range headers {
+		req.Header.Add(key, value)
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	// Read the response body
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	// Return response as string
+	return string(body), nil
 }
 
 func filterExt(dir string) []Ext {
@@ -100,7 +147,7 @@ func ParseExtMetadata(content string, fileName string) (Ext, error) {
 			ext.icon = value
 		case "package":
 			ext.pkg = value
-		case "website":
+		case "webSite":
 			ext.website = value
 		case "description":
 			ext.description = value
@@ -119,7 +166,7 @@ func ParseExtMetadata(content string, fileName string) (Ext, error) {
 	// make sure package name + .js equals file name
 
 	if ext.pkg+".js" != fileName {
-		err = errors.New("package name does not match the file name")
+		err = errors.New("package name does not match the file name \r\n file name:" + fileName + "\r\n package name:" + ext.pkg)
 	}
 
 	ext.context = &content
@@ -134,36 +181,31 @@ func initModule(module *require.RequireModule, vm *goja.Runtime) {
 	vm.RunString(`var CryptoJS = require('./assets/crypto-js/aes.js');`)
 	vm.RunString(`var {parseHTML} = require('./assets/linkedom/worker.js');`)
 
-	vm.Set("jsRequest", request)
 }
 
-//	func (ext *ExtApiV1) testAsync() {
-//		vm := ext.runtime
-//		_, e := vm.RunString(`console.log("Hello, world!")`)
-//		if e != nil {
-//			log.Printf("Error: %v", e)
-//		}
-//		vm.Set("sleep", ext.jsSleep)
-//		_, e = vm.RunString(`
-//		async function hello() {
-//			console.log(Date.now()/1000);
-//			console.log("Hello, world!");
-//			await sleep();
-//			console.log(Date.now()/1000);
-//			return "Hello, world!";
-//		}
-//		`)
-//		if e != nil {
-//			log.Printf("Error: %v", e)
-//		}
-//		call, ok := goja.AssertFunction(vm.Get("hello"))
-//		if !ok {
-//			log.Printf("Error: %v", e)
-//		}
-//		_, e = call(nil)
-//		log.Println(`end`)
-//	}
-// func (n *ExtApiV1) jsSleep() {
-// 	time.Sleep(5 * time.Second)
-// 	log.Println("sleep")
-// }
+// Promise for creating a single channel
+func (ser *ExtBaseService) resolvePromise(resolve func(any) error, reason any, job *Job, loop *eventloop.EventLoop) {
+	loop.RunOnLoop(func(r *goja.Runtime) {
+		// 減少一個等待事件
+		job.Done()
+		// 完成異步方法
+		resolve(reason)
+	})
+}
+
+// Create a single channel
+func (ser *ExtBaseService) createSingleChannel(vm *goja.Runtime, name string, job *Job, loop *eventloop.EventLoop, fun func(call goja.FunctionCall, resolve func(any) error) any) {
+	vm.Set(name, func(call goja.FunctionCall) goja.Value {
+		promise, resolve, _ := vm.NewPromise()
+		// 增加一個等待事件
+		job.Add()
+		// 異步方法
+		go func() {
+			// Use RunOnLoop to dispatch function to event goroutine
+			reason := fun(call, resolve)
+			ser.resolvePromise(resolve, reason, job, loop)
+		}()
+		// 返回 promise
+		return vm.ToValue(promise)
+	})
+}

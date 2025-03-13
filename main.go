@@ -1,18 +1,14 @@
 package main
 
-import (
-	"github.com/gofiber/fiber/v2"
-	"github.com/miru-project/miru-core/ext"
-	"github.com/miru-project/miru-core/router"
-)
+import ext "github.com/miru-project/miru-core/pkg/extension"
 
 func main() {
-	app := fiber.New()
+	// app := fiber.New()
 	runExt()
 
-	router.InitRouter(app)
+	// router.InitRouter(app)
 
-	app.Listen(":3000")
+	// app.Listen(":3000")
 }
 
 // temporty

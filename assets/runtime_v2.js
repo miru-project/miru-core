@@ -1,10 +1,15 @@
+// ################# These lines reserve for go fmt.sprintf ################# //
+const pkg = '%s';
+const name = '%s';
+const website = '%s';
+// ################# These lines reserve for go fmt.sprintf ################# // 
 class XPathNode {
   constructor(content, selector) {
     this.content = content;
     this.selector = selector;
   }
   async excute(fun) {
-    return await handlePromise("queryXPath$className", JSON.stringify([this.content, this.selector, fun]));
+    // return await handlePromise("queryXPath$className", JSON.stringify([this.content, this.selector, fun]));
   }
   get attr() {
     return this.excute("attr");
@@ -30,21 +35,18 @@ console.log = function (message) {
   }
   // DartBridge.sendMessage("log$className", JSON.stringify([message.toString()]));
 };
-const package = "${extension.package}";
-const name = "${extension.name}";
+
 // 在 load 中注册的 keys
 const settingKeys = [];
 const Miru = {
   request: async (url, options) => {
     options = options || {};
     options.headers = options.headers || {};
-    options.url = options.headers["Miru-Url"] || "${extension.webSite}";
+    options.host = options.host || website;
     options.method = options.method || "get";
-    // 確定是否使用 responseType.byte 來解碼
-    const useByteToDecode = options.useByteToDecode|| false;
-
-    // const message = await handlePromise("request$className", JSON.stringify([miruUrl + url, options, useByteToDecode]));
-    const message = await jsRequest(url,options)
+    // // 確定是否使用 responseType.byte 來解碼
+    // const useByteToDecode = options.useByteToDecode|| false;
+    const message = await jsRequest(options.host + url,options)
     try {
       return JSON.parse(message);
     } catch (e) {
@@ -55,7 +57,8 @@ const Miru = {
     options = options || {};
     options.headers = options.headers || {};
     options.method = options.method || "get";
-    const message = await handlePromise("rawRequest$className", JSON.stringify([url, options, "${extension.package}"]));
+    // const message = await handlePromise("rawRequest$className", JSON.stringify([url, options, "${extension.package}"]));
+    const message = await jsRequest(url,options)
     try {
       return JSON.parse(message);
     } catch (e) {
@@ -111,15 +114,15 @@ var checkUpdate = () => {
   throw new Error("not implement checkUpdate");
 }
 async function load() { }
-const handlePromise = async (channelName, message) => {
-  // const waitForChange = new Promise(resolve => {
-  //   DartBridge.setHandler(channelName, async (arg) => {
-  //     resolve(arg);
-  //   })
-  // });
-  // DartBridge.sendMessage(channelName, message);
-  // return await waitForChange
-}
+// const handlePromise = async (channelName, message) => {
+//   // const waitForChange = new Promise(resolve => {
+//   //   DartBridge.setHandler(channelName, async (arg) => {
+//   //     resolve(arg);
+//   //   })
+//   // });
+//   // DartBridge.sendMessage(channelName, message);
+//   // return await waitForChange
+// }
 const stringify = async (callback) => {
   const data = await callback();
   return typeof data === "object" ? JSON.stringify(data, 0, 2) : data;

@@ -1,4 +1,4 @@
-package ext
+package extension
 
 type Ext struct {
 	name        string
