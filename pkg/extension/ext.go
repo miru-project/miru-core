@@ -38,8 +38,8 @@ func InitRuntime() {
 	for _, ext := range exts {
 		// V2
 		if ext.api == "2" {
+
 			scriptV2 := fmt.Sprintf(scriptV2, ext.pkg, ext.name, ext.website)
-			// log.Println(scriptV2)
 			compile := handlerror(goja.Compile(ext.pkg+".js", *ext.context, true))
 			runtimeV2 := handlerror(goja.Compile("runtime_v2.js", scriptV2, true))
 			api := &ExtApiV2{ext: &ext, service: &ExtBaseService{program: compile, base: runtimeV2}}

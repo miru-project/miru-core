@@ -1,6 +1,7 @@
 package extension
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -93,27 +94,26 @@ func (api *ExtApiV2) latest() {
 	loop := eventloop.NewEventLoop(
 		eventloop.WithRegistry(SharedRegistry), // 指定模塊註冊表
 	)
+	res := make(chan *goja.Promise)
+	defer close(res)
 
-	loop.Run(func(vm *goja.Runtime) {
-		//testing  only
+	var runtime *goja.Runtime
+	loop.RunOnLoop(func(vm *goja.Runtime) {
+
+		//testing  only, get the first key
 		var firstKey string
 		for k := range Api2Cache {
 			firstKey = k
 			break
 		}
+		runtime = vm
 		api := Api2Cache[firstKey]
-		ext := api.ext
 		service := api.service
 		reg := SharedRegistry.Enable(vm)
 		initModule(reg, vm)
+
+		// Run the program that has compiled before
 		vm.RunProgram(service.base)
-		handlerror(vm.RunString(fmt.Sprintf(`
-		const extension = {
-			package: "%s",
-			name: "%s",
-			website: "%s",
-		}
-		`, ext.pkg, ext.name, ext.website)))
 		vm.RunProgram(api.service.program)
 
 		vm.Set(`println`, func(args ...any) {
@@ -122,6 +122,7 @@ func (api *ExtApiV2) latest() {
 		var job = Job{loop: loop}
 
 		ser.createSingleChannel(vm, "jsRequest", &job, loop, func(call goja.FunctionCall, resolve func(any) error) any {
+
 			url := call.Argument(0).ToString()
 			opt := call.Argument(1).ToObject(vm).Export()
 			headers := opt.(map[string]any)["headers"]
@@ -135,10 +136,48 @@ func (api *ExtApiV2) latest() {
 
 			return response
 		})
+		o := handlerror(vm.RunString("latest(1)"))
 
-		o := handlerror(vm.RunString("latest(1)")).Export()
-		log.Println(o)
+		// because it eval async funcion the value become a promise and send to channel
+		res <- o.Export().(*goja.Promise)
 	})
+	loop.Start()
+	defer loop.Stop()
+	o := handlerror(await[Latests](<-res))
+	runtime.Interrupt("exit")
+	log.Println(o)
+
+}
+
+// Create a go routine that check Promise is fulfilled or rejected
+// and return the result
+func await[T any](promise *goja.Promise) (T, error) {
+	done := make(chan int)
+	var latest T
+	go func() {
+		defer close(done)
+		for promise.State() == goja.PromiseStatePending {
+			time.Sleep(50 * time.Millisecond)
+		}
+
+	}()
+	<-done
+	switch promise.State() {
+	case goja.PromiseStateFulfilled:
+
+		o := promise.Result().Export()
+		d := handlerror(json.Marshal(o))
+		json.Unmarshal(d, &latest)
+		return latest, nil
+
+	default: // case goja.PromiseStateRejected:
+
+		state := promise.State()
+		log.Println(state)
+		err := promise.Result().Export().(map[string]any)
+		e := fmt.Errorf("%q", err)
+		return latest, e
+	}
 }
 
 // func (api *ExtApiV2) asyncExample() {

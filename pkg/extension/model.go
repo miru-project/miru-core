@@ -14,3 +14,11 @@ type Ext struct {
 	api         string
 	context     *string
 }
+
+type Latest struct {
+	Cover  string `json:"cover"`
+	Title  string `json:"title"`
+	Update string `json:"update"`
+	URL    string `json:"url"`
+}
+type Latests []Latest
