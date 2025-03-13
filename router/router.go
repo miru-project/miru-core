@@ -15,4 +15,13 @@ func InitRouter(app *fiber.App) {
 		return c.JSON(result)
 	})
 
+	app.Get("/ext/latest/:pkg/:page", func(c *fiber.Ctx) error {
+
+		result, err := handler.Latest(c.Params("page"), c.Params("pkg"))
+		if err != nil {
+			return err
+		}
+		return c.JSON(result)
+	})
+
 }

@@ -34,10 +34,16 @@ func (j *Job) Done() {
 	}
 }
 
-var Api2Cache = make(map[string]*ExtApiV2)
+var ApiPkgCacheV2 = make(map[string]*ExtApiV2)
 
-func (api *ExtApiV2) loadApiV2() {
-	api.latest()
+func LoadApiV2(ext *Ext, script string) {
+	scriptV2 := fmt.Sprintf(script, ext.pkg, ext.name, ext.website)
+	compile := handlerror(goja.Compile(ext.pkg+".js", *ext.context, true))
+	runtimeV2 := handlerror(goja.Compile("runtime_v2.js", scriptV2, true))
+	api := &ExtApiV2{ext: ext, service: &ExtBaseService{program: compile, base: runtimeV2}}
+
+	ApiPkgCacheV2[ext.pkg] = api
+	// api.latest(ext.pkg, 1)
 }
 
 //	func example() {
@@ -88,8 +94,9 @@ func (api *ExtApiV2) loadApiV2() {
 //
 //		})
 //	}
-func (api *ExtApiV2) latest() {
 
+func (api *ExtApiV2) latest(pkg string, page int) (ExtensionListItems, error) {
+	ApiPkgCacheV2[pkg] = api
 	ser := api.service
 	loop := eventloop.NewEventLoop(
 		eventloop.WithRegistry(SharedRegistry), // 指定模塊註冊表
@@ -102,12 +109,12 @@ func (api *ExtApiV2) latest() {
 
 		//testing  only, get the first key
 		var firstKey string
-		for k := range Api2Cache {
+		for k := range ApiPkgCacheV2 {
 			firstKey = k
 			break
 		}
 		runtime = vm
-		api := Api2Cache[firstKey]
+		api := ApiPkgCacheV2[firstKey]
 		service := api.service
 		reg := SharedRegistry.Enable(vm)
 		initModule(reg, vm)
@@ -136,16 +143,16 @@ func (api *ExtApiV2) latest() {
 
 			return response
 		})
-		o := handlerror(vm.RunString("latest(1)"))
+		o := handlerror(vm.RunString(fmt.Sprintf("latest(%d)", page)))
 
 		// because it eval async funcion the value become a promise and send to channel
 		res <- o.Export().(*goja.Promise)
 	})
 	loop.Start()
 	defer loop.Stop()
-	o := handlerror(await[Latests](<-res))
+	o, e := await[ExtensionListItems](<-res)
 	runtime.Interrupt("exit")
-	log.Println(o)
+	return o, e
 
 }
 

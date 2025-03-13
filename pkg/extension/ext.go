@@ -1,8 +1,8 @@
 package extension
 
 import (
+	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -38,15 +38,7 @@ func InitRuntime() {
 	for _, ext := range exts {
 		// V2
 		if ext.api == "2" {
-
-			scriptV2 := fmt.Sprintf(scriptV2, ext.pkg, ext.name, ext.website)
-			compile := handlerror(goja.Compile(ext.pkg+".js", *ext.context, true))
-			runtimeV2 := handlerror(goja.Compile("runtime_v2.js", scriptV2, true))
-			api := &ExtApiV2{ext: &ext, service: &ExtBaseService{program: compile, base: runtimeV2}}
-
-			Api2Cache[ext.name] = api
-			api.loadApiV2()
-
+			LoadApiV2(&ext, scriptV2)
 		} else {
 			// V1
 			// api := &ExtApiV1{&ExtBaseService{ext: &ext, runtime: goja.New()}}
@@ -208,4 +200,18 @@ func (ser *ExtBaseService) createSingleChannel(vm *goja.Runtime, name string, jo
 		// 返回 promise
 		return vm.ToValue(promise)
 	})
+}
+
+func Latest(pkg string, page int) (string, bool) {
+
+	o, e := ApiPkgCacheV2[pkg].latest(pkg, page)
+	if e != nil {
+		return e.Error(), false
+	}
+	re, e := json.Marshal(o)
+	if e != nil {
+		return e.Error(), false
+	}
+
+	return string(re), true
 }
