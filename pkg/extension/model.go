@@ -13,6 +13,7 @@ type Ext struct {
 	tags        []string
 	api         string
 	context     *string
+	watchType   string
 }
 
 type ExtensionListItem struct {

@@ -1,8 +1,8 @@
 package extension
 
 import (
-	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -145,6 +145,8 @@ func ParseExtMetadata(content string, fileName string) (Ext, error) {
 			ext.description = value
 		case "api":
 			ext.api = value
+		case "type":
+			ext.watchType = value
 		case "tags":
 			// Split tags by comma and trim whitespace
 			tagList := strings.Split(value, ",")
@@ -202,16 +204,46 @@ func (ser *ExtBaseService) createSingleChannel(vm *goja.Runtime, name string, jo
 	})
 }
 
-func Latest(pkg string, page int) (string, bool) {
+// Extension latest should contain V1 and V2 api
+func Latest(pkg string, page int) (ExtensionListItems, error) {
+	evalStr := fmt.Sprintf("latest(%d)", page)
+	return AsyncCallBackV2[ExtensionListItems](ApiPkgCacheV2[pkg], pkg, evalStr)
 
-	o, e := ApiPkgCacheV2[pkg].latest(pkg, page)
-	if e != nil {
-		return e.Error(), false
-	}
-	re, e := json.Marshal(o)
-	if e != nil {
-		return e.Error(), false
+}
+
+// Extension search should contain V1 and V2 api
+func Search(pkg string, page int, kw string, filter string) (any, error) {
+	evalStr := fmt.Sprintf("search(`%s`,%d,%s)", kw, page, filter)
+	return AsyncCallBackV2[ExtensionListItems](ApiPkgCacheV2[pkg], pkg, evalStr)
+
+}
+
+// Extension watch should contain V1 and V2 api
+func Watch(pkg string, url string) (any, error) {
+
+	api := ApiPkgCacheV2[pkg]
+	watchType := api.ext.watchType
+	funcall := fmt.Sprintf("watch(`%s`)", url)
+
+	switch watchType {
+	case "manga":
+		return AsyncCallBackV2[ExtensionMangaWatch](api, pkg, funcall)
+	case "bangumi":
+		return AsyncCallBackV2[ExtensionBangumiWatch](api, pkg, funcall)
+	case "fikushon":
+		return AsyncCallBackV2[ExtensionFikushonWatch](api, pkg, funcall)
+	default:
+		return "Invalid watch type", errors.New("invalid watch type")
 	}
 
-	return string(re), true
+}
+
+func Detail(pkg string, url string) (ExtensionDetail, error) {
+
+	evalStr := fmt.Sprintf("detail(`%s`)", url)
+	o, e := AsyncCallBackV2[ExtensionDetail](ApiPkgCacheV2[pkg], pkg, evalStr)
+	if e != nil {
+		return ExtensionDetail{}, e
+	}
+	return o, nil
 }
