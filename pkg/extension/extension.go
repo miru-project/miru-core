@@ -11,10 +11,10 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"github.com/adrg/xdg"
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"
 	"github.com/dop251/goja_nodejs/require"
+	miru_path "github.com/miru-project/miru-core/pkg/path"
 )
 
 type ExtBaseService struct {
@@ -26,13 +26,11 @@ type ExtBaseService struct {
 
 var SharedRegistry *require.Registry = require.NewRegistry()
 
-var miruDir = xdg.UserDirs.Documents + "/miru"
-
 // Entry point of miru extension runtime
 func InitRuntime() {
 	// vm := goja.New()
 
-	exts := filterExt(miruDir)
+	exts := filterExt(miru_path.MiruDir)
 	scriptV2 := string(handlerror(os.ReadFile("./assets/runtime_v2.js")))
 
 	for _, ext := range exts {
