@@ -14,7 +14,7 @@ import (
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"
 	"github.com/dop251/goja_nodejs/require"
-	miru_path "github.com/miru-project/miru-core/pkg/path"
+	"github.com/miru-project/miru-core/ext"
 )
 
 type ExtBaseService struct {
@@ -30,7 +30,7 @@ var SharedRegistry *require.Registry = require.NewRegistry()
 func InitRuntime() {
 	// vm := goja.New()
 
-	exts := filterExt(miru_path.MiruDir)
+	exts := filterExt(ext.ExtensionPath)
 	scriptV2 := string(handlerror(os.ReadFile("./assets/runtime_v2.js")))
 
 	for _, ext := range exts {
