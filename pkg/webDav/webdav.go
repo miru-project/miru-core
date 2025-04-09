@@ -25,7 +25,7 @@ func Authenticate(host string, user string, password string) error {
 }
 
 func checkIsLoggedIn() error {
-	if client == nil {
+	if file_name == "" {
 		return errors.New("WebDAV client have not logged in yet")
 	}
 	return nil
@@ -68,6 +68,11 @@ func Backup() error {
 }
 
 func Restore() error {
+
+	if err := checkIsLoggedIn(); err != nil {
+		return err
+	}
+
 	file, err := client.Read("/Miru/" + file_name)
 	if err != nil {
 		return err
