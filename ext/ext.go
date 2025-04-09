@@ -16,9 +16,6 @@ var (
 	entClient *ent.Client
 )
 
-// ExtensionPath is the path where extensions are stored
-var ExtensionPath string
-
 func EntClient() *ent.Client {
 	if entClient != nil {
 		return entClient

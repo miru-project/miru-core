@@ -8,6 +8,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/miru-project/miru-core/config"
+	"github.com/miru-project/miru-core/ext"
+	jsext "github.com/miru-project/miru-core/pkg/extension"
 	"github.com/miru-project/miru-core/router"
 )
 
@@ -41,11 +43,13 @@ func main() {
 		config.Global.ExtensionPath = absPath
 	}
 
-	log.Println("Miru Core initialized successfully!")
+	ext.EntClient()
 
+	jsext.InitRuntime(config.Global.ExtensionPath)
+
+	log.Println("Miru Core initialized successfully!")
 	app := fiber.New()
 
 	router.InitRouter(app)
-
 	app.Listen(":3000")
 }

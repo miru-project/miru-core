@@ -66,8 +66,51 @@ func InitRouter(app *fiber.App) {
 		return c.JSON(result)
 	})
 
+	// WebDav login
+	app.Post("/drive/login", func(c *fiber.Ctx) error {
+
+		var jsonReq *WebDavLoginJson
+		json.Unmarshal(c.Body(), &jsonReq)
+
+		host, user, passwd := jsonReq.Host, jsonReq.User, jsonReq.Passwd
+
+		if host == "" || user == "" || passwd == "" {
+			return c.JSON(result.NewErrorResult("Invalid URL in resuest body sent to miru_core", 400))
+		}
+
+		result, err := handler.Login(host, user, passwd)
+		if err != nil {
+			return err
+		}
+		return c.JSON(result)
+
+	})
+
+	// Backup the database to WebDav
+	app.Get("/drive/backup", func(c *fiber.Ctx) error {
+		result, err := handler.Backup()
+		if err != nil {
+			return err
+		}
+		return c.JSON(result)
+	})
+
+	// Restore the database from WebDav
+	app.Get("/drive/restore", func(c *fiber.Ctx) error {
+		result, err := handler.Restore()
+		if err != nil {
+			return err
+		}
+		return c.JSON(result)
+	})
 }
 
 type JsonUrl struct {
 	Url string `json:"url"`
+}
+
+type WebDavLoginJson struct {
+	Host   string `json:"host"`
+	Passwd string `json:"passwd"`
+	User   string `json:"user"`
 }
