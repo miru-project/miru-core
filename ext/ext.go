@@ -3,6 +3,7 @@ package ext
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"entgo.io/ent/dialect"
 	_ "github.com/go-sql-driver/mysql"
@@ -39,21 +40,44 @@ func EntClient() *ent.Client {
 			dbCfg.User, dbCfg.Password, dbCfg.Host, dbCfg.Port, dbCfg.DBName)
 		client, err = ent.Open(dialect.MySQL, dsn)
 	default:
-		fmt.Printf("unsupported database driver: %s", dbCfg.Driver)
+		log.Printf("unsupported database driver: %s", dbCfg.Driver)
 		return nil
 	}
 
 	if err != nil {
-		fmt.Printf("failed opening connection to database: %s", err)
+		log.Printf("failed opening connection to database: %s", err)
 		return nil
 	}
 
 	if err := client.Schema.Create(context.Background()); err != nil {
-		fmt.Printf("failed creating schema resources: %s", err)
+		log.Printf("failed creating schema resources: %s", err)
 		return nil
 	}
 
 	entClient = client
 
 	return client
+}
+
+func GetAllSettings() (*ent.AppSetting, error) {
+	return entClient.AppSetting.Query().First(context.Background())
+}
+
+func SetAppSettings(settings *[]AppSettingJson) []error {
+
+	err := make([]error, 0)
+
+	for _, setting := range *settings {
+		if _, e := entClient.AppSetting.Create().SetKey(setting.Key).SetValue(setting.Value).Save(context.Background()); e != nil {
+			err = append(err, e)
+		}
+
+	}
+
+	return err
+}
+
+type AppSettingJson struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }

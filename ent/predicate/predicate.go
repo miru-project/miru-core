@@ -6,6 +6,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// AppSetting is the predicate function for appsetting builders.
+type AppSetting func(*sql.Selector)
+
 // Extension is the predicate function for extension builders.
 type Extension func(*sql.Selector)
 

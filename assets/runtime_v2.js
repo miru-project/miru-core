@@ -43,7 +43,7 @@ const Miru = {
     options = options || {};
     options.headers = options.headers || {};
     options.host = options.host || website;
-    options.method = options.method || "get";
+    options.method = options.method || "GET";
     // // 確定是否使用 responseType.byte 來解碼
     // const useByteToDecode = options.useByteToDecode|| false;
     const message = await jsRequest(options.host + url,options)
@@ -56,7 +56,7 @@ const Miru = {
   rawRequest: async (url, options) => {
     options = options || {};
     options.headers = options.headers || {};
-    options.method = options.method || "get";
+    options.method = options.method || "GET";
     // const message = await handlePromise("rawRequest$className", JSON.stringify([url, options, "${extension.package}"]));
     const message = await jsRequest(url,options)
     try {
@@ -114,6 +114,10 @@ var checkUpdate = () => {
   throw new Error("not implement checkUpdate");
 }
 async function load() { }
+
+var throwError = (message) => {
+  throw new Error(message);
+}
 // const handlePromise = async (channelName, message) => {
 //   // const waitForChange = new Promise(resolve => {
 //   //   DartBridge.setHandler(channelName, async (arg) => {

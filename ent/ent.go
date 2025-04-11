@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/miru-project/miru-core/ent/appsetting"
 	"github.com/miru-project/miru-core/ent/extension"
 	"github.com/miru-project/miru-core/ent/favorite"
 	"github.com/miru-project/miru-core/ent/favoritegroup"
@@ -76,6 +77,7 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			appsetting.Table:    appsetting.ValidColumn,
 			extension.Table:     extension.ValidColumn,
 			favorite.Table:      favorite.ValidColumn,
 			favoritegroup.Table: favoritegroup.ValidColumn,

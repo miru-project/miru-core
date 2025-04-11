@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/miru-project/miru-core/ext"
 	"github.com/miru-project/miru-core/handler"
 	"github.com/miru-project/miru-core/pkg/result"
 )
@@ -39,7 +40,11 @@ func InitRouter(app *fiber.App) {
 	app.Get("/ext/watch/:pkg", func(c *fiber.Ctx) error {
 
 		var jsonUrl *JsonUrl
-		json.Unmarshal(c.Body(), &jsonUrl)
+
+		if e := json.Unmarshal(c.Body(), &jsonUrl); e != nil {
+			return c.JSON(result.NewErrorResult("Invalid JSON in request body sent to miru_core", 400))
+		}
+
 		if jsonUrl.Url == "" {
 			return c.JSON(result.NewErrorResult("Invalid URL in resuest  body", 400))
 		}
@@ -54,7 +59,11 @@ func InitRouter(app *fiber.App) {
 	app.Get("/ext/detail/:pkg", func(c *fiber.Ctx) error {
 
 		var jsonUrl *JsonUrl
-		json.Unmarshal(c.Body(), &jsonUrl)
+
+		if e := json.Unmarshal(c.Body(), &jsonUrl); e != nil {
+			return c.JSON(result.NewErrorResult("Invalid JSON in request body sent to miru_core", 400))
+		}
+
 		if jsonUrl.Url == "" {
 			return c.JSON(result.NewErrorResult("Invalid URL in resuest body sent to miru_core", 400))
 		}
@@ -70,7 +79,10 @@ func InitRouter(app *fiber.App) {
 	app.Post("/drive/login", func(c *fiber.Ctx) error {
 
 		var jsonReq *WebDavLoginJson
-		json.Unmarshal(c.Body(), &jsonReq)
+
+		if e := json.Unmarshal(c.Body(), &jsonReq); e != nil {
+			return c.JSON(result.NewErrorResult("Invalid JSON in request body sent to miru_core", 400))
+		}
 
 		host, user, passwd := jsonReq.Host, jsonReq.User, jsonReq.Passwd
 
@@ -102,6 +114,36 @@ func InitRouter(app *fiber.App) {
 			return err
 		}
 		return c.JSON(result)
+	})
+
+	app.Get("/appSetting", func(c *fiber.Ctx) error {
+		result, err := handler.GetAppSetting()
+		if err != nil {
+			return err
+		}
+		return c.JSON(result)
+
+	})
+
+	app.Put("/appSetting", func(c *fiber.Ctx) error {
+		var jsonUrl *[]ext.AppSettingJson
+
+		if e := json.Unmarshal(c.Body(), &jsonUrl); e != nil {
+			return c.JSON(result.NewErrorResult("Invalid JSON in request body sent to miru_core", 400))
+		}
+
+		if jsonUrl == nil {
+			return c.JSON(result.NewErrorResult("Invalid JSON in request body sent to miru_core", 400))
+		}
+
+		result, err := handler.SetAppSetting(jsonUrl)
+
+		if err != nil {
+			return c.JSON(err)
+		}
+
+		return c.JSON(result)
+
 	})
 }
 

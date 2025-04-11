@@ -8,6 +8,7 @@ import (
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"
+	"github.com/miru-project/miru-core/pkg/network"
 )
 
 type ExtApiV2 struct {
@@ -76,7 +77,7 @@ func await[T any](promise *goja.Promise) (T, error) {
 
 		state := promise.State()
 		log.Println(state)
-		err := promise.Result().Export().(map[string]any)
+		err := promise.Result().Export()
 		e := fmt.Errorf("%q", err)
 		return dataOut, e
 	}
@@ -108,20 +109,23 @@ func AsyncCallBackV2[T any](api *ExtApiV2, pkg string, evalStr string) (T, error
 		})
 		var job = Job{loop: loop}
 
-		ser.createSingleChannel(vm, "jsRequest", &job, loop, func(call goja.FunctionCall, resolve func(any) error) any {
+		ser.createSingleChannel(vm, "jsRequest", &job, func(call goja.FunctionCall, resolve func(any) error) any {
 
-			url := call.Argument(0).ToString()
+			url := call.Argument(0).ToString().String()
 			opt := call.Argument(1).ToObject(vm).Export()
-			headers := opt.(map[string]any)["headers"]
-			log.Println(headers)
-			result := make(map[string]string)
-			for key, value := range headers.(map[string]any) {
-				strValue := value.(string) // Attempt type assertion to string
-				result[key] = strValue
-			}
-			response := handlerror(request(url.String(), result))
+			var requestOptions network.RequestOptions
 
-			return response
+			jsonData := handlerror(json.Marshal(opt))
+			if err := json.Unmarshal(jsonData, &requestOptions); err != nil {
+				panic("Error unmarshalling JSON:" + err.Error())
+			}
+
+			res, err := network.Request(url, requestOptions)
+
+			if err != nil {
+				panic(vm.ToValue(err))
+			}
+			return res
 		})
 		o, e := vm.RunString(evalStr)
 

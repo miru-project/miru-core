@@ -3,16 +3,13 @@ package extension
 import (
 	"errors"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"os"
 	"regexp"
 	"runtime/debug"
 	"strings"
 
 	"github.com/dop251/goja"
-	"github.com/dop251/goja_nodejs/eventloop"
 	"github.com/dop251/goja_nodejs/require"
 )
 
@@ -42,37 +39,6 @@ func InitRuntime(extPath string) {
 			// api.loadApiV1()
 		}
 	}
-}
-
-func request(url string, headers map[string]string) (string, error) {
-	log.Println("Making request to:", url)
-
-	// Create a new request
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return "", err
-	}
-
-	// Add headers if provided in options
-	for key, value := range headers {
-		req.Header.Add(key, value)
-	}
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	// Read the response body
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-
-	// Return response as string
-	return string(body), nil
 }
 
 func filterExt(dir string) []Ext {
@@ -163,6 +129,8 @@ func ParseExtMetadata(content string, fileName string) (Ext, error) {
 	ext.context = &content
 	return ext, err
 }
+
+// Init nodeJs module
 func initModule(module *require.RequireModule, vm *goja.Runtime) {
 
 	// init cryptoJs  and  linkedom
@@ -175,26 +143,39 @@ func initModule(module *require.RequireModule, vm *goja.Runtime) {
 }
 
 // Promise for creating a single channel
-func (ser *ExtBaseService) resolvePromise(resolve func(any) error, reason any, job *Job, loop *eventloop.EventLoop) {
-	loop.RunOnLoop(func(r *goja.Runtime) {
-		// 減少一個等待事件
-		job.Done()
-		// 完成異步方法
-		resolve(reason)
-	})
+func (ser *ExtBaseService) resolvePromise(resolve func(any) error, reason any, job *Job) {
+
+	job.Done()
+	resolve(reason)
+
+}
+func (ser *ExtBaseService) rejectPromise(reject func(any) error, reason any, job *Job) {
+
+	job.Done()
+	reject(reason)
 }
 
 // Create a single channel
-func (ser *ExtBaseService) createSingleChannel(vm *goja.Runtime, name string, job *Job, loop *eventloop.EventLoop, fun func(call goja.FunctionCall, resolve func(any) error) any) {
+func (ser *ExtBaseService) createSingleChannel(vm *goja.Runtime, name string, job *Job, fun func(call goja.FunctionCall, resolve func(any) error) any) {
+
 	vm.Set(name, func(call goja.FunctionCall) goja.Value {
-		promise, resolve, _ := vm.NewPromise()
+		promise, resolve, reject := vm.NewPromise()
 		// 增加一個等待事件
 		job.Add()
 		// 異步方法
 		go func() {
+
+			defer func() {
+				if r := recover(); r != nil {
+					log.Println("Recovered from panic:", r)
+					ser.rejectPromise(reject, r, job)
+				}
+			}()
+
 			// Use RunOnLoop to dispatch function to event goroutine
 			reason := fun(call, resolve)
-			ser.resolvePromise(resolve, reason, job, loop)
+			ser.resolvePromise(resolve, reason, job)
+
 		}()
 		// 返回 promise
 		return vm.ToValue(promise)

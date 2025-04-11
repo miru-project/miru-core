@@ -3,6 +3,7 @@ package handler
 import (
 	"strconv"
 
+	"github.com/miru-project/miru-core/ext"
 	"github.com/miru-project/miru-core/pkg/extension"
 	"github.com/miru-project/miru-core/pkg/result"
 	webdav "github.com/miru-project/miru-core/pkg/webDav"
@@ -27,14 +28,14 @@ func Latest(page string, pkg string) (*result.Result, error) {
 }
 
 // handle Search when receiving a request
-func Search(page string, pkg string, kw string, body string) (*result.Result, error) {
+func Search(page string, pkg string, kw string, filter string) (*result.Result, error) {
 
 	intPage, err := strconv.Atoi(page)
 	if err != nil {
 		return result.NewErrorResult("Invalid page number", 400), err
 	}
 
-	res, e := extension.Search(pkg, intPage, kw, body)
+	res, e := extension.Search(pkg, intPage, kw, filter)
 	return result.NewSuccessResult(res), e
 
 }
@@ -84,4 +85,21 @@ func Restore() (*result.Result, error) {
 	}
 
 	return result.NewSuccessResult("ok"), err
+}
+func GetAppSetting() (*result.Result, error) {
+	// Get all settings
+	settings, err := ext.GetAllSettings()
+	if err != nil {
+		return result.NewErrorResult("Failed to get settings", 500), err
+	}
+
+	return result.NewSuccessResult(settings), nil
+}
+
+func SetAppSetting(settings *[]ext.AppSettingJson) (*result.Result, []error) {
+
+	if e := ext.SetAppSettings(settings); len(e) != 0 {
+		return result.NewErrorResult("Failed to set settings", 500), e
+	}
+	return result.NewSuccessResult("ok"), nil
 }

@@ -12,6 +12,8 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// AppSetting is the client for interacting with the AppSetting builders.
+	AppSetting *AppSettingClient
 	// Extension is the client for interacting with the Extension builders.
 	Extension *ExtensionClient
 	// Favorite is the client for interacting with the Favorite builders.
@@ -151,6 +153,7 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.AppSetting = NewAppSettingClient(tx.config)
 	tx.Extension = NewExtensionClient(tx.config)
 	tx.Favorite = NewFavoriteClient(tx.config)
 	tx.FavoriteGroup = NewFavoriteGroupClient(tx.config)
@@ -164,7 +167,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Extension.QueryXXX(), the query will be executed
+// applies a query, for example: AppSetting.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.
