@@ -28,12 +28,14 @@ type PromiseResult struct {
 
 func (j *Job) Add() {
 	j.count++
+
 	if j.count == 1 {
 		j.flag = j.loop.SetInterval(func(r *goja.Runtime) {}, time.Hour*24*365*100)
 	}
 }
 func (j *Job) Done() {
 	j.count--
+
 	if j.count == 0 {
 		j.loop.ClearInterval(j.flag)
 		j.flag = nil
@@ -49,7 +51,6 @@ func LoadApiV2(ext *Ext, script string) {
 	api := &ExtApiV2{ext: ext, service: &ExtBaseService{program: compile, base: runtimeV2}}
 
 	ApiPkgCacheV2[ext.pkg] = api
-	// api.latest(ext.pkg, 1)
 }
 
 // Create a go routine that check Promise is fulfilled or rejected
@@ -59,6 +60,7 @@ func await[T any](promise *goja.Promise) (T, error) {
 	var dataOut T
 	go func() {
 		defer close(done)
+
 		for promise.State() == goja.PromiseStatePending {
 			time.Sleep(50 * time.Millisecond)
 		}
@@ -71,6 +73,7 @@ func await[T any](promise *goja.Promise) (T, error) {
 		o := promise.Result().Export()
 		d := handlerror(json.Marshal(o))
 		json.Unmarshal(d, &dataOut)
+
 		return dataOut, nil
 
 	default: // case goja.PromiseStateRejected:
@@ -79,6 +82,7 @@ func await[T any](promise *goja.Promise) (T, error) {
 		log.Println(state)
 		err := promise.Result().Export()
 		e := fmt.Errorf("%q", err)
+
 		return dataOut, e
 	}
 }
@@ -152,34 +156,3 @@ func AsyncCallBackV2[T any](api *ExtApiV2, pkg string, evalStr string) (T, error
 	return o, e
 
 }
-
-// func (api *ExtApiV2) asyncExample() {
-// 	ser := api.service
-// 	loop := eventloop.NewEventLoop(
-// 		eventloop.WithRegistry(SharedRegistry), // 指定模塊註冊表
-// 	)
-// 	loop.Run(func(vm *goja.Runtime) {
-// 		vm.Set(`println`, func(args ...any) {
-// 			log.Println(args...)
-// 		})
-// 		var job = Job{loop: loop}
-// 		ser.createSingleChannel(vm, "sleep", &job, loop, func(call goja.FunctionCall, resolve func(any) error) any {
-// 			duration := time.Millisecond * time.Duration(call.Argument(0).ToInteger())
-// 			time.Sleep(duration)
-// 			return time.Now()
-// 		})
-// 		handlerror(vm.RunString(`
-// println(1)
-// async function test(){
-// 	await sleep(3000);
-// 	println("success")
-// 	}
-// sleep(1000).then((now)=>{
-//     println(now)
-// })
-// println(2)
-// test()
-// `))
-// 	})
-
-// }

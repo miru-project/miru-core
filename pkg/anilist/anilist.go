@@ -185,19 +185,6 @@ func EditList(
 		return "", err
 	}
 
-	// // Parse the response to extract the ID
-	// var response struct {
-	// 	Data struct {
-	// 		SaveMediaListEntry struct {
-	// 			ID string `json:"id"`
-	// 		} `json:"SaveMediaListEntry"`
-	// 	} `json:"data"`
-	// }
-
-	// if err := json.Unmarshal([]byte(res), &response); err != nil {
-	// 	return "", fmt.Errorf("failed to parse response: %w", err)
-	// }
-
 	return res, nil
 }
 

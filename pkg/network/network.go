@@ -13,6 +13,7 @@ import (
 func Request(url string, option *RequestOptions) (string, error) {
 
 	log.Println("Making request to:", url)
+
 	if option.TlsSpoofConfig.Body != "" {
 		return requestWithCycleTLS(url, option)
 	}
@@ -25,6 +26,7 @@ func requestWithCycleTLS(url string, option *RequestOptions) (string, error) {
 	defer client.Close()
 
 	res, err := client.Do(url, option.TlsSpoofConfig, checkRequestMethod(option.Method))
+
 	if err != nil {
 		return "", err
 	}
@@ -89,14 +91,18 @@ func checkRequestMethod(method string) string {
 func setupProxy(option *RequestOptions) *http.Transport {
 
 	transport := &http.Transport{}
+
 	if option.ProxyHost != "" {
 		transport.Proxy = http.ProxyURL(&url.URL{
 			Scheme: option.ProxyScheme,
 			Host:   option.ProxyHost,
 			User:   url.UserPassword(option.ProxyUserName, option.ProxyPassword),
 		})
+
 	} else {
+
 		transport.Proxy = http.ProxyFromEnvironment
+
 	}
 	return transport
 }

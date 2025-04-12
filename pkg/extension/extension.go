@@ -24,7 +24,6 @@ var SharedRegistry *require.Registry = require.NewRegistry()
 
 // Entry point of miru extension runtime
 func InitRuntime(extPath string) {
-	// vm := goja.New()
 
 	exts := filterExt(extPath)
 	scriptV2 := string(handlerror(os.ReadFile("./assets/runtime_v2.js")))
@@ -35,8 +34,7 @@ func InitRuntime(extPath string) {
 			LoadApiV2(&ext, scriptV2)
 		} else {
 			// V1
-			// api := &ExtApiV1{&ExtBaseService{ext: &ext, runtime: goja.New()}}
-			// api.loadApiV1()
+
 		}
 	}
 }
@@ -220,8 +218,10 @@ func Detail(pkg string, url string) (ExtensionDetail, error) {
 
 	evalStr := fmt.Sprintf("detail(`%s`)", url)
 	o, e := AsyncCallBackV2[ExtensionDetail](ApiPkgCacheV2[pkg], pkg, evalStr)
+
 	if e != nil {
 		return ExtensionDetail{}, e
 	}
+
 	return o, nil
 }
