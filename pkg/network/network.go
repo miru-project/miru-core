@@ -10,13 +10,13 @@ import (
 	"github.com/Danny-Dasilva/CycleTLS/cycletls"
 )
 
-func Request(url string, option RequestOptions) (string, error) {
+func Request(url string, option *RequestOptions) (string, error) {
 
 	log.Println("Making request to:", url)
 	if option.TlsSpoofConfig.Body != "" {
-		return requestWithCycleTLS(url, &option)
+		return requestWithCycleTLS(url, option)
 	}
-	return request(url, &option)
+	return request(url, option)
 }
 
 // Request with cycle TLS
@@ -37,8 +37,11 @@ func request(url string, option *RequestOptions) (string, error) {
 
 	// create request body
 	var requestBody io.Reader
+
 	if option.RequestBody != "" {
 		requestBody = bytes.NewBuffer([]byte(option.RequestBody))
+	} else if option.RequestBodyRaw != nil {
+		requestBody = bytes.NewBuffer(option.RequestBodyRaw)
 	} else {
 		requestBody = nil
 	}
@@ -107,5 +110,6 @@ type RequestOptions struct {
 	ProxyUserName  string            `json:"proxy_username"`
 	ProxyPassword  string            `json:"proxy_password"`
 	RequestBody    string            `json:"request_body"`
+	RequestBodyRaw []byte            `json:"request_body_raw"`
 	TlsSpoofConfig cycletls.Options  `json:"tls_spoof_config"`
 }

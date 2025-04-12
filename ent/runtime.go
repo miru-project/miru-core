@@ -19,13 +19,9 @@ func init() {
 	appsettingFields := schema.AppSetting{}.Fields()
 	_ = appsettingFields
 	// appsettingDescKey is the schema descriptor for key field.
-	appsettingDescKey := appsettingFields[1].Descriptor()
+	appsettingDescKey := appsettingFields[0].Descriptor()
 	// appsetting.KeyValidator is a validator for the "key" field. It is called by the builders before save.
 	appsetting.KeyValidator = appsettingDescKey.Validators[0].(func(string) error)
-	// appsettingDescID is the schema descriptor for id field.
-	appsettingDescID := appsettingFields[0].Descriptor()
-	// appsetting.IDValidator is a validator for the "id" field. It is called by the builders before save.
-	appsetting.IDValidator = appsettingDescID.Validators[0].(func(int) error)
 	favoriteFields := schema.Favorite{}.Fields()
 	_ = favoriteFields
 	// favoriteDescPackage is the schema descriptor for package field.

@@ -3,7 +3,6 @@ package schema
 import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
-	"entgo.io/ent/schema/index"
 )
 
 // AppSetting holds the schema definition for the AppSetting entity.
@@ -14,13 +13,11 @@ type AppSetting struct {
 // Fields of the AppSetting.
 func (AppSetting) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("id").
-			Positive().
-			Immutable().
-			StructTag(`json:"id,omitempty"`),
 		field.String("key").
 			NotEmpty().
-			Comment("Key"),
+			Unique().
+			Comment("Key").
+			StorageKey("key"), // Use "key" as the primary key in the database
 		field.String("value").
 			Comment("Value"),
 	}
@@ -33,9 +30,5 @@ func (AppSetting) Edges() []ent.Edge {
 
 // Indexes of the AppSetting.
 func (AppSetting) Indexes() []ent.Index {
-	return []ent.Index{
-		// Create a unique index on key
-		index.Fields("key").
-			Unique(),
-	}
+	return nil // No additional indexes are needed since "key" is unique
 }

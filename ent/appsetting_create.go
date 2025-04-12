@@ -31,12 +31,6 @@ func (asc *AppSettingCreate) SetValue(s string) *AppSettingCreate {
 	return asc
 }
 
-// SetID sets the "id" field.
-func (asc *AppSettingCreate) SetID(i int) *AppSettingCreate {
-	asc.mutation.SetID(i)
-	return asc
-}
-
 // Mutation returns the AppSettingMutation object of the builder.
 func (asc *AppSettingCreate) Mutation() *AppSettingMutation {
 	return asc.mutation
@@ -82,11 +76,6 @@ func (asc *AppSettingCreate) check() error {
 	if _, ok := asc.mutation.Value(); !ok {
 		return &ValidationError{Name: "value", err: errors.New(`ent: missing required field "AppSetting.value"`)}
 	}
-	if v, ok := asc.mutation.ID(); ok {
-		if err := appsetting.IDValidator(v); err != nil {
-			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "AppSetting.id": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -101,10 +90,8 @@ func (asc *AppSettingCreate) sqlSave(ctx context.Context) (*AppSetting, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != _node.ID {
-		id := _spec.ID.Value.(int64)
-		_node.ID = int(id)
-	}
+	id := _spec.ID.Value.(int64)
+	_node.ID = int(id)
 	asc.mutation.id = &_node.ID
 	asc.mutation.done = true
 	return _node, nil
@@ -115,10 +102,6 @@ func (asc *AppSettingCreate) createSpec() (*AppSetting, *sqlgraph.CreateSpec) {
 		_node = &AppSetting{config: asc.config}
 		_spec = sqlgraph.NewCreateSpec(appsetting.Table, sqlgraph.NewFieldSpec(appsetting.FieldID, field.TypeInt))
 	)
-	if id, ok := asc.mutation.ID(); ok {
-		_node.ID = id
-		_spec.ID.Value = id
-	}
 	if value, ok := asc.mutation.Key(); ok {
 		_spec.SetField(appsetting.FieldKey, field.TypeString, value)
 		_node.Key = value
@@ -174,7 +157,7 @@ func (ascb *AppSettingCreateBulk) Save(ctx context.Context) ([]*AppSetting, erro
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+				if specs[i].ID.Value != nil {
 					id := specs[i].ID.Value.(int64)
 					nodes[i].ID = int(id)
 				}

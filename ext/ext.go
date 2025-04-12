@@ -11,6 +11,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/miru-project/miru-core/config"
 	"github.com/miru-project/miru-core/ent"
+	"github.com/miru-project/miru-core/ent/appsetting"
 )
 
 var (
@@ -59,19 +60,49 @@ func EntClient() *ent.Client {
 	return client
 }
 
-func GetAllSettings() (*ent.AppSetting, error) {
-	return entClient.AppSetting.Query().First(context.Background())
+func GetAllSettings() ([]*ent.AppSetting, error) {
+	return entClient.AppSetting.Query().All(context.Background())
 }
 
+func GetSetting(key string) (*ent.AppSetting, error) {
+
+	setting, err := entClient.AppSetting.Query().Where(appsetting.Key(key)).Only(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	return setting, nil
+
+}
 func SetAppSettings(settings *[]AppSettingJson) []error {
 
 	err := make([]error, 0)
 
 	for _, setting := range *settings {
-		if _, e := entClient.AppSetting.Create().SetKey(setting.Key).SetValue(setting.Value).Save(context.Background()); e != nil {
+
+		// Check if the key already exists
+		existing, e := entClient.AppSetting.Query().Where(appsetting.Key(setting.Key)).Only(context.Background())
+		if e != nil && !ent.IsNotFound(e) {
 			err = append(err, e)
+			continue
 		}
 
+		if existing != nil {
+
+			// Update the existing record
+			_, e = existing.Update().SetValue(setting.Value).Save(context.Background())
+			if e != nil {
+				err = append(err, e)
+			}
+
+		} else {
+
+			// Create a new record
+			_, e = entClient.AppSetting.Create().SetKey(setting.Key).SetValue(setting.Value).Save(context.Background())
+			if e != nil {
+				err = append(err, e)
+			}
+		}
 	}
 
 	return err

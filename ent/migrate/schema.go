@@ -11,7 +11,7 @@ var (
 	// AppSettingsColumns holds the columns for the "app_settings" table.
 	AppSettingsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "key", Type: field.TypeString},
+		{Name: "key", Type: field.TypeString, Unique: true},
 		{Name: "value", Type: field.TypeString},
 	}
 	// AppSettingsTable holds the schema information for the "app_settings" table.
@@ -19,13 +19,6 @@ var (
 		Name:       "app_settings",
 		Columns:    AppSettingsColumns,
 		PrimaryKey: []*schema.Column{AppSettingsColumns[0]},
-		Indexes: []*schema.Index{
-			{
-				Name:    "appsetting_key",
-				Unique:  true,
-				Columns: []*schema.Column{AppSettingsColumns[1]},
-			},
-		},
 	}
 	// ExtensionsColumns holds the columns for the "extensions" table.
 	ExtensionsColumns = []*schema.Column{
