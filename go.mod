@@ -10,7 +10,9 @@ require (
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/lib/pq v1.10.9
 	github.com/mattn/go-sqlite3 v1.14.24
+	github.com/grafov/m3u8 v0.12.1 
 )
+
 
 require (
 	ariga.io/atlas v0.31.1-0.20250212144724-069be8033e83 // indirect

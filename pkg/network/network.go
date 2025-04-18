@@ -6,18 +6,21 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 
 	"github.com/Danny-Dasilva/CycleTLS/cycletls"
 )
 
-func Request(url string, option *RequestOptions) (string, error) {
+func Request[T StringOrBytes](url string, option *RequestOptions) (T, error) {
 
 	log.Println("Making request to:", url)
 
 	if option.TlsSpoofConfig.Body != "" {
-		return requestWithCycleTLS(url, option)
+		o, e := requestWithCycleTLS(url, option)
+		return T(o), e
 	}
-	return request(url, option)
+
+	return request[T](url, option)
 }
 
 // Request with cycle TLS
@@ -35,7 +38,7 @@ func requestWithCycleTLS(url string, option *RequestOptions) (string, error) {
 }
 
 // Request with built-in http client
-func request(url string, option *RequestOptions) (string, error) {
+func request[T StringOrBytes](url string, option *RequestOptions) (T, error) {
 
 	// create request body
 	var requestBody io.Reader
@@ -51,7 +54,7 @@ func request(url string, option *RequestOptions) (string, error) {
 	// Create a new request
 	req, err := http.NewRequest(checkRequestMethod(option.Method), url, requestBody)
 	if err != nil {
-		return "", err
+		return T(""), err
 	}
 
 	// Add headers if provided in options
@@ -64,18 +67,26 @@ func request(url string, option *RequestOptions) (string, error) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return T(""), err
 	}
 	defer resp.Body.Close()
 
 	// Read the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return T(""), err
 	}
 
-	// Return response as string
-	return string(body), nil
+	var result T
+
+	switch any(result).(type) {
+	case string:
+		result = any(string(body)).(T)
+	case []byte:
+		result = any(body).(T)
+	}
+
+	return result, nil
 }
 
 func checkRequestMethod(method string) string {
@@ -105,6 +116,27 @@ func setupProxy(option *RequestOptions) *http.Transport {
 
 	}
 	return transport
+}
+
+func SaveFile(filePath string, data *[]byte) error {
+	// Create the file
+	out, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	// Write the data to file
+	_, err = out.Write(*data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type StringOrBytes interface {
+	~string | ~[]byte
 }
 
 type RequestOptions struct {

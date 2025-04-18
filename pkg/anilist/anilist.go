@@ -204,7 +204,7 @@ func request(query string) (string, error) {
 			"Authorization": "Bearer " + token,
 		}, RequestBodyRaw: q}
 
-	return network.Request(anilistAPI, option)
+	return network.Request[string](anilistAPI, option)
 }
 
 func InitToken() error {

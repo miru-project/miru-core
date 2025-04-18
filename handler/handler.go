@@ -6,6 +6,7 @@ import (
 
 	"github.com/miru-project/miru-core/ext"
 	"github.com/miru-project/miru-core/pkg/anilist"
+	"github.com/miru-project/miru-core/pkg/download"
 	"github.com/miru-project/miru-core/pkg/extension"
 	"github.com/miru-project/miru-core/pkg/result"
 	webdav "github.com/miru-project/miru-core/pkg/webDav"
@@ -173,4 +174,19 @@ func EditAnilistList(status string, mediaId *string, id *string, progress *int, 
 	}
 
 	return result.NewSuccessResult(parsedData), nil
+}
+
+func DownloadBangumi(filePath string, url string, header map[string]string, isHLS bool) (*result.Result, error) {
+
+	res, err := download.DownloadBangumi(filePath, url, header, isHLS)
+	if err != nil {
+		return result.NewErrorResult("Failed to download bangumi", 500), err
+	}
+
+	return result.NewSuccessResult(res), nil
+}
+
+func DownloadStatus() *result.Result {
+	res := download.DownloadStatus()
+	return result.NewSuccessResult(res)
 }
