@@ -65,7 +65,7 @@ func (t *Mp4TaskParam) readAndSavePartial(res *http.Response) ([]byte, error) {
 		Progrss:   0,
 		Names:     &[]string{},
 		Total:     int(totalBytes),
-		Status:    "Downloading",
+		Status:    Downloading,
 		MediaType: Mp4,
 		TaskID:    taskId,
 	}
@@ -106,11 +106,12 @@ func (t *Mp4TaskParam) readAndSavePartial(res *http.Response) ([]byte, error) {
 			}
 
 			if err == io.EOF {
-				status[taskId].Status = "Completed"
+				status[taskId].Status = Completed
 				return nil, nil
 			}
 
 			if err != nil {
+				status[taskId].Status = Failed
 				return nil, err
 			}
 

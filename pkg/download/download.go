@@ -42,11 +42,11 @@ const (
 type Status string
 
 const (
-	Downloading Status = "downloading"
-	Paused      Status = "paused"
-	Completed   Status = "completed"
-	Failed      Status = "failed"
-	Canceled    Status = "canceled"
+	Downloading Status = "Downloading"
+	Paused      Status = "Paused"
+	Completed   Status = "Completed"
+	Failed      Status = "Failed"
+	Canceled    Status = "Canceled"
 )
 
 func (t *TaskParam) GetTaskID() *int {
