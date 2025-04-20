@@ -124,7 +124,7 @@ func AsyncCallBackV2[T any](api *ExtApiV2, pkg string, evalStr string) (T, error
 				panic("Error unmarshalling JSON:" + err.Error())
 			}
 
-			res, err := network.Request[string](url, &requestOptions)
+			res, err := network.Request[string](url, &requestOptions, network.ReadAll)
 
 			if err != nil {
 				panic(vm.ToValue(err))

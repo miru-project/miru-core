@@ -11,7 +11,18 @@ import (
 	"github.com/Danny-Dasilva/CycleTLS/cycletls"
 )
 
-func Request[T StringOrBytes](url string, option *RequestOptions) (T, error) {
+// Request makes an HTTP request and returns the response as type T.
+//
+// Parameters:
+//
+//	url:           The URL to send the request to.
+//	option:        Pointer to RequestOptions struct containing headers, method, proxy, etc.
+//	readPreference: Function to read and process the response body (e.g., io.ReadAll,io.Read,).
+//
+// Returns:
+//
+//	The response body as type T (string or []byte), and an error if any occurred.
+func Request[T StringOrBytes](url string, option *RequestOptions, readPreference func(*http.Response) ([]byte, error)) (T, error) {
 
 	log.Println("Making request to:", url)
 
@@ -20,7 +31,7 @@ func Request[T StringOrBytes](url string, option *RequestOptions) (T, error) {
 		return T(o), e
 	}
 
-	return request[T](url, option)
+	return request[T](url, option, readPreference)
 }
 
 // Request with cycle TLS
@@ -38,7 +49,7 @@ func requestWithCycleTLS(url string, option *RequestOptions) (string, error) {
 }
 
 // Request with built-in http client
-func request[T StringOrBytes](url string, option *RequestOptions) (T, error) {
+func request[T StringOrBytes](url string, option *RequestOptions, readPreference func(*http.Response) ([]byte, error)) (T, error) {
 
 	// create request body
 	var requestBody io.Reader
@@ -72,7 +83,7 @@ func request[T StringOrBytes](url string, option *RequestOptions) (T, error) {
 	defer resp.Body.Close()
 
 	// Read the response body
-	body, err := io.ReadAll(resp.Body)
+	body, err := readPreference(resp)
 	if err != nil {
 		return T(""), err
 	}
@@ -133,6 +144,10 @@ func SaveFile(filePath string, data *[]byte) error {
 	}
 
 	return nil
+}
+
+func ReadAll(res *http.Response) ([]byte, error) {
+	return io.ReadAll(res.Body)
 }
 
 type StringOrBytes interface {
