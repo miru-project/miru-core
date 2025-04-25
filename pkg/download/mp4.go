@@ -102,7 +102,7 @@ func (t *Mp4TaskParam) readAndSavePartial(res *http.Response) ([]byte, error) {
 				}
 				downloadedBytes += int64(n)
 				status[taskId].Progrss = int(downloadedBytes)
-				log.Printf("\rDownloading... %d%% complete", 100*downloadedBytes/totalBytes)
+				// log.Printf("\rDownloading... %d%% complete", 100*downloadedBytes/totalBytes)
 			}
 
 			if err == io.EOF {

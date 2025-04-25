@@ -5,11 +5,15 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"os"
+	"strings"
 
 	"github.com/Danny-Dasilva/CycleTLS/cycletls"
 )
+
+var jar, _ = cookiejar.New(nil)
 
 // Request makes an HTTP request and returns the response as type T.
 //
@@ -34,18 +38,47 @@ func Request[T StringOrBytes](url string, option *RequestOptions, readPreference
 	return request[T](url, option, readPreference)
 }
 
+func getHeadersFromJar(jar *cookiejar.Jar, url *url.URL) string {
+	cookies := jar.Cookies(url)
+	var cookieStrs []string
+	for _, cookie := range cookies {
+		cookieStrs = append(cookieStrs, cookie.Name+"="+cookie.Value)
+	}
+	return strings.Join(cookieStrs, "; ")
+}
+
 // Request with cycle TLS
-func requestWithCycleTLS(url string, option *RequestOptions) (string, error) {
+func requestWithCycleTLS(requrl string, option *RequestOptions) (string, error) {
 	client := cycletls.Init()
 	defer client.Close()
+	config := option.TlsSpoofConfig
+	reqUrl, _ := url.Parse(requrl)
 
-	res, err := client.Do(url, option.TlsSpoofConfig, checkRequestMethod(option.Method))
+	// Set cookie from cookiejar
+	if _, e := config.Headers["Cookie"]; !e {
+		config.Headers["Cookie"] = getHeadersFromJar(jar, reqUrl)
+	} else {
+		config.Headers["Cookie"] += "; " + getHeadersFromJar(jar, reqUrl)
+	}
 
+	// Set cycleTls headers from header
+	config.Headers = option.Headers
+
+	res, err := client.Do(requrl, config, checkRequestMethod(option.Method))
 	if err != nil {
 		return "", err
 	}
 
+	jar.SetCookies(reqUrl, res.Cookies)
+
 	return res.Body, nil
+}
+
+func cookieHeader(rawCookies string) []*http.Cookie {
+	header := http.Header{}
+	header.Add("Cookie", rawCookies)
+	req := http.Request{Header: header}
+	return req.Cookies()
 }
 
 // Request with built-in http client
@@ -68,9 +101,14 @@ func request[T StringOrBytes](url string, option *RequestOptions, readPreference
 		return T(""), err
 	}
 
-	// Add headers if provided in options
-	for key, value := range option.Headers {
-		req.Header.Add(key, value)
+	// Add Cookie from cookiejar
+	for _, value := range jar.Cookies(req.URL) {
+		req.AddCookie(value)
+	}
+
+	// Parse cookie string from request header
+	for _, value := range cookieHeader(option.Headers["Cookie"]) {
+		req.AddCookie(value)
 	}
 
 	client := &http.Client{}
@@ -87,6 +125,10 @@ func request[T StringOrBytes](url string, option *RequestOptions, readPreference
 	if err != nil {
 		return T(""), err
 	}
+
+	// Save Cookies
+	resCookies := resp.Cookies()
+	jar.SetCookies(req.URL, resCookies)
 
 	var result T
 
@@ -157,7 +199,6 @@ type StringOrBytes interface {
 type RequestOptions struct {
 	Headers        map[string]string `json:"headers"`
 	Method         string            `json:"method"`
-	Timeout        int               `json:"timeout"`
 	ProxyHost      string            `json:"proxy_host"`
 	ProxyScheme    string            `json:"proxy_scheme"`
 	ProxyUserName  string            `json:"proxy_username"`

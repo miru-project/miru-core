@@ -28,3 +28,4 @@ go.work.sum
 .vscode/launch.json
 miru.db
 config.json
+libmiru_core.h

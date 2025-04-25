@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"log"
 	"os"
@@ -13,6 +14,10 @@ import (
 	jsext "github.com/miru-project/miru-core/pkg/extension"
 	"github.com/miru-project/miru-core/router"
 )
+import "C"
+
+//go:embed  assets/*
+var f embed.FS
 
 func main() {
 	// Parse command line arguments
@@ -46,11 +51,16 @@ func main() {
 
 	ext.EntClient()
 	anilist.InitToken()
-	jsext.InitRuntime(config.Global.ExtensionPath)
+	jsext.InitRuntime(config.Global.ExtensionPath, f)
 
 	log.Println("Miru Core initialized successfully!")
 	app := fiber.New()
 
 	router.InitRouter(app)
 	app.Listen("127.127.127.127:12777")
+}
+
+//export initDyLib
+func initDyLib() {
+	go main()
 }

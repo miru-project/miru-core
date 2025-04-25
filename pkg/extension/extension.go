@@ -1,6 +1,7 @@
 package extension
 
 import (
+	"embed"
 	"errors"
 	"fmt"
 	"log"
@@ -23,10 +24,9 @@ type ExtBaseService struct {
 var SharedRegistry *require.Registry = require.NewRegistry()
 
 // Entry point of miru extension runtime
-func InitRuntime(extPath string) {
-
+func InitRuntime(extPath string, f embed.FS) {
 	exts := filterExt(extPath)
-	scriptV2 := string(handlerror(os.ReadFile("./assets/runtime_v2.js")))
+	scriptV2 := string(handlerror(f.ReadFile("assets/runtime_v2.js")))
 
 	for _, ext := range exts {
 		// V2

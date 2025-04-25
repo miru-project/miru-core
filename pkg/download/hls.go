@@ -60,7 +60,9 @@ func downloadHls(filePath string, url string, header map[string]string) (Multipl
 
 	// Handle media playlist
 	playList := pl.(*m3u8.MediaPlaylist)
-
+	// Filter out nil segments
+	playList.Segments = filterSegments(playList.Segments)
+	// Generate random task id
 	taskId := genTaskID()
 	// Initialize the status
 	status[taskId] = &Progrss{
@@ -89,7 +91,18 @@ func downloadHls(filePath string, url string, header map[string]string) (Multipl
 	return MultipleLinkJson{IsDownloading: true, TaskID: taskId}, nil
 
 }
+func filterSegments(segments []*m3u8.MediaSegment) []*m3u8.MediaSegment {
+	lis := make([]*m3u8.MediaSegment, 0)
 
+	for _, s := range segments {
+		if s == nil {
+			continue
+		}
+		lis = append(lis, s)
+	}
+
+	return lis
+}
 func getIV(keyMeta *m3u8.Key, seqNo uint64) []byte {
 	if keyMeta != nil && len(keyMeta.IV) == 16 {
 		return []byte(keyMeta.IV)
