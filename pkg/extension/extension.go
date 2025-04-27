@@ -40,6 +40,13 @@ func InitRuntime(extPath string, f embed.FS) {
 }
 
 func filterExt(dir string) []Ext {
+	_, err := os.Stat(dir)
+	if os.IsNotExist(err) {
+		if e := os.Mkdir(dir, os.ModePerm); e != nil {
+			log.Println("Failed to create directory:", dir)
+			return nil
+		}
+	}
 	files := handlerror(os.ReadDir(dir))
 	re := regexp.MustCompile(`\w.+\.\w+\.js`)
 	var exts []Ext

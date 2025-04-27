@@ -90,6 +90,9 @@ func await[T any](promise *goja.Promise) (T, error) {
 // Handle any extension async callback like latest, search, watch etc
 func AsyncCallBackV2[T any](api *ExtApiV2, pkg string, evalStr string) (T, error) {
 	ApiPkgCacheV2[pkg] = api
+	if api == nil || api.ext == nil {
+		return *new(T), fmt.Errorf("extension %s not found", pkg)
+	}
 	ser := api.service
 	loop := eventloop.NewEventLoop(
 		eventloop.WithRegistry(SharedRegistry), // 指定模塊註冊表
