@@ -16,3 +16,10 @@ func main() {
 	binary.InitProgram(configPath)
 
 }
+
+//export initDyLib
+func initDyLib(configPath *C.char) {
+
+	configPathStr := C.GoString(configPath)
+	go binary.InitProgram(&configPathStr)
+}

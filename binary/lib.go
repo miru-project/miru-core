@@ -31,13 +31,6 @@ type (
 // 	fmt.Printf("wrote %d bytes\n", numB)
 // }
 
-//export initDyLib
-func initDyLib(configPath *C.char) {
-
-	configPathStr := C.GoString(configPath)
-	go InitProgram(&configPathStr)
-}
-
 func (a *AndroidLib) InitAAR(configPath string) {
 
 	go InitProgram(&configPath)
