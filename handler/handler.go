@@ -5,12 +5,12 @@ import (
 	"github.com/miru-project/miru-core/pkg/result"
 )
 
-func HelloMiru() (*result.Result, error) {
+func HelloMiru() (*result.Result[any], error) {
 
 	return result.NewSuccessResult("Hello Miru!!"), nil
 }
 
-func GetAppSetting() (*result.Result, error) {
+func GetAppSetting() (*result.Result[any], error) {
 	// Get all settings
 	settings, err := ext.GetAllSettings()
 	if err != nil {

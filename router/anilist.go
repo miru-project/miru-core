@@ -11,11 +11,28 @@ import (
 	"github.com/miru-project/miru-core/pkg/result"
 )
 
+// initAnilistRouter handles all Anilist related routes
+//
+//	@Summary		Anilist integration API
+//	@Description	API endpoints for Anilist integration with Miru
+//	@Tags			anilist
 func initAnilistRouter(app *fiber.App) {
-	// Setup redirect link in Anilist > Settings > Developer > <client> > Redirect URL
-	// User will be directed to /anilist then will be redirected to /anilist/token
-	app.Get("/anilist", func(c *fiber.Ctx) error {
+	AnilistOAuth(app)
+	ProcessAnilistToken(app)
+	GetAnilistUser(app)
+	GetAnilistCollection(app)
+	SearchAnilistMedia(app)
+	EditAnilistList(app)
+}
 
+// @Summary		Redirect for Anilist OAuth
+// @Description	Handles Anilist OAuth redirect flow
+// @Tags			anilist
+// @Produce		html
+// @Success		200	{string}	html	"Redirecting HTML"
+// @Router			/anilist [get]
+func AnilistOAuth(app *fiber.App) fiber.Router {
+	return app.Get("/anilist", func(c *fiber.Ctx) error {
 		//Save url fragement to cookie
 		const html = `
 			<!DOCTYPE html>
@@ -35,9 +52,17 @@ func initAnilistRouter(app *fiber.App) {
 		c.Set("Content-Type", "text/html")
 		return c.SendString(html)
 	})
+}
 
-	app.Get("/anilist/token", func(c *fiber.Ctx) error {
-
+// @Summary		Process Anilist token
+// @Description	Processes and stores the Anilist authentication token
+// @Tags			anilist
+// @Produce		plain
+// @Success		200	{object}	string
+// @Failure		500	{object}	result.Result[string]
+// @Router			/anilist/token [get]
+func ProcessAnilistToken(app *fiber.App) fiber.Router {
+	return app.Get("/anilist/token", func(c *fiber.Ctx) error {
 		// Get the cookie from request headers
 		cookie := c.Cookies("anilist")
 		if cookie == "" {
@@ -62,9 +87,17 @@ func initAnilistRouter(app *fiber.App) {
 		anilist.InitToken()
 		return c.SendString("Authorized successfully, you can close this page now.")
 	})
+}
 
-	app.Get("/anilist/user", func(c *fiber.Ctx) error {
-
+// @Summary		Get Anilist user data
+// @Description	Retrieves authenticated user data from Anilist
+// @Tags			anilist
+// @Produce		json
+// @Success		200	{object}	result.Result[map[string]string]
+// @Failure		500	{object}	result.Result[string]	"Failed to retrieve user data"
+// @Router			/anilist/user [get]
+func GetAnilistUser(app *fiber.App) fiber.Router {
+	return app.Get("/anilist/user", func(c *fiber.Ctx) error {
 		result, err := handler.GetAnilistUserData()
 
 		if err != nil {
@@ -73,9 +106,19 @@ func initAnilistRouter(app *fiber.App) {
 
 		return c.JSON(result)
 	})
+}
 
-	app.Get("/anilist/collection/:userId/:mediaType", func(c *fiber.Ctx) error {
-
+// @Summary		Get Anilist collection
+// @Description	Retrieves a user's media collection from Anilist
+// @Tags			anilist
+// @Produce		json
+// @Param			userId		path		string	true	"User ID"
+// @Param			mediaType	path		string	true	"Media type (ANIME or MANGA)"
+// @Success		200			{object}	result.Result[map[string]string]
+// @Failure		500			{object}	result.Result[string]	"Failed to retrieve collection"
+// @Router			/anilist/collection/{userId}/{mediaType} [get]
+func GetAnilistCollection(app *fiber.App) fiber.Router {
+	return app.Get("/anilist/collection/:userId/:mediaType", func(c *fiber.Ctx) error {
 		result, err := handler.GetAnilistCollection(c.Params("userId"), c.Params("mediaType"))
 
 		if err != nil {
@@ -84,9 +127,21 @@ func initAnilistRouter(app *fiber.App) {
 
 		return c.JSON(result)
 	})
+}
 
-	app.Get("/anilist/media/:page/:mediaType", func(c *fiber.Ctx) error {
-
+// @Summary		Search Anilist media
+// @Description	Search for anime or manga on Anilist
+// @Tags			anilist
+// @Accept			plain
+// @Produce		json
+// @Param			page		path		string	true	"Page number"
+// @Param			mediaType	path		string	true	"Media type (ANIME or MANGA)"
+// @Param			query		body		string	true	"Search query"
+// @Success		200			{object}	result.Result[map[string]string]
+// @Failure		500			{object}	result.Result[string]	"Search failed"
+// @Router			/anilist/media/{page}/{mediaType} [get]
+func SearchAnilistMedia(app *fiber.App) fiber.Router {
+	return app.Get("/anilist/media/:page/:mediaType", func(c *fiber.Ctx) error {
 		// Use requestbody as search string
 		result, err := handler.GetAnilistMediaQuery(c.Params("page"), string(c.Body()), c.Params("mediaType"))
 
@@ -96,8 +151,20 @@ func initAnilistRouter(app *fiber.App) {
 
 		return c.JSON(result)
 	})
+}
 
-	app.Post("/anilist/edit", func(c *fiber.Ctx) error {
+// @Summary		Edit Anilist list entry
+// @Description	Update or create an entry in the user's Anilist
+// @Tags			anilist
+// @Accept			json
+// @Produce		json
+// @Param			data	body		anilist.AnilistEditListJson	true	"List entry data"
+// @Success		200		{object}	result.Result[map[string]string]
+// @Failure		400		{object}	result.Result[string]	"Invalid JSON"
+// @Failure		500		{object}	result.Result[string]	"Edit failed"
+// @Router			/anilist/edit [post]
+func EditAnilistList(app *fiber.App) fiber.Router {
+	return app.Post("/anilist/edit", func(c *fiber.Ctx) error {
 		var jsonReq *anilist.AnilistEditListJson
 
 		if e := json.Unmarshal(c.Body(), &jsonReq); e != nil {

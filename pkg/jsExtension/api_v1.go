@@ -1,4 +1,4 @@
-package extension
+package jsExtension
 
 type ExtApiV1 struct {
 	service *ExtBaseService

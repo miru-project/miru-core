@@ -1,14 +1,14 @@
 package result
 
-type Result struct {
-	Success bool        `json:"success"`
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
-	Code    int         `json:"code"`
+type Result[T any] struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Data    T      `json:"data"`
+	Code    int    `json:"code"`
 }
 
-func NewResult(success bool, message string, data interface{}, code int) *Result {
-	return &Result{
+func NewResult(success bool, message string, data any, code int) *Result[any] {
+	return &Result[any]{
 		Success: success,
 		Message: message,
 		Data:    data,
@@ -16,10 +16,10 @@ func NewResult(success bool, message string, data interface{}, code int) *Result
 	}
 }
 
-func NewSuccessResult(data interface{}) *Result {
-	return NewResult(true, "success", data, 200)
+func NewSuccessResult(data any) *Result[any] {
+	return NewResult(true, "success", "", 200)
 }
 
-func NewErrorResult(message string, code int) *Result {
-	return NewResult(false, message, nil, code)
+func NewErrorResult(message string, code int) *Result[any] {
+	return NewResult(false, message, "", code)
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/miru-project/miru-core/pkg/result"
 )
 
-func GetAnilistUserData() (*result.Result, error) {
+func GetAnilistUserData() (*result.Result[any], error) {
 
 	userData, err := anilist.GetUserData()
 
@@ -28,7 +28,7 @@ func GetAnilistUserData() (*result.Result, error) {
 // UserId can be access from /anilist/user.
 // MediaType can be either "ANIME" or "MANGA".
 
-func GetAnilistCollection(userId string, mediaType string) (*result.Result, error) {
+func GetAnilistCollection(userId string, mediaType string) (*result.Result[any], error) {
 
 	collection, err := anilist.GetCollection(userId, mediaType)
 
@@ -45,7 +45,7 @@ func GetAnilistCollection(userId string, mediaType string) (*result.Result, erro
 	return result.NewSuccessResult(parsedData), nil
 }
 
-func GetAnilistMediaQuery(page string, searchStr string, mediaType string) (*result.Result, error) {
+func GetAnilistMediaQuery(page string, searchStr string, mediaType string) (*result.Result[any], error) {
 	mediaQuery, err := anilist.MediaQuery(page, searchStr, mediaType)
 
 	if err != nil {
@@ -61,7 +61,7 @@ func GetAnilistMediaQuery(page string, searchStr string, mediaType string) (*res
 	return result.NewSuccessResult(parsedData), nil
 }
 
-func EditAnilistList(status string, mediaId *string, id *string, progress *int, score *float64, startDate *anilist.AnilistDate, endDate *anilist.AnilistDate, isPrivate *bool) (*result.Result, error) {
+func EditAnilistList(status string, mediaId *string, id *string, progress *int, score *float64, startDate *anilist.AnilistDate, endDate *anilist.AnilistDate, isPrivate *bool) (*result.Result[any], error) {
 
 	res, err := anilist.EditList(status, mediaId, id, progress, score, startDate, endDate, isPrivate)
 	if err != nil {

@@ -9,7 +9,7 @@ import (
 	"github.com/miru-project/miru-core/config"
 	"github.com/miru-project/miru-core/ext"
 	"github.com/miru-project/miru-core/pkg/anilist"
-	jsext "github.com/miru-project/miru-core/pkg/extension"
+	jsext "github.com/miru-project/miru-core/pkg/jsExtension"
 	"github.com/miru-project/miru-core/router"
 )
 
@@ -47,5 +47,5 @@ func InitProgram(configPath *string) {
 	app := fiber.New()
 
 	router.InitRouter(app)
-	app.Listen("127.127.127.127:12777")
+
 }

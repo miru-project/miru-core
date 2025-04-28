@@ -65,7 +65,7 @@ func downloadHls(filePath string, url string, header map[string]string) (Multipl
 	// Generate random task id
 	taskId := genTaskID()
 	// Initialize the status
-	status[taskId] = &Progrss{
+	status[taskId] = &Progress{
 		Progrss:   0,
 		Names:     &[]string{},
 		Total:     len(playList.Segments),

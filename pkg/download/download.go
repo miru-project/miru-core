@@ -11,10 +11,10 @@ import (
 )
 
 var tasks = sync.Map{}
-var status = make(map[int]*Progrss)
+var status = make(map[int]*Progress)
 var taskParamMap = make(map[int]TaskParamInterface)
 
-type Progrss struct {
+type Progress struct {
 	Progrss            int       `json:"progress"`
 	Names              *[]string `json:"names"`
 	Total              int       `json:"total"`
@@ -53,7 +53,7 @@ func (t *TaskParam) GetTaskID() *int {
 	return t.taskID
 }
 
-func DownloadStatus() map[int]*Progrss {
+func DownloadStatus() map[int]*Progress {
 	// Get the status of all tasks
 	return status
 }

@@ -6,7 +6,7 @@ import (
 )
 
 // handle WebDav login
-func Login(host string, user string, passwd string) (*result.Result, error) {
+func Login(host string, user string, passwd string) (*result.Result[any], error) {
 
 	err := webdav.Authenticate(host, user, passwd)
 	if err != nil {
@@ -17,7 +17,7 @@ func Login(host string, user string, passwd string) (*result.Result, error) {
 }
 
 // handle WebDav backup
-func Backup() (*result.Result, error) {
+func Backup() (*result.Result[any], error) {
 
 	err := webdav.Backup()
 	if err != nil {
@@ -27,7 +27,7 @@ func Backup() (*result.Result, error) {
 	return result.NewSuccessResult("ok"), err
 }
 
-func Restore() (*result.Result, error) {
+func Restore() (*result.Result[any], error) {
 	err := webdav.Restore()
 	if err != nil {
 		return result.NewErrorResult("Failed to restore WebDav server", 500), err

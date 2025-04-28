@@ -1,4 +1,4 @@
-package extension
+package jsExtension
 
 import (
 	"encoding/json"

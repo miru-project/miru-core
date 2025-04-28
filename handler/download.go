@@ -7,7 +7,7 @@ import (
 	"github.com/miru-project/miru-core/pkg/result"
 )
 
-func DownloadBangumi(filePath string, url string, header map[string]string, isHLS bool) (*result.Result, error) {
+func DownloadBangumi(filePath string, url string, header map[string]string, isHLS bool) (*result.Result[any], error) {
 
 	res, err := download.DownloadBangumi(filePath, url, header, isHLS)
 	if err != nil {
@@ -17,12 +17,12 @@ func DownloadBangumi(filePath string, url string, header map[string]string, isHL
 	return result.NewSuccessResult(res), nil
 }
 
-func DownloadStatus() *result.Result {
-	res := download.DownloadStatus()
-	return result.NewSuccessResult(res)
+func DownloadStatus() *result.Result[any] {
+	res := result.NewSuccessResult(download.DownloadStatus())
+	return res
 }
 
-func CancelTask(taskId string) (*result.Result, error) {
+func CancelTask(taskId string) (*result.Result[any], error) {
 	id, err := strconv.Atoi(taskId)
 	if err != nil {
 		return result.NewErrorResult("Invalid task ID", 400), err
@@ -36,7 +36,7 @@ func CancelTask(taskId string) (*result.Result, error) {
 	return result.NewSuccessResult("ok"), nil
 }
 
-func ResumeTask(taskId string) (*result.Result, error) {
+func ResumeTask(taskId string) (*result.Result[any], error) {
 	id, err := strconv.Atoi(taskId)
 	if err != nil {
 		return result.NewErrorResult("Invalid task ID", 400), err
@@ -50,7 +50,7 @@ func ResumeTask(taskId string) (*result.Result, error) {
 	return result.NewSuccessResult("ok"), nil
 }
 
-func PauseTask(taskId string) (*result.Result, error) {
+func PauseTask(taskId string) (*result.Result[any], error) {
 	id, err := strconv.Atoi(taskId)
 	if err != nil {
 		return result.NewErrorResult("Invalid task ID", 400), err

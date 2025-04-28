@@ -1,4 +1,4 @@
-package extension
+package jsExtension
 
 type Ext struct {
 	name        string

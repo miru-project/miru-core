@@ -1,4 +1,4 @@
-package extension
+package jsExtension
 
 import (
 	"embed"
@@ -195,7 +195,7 @@ func Latest(pkg string, page int) (ExtensionListItems, error) {
 }
 
 // Extension search should contain V1 and V2 api
-func Search(pkg string, page int, kw string, filter string) (any, error) {
+func Search(pkg string, page int, kw string, filter string) (ExtensionListItems, error) {
 	evalStr := fmt.Sprintf("search(`%s`,%d,%s)", kw, page, filter)
 	return AsyncCallBackV2[ExtensionListItems](ApiPkgCacheV2[pkg], pkg, evalStr)
 

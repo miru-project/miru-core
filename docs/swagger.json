@@ -1,0 +1,1617 @@
+{
+    "schemes": [
+        "http",
+        "https"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "Miru Core API documentation",
+        "title": "Miru Core API",
+        "contact": {
+            "name": "API Support",
+            "url": "https://github.com/miru-project"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://github.com/miru-project/miru-core/blob/main/LICENSE"
+        },
+        "version": "1.0"
+    },
+    "host": "127.127.127.127:12777",
+    "basePath": "/",
+    "paths": {
+        "/": {
+            "get": {
+                "description": "Returns basic information about Miru",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "root"
+                ],
+                "summary": "Root endpoint",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/anilist": {
+            "get": {
+                "description": "Handles Anilist OAuth redirect flow",
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "anilist"
+                ],
+                "summary": "Redirect for Anilist OAuth",
+                "responses": {
+                    "200": {
+                        "description": "Redirecting HTML",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/anilist/collection/{userId}/{mediaType}": {
+            "get": {
+                "description": "Retrieves a user's media collection from Anilist",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "anilist"
+                ],
+                "summary": "Get Anilist collection",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Media type (ANIME or MANGA)",
+                        "name": "mediaType",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-map_string_string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve collection",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/anilist/edit": {
+            "post": {
+                "description": "Update or create an entry in the user's Anilist",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "anilist"
+                ],
+                "summary": "Edit Anilist list entry",
+                "parameters": [
+                    {
+                        "description": "List entry data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/anilist.AnilistEditListJson"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-map_string_string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid JSON",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    },
+                    "500": {
+                        "description": "Edit failed",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/anilist/media/{page}/{mediaType}": {
+            "get": {
+                "description": "Search for anime or manga on Anilist",
+                "consumes": [
+                    "text/plain"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "anilist"
+                ],
+                "summary": "Search Anilist media",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Media type (ANIME or MANGA)",
+                        "name": "mediaType",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Search query",
+                        "name": "query",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-map_string_string"
+                        }
+                    },
+                    "500": {
+                        "description": "Search failed",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/anilist/token": {
+            "get": {
+                "description": "Processes and stores the Anilist authentication token",
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "anilist"
+                ],
+                "summary": "Process Anilist token",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/anilist/user": {
+            "get": {
+                "description": "Retrieves authenticated user data from Anilist",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "anilist"
+                ],
+                "summary": "Get Anilist user data",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-map_string_string"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to retrieve user data",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/appSetting": {
+            "get": {
+                "description": "Retrieves the current application settings",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Get application settings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-array_ent_AppSetting"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Updates the application settings with new values",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "settings"
+                ],
+                "summary": "Update application settings",
+                "parameters": [
+                    {
+                        "description": "Application settings",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ext.AppSettingJson"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid JSON",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/download/bangumi": {
+            "post": {
+                "description": "Start downloading bangumi content with specified options",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "download"
+                ],
+                "summary": "Download bangumi content",
+                "parameters": [
+                    {
+                        "description": "Download Options",
+                        "name": "options",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/download.DownloadOptions"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-download_MultipleLinkJson"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid JSON",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/download/cancel/{id}": {
+            "post": {
+                "description": "Cancel a specific download task by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "download"
+                ],
+                "summary": "Cancel a download task",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Task ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/download/pause/{id}": {
+            "post": {
+                "description": "Pause an active download task by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "download"
+                ],
+                "summary": "Pause a download task",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Task ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/download/resume/{id}": {
+            "post": {
+                "description": "Resume a paused download task by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "download"
+                ],
+                "summary": "Resume a download task",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Task ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/drive/backup": {
+            "get": {
+                "description": "Backup the Miru database to a connected WebDav server",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "webdav"
+                ],
+                "summary": "Backup database to WebDav",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    },
+                    "500": {
+                        "description": "Backup failed",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/drive/login": {
+            "post": {
+                "description": "Authenticate with a WebDav server",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "webdav"
+                ],
+                "summary": "Login to WebDav server",
+                "parameters": [
+                    {
+                        "description": "WebDav login credentials",
+                        "name": "credentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/router.WebDavLoginJson"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid JSON or missing required fields",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/drive/restore": {
+            "get": {
+                "description": "Restore the Miru database from a backup on a connected WebDav server",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "webdav"
+                ],
+                "summary": "Restore database from WebDav",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    },
+                    "500": {
+                        "description": "Restore failed",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/ext/detail/{pkg}": {
+            "get": {
+                "description": "Get detailed information about content from a specific package",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "extension"
+                ],
+                "summary": "Get content details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Package identifier",
+                        "name": "pkg",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "URL encoded content path",
+                        "name": "url",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-jsExtension_ExtensionDetail"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/ext/latest/{pkg}/{page}": {
+            "get": {
+                "description": "Retrieves the latest content from a specific extension package",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "extension"
+                ],
+                "summary": "Get latest content from extension",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Package identifier",
+                        "name": "pkg",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-jsExtension_ExtensionListItems"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/ext/search/{pkg}/{page}/{kw}": {
+            "get": {
+                "description": "Search for content in a specific extension package",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "extension"
+                ],
+                "summary": "Search content via extension",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Package identifier",
+                        "name": "pkg",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search keyword",
+                        "name": "kw",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Filter options in JSON format",
+                        "name": "filter",
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-jsExtension_ExtensionListItems"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-string"
+                        }
+                    }
+                }
+            }
+        },
+        "/ext/watch/{pkg}": {
+            "get": {
+                "description": "Get watch information for content from a specific package",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "extension"
+                ],
+                "summary": "Watch content via extension",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Package identifier",
+                        "name": "pkg",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "URL encoded content path",
+                        "name": "url",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-jsExtension_ExtensionBangumiWatch"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/result.Result-jsExtension_ExtensionFikushonWatch"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "anilist.AnilistDate": {
+            "type": "object",
+            "properties": {
+                "day": {
+                    "type": "integer"
+                },
+                "month": {
+                    "type": "integer"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "anilist.AnilistEditListJson": {
+            "type": "object",
+            "properties": {
+                "endDate": {
+                    "$ref": "#/definitions/anilist.AnilistDate"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "isPrivate": {
+                    "type": "boolean"
+                },
+                "mediaId": {
+                    "type": "string"
+                },
+                "progress": {
+                    "type": "integer"
+                },
+                "score": {
+                    "type": "number"
+                },
+                "startDate": {
+                    "$ref": "#/definitions/anilist.AnilistDate"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "download.AvailableHlsVariant": {
+            "type": "object",
+            "properties": {
+                "codec": {
+                    "type": "string"
+                },
+                "resolution": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "download.DownloadOptions": {
+            "type": "object",
+            "properties": {
+                "download_path": {
+                    "type": "string"
+                },
+                "header": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "is_hls": {
+                    "type": "boolean"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "download.MultipleLinkJson": {
+            "type": "object",
+            "properties": {
+                "header": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "is_downloading": {
+                    "type": "boolean"
+                },
+                "key": {
+                    "$ref": "#/definitions/m3u8.Key"
+                },
+                "task_id": {
+                    "type": "integer"
+                },
+                "variant": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/m3u8.Variant"
+                    }
+                },
+                "variant_summary": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/download.AvailableHlsVariant"
+                    }
+                }
+            }
+        },
+        "ent.AppSetting": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "integer"
+                },
+                "key": {
+                    "description": "Key",
+                    "type": "string"
+                },
+                "value": {
+                    "description": "Value",
+                    "type": "string"
+                }
+            }
+        },
+        "ext.AppSettingJson": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "jsExtension.ExtensionBangumiWatch": {
+            "type": "object",
+            "properties": {
+                "audioTrack": {
+                    "type": "string"
+                },
+                "headers": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "subtitles": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/jsExtension.ExtensionBangumiWatchSubtitle"
+                    }
+                },
+                "type": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "jsExtension.ExtensionBangumiWatchSubtitle": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "jsExtension.ExtensionDetail": {
+            "type": "object",
+            "properties": {
+                "cover": {
+                    "type": "string"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "episodes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/jsExtension.ExtensionEpisodeGroup"
+                    }
+                },
+                "headers": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "jsExtension.ExtensionEpisode": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "jsExtension.ExtensionEpisodeGroup": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string"
+                },
+                "urls": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/jsExtension.ExtensionEpisode"
+                    }
+                }
+            }
+        },
+        "jsExtension.ExtensionFikushonWatch": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "subtitle": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "jsExtension.ExtensionListItem": {
+            "type": "object",
+            "properties": {
+                "cover": {
+                    "type": "string"
+                },
+                "headers": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                },
+                "update": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "jsExtension.ExtensionMangaWatch": {
+            "type": "object",
+            "properties": {
+                "headers": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "urls": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "m3u8.Alternative": {
+            "type": "object",
+            "properties": {
+                "autoselect": {
+                    "type": "string"
+                },
+                "characteristics": {
+                    "type": "string"
+                },
+                "default": {
+                    "type": "boolean"
+                },
+                "forced": {
+                    "type": "string"
+                },
+                "groupId": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "subtitles": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "uri": {
+                    "type": "string"
+                }
+            }
+        },
+        "m3u8.Key": {
+            "type": "object",
+            "properties": {
+                "iv": {
+                    "type": "string"
+                },
+                "keyformat": {
+                    "type": "string"
+                },
+                "keyformatversions": {
+                    "type": "string"
+                },
+                "method": {
+                    "type": "string"
+                },
+                "uri": {
+                    "type": "string"
+                }
+            }
+        },
+        "m3u8.Map": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "description": "\u003cn\u003e is length in bytes for the file under URI",
+                    "type": "integer"
+                },
+                "offset": {
+                    "description": "[@o] is offset from the start of the file under URI",
+                    "type": "integer"
+                },
+                "uri": {
+                    "type": "string"
+                }
+            }
+        },
+        "m3u8.MediaPlaylist": {
+            "type": "object",
+            "properties": {
+                "args": {
+                    "description": "optional arguments placed after URIs (URI?Args)",
+                    "type": "string"
+                },
+                "closed": {
+                    "description": "is this VOD (closed) or Live (sliding) playlist?",
+                    "type": "boolean"
+                },
+                "custom": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "discontinuitySeq": {
+                    "description": "EXT-X-DISCONTINUITY-SEQUENCE",
+                    "type": "integer"
+                },
+                "iframe": {
+                    "description": "EXT-X-I-FRAMES-ONLY",
+                    "type": "boolean"
+                },
+                "key": {
+                    "description": "EXT-X-KEY is optional encryption key displayed before any segments (default key for the playlist)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/m3u8.Key"
+                        }
+                    ]
+                },
+                "map": {
+                    "description": "EXT-X-MAP is optional tag specifies how to obtain the Media Initialization Section (default map for the playlist)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/m3u8.Map"
+                        }
+                    ]
+                },
+                "mediaType": {
+                    "$ref": "#/definitions/m3u8.MediaType"
+                },
+                "segments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/m3u8.MediaSegment"
+                    }
+                },
+                "seqNo": {
+                    "description": "EXT-X-MEDIA-SEQUENCE",
+                    "type": "integer"
+                },
+                "startTime": {
+                    "type": "number"
+                },
+                "startTimePrecise": {
+                    "type": "boolean"
+                },
+                "targetDuration": {
+                    "type": "number"
+                },
+                "wv": {
+                    "description": "Widevine related tags outside of M3U8 specs",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/m3u8.WV"
+                        }
+                    ]
+                }
+            }
+        },
+        "m3u8.MediaSegment": {
+            "type": "object",
+            "properties": {
+                "custom": {
+                    "type": "object",
+                    "additionalProperties": {}
+                },
+                "discontinuity": {
+                    "description": "EXT-X-DISCONTINUITY indicates an encoding discontinuity between the media segment that follows it and the one that preceded it (i.e. file format, number and type of tracks, encoding parameters, encoding sequence, timestamp sequence)",
+                    "type": "boolean"
+                },
+                "duration": {
+                    "description": "first parameter for EXTINF tag; duration must be integers if protocol version is less than 3 but we are always keep them float",
+                    "type": "number"
+                },
+                "key": {
+                    "description": "EXT-X-KEY displayed before the segment and means changing of encryption key (in theory each segment may have own key)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/m3u8.Key"
+                        }
+                    ]
+                },
+                "limit": {
+                    "description": "EXT-X-BYTERANGE \u003cn\u003e is length in bytes for the file under URI",
+                    "type": "integer"
+                },
+                "map": {
+                    "description": "EXT-X-MAP displayed before the segment",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/m3u8.Map"
+                        }
+                    ]
+                },
+                "offset": {
+                    "description": "EXT-X-BYTERANGE [@o] is offset from the start of the file under URI",
+                    "type": "integer"
+                },
+                "programDateTime": {
+                    "description": "EXT-X-PROGRAM-DATE-TIME tag associates the first sample of a media segment with an absolute date and/or time",
+                    "type": "string"
+                },
+                "scte": {
+                    "description": "SCTE-35 used for Ad signaling in HLS",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/m3u8.SCTE"
+                        }
+                    ]
+                },
+                "seqId": {
+                    "type": "integer"
+                },
+                "title": {
+                    "description": "optional second parameter for EXTINF tag",
+                    "type": "string"
+                },
+                "uri": {
+                    "type": "string"
+                }
+            }
+        },
+        "m3u8.MediaType": {
+            "type": "integer",
+            "enum": [
+                1,
+                2
+            ],
+            "x-enum-varnames": [
+                "EVENT",
+                "VOD"
+            ]
+        },
+        "m3u8.SCTE": {
+            "type": "object",
+            "properties": {
+                "cue": {
+                    "type": "string"
+                },
+                "cueType": {
+                    "description": "CueType defines whether the cue is a start, mid, end (if applicable)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/m3u8.SCTE35CueType"
+                        }
+                    ]
+                },
+                "elapsed": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "syntax": {
+                    "description": "Syntax defines the format of the SCTE-35 cue tag",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/m3u8.SCTE35Syntax"
+                        }
+                    ]
+                },
+                "time": {
+                    "type": "number"
+                }
+            }
+        },
+        "m3u8.SCTE35CueType": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2
+            ],
+            "x-enum-comments": {
+                "SCTE35Cue_End": "SCTE35Cue_End indicates an in cue point",
+                "SCTE35Cue_Mid": "SCTE35Cue_Mid indicates a segment between start and end cue points",
+                "SCTE35Cue_Start": "SCTE35Cue_Start indicates an out cue point"
+            },
+            "x-enum-varnames": [
+                "SCTE35Cue_Start",
+                "SCTE35Cue_Mid",
+                "SCTE35Cue_End"
+            ]
+        },
+        "m3u8.SCTE35Syntax": {
+            "type": "integer",
+            "enum": [
+                0,
+                1
+            ],
+            "x-enum-comments": {
+                "SCTE35_67_2014": "SCTE35_67_2014 defined in http://www.scte.org/documents/pdf/standards/SCTE%2067%202014.pdf",
+                "SCTE35_OATCLS": "SCTE35_OATCLS is a non-standard but common format"
+            },
+            "x-enum-varnames": [
+                "SCTE35_67_2014",
+                "SCTE35_OATCLS"
+            ]
+        },
+        "m3u8.Variant": {
+            "type": "object",
+            "properties": {
+                "alternatives": {
+                    "description": "EXT-X-MEDIA",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/m3u8.Alternative"
+                    }
+                },
+                "audio": {
+                    "description": "EXT-X-STREAM-INF only",
+                    "type": "string"
+                },
+                "averageBandwidth": {
+                    "description": "EXT-X-STREAM-INF only",
+                    "type": "integer"
+                },
+                "bandwidth": {
+                    "type": "integer"
+                },
+                "captions": {
+                    "description": "EXT-X-STREAM-INF only",
+                    "type": "string"
+                },
+                "chunklist": {
+                    "$ref": "#/definitions/m3u8.MediaPlaylist"
+                },
+                "codecs": {
+                    "type": "string"
+                },
+                "frameRate": {
+                    "description": "EXT-X-STREAM-INF",
+                    "type": "number"
+                },
+                "hdcplevel": {
+                    "type": "string"
+                },
+                "iframe": {
+                    "description": "EXT-X-I-FRAME-STREAM-INF",
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "EXT-X-STREAM-INF only (non standard Wowza/JWPlayer extension to name the variant/quality in UA)",
+                    "type": "string"
+                },
+                "programId": {
+                    "type": "integer"
+                },
+                "resolution": {
+                    "type": "string"
+                },
+                "subtitles": {
+                    "description": "EXT-X-STREAM-INF only",
+                    "type": "string"
+                },
+                "uri": {
+                    "type": "string"
+                },
+                "video": {
+                    "type": "string"
+                },
+                "videoRange": {
+                    "type": "string"
+                }
+            }
+        },
+        "m3u8.WV": {
+            "type": "object",
+            "properties": {
+                "audioChannels": {
+                    "type": "integer"
+                },
+                "audioFormat": {
+                    "type": "integer"
+                },
+                "audioProfileIDC": {
+                    "type": "integer"
+                },
+                "audioSampleSize": {
+                    "type": "integer"
+                },
+                "audioSamplingFrequency": {
+                    "type": "integer"
+                },
+                "cypherVersion": {
+                    "type": "string"
+                },
+                "ecm": {
+                    "type": "string"
+                },
+                "videoFormat": {
+                    "type": "integer"
+                },
+                "videoFrameRate": {
+                    "type": "integer"
+                },
+                "videoLevelIDC": {
+                    "type": "integer"
+                },
+                "videoProfileIDC": {
+                    "type": "integer"
+                },
+                "videoResolution": {
+                    "type": "string"
+                },
+                "videoSAR": {
+                    "type": "string"
+                }
+            }
+        },
+        "map_string_string": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "result.Result-array_ent_AppSetting": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.AppSetting"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "result.Result-download_MultipleLinkJson": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/download.MultipleLinkJson"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "result.Result-jsExtension_ExtensionBangumiWatch": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/jsExtension.ExtensionBangumiWatch"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "result.Result-jsExtension_ExtensionDetail": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/jsExtension.ExtensionDetail"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "result.Result-jsExtension_ExtensionFikushonWatch": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/jsExtension.ExtensionFikushonWatch"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "result.Result-jsExtension_ExtensionListItems": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/jsExtension.ExtensionListItem"
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "result.Result-jsExtension_ExtensionMangaWatch": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/jsExtension.ExtensionMangaWatch"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "result.Result-map_string_string": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "$ref": "#/definitions/map_string_string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "result.Result-string": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "router.WebDavLoginJson": {
+            "type": "object",
+            "properties": {
+                "host": {
+                    "type": "string"
+                },
+                "passwd": {
+                    "type": "string"
+                },
+                "user": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

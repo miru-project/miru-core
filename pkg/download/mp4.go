@@ -61,7 +61,7 @@ func (t *Mp4TaskParam) readAndSavePartial(res *http.Response) ([]byte, error) {
 	}
 
 	// Initialize the status
-	status[taskId] = &Progrss{
+	status[taskId] = &Progress{
 		Progrss:   0,
 		Names:     &[]string{},
 		Total:     int(totalBytes),
