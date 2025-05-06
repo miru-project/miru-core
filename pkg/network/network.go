@@ -8,6 +8,7 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/Danny-Dasilva/CycleTLS/cycletls"
@@ -172,6 +173,13 @@ func setupProxy(option *RequestOptions) *http.Transport {
 }
 
 func SaveFile(filePath string, data *[]byte) error {
+
+	// Create directory if it doesn't exist
+	dir := filepath.Dir(filePath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
+
 	// Create the file
 	out, err := os.Create(filePath)
 	if err != nil {

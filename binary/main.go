@@ -20,13 +20,13 @@ func InitProgram(configPath *string) {
 		defaultConfig := config.GetDefaultConfig()
 		config.Global = defaultConfig
 		if err := config.Save(*configPath); err != nil {
-			log.Fatalf("Failed to create default configuration: %v", err)
+			log.Fatalf("Failed to create default configuration (%s): %v", *configPath, err)
 		}
 	} else if err != nil {
 		log.Fatalf("Error checking configuration file: %v", err)
 	} else {
 		if err := config.Load(*configPath); err != nil {
-			log.Fatalf("Failed to load configuration: %v", err)
+			log.Fatalf("Failed to load configuration (%s): %v", *configPath, err)
 		}
 	}
 

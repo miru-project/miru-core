@@ -17,7 +17,7 @@ func NewResult(success bool, message string, data any, code int) *Result[any] {
 }
 
 func NewSuccessResult(data any) *Result[any] {
-	return NewResult(true, "success", "", 200)
+	return NewResult(true, "success", data, 200)
 }
 
 func NewErrorResult(message string, code int) *Result[any] {
