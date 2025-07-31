@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/dop251/goja"
@@ -11,38 +12,8 @@ import (
 	"github.com/miru-project/miru-core/pkg/network"
 )
 
-type ExtApiV2 struct {
-	ext     *Ext
-	service *ExtBaseService
-}
-type Job struct {
-	loop  *eventloop.EventLoop
-	flag  *eventloop.Interval
-	count uint64
-}
-
-type PromiseResult struct {
-	promise *goja.Promise
-	err     error
-}
-
-func (j *Job) Add() {
-	j.count++
-
-	if j.count == 1 {
-		j.flag = j.loop.SetInterval(func(r *goja.Runtime) {}, time.Hour*24*365*100)
-	}
-}
-func (j *Job) Done() {
-	j.count--
-
-	if j.count == 0 {
-		j.loop.ClearInterval(j.flag)
-		j.flag = nil
-	}
-}
-
 var ApiPkgCacheV2 = make(map[string]*ExtApiV2)
+var extMemMap = sync.Map{}
 
 func LoadApiV2(ext *Ext, script string) {
 	scriptV2 := fmt.Sprintf(script, ext.pkg, ext.name, ext.website)
@@ -90,13 +61,24 @@ func await[T any](promise *goja.Promise) (T, error) {
 // Handle any extension async callback like latest, search, watch etc
 func AsyncCallBackV2[T any](api *ExtApiV2, pkg string, evalStr string) (T, error) {
 	ApiPkgCacheV2[pkg] = api
+
+	var loop *eventloop.EventLoop
+
+	// check extension does  contain eventloop runtime
+	lop, eventLoopIsExist := extMemMap.Load(pkg)
+	if eventLoopIsExist {
+		loop = lop.(*eventloop.EventLoop)
+	} else {
+		loop = eventloop.NewEventLoop(
+			eventloop.WithRegistry(SharedRegistry),
+		)
+		extMemMap.Store(pkg, loop)
+	}
+
 	if api == nil || api.ext == nil {
 		return *new(T), fmt.Errorf("extension %s not found", pkg)
 	}
 	ser := api.service
-	loop := eventloop.NewEventLoop(
-		eventloop.WithRegistry(SharedRegistry), // 指定模塊註冊表
-	)
 	res := make(chan PromiseResult)
 	defer close(res)
 
@@ -107,9 +89,11 @@ func AsyncCallBackV2[T any](api *ExtApiV2, pkg string, evalStr string) (T, error
 		reg := SharedRegistry.Enable(vm)
 		initModule(reg, vm)
 
-		// Run the program that has compiled before
-		vm.RunProgram(service.base)
-		vm.RunProgram(api.service.program)
+		if !eventLoopIsExist {
+			// Run the program that has compiled before
+			vm.RunProgram(service.base)
+			vm.RunProgram(api.service.program)
+		}
 
 		vm.Set(`println`, func(args ...any) {
 			log.Println(args...)

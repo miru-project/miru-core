@@ -10,8 +10,10 @@ import (
 	"regexp"
 	"runtime/debug"
 	"strings"
+	"time"
 
 	"github.com/dop251/goja"
+	"github.com/dop251/goja_nodejs/eventloop"
 	"github.com/dop251/goja_nodejs/require"
 )
 
@@ -25,6 +27,37 @@ type ExtBaseService struct {
 var SharedRegistry *require.Registry = require.NewRegistry()
 var fs embed.FS
 var jsRoot string
+
+type ExtApiV2 struct {
+	ext     *Ext
+	service *ExtBaseService
+}
+type Job struct {
+	loop  *eventloop.EventLoop
+	flag  *eventloop.Interval
+	count uint64
+}
+
+type PromiseResult struct {
+	promise *goja.Promise
+	err     error
+}
+
+func (j *Job) Add() {
+	j.count++
+
+	if j.count == 1 {
+		j.flag = j.loop.SetInterval(func(r *goja.Runtime) {}, time.Hour*24*365*100)
+	}
+}
+func (j *Job) Done() {
+	j.count--
+
+	if j.count == 0 {
+		j.loop.ClearInterval(j.flag)
+		j.flag = nil
+	}
+}
 
 // Entry point of miru extension runtime
 func InitRuntime(extPath string, f embed.FS) {

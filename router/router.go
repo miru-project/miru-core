@@ -48,6 +48,8 @@ func InitRouter(app *fiber.App) {
 	if e := app.Listen("127.127.127.127:12777"); e != nil {
 		log.Fatalf("Failed to start server on 127.127.127.127:12777: %v", e)
 	}
+
+	log.Println("Documentation available at http://127.127.127.127:12777/swagger/index.html")
 }
 
 // @Summary		Root endpoint
