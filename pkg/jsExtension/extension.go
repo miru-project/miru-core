@@ -10,12 +10,17 @@ import (
 	"regexp"
 	"runtime/debug"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"
 	"github.com/dop251/goja_nodejs/require"
+	"github.com/fsnotify/fsnotify"
+	// "github.com/miru-project/miru-core/ext"
 )
+
+var extMemMap = sync.Map{}
 
 type ExtBaseService struct {
 	// User extension compile into goja program
@@ -32,6 +37,7 @@ type ExtApiV2 struct {
 	ext     *Ext
 	service *ExtBaseService
 }
+
 type Job struct {
 	loop  *eventloop.EventLoop
 	flag  *eventloop.Interval
@@ -61,7 +67,7 @@ func (j *Job) Done() {
 
 // Entry point of miru extension runtime
 func InitRuntime(extPath string, f embed.FS) {
-	exts := filterExt(extPath)
+	exts := filterExts(extPath)
 	fs = f
 
 	jsRoot = filepath.Join(extPath, "root")
@@ -75,20 +81,104 @@ func InitRuntime(extPath string, f embed.FS) {
 	}
 
 	readEmbedFileToDisk("assets", jsRoot)
+	WatchDir(extPath)
 	scriptV2 := string(handlerror(fs.ReadFile("assets/runtime_v2.js")))
+	scriptV1 := string(handlerror(fs.ReadFile("assets/runtime_v1.js")))
 
 	for _, ext := range exts {
-		// V2
 		if ext.api == "2" {
 			LoadApiV2(&ext, scriptV2)
 		} else {
-			// V1
+			LoadApiV1(&ext, scriptV1)
 
 		}
 	}
 }
 
-func filterExt(dir string) []Ext {
+// Watch the extension directory for changes
+func WatchDir(dir string) {
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Fatal(err)
+	}
+	// defer watcher.Close()
+
+	go func() {
+		for {
+			select {
+			case event := <-watcher.Events:
+				if event.Has(fsnotify.Write) {
+					log.Println("Modified file:", event.Name)
+
+					ext, ok := filterExt(event.Name)
+					if !ok {
+						log.Println("File is not a valid extension:", event.Name)
+						continue
+					}
+
+					// Compile the extension file and update the cache
+					compile := handlerror(goja.Compile(ext.pkg+".js", *ext.context, true))
+					switch ext.api {
+					case "2":
+						ApiPkgCacheV2[ext.pkg].service.program = compile
+					default:
+						ApiPkgCacheV1[ext.pkg].service.program = compile
+					}
+
+					// Reload the extension
+					lop, ok := extMemMap.Load(ext.pkg)
+					if !ok {
+						log.Println("Extension not found in memory map:", ext.pkg)
+						continue
+					}
+
+					loop := lop.(*eventloop.EventLoop)
+					loop.Run(func(vm *goja.Runtime) {
+						file := (handlerror(os.ReadFile(event.Name)))
+						script := ReplaceClassExtendsDeclaration(string(file))
+						if _, e := vm.RunString(script); e != nil {
+							log.Println("Error running extension script:", e)
+							return
+						}
+
+						if ext.api == "1" || ext.api == "" {
+							vm.RunString("ext = new Ext();")
+						}
+
+					})
+					log.Println("Reloaded extension:", ext.name, "-", ext.pkg)
+				}
+			case err := <-watcher.Errors:
+				if err != nil {
+					log.Println("Error:", err)
+				}
+			}
+		}
+	}()
+
+	err = watcher.Add(dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// ReplaceClassExtendsDeclaration replaces `class X extends Extension` with `X = class extends Extension {`
+func ReplaceClassExtendsDeclaration(jsCode string) string {
+	re := regexp.MustCompile(`(?m)^class\s+([A-Za-z_][A-Za-z0-9_]*)\s+extends\s+Extension\s*{`)
+	return re.ReplaceAllString(jsCode, `$1 = class extends Extension {`)
+}
+
+//	func ReloadExt(ext *Ext) bool {
+//		switch ext.api{
+//		case "2":
+//			val,ok := extMemMap.Load(ext.pkg)
+//			if !ok{
+//				return false
+//			}
+//			val.()
+//		}
+//	}
+func filterExts(dir string) []Ext {
 	_, err := os.Stat(dir)
 	if os.IsNotExist(err) {
 		if e := os.Mkdir(dir, os.ModePerm); e != nil {
@@ -97,27 +187,35 @@ func filterExt(dir string) []Ext {
 		}
 	}
 	files := handlerror(os.ReadDir(dir))
-	re := regexp.MustCompile(`\w.+\.\w+\.js`)
 	var exts []Ext
 	for _, file := range files {
-		if !file.IsDir() {
-			name := file.Name()
-			if !re.MatchString(name) {
-				continue
-			}
-			f := handlerror(os.ReadFile(dir + "/" + name))
-			ext, err := ParseExtMetadata(string(f), name)
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-			exts = append(exts, ext)
 
+		if file.IsDir() {
+			continue
+		}
+		name := file.Name()
+		if ext, ok := filterExt(dir + "/" + name); ok {
+			exts = append(exts, ext)
 		}
 	}
 	return exts
 }
 
+func filterExt(fileLoc string) (Ext, bool) {
+	name := filepath.Base(fileLoc)
+	re := regexp.MustCompile(`\w.+\.\w+\.js`)
+
+	if _, e := os.Stat(fileLoc); !re.MatchString(name) || os.IsNotExist(e) {
+		return Ext{}, false
+	}
+	f := handlerror(os.ReadFile(fileLoc))
+	ext, err := ParseExtMetadata(string(f), name)
+	if err != nil {
+		log.Println(err)
+		return Ext{}, false
+	}
+	return ext, true
+}
 func handlerror[T any](out T, err error) T {
 	if err != nil {
 		log.Fatal(err)
@@ -185,7 +283,7 @@ func ParseExtMetadata(content string, fileName string) (Ext, error) {
 }
 
 // Init nodeJs module
-func initModule(module *require.RequireModule, vm *goja.Runtime) {
+func (ser *ExtBaseService) initModule(module *require.RequireModule, vm *goja.Runtime, job *Job) {
 
 	// init cryptoJs  and  linkedom
 	linkeDom := filepath.Join(jsRoot, "linkedom", "worker.js")
@@ -200,6 +298,7 @@ func initModule(module *require.RequireModule, vm *goja.Runtime) {
 
 	vm.RunString(fmt.Sprintf(`var {parseHTML} = require('%s');`, linkeDom))
 	vm.RunString(fmt.Sprintf(`var {AES} = require('%s');`, cryptoJs))
+	ser.initFetch(vm, job)
 
 }
 
@@ -247,51 +346,27 @@ func readEmbedFileToDisk(path string, tagetDir string) {
 	}
 }
 
-// Promise for creating a single channel
-func (ser *ExtBaseService) resolvePromise(resolve func(any) error, reason any, job *Job) {
-
-	job.Done()
-	resolve(reason)
-
-}
-func (ser *ExtBaseService) rejectPromise(reject func(any) error, reason any, job *Job) {
-
-	job.Done()
-	reject(reason)
+func isV2(pkg string) bool {
+	api, ok := ApiPkgCacheV2[pkg]
+	return ok && api.ext != nil && api.ext.api == "2"
 }
 
-// Create a single channel
-func (ser *ExtBaseService) createSingleChannel(vm *goja.Runtime, name string, job *Job, fun func(call goja.FunctionCall, resolve func(any) error) any) {
-
-	vm.Set(name, func(call goja.FunctionCall) goja.Value {
-		promise, resolve, reject := vm.NewPromise()
-		// 增加一個等待事件
-		job.Add()
-		// 異步方法
-		go func() {
-
-			defer func() {
-				if r := recover(); r != nil {
-					log.Println("Recovered from panic:", r)
-					ser.rejectPromise(reject, r, job)
-				}
-			}()
-
-			// Use RunOnLoop to dispatch function to event goroutine
-			reason := fun(call, resolve)
-			ser.resolvePromise(resolve, reason, job)
-
-		}()
-		// 返回 promise
-		return vm.ToValue(promise)
-	})
+func isV1(pkg string) bool {
+	api, ok := ApiPkgCacheV1[pkg]
+	return ok && api.ext != nil
 }
 
 // Extension latest should contain V1 and V2 api
 func Latest(pkg string, page int) (ExtensionListItems, error) {
-	evalStr := fmt.Sprintf("latest(%d)", page)
-	return AsyncCallBackV2[ExtensionListItems](ApiPkgCacheV2[pkg], pkg, evalStr)
-
+	if isV2(pkg) {
+		evalStr := fmt.Sprintf("latest(%d)", page)
+		return AsyncCallBackV2[ExtensionListItems](ApiPkgCacheV2[pkg], pkg, evalStr)
+	}
+	if isV1(pkg) {
+		evalStr := fmt.Sprintf("ext.latest(%d)", page)
+		return AsyncCallBackV1[ExtensionListItems](ApiPkgCacheV1[pkg], pkg, evalStr)
+	}
+	return ExtensionListItems{}, errors.New("extension not found")
 }
 
 // Extension search should contain V1 and V2 api

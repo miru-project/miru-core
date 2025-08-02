@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"sync"
-	"time"
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"
@@ -13,7 +11,6 @@ import (
 )
 
 var ApiPkgCacheV2 = make(map[string]*ExtApiV2)
-var extMemMap = sync.Map{}
 
 func LoadApiV2(ext *Ext, script string) {
 	scriptV2 := fmt.Sprintf(script, ext.pkg, ext.name, ext.website)
@@ -22,40 +19,6 @@ func LoadApiV2(ext *Ext, script string) {
 	api := &ExtApiV2{ext: ext, service: &ExtBaseService{program: compile, base: runtimeV2}}
 
 	ApiPkgCacheV2[ext.pkg] = api
-}
-
-// Create a go routine that check Promise is fulfilled or rejected
-// and return the result
-func await[T any](promise *goja.Promise) (T, error) {
-	done := make(chan int)
-	var dataOut T
-	go func() {
-		defer close(done)
-
-		for promise.State() == goja.PromiseStatePending {
-			time.Sleep(50 * time.Millisecond)
-		}
-
-	}()
-	<-done
-	switch promise.State() {
-	case goja.PromiseStateFulfilled:
-
-		o := promise.Result().Export()
-		d := handlerror(json.Marshal(o))
-		json.Unmarshal(d, &dataOut)
-
-		return dataOut, nil
-
-	default: // case goja.PromiseStateRejected:
-
-		state := promise.State()
-		log.Println(state)
-		err := promise.Result().Export()
-		e := fmt.Errorf("%q", err)
-
-		return dataOut, e
-	}
 }
 
 // Handle any extension async callback like latest, search, watch etc
@@ -85,9 +48,10 @@ func AsyncCallBackV2[T any](api *ExtApiV2, pkg string, evalStr string) (T, error
 	// var runtime *goja.Runtime
 	loop.RunOnLoop(func(vm *goja.Runtime) {
 
+		var job = Job{loop: loop}
 		service := api.service
 		reg := SharedRegistry.Enable(vm)
-		initModule(reg, vm)
+		ser.initModule(reg, vm, &job)
 
 		if !eventLoopIsExist {
 			// Run the program that has compiled before
@@ -98,7 +62,6 @@ func AsyncCallBackV2[T any](api *ExtApiV2, pkg string, evalStr string) (T, error
 		vm.Set(`println`, func(args ...any) {
 			log.Println(args...)
 		})
-		var job = Job{loop: loop}
 
 		ser.createSingleChannel(vm, "jsRequest", &job, func(call goja.FunctionCall, resolve func(any) error) any {
 
