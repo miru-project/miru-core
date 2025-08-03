@@ -42,7 +42,6 @@ func InitRouter(app *fiber.App) {
 
 	GetAppSetting(app)
 	SetAppSetting(app)
-
 	app.Get("/swagger/*", fiberSwagger.WrapHandler)
 
 	if e := app.Listen("127.127.127.127:12777"); e != nil {

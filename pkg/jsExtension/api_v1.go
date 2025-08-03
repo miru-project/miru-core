@@ -8,29 +8,30 @@ import (
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"
+	errorhandle "github.com/miru-project/miru-core/errorHandle"
 	"github.com/miru-project/miru-core/pkg/network"
 )
 
-type ExtApiV1 struct {
-	ext     *Ext
-	service *ExtBaseService
-}
+// type ExtApi struct {
+// 	Ext     *Ext
+// 	service *ExtBaseService
+// }
 
-var ApiPkgCacheV1 = make(map[string]*ExtApiV1)
+// var ApiPkgCacheV1 = make(map[string]*ExtApi)
 
 func LoadApiV1(ext *Ext, script string) {
-	scriptV1 := fmt.Sprintf(script, ext.pkg, ext.name, ext.website)
+	scriptV1 := fmt.Sprintf(script, ext.Pkg, ext.Name, ext.Website)
 	re := regexp.MustCompile(`export\s+default\s+class.+extends\s+Extension\s*{`)
-	*ext.context = re.ReplaceAllString(*ext.context, "class Ext extends Extension {")
-	compile := handleFatal(goja.Compile(ext.pkg+".js", *ext.context, true))
-	runtimeV1 := handleFatal(goja.Compile("runtime_v1.js", scriptV1, true))
-	api := &ExtApiV1{ext: ext, service: &ExtBaseService{program: compile, base: runtimeV1}}
-
-	ApiPkgCacheV1[ext.pkg] = api
+	*ext.Context = re.ReplaceAllString(*ext.Context, "class Ext extends Extension {")
+	runtimeV1 := errorhandle.HandleFatal(goja.Compile("runtime_v1.js", scriptV1, true))
+	api := &ExtApi{Ext: ext, service: &ExtBaseService{base: runtimeV1}}
+	ApiPkgCache[ext.Pkg] = api
+	ApiPkgCache[ext.Pkg].service.program = compileScript(ext)
+	ApiPkgCache[ext.Pkg].Ext.Error = ""
 }
 
-func AsyncCallBackV1[T any](api *ExtApiV1, pkg string, evalStr string) (T, error) {
-	ApiPkgCacheV1[pkg] = api
+func AsyncCallBackV1[T any](api *ExtApi, pkg string, evalStr string) (T, error) {
+	ApiPkgCache[pkg] = api
 
 	var loop *eventloop.EventLoop
 
@@ -45,7 +46,7 @@ func AsyncCallBackV1[T any](api *ExtApiV1, pkg string, evalStr string) (T, error
 		extMemMap.Store(pkg, loop)
 	}
 
-	if api == nil || api.ext == nil {
+	if api == nil || api.service.program == nil {
 		return *new(T), fmt.Errorf("extension %s not found", pkg)
 	}
 	ser := api.service
@@ -68,7 +69,7 @@ func AsyncCallBackV1[T any](api *ExtApiV1, pkg string, evalStr string) (T, error
 			// Initialize the Ext class
 			_, e := vm.RunString(fmt.Sprintf(`
 			ext = new Ext("%s");
-			`, api.ext.website))
+			`, api.Ext.Website))
 
 			if e != nil {
 				panic(e)
@@ -85,7 +86,7 @@ func AsyncCallBackV1[T any](api *ExtApiV1, pkg string, evalStr string) (T, error
 			opt := call.Argument(1).ToObject(vm).Export()
 			var requestOptions network.RequestOptions
 
-			jsonData := handleFatal(json.Marshal(opt))
+			jsonData := errorhandle.HandleFatal(json.Marshal(opt))
 			if err := json.Unmarshal(jsonData, &requestOptions); err != nil {
 				panic("Error unmarshalling JSON:" + err.Error())
 			}

@@ -7,23 +7,25 @@ import (
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"
+	errorhandle "github.com/miru-project/miru-core/errorHandle"
 	"github.com/miru-project/miru-core/pkg/network"
 )
 
-var ApiPkgCacheV2 = make(map[string]*ExtApiV2)
+var ApiPkgCache = make(map[string]*ExtApi)
 
 func LoadApiV2(ext *Ext, script string) {
-	scriptV2 := fmt.Sprintf(script, ext.pkg, ext.name, ext.website)
-	compile := handleFatal(goja.Compile(ext.pkg+".js", *ext.context, true))
-	runtimeV2 := handleFatal(goja.Compile("runtime_v2.js", scriptV2, true))
-	api := &ExtApiV2{ext: ext, service: &ExtBaseService{program: compile, base: runtimeV2}}
+	scriptV2 := fmt.Sprintf(script, ext.Pkg, ext.Name, ext.Website)
 
-	ApiPkgCacheV2[ext.pkg] = api
+	runtimeV2 := errorhandle.HandleFatal(goja.Compile("runtime_v2.js", scriptV2, true))
+	api := &ExtApi{Ext: ext, service: &ExtBaseService{base: runtimeV2}}
+	api.service.program = compileScript(ext)
+	ApiPkgCache[ext.Pkg] = api
+	api.Ext.Error = ""
 }
 
 // Handle any extension async callback like latest, search, watch etc
-func AsyncCallBackV2[T any](api *ExtApiV2, pkg string, evalStr string) (T, error) {
-	ApiPkgCacheV2[pkg] = api
+func AsyncCallBackV2[T any](api *ExtApi, pkg string, evalStr string) (T, error) {
+	ApiPkgCache[pkg] = api
 
 	var loop *eventloop.EventLoop
 
@@ -38,7 +40,7 @@ func AsyncCallBackV2[T any](api *ExtApiV2, pkg string, evalStr string) (T, error
 		extMemMap.Store(pkg, loop)
 	}
 
-	if api == nil || api.ext == nil {
+	if api == nil || api.service.program == nil {
 		return *new(T), fmt.Errorf("extension %s not found", pkg)
 	}
 	ser := api.service
@@ -69,7 +71,7 @@ func AsyncCallBackV2[T any](api *ExtApiV2, pkg string, evalStr string) (T, error
 			opt := call.Argument(1).ToObject(vm).Export()
 			var requestOptions network.RequestOptions
 
-			jsonData := handleFatal(json.Marshal(opt))
+			jsonData := errorhandle.HandleFatal(json.Marshal(opt))
 			if err := json.Unmarshal(jsonData, &requestOptions); err != nil {
 				panic("Error unmarshalling JSON:" + err.Error())
 			}

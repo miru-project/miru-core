@@ -1,19 +1,20 @@
 package jsExtension
 
 type Ext struct {
-	name        string
-	version     string
-	author      string
-	license     string
-	lang        string
-	icon        string
-	pkg         string
-	website     string
-	description string
-	tags        []string
-	api         string
-	context     *string
-	watchType   string
+	Name        string   `json:"name"`
+	Version     string   `json:"version"`
+	Author      string   `json:"author"`
+	License     string   `json:"license"`
+	Lang        string   `json:"lang"`
+	Icon        string   `json:"icon"`
+	Pkg         string   `json:"package"`
+	Website     string   `json:"webSite"`
+	Description string   `json:"description"`
+	Tags        []string `json:"tags"`
+	Api         string   `json:"api"`
+	Error       string   `json:"error,omitempty"`
+	Context     *string
+	WatchType   string `json:"type"`
 }
 
 type ExtensionListItem struct {

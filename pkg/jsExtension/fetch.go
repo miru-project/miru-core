@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/dop251/goja"
+	errorhandle "github.com/miru-project/miru-core/errorHandle"
 	"github.com/miru-project/miru-core/pkg/network"
 )
 
@@ -247,7 +248,7 @@ func (ser *ExtBaseService) initFetch(vm *goja.Runtime, job *Job) {
 			fetchUrl = arg0.String()
 		} else if obj, ok := arg0.Export().(map[string]any); ok {
 
-			jsonData := handleFatal(json.Marshal(obj))
+			jsonData := errorhandle.HandleFatal(json.Marshal(obj))
 
 			if err := json.Unmarshal(jsonData, &requestOptions); err != nil {
 				panic("Error unmarshalling JSON:" + err.Error())

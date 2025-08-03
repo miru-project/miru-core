@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/dop251/goja"
+	errorhandle "github.com/miru-project/miru-core/errorHandle"
 )
 
 // Create a go routine that check Promise is fulfilled or rejected
@@ -27,7 +28,7 @@ func await[T any](promise *goja.Promise) (T, error) {
 	case goja.PromiseStateFulfilled:
 
 		o := promise.Result().Export()
-		d := handleFatal(json.Marshal(o))
+		d := errorhandle.HandleFatal(json.Marshal(o))
 		json.Unmarshal(d, &dataOut)
 
 		return dataOut, nil
