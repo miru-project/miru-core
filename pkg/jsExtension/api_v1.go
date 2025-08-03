@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"regexp"
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"
@@ -19,8 +20,10 @@ var ApiPkgCacheV1 = make(map[string]*ExtApiV1)
 
 func LoadApiV1(ext *Ext, script string) {
 	scriptV1 := fmt.Sprintf(script, ext.pkg, ext.name, ext.website)
-	compile := handlerror(goja.Compile(ext.pkg+".js", *ext.context, true))
-	runtimeV1 := handlerror(goja.Compile("runtime_v1.js", scriptV1, true))
+	re := regexp.MustCompile(`export\s+default\s+class.+extends\s+Extension\s*{`)
+	*ext.context = re.ReplaceAllString(*ext.context, "class Ext extends Extension {")
+	compile := handleFatal(goja.Compile(ext.pkg+".js", *ext.context, true))
+	runtimeV1 := handleFatal(goja.Compile("runtime_v1.js", scriptV1, true))
 	api := &ExtApiV1{ext: ext, service: &ExtBaseService{program: compile, base: runtimeV1}}
 
 	ApiPkgCacheV1[ext.pkg] = api
@@ -82,7 +85,7 @@ func AsyncCallBackV1[T any](api *ExtApiV1, pkg string, evalStr string) (T, error
 			opt := call.Argument(1).ToObject(vm).Export()
 			var requestOptions network.RequestOptions
 
-			jsonData := handlerror(json.Marshal(opt))
+			jsonData := handleFatal(json.Marshal(opt))
 			if err := json.Unmarshal(jsonData, &requestOptions); err != nil {
 				panic("Error unmarshalling JSON:" + err.Error())
 			}
@@ -96,7 +99,7 @@ func AsyncCallBackV1[T any](api *ExtApiV1, pkg string, evalStr string) (T, error
 		})
 
 		o, e := vm.RunString(fmt.Sprintf(`
-		try{%s}catch(e){println(e)}`, evalStr))
+		try{%s}catch(e){println(e);throw e}`, evalStr))
 
 		if e != nil {
 			// This kind of error happens before the async function is called

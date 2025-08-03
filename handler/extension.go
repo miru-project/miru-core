@@ -17,7 +17,7 @@ func Latest(page string, pkg string) (*result.Result[any], error) {
 
 	res, e := jsExtension.Latest(pkg, intPage)
 
-	if res == nil {
+	if res == nil && e == nil {
 		return result.NewErrorResult("No results found", 404), nil
 	}
 	return result.NewSuccessResult(res), e

@@ -27,7 +27,7 @@ func await[T any](promise *goja.Promise) (T, error) {
 	case goja.PromiseStateFulfilled:
 
 		o := promise.Result().Export()
-		d := handlerror(json.Marshal(o))
+		d := handleFatal(json.Marshal(o))
 		json.Unmarshal(d, &dataOut)
 
 		return dataOut, nil

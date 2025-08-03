@@ -14,8 +14,8 @@ var ApiPkgCacheV2 = make(map[string]*ExtApiV2)
 
 func LoadApiV2(ext *Ext, script string) {
 	scriptV2 := fmt.Sprintf(script, ext.pkg, ext.name, ext.website)
-	compile := handlerror(goja.Compile(ext.pkg+".js", *ext.context, true))
-	runtimeV2 := handlerror(goja.Compile("runtime_v2.js", scriptV2, true))
+	compile := handleFatal(goja.Compile(ext.pkg+".js", *ext.context, true))
+	runtimeV2 := handleFatal(goja.Compile("runtime_v2.js", scriptV2, true))
 	api := &ExtApiV2{ext: ext, service: &ExtBaseService{program: compile, base: runtimeV2}}
 
 	ApiPkgCacheV2[ext.pkg] = api
@@ -69,7 +69,7 @@ func AsyncCallBackV2[T any](api *ExtApiV2, pkg string, evalStr string) (T, error
 			opt := call.Argument(1).ToObject(vm).Export()
 			var requestOptions network.RequestOptions
 
-			jsonData := handlerror(json.Marshal(opt))
+			jsonData := handleFatal(json.Marshal(opt))
 			if err := json.Unmarshal(jsonData, &requestOptions); err != nil {
 				panic("Error unmarshalling JSON:" + err.Error())
 			}

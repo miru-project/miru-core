@@ -247,7 +247,7 @@ func (ser *ExtBaseService) initFetch(vm *goja.Runtime, job *Job) {
 			fetchUrl = arg0.String()
 		} else if obj, ok := arg0.Export().(map[string]any); ok {
 
-			jsonData := handlerror(json.Marshal(obj))
+			jsonData := handleFatal(json.Marshal(obj))
 
 			if err := json.Unmarshal(jsonData, &requestOptions); err != nil {
 				panic("Error unmarshalling JSON:" + err.Error())

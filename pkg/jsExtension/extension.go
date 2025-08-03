@@ -17,7 +17,6 @@ import (
 	"github.com/dop251/goja_nodejs/eventloop"
 	"github.com/dop251/goja_nodejs/require"
 	"github.com/fsnotify/fsnotify"
-	// "github.com/miru-project/miru-core/ext"
 )
 
 var extMemMap = sync.Map{}
@@ -31,6 +30,8 @@ type ExtBaseService struct {
 
 var SharedRegistry *require.Registry = require.NewRegistry()
 var fs embed.FS
+
+// jsRoot is the root directory for JavaScript files copy from the embedded filesystem
 var jsRoot string
 
 type ExtApiV2 struct {
@@ -82,8 +83,8 @@ func InitRuntime(extPath string, f embed.FS) {
 
 	readEmbedFileToDisk("assets", jsRoot)
 	WatchDir(extPath)
-	scriptV2 := string(handlerror(fs.ReadFile("assets/runtime_v2.js")))
-	scriptV1 := string(handlerror(fs.ReadFile("assets/runtime_v1.js")))
+	scriptV2 := string(handleFatal(fs.ReadFile("assets/runtime_v2.js")))
+	scriptV1 := string(handleFatal(fs.ReadFile("assets/runtime_v1.js")))
 
 	for _, ext := range exts {
 		if ext.api == "2" {
@@ -117,7 +118,7 @@ func WatchDir(dir string) {
 					}
 
 					// Compile the extension file and update the cache
-					compile := handlerror(goja.Compile(ext.pkg+".js", *ext.context, true))
+					compile := handleFatal(goja.Compile(ext.pkg+".js", *ext.context, true))
 					switch ext.api {
 					case "2":
 						ApiPkgCacheV2[ext.pkg].service.program = compile
@@ -134,7 +135,7 @@ func WatchDir(dir string) {
 
 					loop := lop.(*eventloop.EventLoop)
 					loop.Run(func(vm *goja.Runtime) {
-						file := (handlerror(os.ReadFile(event.Name)))
+						file := (handleFatal(os.ReadFile(event.Name)))
 						script := ReplaceClassExtendsDeclaration(string(file))
 						if _, e := vm.RunString(script); e != nil {
 							log.Println("Error running extension script:", e)
@@ -142,7 +143,8 @@ func WatchDir(dir string) {
 						}
 
 						if ext.api == "1" || ext.api == "" {
-							vm.RunString("ext = new Ext();")
+							vm.RunString(`ext = new Ext();
+											ext.load();`)
 						}
 
 					})
@@ -164,20 +166,10 @@ func WatchDir(dir string) {
 
 // ReplaceClassExtendsDeclaration replaces `class X extends Extension` with `X = class extends Extension {`
 func ReplaceClassExtendsDeclaration(jsCode string) string {
-	re := regexp.MustCompile(`(?m)^class\s+([A-Za-z_][A-Za-z0-9_]*)\s+extends\s+Extension\s*{`)
-	return re.ReplaceAllString(jsCode, `$1 = class extends Extension {`)
+	re := regexp.MustCompile(`export\s+default\s+class.+extends\s+Extension\s*{`)
+	return re.ReplaceAllString(jsCode, `Ext = class extends Extension {`)
 }
 
-//	func ReloadExt(ext *Ext) bool {
-//		switch ext.api{
-//		case "2":
-//			val,ok := extMemMap.Load(ext.pkg)
-//			if !ok{
-//				return false
-//			}
-//			val.()
-//		}
-//	}
 func filterExts(dir string) []Ext {
 	_, err := os.Stat(dir)
 	if os.IsNotExist(err) {
@@ -186,7 +178,7 @@ func filterExts(dir string) []Ext {
 			return nil
 		}
 	}
-	files := handlerror(os.ReadDir(dir))
+	files := handleFatal(os.ReadDir(dir))
 	var exts []Ext
 	for _, file := range files {
 
@@ -208,7 +200,7 @@ func filterExt(fileLoc string) (Ext, bool) {
 	if _, e := os.Stat(fileLoc); !re.MatchString(name) || os.IsNotExist(e) {
 		return Ext{}, false
 	}
-	f := handlerror(os.ReadFile(fileLoc))
+	f := handleFatal(os.ReadFile(fileLoc))
 	ext, err := ParseExtMetadata(string(f), name)
 	if err != nil {
 		log.Println(err)
@@ -216,12 +208,13 @@ func filterExt(fileLoc string) (Ext, bool) {
 	}
 	return ext, true
 }
-func handlerror[T any](out T, err error) T {
+
+func handleFatal[T any](out T, err error) T {
 	if err != nil {
-		log.Fatal(err)
 		debug.PrintStack()
 		stackTrace := string(debug.Stack())
 		log.Println("Stack trace:", stackTrace)
+		log.Fatal("Fatal: ", err)
 	}
 	return out
 }
@@ -280,70 +273,6 @@ func ParseExtMetadata(content string, fileName string) (Ext, error) {
 
 	ext.context = &content
 	return ext, err
-}
-
-// Init nodeJs module
-func (ser *ExtBaseService) initModule(module *require.RequireModule, vm *goja.Runtime, job *Job) {
-
-	// init cryptoJs  and  linkedom
-	linkeDom := filepath.Join(jsRoot, "linkedom", "worker.js")
-	cryptoJs := filepath.Join(jsRoot, "crypto-js", "aes.js")
-
-	if _, e := module.Require(linkeDom); e != nil {
-		log.Println("linkedom module not found")
-	}
-	if _, e := module.Require(cryptoJs); e != nil {
-		log.Println("crypto-js module not found")
-	}
-
-	vm.RunString(fmt.Sprintf(`var {parseHTML} = require('%s');`, linkeDom))
-	vm.RunString(fmt.Sprintf(`var {AES} = require('%s');`, cryptoJs))
-	ser.initFetch(vm, job)
-
-}
-
-// read folder from  embed fs and write to file system
-func readEmbedFileToDisk(path string, tagetDir string) {
-	// Read the file from the embedded filesystem
-	data, err := fs.ReadDir(path)
-	if err != nil {
-		log.Fatalf("Failed to read asset directory in embedFs: %v", err)
-	}
-
-	for _, file := range data {
-
-		childFs := filepath.Join(path, file.Name())
-		childDir := filepath.Join(tagetDir, file.Name())
-
-		// Recursively read the directory
-		if file.IsDir() {
-
-			// Create the directory in the file system
-			if err := os.MkdirAll(childDir, os.ModePerm); err != nil {
-				log.Fatalf("Failed to create directory: %v", err)
-			}
-
-			readEmbedFileToDisk(childFs, childDir)
-		} else {
-
-			file, err := fs.ReadFile(childFs)
-			if err != nil {
-				log.Fatalf("Failed to read file %s from embedFs: %v", childFs, err)
-			}
-
-			// Create the file in the file system
-			outFile, err := os.Create(childDir)
-			if err != nil {
-				log.Fatalf("Failed to create file %s: %v", childDir, err)
-			}
-			defer outFile.Close()
-
-			// Write the content to the file
-			if _, err := outFile.Write(file); err != nil {
-				log.Fatalf("Failed to write file %s: %v", childDir, err)
-			}
-		}
-	}
 }
 
 func isV2(pkg string) bool {
