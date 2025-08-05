@@ -11,68 +11,68 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/miru-project/miru-core/ent/extension"
+	"github.com/miru-project/miru-core/ent/extensionrepo"
 	"github.com/miru-project/miru-core/ent/predicate"
 )
 
-// ExtensionQuery is the builder for querying Extension entities.
-type ExtensionQuery struct {
+// ExtensionRepoQuery is the builder for querying ExtensionRepo entities.
+type ExtensionRepoQuery struct {
 	config
 	ctx        *QueryContext
-	order      []extension.OrderOption
+	order      []extensionrepo.OrderOption
 	inters     []Interceptor
-	predicates []predicate.Extension
+	predicates []predicate.ExtensionRepo
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the ExtensionQuery builder.
-func (_q *ExtensionQuery) Where(ps ...predicate.Extension) *ExtensionQuery {
+// Where adds a new predicate for the ExtensionRepoQuery builder.
+func (_q *ExtensionRepoQuery) Where(ps ...predicate.ExtensionRepo) *ExtensionRepoQuery {
 	_q.predicates = append(_q.predicates, ps...)
 	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (_q *ExtensionQuery) Limit(limit int) *ExtensionQuery {
+func (_q *ExtensionRepoQuery) Limit(limit int) *ExtensionRepoQuery {
 	_q.ctx.Limit = &limit
 	return _q
 }
 
 // Offset to start from.
-func (_q *ExtensionQuery) Offset(offset int) *ExtensionQuery {
+func (_q *ExtensionRepoQuery) Offset(offset int) *ExtensionRepoQuery {
 	_q.ctx.Offset = &offset
 	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (_q *ExtensionQuery) Unique(unique bool) *ExtensionQuery {
+func (_q *ExtensionRepoQuery) Unique(unique bool) *ExtensionRepoQuery {
 	_q.ctx.Unique = &unique
 	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (_q *ExtensionQuery) Order(o ...extension.OrderOption) *ExtensionQuery {
+func (_q *ExtensionRepoQuery) Order(o ...extensionrepo.OrderOption) *ExtensionRepoQuery {
 	_q.order = append(_q.order, o...)
 	return _q
 }
 
-// First returns the first Extension entity from the query.
-// Returns a *NotFoundError when no Extension was found.
-func (_q *ExtensionQuery) First(ctx context.Context) (*Extension, error) {
+// First returns the first ExtensionRepo entity from the query.
+// Returns a *NotFoundError when no ExtensionRepo was found.
+func (_q *ExtensionRepoQuery) First(ctx context.Context) (*ExtensionRepo, error) {
 	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{extension.Label}
+		return nil, &NotFoundError{extensionrepo.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (_q *ExtensionQuery) FirstX(ctx context.Context) *Extension {
+func (_q *ExtensionRepoQuery) FirstX(ctx context.Context) *ExtensionRepo {
 	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -80,22 +80,22 @@ func (_q *ExtensionQuery) FirstX(ctx context.Context) *Extension {
 	return node
 }
 
-// FirstID returns the first Extension ID from the query.
-// Returns a *NotFoundError when no Extension ID was found.
-func (_q *ExtensionQuery) FirstID(ctx context.Context) (id int, err error) {
+// FirstID returns the first ExtensionRepo ID from the query.
+// Returns a *NotFoundError when no ExtensionRepo ID was found.
+func (_q *ExtensionRepoQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{extension.Label}
+		err = &NotFoundError{extensionrepo.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *ExtensionQuery) FirstIDX(ctx context.Context) int {
+func (_q *ExtensionRepoQuery) FirstIDX(ctx context.Context) int {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -103,10 +103,10 @@ func (_q *ExtensionQuery) FirstIDX(ctx context.Context) int {
 	return id
 }
 
-// Only returns a single Extension entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one Extension entity is found.
-// Returns a *NotFoundError when no Extension entities are found.
-func (_q *ExtensionQuery) Only(ctx context.Context) (*Extension, error) {
+// Only returns a single ExtensionRepo entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one ExtensionRepo entity is found.
+// Returns a *NotFoundError when no ExtensionRepo entities are found.
+func (_q *ExtensionRepoQuery) Only(ctx context.Context) (*ExtensionRepo, error) {
 	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
@@ -115,14 +115,14 @@ func (_q *ExtensionQuery) Only(ctx context.Context) (*Extension, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{extension.Label}
+		return nil, &NotFoundError{extensionrepo.Label}
 	default:
-		return nil, &NotSingularError{extension.Label}
+		return nil, &NotSingularError{extensionrepo.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (_q *ExtensionQuery) OnlyX(ctx context.Context) *Extension {
+func (_q *ExtensionRepoQuery) OnlyX(ctx context.Context) *ExtensionRepo {
 	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -130,10 +130,10 @@ func (_q *ExtensionQuery) OnlyX(ctx context.Context) *Extension {
 	return node
 }
 
-// OnlyID is like Only, but returns the only Extension ID in the query.
-// Returns a *NotSingularError when more than one Extension ID is found.
+// OnlyID is like Only, but returns the only ExtensionRepo ID in the query.
+// Returns a *NotSingularError when more than one ExtensionRepo ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *ExtensionQuery) OnlyID(ctx context.Context) (id int, err error) {
+func (_q *ExtensionRepoQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
@@ -142,15 +142,15 @@ func (_q *ExtensionQuery) OnlyID(ctx context.Context) (id int, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{extension.Label}
+		err = &NotFoundError{extensionrepo.Label}
 	default:
-		err = &NotSingularError{extension.Label}
+		err = &NotSingularError{extensionrepo.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *ExtensionQuery) OnlyIDX(ctx context.Context) int {
+func (_q *ExtensionRepoQuery) OnlyIDX(ctx context.Context) int {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -158,18 +158,18 @@ func (_q *ExtensionQuery) OnlyIDX(ctx context.Context) int {
 	return id
 }
 
-// All executes the query and returns a list of Extensions.
-func (_q *ExtensionQuery) All(ctx context.Context) ([]*Extension, error) {
+// All executes the query and returns a list of ExtensionRepos.
+func (_q *ExtensionRepoQuery) All(ctx context.Context) ([]*ExtensionRepo, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*Extension, *ExtensionQuery]()
-	return withInterceptors[[]*Extension](ctx, _q, qr, _q.inters)
+	qr := querierAll[[]*ExtensionRepo, *ExtensionRepoQuery]()
+	return withInterceptors[[]*ExtensionRepo](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (_q *ExtensionQuery) AllX(ctx context.Context) []*Extension {
+func (_q *ExtensionRepoQuery) AllX(ctx context.Context) []*ExtensionRepo {
 	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
@@ -177,20 +177,20 @@ func (_q *ExtensionQuery) AllX(ctx context.Context) []*Extension {
 	return nodes
 }
 
-// IDs executes the query and returns a list of Extension IDs.
-func (_q *ExtensionQuery) IDs(ctx context.Context) (ids []int, err error) {
+// IDs executes the query and returns a list of ExtensionRepo IDs.
+func (_q *ExtensionRepoQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
-	if err = _q.Select(extension.FieldID).Scan(ctx, &ids); err != nil {
+	if err = _q.Select(extensionrepo.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *ExtensionQuery) IDsX(ctx context.Context) []int {
+func (_q *ExtensionRepoQuery) IDsX(ctx context.Context) []int {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -199,16 +199,16 @@ func (_q *ExtensionQuery) IDsX(ctx context.Context) []int {
 }
 
 // Count returns the count of the given query.
-func (_q *ExtensionQuery) Count(ctx context.Context) (int, error) {
+func (_q *ExtensionRepoQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, _q, querierCount[*ExtensionQuery](), _q.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*ExtensionRepoQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (_q *ExtensionQuery) CountX(ctx context.Context) int {
+func (_q *ExtensionRepoQuery) CountX(ctx context.Context) int {
 	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -217,7 +217,7 @@ func (_q *ExtensionQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (_q *ExtensionQuery) Exist(ctx context.Context) (bool, error) {
+func (_q *ExtensionRepoQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
 	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
@@ -230,7 +230,7 @@ func (_q *ExtensionQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (_q *ExtensionQuery) ExistX(ctx context.Context) bool {
+func (_q *ExtensionRepoQuery) ExistX(ctx context.Context) bool {
 	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -238,18 +238,18 @@ func (_q *ExtensionQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the ExtensionQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the ExtensionRepoQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (_q *ExtensionQuery) Clone() *ExtensionQuery {
+func (_q *ExtensionRepoQuery) Clone() *ExtensionRepoQuery {
 	if _q == nil {
 		return nil
 	}
-	return &ExtensionQuery{
+	return &ExtensionRepoQuery{
 		config:     _q.config,
 		ctx:        _q.ctx.Clone(),
-		order:      append([]extension.OrderOption{}, _q.order...),
+		order:      append([]extensionrepo.OrderOption{}, _q.order...),
 		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.Extension{}, _q.predicates...),
+		predicates: append([]predicate.ExtensionRepo{}, _q.predicates...),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -258,31 +258,53 @@ func (_q *ExtensionQuery) Clone() *ExtensionQuery {
 
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
-func (_q *ExtensionQuery) GroupBy(field string, fields ...string) *ExtensionGroupBy {
+//
+// Example:
+//
+//	var v []struct {
+//		URL string `json:"url,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.ExtensionRepo.Query().
+//		GroupBy(extensionrepo.FieldURL).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
+func (_q *ExtensionRepoQuery) GroupBy(field string, fields ...string) *ExtensionRepoGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &ExtensionGroupBy{build: _q}
+	grbuild := &ExtensionRepoGroupBy{build: _q}
 	grbuild.flds = &_q.ctx.Fields
-	grbuild.label = extension.Label
+	grbuild.label = extensionrepo.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
-func (_q *ExtensionQuery) Select(fields ...string) *ExtensionSelect {
+//
+// Example:
+//
+//	var v []struct {
+//		URL string `json:"url,omitempty"`
+//	}
+//
+//	client.ExtensionRepo.Query().
+//		Select(extensionrepo.FieldURL).
+//		Scan(ctx, &v)
+func (_q *ExtensionRepoQuery) Select(fields ...string) *ExtensionRepoSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
-	sbuild := &ExtensionSelect{ExtensionQuery: _q}
-	sbuild.label = extension.Label
+	sbuild := &ExtensionRepoSelect{ExtensionRepoQuery: _q}
+	sbuild.label = extensionrepo.Label
 	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a ExtensionSelect configured with the given aggregations.
-func (_q *ExtensionQuery) Aggregate(fns ...AggregateFunc) *ExtensionSelect {
+// Aggregate returns a ExtensionRepoSelect configured with the given aggregations.
+func (_q *ExtensionRepoQuery) Aggregate(fns ...AggregateFunc) *ExtensionRepoSelect {
 	return _q.Select().Aggregate(fns...)
 }
 
-func (_q *ExtensionQuery) prepareQuery(ctx context.Context) error {
+func (_q *ExtensionRepoQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -294,7 +316,7 @@ func (_q *ExtensionQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range _q.ctx.Fields {
-		if !extension.ValidColumn(f) {
+		if !extensionrepo.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -308,16 +330,16 @@ func (_q *ExtensionQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (_q *ExtensionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Extension, error) {
+func (_q *ExtensionRepoQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*ExtensionRepo, error) {
 	var (
-		nodes = []*Extension{}
+		nodes = []*ExtensionRepo{}
 		_spec = _q.querySpec()
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*Extension).scanValues(nil, columns)
+		return (*ExtensionRepo).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &Extension{config: _q.config}
+		node := &ExtensionRepo{config: _q.config}
 		nodes = append(nodes, node)
 		return node.assignValues(columns, values)
 	}
@@ -333,7 +355,7 @@ func (_q *ExtensionQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Ex
 	return nodes, nil
 }
 
-func (_q *ExtensionQuery) sqlCount(ctx context.Context) (int, error) {
+func (_q *ExtensionRepoQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
@@ -342,8 +364,8 @@ func (_q *ExtensionQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (_q *ExtensionQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(extension.Table, extension.Columns, sqlgraph.NewFieldSpec(extension.FieldID, field.TypeInt))
+func (_q *ExtensionRepoQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(extensionrepo.Table, extensionrepo.Columns, sqlgraph.NewFieldSpec(extensionrepo.FieldID, field.TypeInt))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -352,9 +374,9 @@ func (_q *ExtensionQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, extension.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, extensionrepo.FieldID)
 		for i := range fields {
-			if fields[i] != extension.FieldID {
+			if fields[i] != extensionrepo.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
@@ -382,12 +404,12 @@ func (_q *ExtensionQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (_q *ExtensionQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (_q *ExtensionRepoQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(_q.driver.Dialect())
-	t1 := builder.Table(extension.Table)
+	t1 := builder.Table(extensionrepo.Table)
 	columns := _q.ctx.Fields
 	if len(columns) == 0 {
-		columns = extension.Columns
+		columns = extensionrepo.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if _q.sql != nil {
@@ -414,28 +436,28 @@ func (_q *ExtensionQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	return selector
 }
 
-// ExtensionGroupBy is the group-by builder for Extension entities.
-type ExtensionGroupBy struct {
+// ExtensionRepoGroupBy is the group-by builder for ExtensionRepo entities.
+type ExtensionRepoGroupBy struct {
 	selector
-	build *ExtensionQuery
+	build *ExtensionRepoQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (_g *ExtensionGroupBy) Aggregate(fns ...AggregateFunc) *ExtensionGroupBy {
+func (_g *ExtensionRepoGroupBy) Aggregate(fns ...AggregateFunc) *ExtensionRepoGroupBy {
 	_g.fns = append(_g.fns, fns...)
 	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_g *ExtensionGroupBy) Scan(ctx context.Context, v any) error {
+func (_g *ExtensionRepoGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
 	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*ExtensionQuery, *ExtensionGroupBy](ctx, _g.build, _g, _g.build.inters, v)
+	return scanWithInterceptors[*ExtensionRepoQuery, *ExtensionRepoGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (_g *ExtensionGroupBy) sqlScan(ctx context.Context, root *ExtensionQuery, v any) error {
+func (_g *ExtensionRepoGroupBy) sqlScan(ctx context.Context, root *ExtensionRepoQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(_g.fns))
 	for _, fn := range _g.fns {
@@ -462,28 +484,28 @@ func (_g *ExtensionGroupBy) sqlScan(ctx context.Context, root *ExtensionQuery, v
 	return sql.ScanSlice(rows, v)
 }
 
-// ExtensionSelect is the builder for selecting fields of Extension entities.
-type ExtensionSelect struct {
-	*ExtensionQuery
+// ExtensionRepoSelect is the builder for selecting fields of ExtensionRepo entities.
+type ExtensionRepoSelect struct {
+	*ExtensionRepoQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (_s *ExtensionSelect) Aggregate(fns ...AggregateFunc) *ExtensionSelect {
+func (_s *ExtensionRepoSelect) Aggregate(fns ...AggregateFunc) *ExtensionRepoSelect {
 	_s.fns = append(_s.fns, fns...)
 	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_s *ExtensionSelect) Scan(ctx context.Context, v any) error {
+func (_s *ExtensionRepoSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
 	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*ExtensionQuery, *ExtensionSelect](ctx, _s.ExtensionQuery, _s, _s.inters, v)
+	return scanWithInterceptors[*ExtensionRepoQuery, *ExtensionRepoSelect](ctx, _s.ExtensionRepoQuery, _s, _s.inters, v)
 }
 
-func (_s *ExtensionSelect) sqlScan(ctx context.Context, root *ExtensionQuery, v any) error {
+func (_s *ExtensionRepoSelect) sqlScan(ctx context.Context, root *ExtensionRepoQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(_s.fns))
 	for _, fn := range _s.fns {

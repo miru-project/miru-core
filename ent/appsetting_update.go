@@ -22,52 +22,52 @@ type AppSettingUpdate struct {
 }
 
 // Where appends a list predicates to the AppSettingUpdate builder.
-func (asu *AppSettingUpdate) Where(ps ...predicate.AppSetting) *AppSettingUpdate {
-	asu.mutation.Where(ps...)
-	return asu
+func (_u *AppSettingUpdate) Where(ps ...predicate.AppSetting) *AppSettingUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetKey sets the "key" field.
-func (asu *AppSettingUpdate) SetKey(s string) *AppSettingUpdate {
-	asu.mutation.SetKey(s)
-	return asu
+func (_u *AppSettingUpdate) SetKey(v string) *AppSettingUpdate {
+	_u.mutation.SetKey(v)
+	return _u
 }
 
 // SetNillableKey sets the "key" field if the given value is not nil.
-func (asu *AppSettingUpdate) SetNillableKey(s *string) *AppSettingUpdate {
-	if s != nil {
-		asu.SetKey(*s)
+func (_u *AppSettingUpdate) SetNillableKey(v *string) *AppSettingUpdate {
+	if v != nil {
+		_u.SetKey(*v)
 	}
-	return asu
+	return _u
 }
 
 // SetValue sets the "value" field.
-func (asu *AppSettingUpdate) SetValue(s string) *AppSettingUpdate {
-	asu.mutation.SetValue(s)
-	return asu
+func (_u *AppSettingUpdate) SetValue(v string) *AppSettingUpdate {
+	_u.mutation.SetValue(v)
+	return _u
 }
 
 // SetNillableValue sets the "value" field if the given value is not nil.
-func (asu *AppSettingUpdate) SetNillableValue(s *string) *AppSettingUpdate {
-	if s != nil {
-		asu.SetValue(*s)
+func (_u *AppSettingUpdate) SetNillableValue(v *string) *AppSettingUpdate {
+	if v != nil {
+		_u.SetValue(*v)
 	}
-	return asu
+	return _u
 }
 
 // Mutation returns the AppSettingMutation object of the builder.
-func (asu *AppSettingUpdate) Mutation() *AppSettingMutation {
-	return asu.mutation
+func (_u *AppSettingUpdate) Mutation() *AppSettingMutation {
+	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (asu *AppSettingUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, asu.sqlSave, asu.mutation, asu.hooks)
+func (_u *AppSettingUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (asu *AppSettingUpdate) SaveX(ctx context.Context) int {
-	affected, err := asu.Save(ctx)
+func (_u *AppSettingUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -75,21 +75,21 @@ func (asu *AppSettingUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (asu *AppSettingUpdate) Exec(ctx context.Context) error {
-	_, err := asu.Save(ctx)
+func (_u *AppSettingUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (asu *AppSettingUpdate) ExecX(ctx context.Context) {
-	if err := asu.Exec(ctx); err != nil {
+func (_u *AppSettingUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (asu *AppSettingUpdate) check() error {
-	if v, ok := asu.mutation.Key(); ok {
+func (_u *AppSettingUpdate) check() error {
+	if v, ok := _u.mutation.Key(); ok {
 		if err := appsetting.KeyValidator(v); err != nil {
 			return &ValidationError{Name: "key", err: fmt.Errorf(`ent: validator failed for field "AppSetting.key": %w`, err)}
 		}
@@ -97,25 +97,25 @@ func (asu *AppSettingUpdate) check() error {
 	return nil
 }
 
-func (asu *AppSettingUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := asu.check(); err != nil {
-		return n, err
+func (_u *AppSettingUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(appsetting.Table, appsetting.Columns, sqlgraph.NewFieldSpec(appsetting.FieldID, field.TypeInt))
-	if ps := asu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := asu.mutation.Key(); ok {
+	if value, ok := _u.mutation.Key(); ok {
 		_spec.SetField(appsetting.FieldKey, field.TypeString, value)
 	}
-	if value, ok := asu.mutation.Value(); ok {
+	if value, ok := _u.mutation.Value(); ok {
 		_spec.SetField(appsetting.FieldValue, field.TypeString, value)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, asu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{appsetting.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -123,8 +123,8 @@ func (asu *AppSettingUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	asu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // AppSettingUpdateOne is the builder for updating a single AppSetting entity.
@@ -136,59 +136,59 @@ type AppSettingUpdateOne struct {
 }
 
 // SetKey sets the "key" field.
-func (asuo *AppSettingUpdateOne) SetKey(s string) *AppSettingUpdateOne {
-	asuo.mutation.SetKey(s)
-	return asuo
+func (_u *AppSettingUpdateOne) SetKey(v string) *AppSettingUpdateOne {
+	_u.mutation.SetKey(v)
+	return _u
 }
 
 // SetNillableKey sets the "key" field if the given value is not nil.
-func (asuo *AppSettingUpdateOne) SetNillableKey(s *string) *AppSettingUpdateOne {
-	if s != nil {
-		asuo.SetKey(*s)
+func (_u *AppSettingUpdateOne) SetNillableKey(v *string) *AppSettingUpdateOne {
+	if v != nil {
+		_u.SetKey(*v)
 	}
-	return asuo
+	return _u
 }
 
 // SetValue sets the "value" field.
-func (asuo *AppSettingUpdateOne) SetValue(s string) *AppSettingUpdateOne {
-	asuo.mutation.SetValue(s)
-	return asuo
+func (_u *AppSettingUpdateOne) SetValue(v string) *AppSettingUpdateOne {
+	_u.mutation.SetValue(v)
+	return _u
 }
 
 // SetNillableValue sets the "value" field if the given value is not nil.
-func (asuo *AppSettingUpdateOne) SetNillableValue(s *string) *AppSettingUpdateOne {
-	if s != nil {
-		asuo.SetValue(*s)
+func (_u *AppSettingUpdateOne) SetNillableValue(v *string) *AppSettingUpdateOne {
+	if v != nil {
+		_u.SetValue(*v)
 	}
-	return asuo
+	return _u
 }
 
 // Mutation returns the AppSettingMutation object of the builder.
-func (asuo *AppSettingUpdateOne) Mutation() *AppSettingMutation {
-	return asuo.mutation
+func (_u *AppSettingUpdateOne) Mutation() *AppSettingMutation {
+	return _u.mutation
 }
 
 // Where appends a list predicates to the AppSettingUpdate builder.
-func (asuo *AppSettingUpdateOne) Where(ps ...predicate.AppSetting) *AppSettingUpdateOne {
-	asuo.mutation.Where(ps...)
-	return asuo
+func (_u *AppSettingUpdateOne) Where(ps ...predicate.AppSetting) *AppSettingUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (asuo *AppSettingUpdateOne) Select(field string, fields ...string) *AppSettingUpdateOne {
-	asuo.fields = append([]string{field}, fields...)
-	return asuo
+func (_u *AppSettingUpdateOne) Select(field string, fields ...string) *AppSettingUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated AppSetting entity.
-func (asuo *AppSettingUpdateOne) Save(ctx context.Context) (*AppSetting, error) {
-	return withHooks(ctx, asuo.sqlSave, asuo.mutation, asuo.hooks)
+func (_u *AppSettingUpdateOne) Save(ctx context.Context) (*AppSetting, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (asuo *AppSettingUpdateOne) SaveX(ctx context.Context) *AppSetting {
-	node, err := asuo.Save(ctx)
+func (_u *AppSettingUpdateOne) SaveX(ctx context.Context) *AppSetting {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -196,21 +196,21 @@ func (asuo *AppSettingUpdateOne) SaveX(ctx context.Context) *AppSetting {
 }
 
 // Exec executes the query on the entity.
-func (asuo *AppSettingUpdateOne) Exec(ctx context.Context) error {
-	_, err := asuo.Save(ctx)
+func (_u *AppSettingUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (asuo *AppSettingUpdateOne) ExecX(ctx context.Context) {
-	if err := asuo.Exec(ctx); err != nil {
+func (_u *AppSettingUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (asuo *AppSettingUpdateOne) check() error {
-	if v, ok := asuo.mutation.Key(); ok {
+func (_u *AppSettingUpdateOne) check() error {
+	if v, ok := _u.mutation.Key(); ok {
 		if err := appsetting.KeyValidator(v); err != nil {
 			return &ValidationError{Name: "key", err: fmt.Errorf(`ent: validator failed for field "AppSetting.key": %w`, err)}
 		}
@@ -218,17 +218,17 @@ func (asuo *AppSettingUpdateOne) check() error {
 	return nil
 }
 
-func (asuo *AppSettingUpdateOne) sqlSave(ctx context.Context) (_node *AppSetting, err error) {
-	if err := asuo.check(); err != nil {
+func (_u *AppSettingUpdateOne) sqlSave(ctx context.Context) (_node *AppSetting, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(appsetting.Table, appsetting.Columns, sqlgraph.NewFieldSpec(appsetting.FieldID, field.TypeInt))
-	id, ok := asuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "AppSetting.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := asuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, appsetting.FieldID)
 		for _, f := range fields {
@@ -240,23 +240,23 @@ func (asuo *AppSettingUpdateOne) sqlSave(ctx context.Context) (_node *AppSetting
 			}
 		}
 	}
-	if ps := asuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := asuo.mutation.Key(); ok {
+	if value, ok := _u.mutation.Key(); ok {
 		_spec.SetField(appsetting.FieldKey, field.TypeString, value)
 	}
-	if value, ok := asuo.mutation.Value(); ok {
+	if value, ok := _u.mutation.Value(); ok {
 		_spec.SetField(appsetting.FieldValue, field.TypeString, value)
 	}
-	_node = &AppSetting{config: asuo.config}
+	_node = &AppSetting{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, asuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{appsetting.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -264,6 +264,6 @@ func (asuo *AppSettingUpdateOne) sqlSave(ctx context.Context) (_node *AppSetting
 		}
 		return nil, err
 	}
-	asuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

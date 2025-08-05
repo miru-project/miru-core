@@ -22,24 +22,24 @@ type ExtensionUpdate struct {
 }
 
 // Where appends a list predicates to the ExtensionUpdate builder.
-func (eu *ExtensionUpdate) Where(ps ...predicate.Extension) *ExtensionUpdate {
-	eu.mutation.Where(ps...)
-	return eu
+func (_u *ExtensionUpdate) Where(ps ...predicate.Extension) *ExtensionUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Mutation returns the ExtensionMutation object of the builder.
-func (eu *ExtensionUpdate) Mutation() *ExtensionMutation {
-	return eu.mutation
+func (_u *ExtensionUpdate) Mutation() *ExtensionMutation {
+	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (eu *ExtensionUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, eu.sqlSave, eu.mutation, eu.hooks)
+func (_u *ExtensionUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (eu *ExtensionUpdate) SaveX(ctx context.Context) int {
-	affected, err := eu.Save(ctx)
+func (_u *ExtensionUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -47,28 +47,28 @@ func (eu *ExtensionUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (eu *ExtensionUpdate) Exec(ctx context.Context) error {
-	_, err := eu.Save(ctx)
+func (_u *ExtensionUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (eu *ExtensionUpdate) ExecX(ctx context.Context) {
-	if err := eu.Exec(ctx); err != nil {
+func (_u *ExtensionUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (eu *ExtensionUpdate) sqlSave(ctx context.Context) (n int, err error) {
+func (_u *ExtensionUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(extension.Table, extension.Columns, sqlgraph.NewFieldSpec(extension.FieldID, field.TypeInt))
-	if ps := eu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, eu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{extension.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -76,8 +76,8 @@ func (eu *ExtensionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	eu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // ExtensionUpdateOne is the builder for updating a single Extension entity.
@@ -89,31 +89,31 @@ type ExtensionUpdateOne struct {
 }
 
 // Mutation returns the ExtensionMutation object of the builder.
-func (euo *ExtensionUpdateOne) Mutation() *ExtensionMutation {
-	return euo.mutation
+func (_u *ExtensionUpdateOne) Mutation() *ExtensionMutation {
+	return _u.mutation
 }
 
 // Where appends a list predicates to the ExtensionUpdate builder.
-func (euo *ExtensionUpdateOne) Where(ps ...predicate.Extension) *ExtensionUpdateOne {
-	euo.mutation.Where(ps...)
-	return euo
+func (_u *ExtensionUpdateOne) Where(ps ...predicate.Extension) *ExtensionUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (euo *ExtensionUpdateOne) Select(field string, fields ...string) *ExtensionUpdateOne {
-	euo.fields = append([]string{field}, fields...)
-	return euo
+func (_u *ExtensionUpdateOne) Select(field string, fields ...string) *ExtensionUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated Extension entity.
-func (euo *ExtensionUpdateOne) Save(ctx context.Context) (*Extension, error) {
-	return withHooks(ctx, euo.sqlSave, euo.mutation, euo.hooks)
+func (_u *ExtensionUpdateOne) Save(ctx context.Context) (*Extension, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (euo *ExtensionUpdateOne) SaveX(ctx context.Context) *Extension {
-	node, err := euo.Save(ctx)
+func (_u *ExtensionUpdateOne) SaveX(ctx context.Context) *Extension {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -121,26 +121,26 @@ func (euo *ExtensionUpdateOne) SaveX(ctx context.Context) *Extension {
 }
 
 // Exec executes the query on the entity.
-func (euo *ExtensionUpdateOne) Exec(ctx context.Context) error {
-	_, err := euo.Save(ctx)
+func (_u *ExtensionUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (euo *ExtensionUpdateOne) ExecX(ctx context.Context) {
-	if err := euo.Exec(ctx); err != nil {
+func (_u *ExtensionUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (euo *ExtensionUpdateOne) sqlSave(ctx context.Context) (_node *Extension, err error) {
+func (_u *ExtensionUpdateOne) sqlSave(ctx context.Context) (_node *Extension, err error) {
 	_spec := sqlgraph.NewUpdateSpec(extension.Table, extension.Columns, sqlgraph.NewFieldSpec(extension.FieldID, field.TypeInt))
-	id, ok := euo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Extension.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := euo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, extension.FieldID)
 		for _, f := range fields {
@@ -152,17 +152,17 @@ func (euo *ExtensionUpdateOne) sqlSave(ctx context.Context) (_node *Extension, e
 			}
 		}
 	}
-	if ps := euo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	_node = &Extension{config: euo.config}
+	_node = &Extension{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, euo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{extension.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -170,6 +170,6 @@ func (euo *ExtensionUpdateOne) sqlSave(ctx context.Context) (_node *Extension, e
 		}
 		return nil, err
 	}
-	euo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

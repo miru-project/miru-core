@@ -17,6 +17,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/miru-project/miru-core/ent/appsetting"
 	"github.com/miru-project/miru-core/ent/extension"
+	"github.com/miru-project/miru-core/ent/extensionrepo"
 	"github.com/miru-project/miru-core/ent/favorite"
 	"github.com/miru-project/miru-core/ent/favoritegroup"
 	"github.com/miru-project/miru-core/ent/history"
@@ -31,6 +32,8 @@ type Client struct {
 	AppSetting *AppSettingClient
 	// Extension is the client for interacting with the Extension builders.
 	Extension *ExtensionClient
+	// ExtensionRepo is the client for interacting with the ExtensionRepo builders.
+	ExtensionRepo *ExtensionRepoClient
 	// Favorite is the client for interacting with the Favorite builders.
 	Favorite *FavoriteClient
 	// FavoriteGroup is the client for interacting with the FavoriteGroup builders.
@@ -50,6 +53,7 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.AppSetting = NewAppSettingClient(c.config)
 	c.Extension = NewExtensionClient(c.config)
+	c.ExtensionRepo = NewExtensionRepoClient(c.config)
 	c.Favorite = NewFavoriteClient(c.config)
 	c.FavoriteGroup = NewFavoriteGroupClient(c.config)
 	c.History = NewHistoryClient(c.config)
@@ -147,6 +151,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		config:        cfg,
 		AppSetting:    NewAppSettingClient(cfg),
 		Extension:     NewExtensionClient(cfg),
+		ExtensionRepo: NewExtensionRepoClient(cfg),
 		Favorite:      NewFavoriteClient(cfg),
 		FavoriteGroup: NewFavoriteGroupClient(cfg),
 		History:       NewHistoryClient(cfg),
@@ -171,6 +176,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		config:        cfg,
 		AppSetting:    NewAppSettingClient(cfg),
 		Extension:     NewExtensionClient(cfg),
+		ExtensionRepo: NewExtensionRepoClient(cfg),
 		Favorite:      NewFavoriteClient(cfg),
 		FavoriteGroup: NewFavoriteGroupClient(cfg),
 		History:       NewHistoryClient(cfg),
@@ -202,21 +208,23 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.AppSetting.Use(hooks...)
-	c.Extension.Use(hooks...)
-	c.Favorite.Use(hooks...)
-	c.FavoriteGroup.Use(hooks...)
-	c.History.Use(hooks...)
+	for _, n := range []interface{ Use(...Hook) }{
+		c.AppSetting, c.Extension, c.ExtensionRepo, c.Favorite, c.FavoriteGroup,
+		c.History,
+	} {
+		n.Use(hooks...)
+	}
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.AppSetting.Intercept(interceptors...)
-	c.Extension.Intercept(interceptors...)
-	c.Favorite.Intercept(interceptors...)
-	c.FavoriteGroup.Intercept(interceptors...)
-	c.History.Intercept(interceptors...)
+	for _, n := range []interface{ Intercept(...Interceptor) }{
+		c.AppSetting, c.Extension, c.ExtensionRepo, c.Favorite, c.FavoriteGroup,
+		c.History,
+	} {
+		n.Intercept(interceptors...)
+	}
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -226,6 +234,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.AppSetting.mutate(ctx, m)
 	case *ExtensionMutation:
 		return c.Extension.mutate(ctx, m)
+	case *ExtensionRepoMutation:
+		return c.ExtensionRepo.mutate(ctx, m)
 	case *FavoriteMutation:
 		return c.Favorite.mutate(ctx, m)
 	case *FavoriteGroupMutation:
@@ -292,8 +302,8 @@ func (c *AppSettingClient) Update() *AppSettingUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *AppSettingClient) UpdateOne(as *AppSetting) *AppSettingUpdateOne {
-	mutation := newAppSettingMutation(c.config, OpUpdateOne, withAppSetting(as))
+func (c *AppSettingClient) UpdateOne(_m *AppSetting) *AppSettingUpdateOne {
+	mutation := newAppSettingMutation(c.config, OpUpdateOne, withAppSetting(_m))
 	return &AppSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -310,8 +320,8 @@ func (c *AppSettingClient) Delete() *AppSettingDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *AppSettingClient) DeleteOne(as *AppSetting) *AppSettingDeleteOne {
-	return c.DeleteOneID(as.ID)
+func (c *AppSettingClient) DeleteOne(_m *AppSetting) *AppSettingDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -425,8 +435,8 @@ func (c *ExtensionClient) Update() *ExtensionUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *ExtensionClient) UpdateOne(e *Extension) *ExtensionUpdateOne {
-	mutation := newExtensionMutation(c.config, OpUpdateOne, withExtension(e))
+func (c *ExtensionClient) UpdateOne(_m *Extension) *ExtensionUpdateOne {
+	mutation := newExtensionMutation(c.config, OpUpdateOne, withExtension(_m))
 	return &ExtensionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -443,8 +453,8 @@ func (c *ExtensionClient) Delete() *ExtensionDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *ExtensionClient) DeleteOne(e *Extension) *ExtensionDeleteOne {
-	return c.DeleteOneID(e.ID)
+func (c *ExtensionClient) DeleteOne(_m *Extension) *ExtensionDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -503,6 +513,139 @@ func (c *ExtensionClient) mutate(ctx context.Context, m *ExtensionMutation) (Val
 	}
 }
 
+// ExtensionRepoClient is a client for the ExtensionRepo schema.
+type ExtensionRepoClient struct {
+	config
+}
+
+// NewExtensionRepoClient returns a client for the ExtensionRepo from the given config.
+func NewExtensionRepoClient(c config) *ExtensionRepoClient {
+	return &ExtensionRepoClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `extensionrepo.Hooks(f(g(h())))`.
+func (c *ExtensionRepoClient) Use(hooks ...Hook) {
+	c.hooks.ExtensionRepo = append(c.hooks.ExtensionRepo, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `extensionrepo.Intercept(f(g(h())))`.
+func (c *ExtensionRepoClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ExtensionRepo = append(c.inters.ExtensionRepo, interceptors...)
+}
+
+// Create returns a builder for creating a ExtensionRepo entity.
+func (c *ExtensionRepoClient) Create() *ExtensionRepoCreate {
+	mutation := newExtensionRepoMutation(c.config, OpCreate)
+	return &ExtensionRepoCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ExtensionRepo entities.
+func (c *ExtensionRepoClient) CreateBulk(builders ...*ExtensionRepoCreate) *ExtensionRepoCreateBulk {
+	return &ExtensionRepoCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ExtensionRepoClient) MapCreateBulk(slice any, setFunc func(*ExtensionRepoCreate, int)) *ExtensionRepoCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ExtensionRepoCreateBulk{err: fmt.Errorf("calling to ExtensionRepoClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ExtensionRepoCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ExtensionRepoCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ExtensionRepo.
+func (c *ExtensionRepoClient) Update() *ExtensionRepoUpdate {
+	mutation := newExtensionRepoMutation(c.config, OpUpdate)
+	return &ExtensionRepoUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ExtensionRepoClient) UpdateOne(_m *ExtensionRepo) *ExtensionRepoUpdateOne {
+	mutation := newExtensionRepoMutation(c.config, OpUpdateOne, withExtensionRepo(_m))
+	return &ExtensionRepoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ExtensionRepoClient) UpdateOneID(id int) *ExtensionRepoUpdateOne {
+	mutation := newExtensionRepoMutation(c.config, OpUpdateOne, withExtensionRepoID(id))
+	return &ExtensionRepoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ExtensionRepo.
+func (c *ExtensionRepoClient) Delete() *ExtensionRepoDelete {
+	mutation := newExtensionRepoMutation(c.config, OpDelete)
+	return &ExtensionRepoDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ExtensionRepoClient) DeleteOne(_m *ExtensionRepo) *ExtensionRepoDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ExtensionRepoClient) DeleteOneID(id int) *ExtensionRepoDeleteOne {
+	builder := c.Delete().Where(extensionrepo.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ExtensionRepoDeleteOne{builder}
+}
+
+// Query returns a query builder for ExtensionRepo.
+func (c *ExtensionRepoClient) Query() *ExtensionRepoQuery {
+	return &ExtensionRepoQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeExtensionRepo},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ExtensionRepo entity by its id.
+func (c *ExtensionRepoClient) Get(ctx context.Context, id int) (*ExtensionRepo, error) {
+	return c.Query().Where(extensionrepo.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ExtensionRepoClient) GetX(ctx context.Context, id int) *ExtensionRepo {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *ExtensionRepoClient) Hooks() []Hook {
+	return c.hooks.ExtensionRepo
+}
+
+// Interceptors returns the client interceptors.
+func (c *ExtensionRepoClient) Interceptors() []Interceptor {
+	return c.inters.ExtensionRepo
+}
+
+func (c *ExtensionRepoClient) mutate(ctx context.Context, m *ExtensionRepoMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ExtensionRepoCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ExtensionRepoUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ExtensionRepoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ExtensionRepoDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ExtensionRepo mutation op: %q", m.Op())
+	}
+}
+
 // FavoriteClient is a client for the Favorite schema.
 type FavoriteClient struct {
 	config
@@ -558,8 +701,8 @@ func (c *FavoriteClient) Update() *FavoriteUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *FavoriteClient) UpdateOne(f *Favorite) *FavoriteUpdateOne {
-	mutation := newFavoriteMutation(c.config, OpUpdateOne, withFavorite(f))
+func (c *FavoriteClient) UpdateOne(_m *Favorite) *FavoriteUpdateOne {
+	mutation := newFavoriteMutation(c.config, OpUpdateOne, withFavorite(_m))
 	return &FavoriteUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -576,8 +719,8 @@ func (c *FavoriteClient) Delete() *FavoriteDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *FavoriteClient) DeleteOne(f *Favorite) *FavoriteDeleteOne {
-	return c.DeleteOneID(f.ID)
+func (c *FavoriteClient) DeleteOne(_m *Favorite) *FavoriteDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -612,16 +755,16 @@ func (c *FavoriteClient) GetX(ctx context.Context, id int) *Favorite {
 }
 
 // QueryGroup queries the group edge of a Favorite.
-func (c *FavoriteClient) QueryGroup(f *Favorite) *FavoriteGroupQuery {
+func (c *FavoriteClient) QueryGroup(_m *Favorite) *FavoriteGroupQuery {
 	query := (&FavoriteGroupClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := f.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(favorite.Table, favorite.FieldID, id),
 			sqlgraph.To(favoritegroup.Table, favoritegroup.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, favorite.GroupTable, favorite.GroupPrimaryKey...),
 		)
-		fromV = sqlgraph.Neighbors(f.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -707,8 +850,8 @@ func (c *FavoriteGroupClient) Update() *FavoriteGroupUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *FavoriteGroupClient) UpdateOne(fg *FavoriteGroup) *FavoriteGroupUpdateOne {
-	mutation := newFavoriteGroupMutation(c.config, OpUpdateOne, withFavoriteGroup(fg))
+func (c *FavoriteGroupClient) UpdateOne(_m *FavoriteGroup) *FavoriteGroupUpdateOne {
+	mutation := newFavoriteGroupMutation(c.config, OpUpdateOne, withFavoriteGroup(_m))
 	return &FavoriteGroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -725,8 +868,8 @@ func (c *FavoriteGroupClient) Delete() *FavoriteGroupDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *FavoriteGroupClient) DeleteOne(fg *FavoriteGroup) *FavoriteGroupDeleteOne {
-	return c.DeleteOneID(fg.ID)
+func (c *FavoriteGroupClient) DeleteOne(_m *FavoriteGroup) *FavoriteGroupDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -761,16 +904,16 @@ func (c *FavoriteGroupClient) GetX(ctx context.Context, id int) *FavoriteGroup {
 }
 
 // QueryFavorites queries the favorites edge of a FavoriteGroup.
-func (c *FavoriteGroupClient) QueryFavorites(fg *FavoriteGroup) *FavoriteQuery {
+func (c *FavoriteGroupClient) QueryFavorites(_m *FavoriteGroup) *FavoriteQuery {
 	query := (&FavoriteClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := fg.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(favoritegroup.Table, favoritegroup.FieldID, id),
 			sqlgraph.To(favorite.Table, favorite.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, favoritegroup.FavoritesTable, favoritegroup.FavoritesPrimaryKey...),
 		)
-		fromV = sqlgraph.Neighbors(fg.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -856,8 +999,8 @@ func (c *HistoryClient) Update() *HistoryUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *HistoryClient) UpdateOne(h *History) *HistoryUpdateOne {
-	mutation := newHistoryMutation(c.config, OpUpdateOne, withHistory(h))
+func (c *HistoryClient) UpdateOne(_m *History) *HistoryUpdateOne {
+	mutation := newHistoryMutation(c.config, OpUpdateOne, withHistory(_m))
 	return &HistoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -874,8 +1017,8 @@ func (c *HistoryClient) Delete() *HistoryDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *HistoryClient) DeleteOne(h *History) *HistoryDeleteOne {
-	return c.DeleteOneID(h.ID)
+func (c *HistoryClient) DeleteOne(_m *History) *HistoryDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -937,9 +1080,11 @@ func (c *HistoryClient) mutate(ctx context.Context, m *HistoryMutation) (Value, 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AppSetting, Extension, Favorite, FavoriteGroup, History []ent.Hook
+		AppSetting, Extension, ExtensionRepo, Favorite, FavoriteGroup,
+		History []ent.Hook
 	}
 	inters struct {
-		AppSetting, Extension, Favorite, FavoriteGroup, History []ent.Interceptor
+		AppSetting, Extension, ExtensionRepo, Favorite, FavoriteGroup,
+		History []ent.Interceptor
 	}
 )

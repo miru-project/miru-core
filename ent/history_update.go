@@ -23,198 +23,198 @@ type HistoryUpdate struct {
 }
 
 // Where appends a list predicates to the HistoryUpdate builder.
-func (hu *HistoryUpdate) Where(ps ...predicate.History) *HistoryUpdate {
-	hu.mutation.Where(ps...)
-	return hu
+func (_u *HistoryUpdate) Where(ps ...predicate.History) *HistoryUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetPackage sets the "package" field.
-func (hu *HistoryUpdate) SetPackage(s string) *HistoryUpdate {
-	hu.mutation.SetPackage(s)
-	return hu
+func (_u *HistoryUpdate) SetPackage(v string) *HistoryUpdate {
+	_u.mutation.SetPackage(v)
+	return _u
 }
 
 // SetNillablePackage sets the "package" field if the given value is not nil.
-func (hu *HistoryUpdate) SetNillablePackage(s *string) *HistoryUpdate {
-	if s != nil {
-		hu.SetPackage(*s)
+func (_u *HistoryUpdate) SetNillablePackage(v *string) *HistoryUpdate {
+	if v != nil {
+		_u.SetPackage(*v)
 	}
-	return hu
+	return _u
 }
 
 // SetURL sets the "url" field.
-func (hu *HistoryUpdate) SetURL(s string) *HistoryUpdate {
-	hu.mutation.SetURL(s)
-	return hu
+func (_u *HistoryUpdate) SetURL(v string) *HistoryUpdate {
+	_u.mutation.SetURL(v)
+	return _u
 }
 
 // SetNillableURL sets the "url" field if the given value is not nil.
-func (hu *HistoryUpdate) SetNillableURL(s *string) *HistoryUpdate {
-	if s != nil {
-		hu.SetURL(*s)
+func (_u *HistoryUpdate) SetNillableURL(v *string) *HistoryUpdate {
+	if v != nil {
+		_u.SetURL(*v)
 	}
-	return hu
+	return _u
 }
 
 // SetCover sets the "cover" field.
-func (hu *HistoryUpdate) SetCover(s string) *HistoryUpdate {
-	hu.mutation.SetCover(s)
-	return hu
+func (_u *HistoryUpdate) SetCover(v string) *HistoryUpdate {
+	_u.mutation.SetCover(v)
+	return _u
 }
 
 // SetNillableCover sets the "cover" field if the given value is not nil.
-func (hu *HistoryUpdate) SetNillableCover(s *string) *HistoryUpdate {
-	if s != nil {
-		hu.SetCover(*s)
+func (_u *HistoryUpdate) SetNillableCover(v *string) *HistoryUpdate {
+	if v != nil {
+		_u.SetCover(*v)
 	}
-	return hu
+	return _u
 }
 
 // ClearCover clears the value of the "cover" field.
-func (hu *HistoryUpdate) ClearCover() *HistoryUpdate {
-	hu.mutation.ClearCover()
-	return hu
+func (_u *HistoryUpdate) ClearCover() *HistoryUpdate {
+	_u.mutation.ClearCover()
+	return _u
 }
 
 // SetType sets the "type" field.
-func (hu *HistoryUpdate) SetType(s string) *HistoryUpdate {
-	hu.mutation.SetType(s)
-	return hu
+func (_u *HistoryUpdate) SetType(v string) *HistoryUpdate {
+	_u.mutation.SetType(v)
+	return _u
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (hu *HistoryUpdate) SetNillableType(s *string) *HistoryUpdate {
-	if s != nil {
-		hu.SetType(*s)
+func (_u *HistoryUpdate) SetNillableType(v *string) *HistoryUpdate {
+	if v != nil {
+		_u.SetType(*v)
 	}
-	return hu
+	return _u
 }
 
 // SetEpisodeGroupID sets the "episode_group_id" field.
-func (hu *HistoryUpdate) SetEpisodeGroupID(i int) *HistoryUpdate {
-	hu.mutation.ResetEpisodeGroupID()
-	hu.mutation.SetEpisodeGroupID(i)
-	return hu
+func (_u *HistoryUpdate) SetEpisodeGroupID(v int) *HistoryUpdate {
+	_u.mutation.ResetEpisodeGroupID()
+	_u.mutation.SetEpisodeGroupID(v)
+	return _u
 }
 
 // SetNillableEpisodeGroupID sets the "episode_group_id" field if the given value is not nil.
-func (hu *HistoryUpdate) SetNillableEpisodeGroupID(i *int) *HistoryUpdate {
-	if i != nil {
-		hu.SetEpisodeGroupID(*i)
+func (_u *HistoryUpdate) SetNillableEpisodeGroupID(v *int) *HistoryUpdate {
+	if v != nil {
+		_u.SetEpisodeGroupID(*v)
 	}
-	return hu
+	return _u
 }
 
-// AddEpisodeGroupID adds i to the "episode_group_id" field.
-func (hu *HistoryUpdate) AddEpisodeGroupID(i int) *HistoryUpdate {
-	hu.mutation.AddEpisodeGroupID(i)
-	return hu
+// AddEpisodeGroupID adds value to the "episode_group_id" field.
+func (_u *HistoryUpdate) AddEpisodeGroupID(v int) *HistoryUpdate {
+	_u.mutation.AddEpisodeGroupID(v)
+	return _u
 }
 
 // SetEpisodeID sets the "episode_id" field.
-func (hu *HistoryUpdate) SetEpisodeID(i int) *HistoryUpdate {
-	hu.mutation.ResetEpisodeID()
-	hu.mutation.SetEpisodeID(i)
-	return hu
+func (_u *HistoryUpdate) SetEpisodeID(v int) *HistoryUpdate {
+	_u.mutation.ResetEpisodeID()
+	_u.mutation.SetEpisodeID(v)
+	return _u
 }
 
 // SetNillableEpisodeID sets the "episode_id" field if the given value is not nil.
-func (hu *HistoryUpdate) SetNillableEpisodeID(i *int) *HistoryUpdate {
-	if i != nil {
-		hu.SetEpisodeID(*i)
+func (_u *HistoryUpdate) SetNillableEpisodeID(v *int) *HistoryUpdate {
+	if v != nil {
+		_u.SetEpisodeID(*v)
 	}
-	return hu
+	return _u
 }
 
-// AddEpisodeID adds i to the "episode_id" field.
-func (hu *HistoryUpdate) AddEpisodeID(i int) *HistoryUpdate {
-	hu.mutation.AddEpisodeID(i)
-	return hu
+// AddEpisodeID adds value to the "episode_id" field.
+func (_u *HistoryUpdate) AddEpisodeID(v int) *HistoryUpdate {
+	_u.mutation.AddEpisodeID(v)
+	return _u
 }
 
 // SetTitle sets the "title" field.
-func (hu *HistoryUpdate) SetTitle(s string) *HistoryUpdate {
-	hu.mutation.SetTitle(s)
-	return hu
+func (_u *HistoryUpdate) SetTitle(v string) *HistoryUpdate {
+	_u.mutation.SetTitle(v)
+	return _u
 }
 
 // SetNillableTitle sets the "title" field if the given value is not nil.
-func (hu *HistoryUpdate) SetNillableTitle(s *string) *HistoryUpdate {
-	if s != nil {
-		hu.SetTitle(*s)
+func (_u *HistoryUpdate) SetNillableTitle(v *string) *HistoryUpdate {
+	if v != nil {
+		_u.SetTitle(*v)
 	}
-	return hu
+	return _u
 }
 
 // SetEpisodeTitle sets the "episode_title" field.
-func (hu *HistoryUpdate) SetEpisodeTitle(s string) *HistoryUpdate {
-	hu.mutation.SetEpisodeTitle(s)
-	return hu
+func (_u *HistoryUpdate) SetEpisodeTitle(v string) *HistoryUpdate {
+	_u.mutation.SetEpisodeTitle(v)
+	return _u
 }
 
 // SetNillableEpisodeTitle sets the "episode_title" field if the given value is not nil.
-func (hu *HistoryUpdate) SetNillableEpisodeTitle(s *string) *HistoryUpdate {
-	if s != nil {
-		hu.SetEpisodeTitle(*s)
+func (_u *HistoryUpdate) SetNillableEpisodeTitle(v *string) *HistoryUpdate {
+	if v != nil {
+		_u.SetEpisodeTitle(*v)
 	}
-	return hu
+	return _u
 }
 
 // SetProgress sets the "progress" field.
-func (hu *HistoryUpdate) SetProgress(s string) *HistoryUpdate {
-	hu.mutation.SetProgress(s)
-	return hu
+func (_u *HistoryUpdate) SetProgress(v string) *HistoryUpdate {
+	_u.mutation.SetProgress(v)
+	return _u
 }
 
 // SetNillableProgress sets the "progress" field if the given value is not nil.
-func (hu *HistoryUpdate) SetNillableProgress(s *string) *HistoryUpdate {
-	if s != nil {
-		hu.SetProgress(*s)
+func (_u *HistoryUpdate) SetNillableProgress(v *string) *HistoryUpdate {
+	if v != nil {
+		_u.SetProgress(*v)
 	}
-	return hu
+	return _u
 }
 
 // SetTotalProgress sets the "total_progress" field.
-func (hu *HistoryUpdate) SetTotalProgress(s string) *HistoryUpdate {
-	hu.mutation.SetTotalProgress(s)
-	return hu
+func (_u *HistoryUpdate) SetTotalProgress(v string) *HistoryUpdate {
+	_u.mutation.SetTotalProgress(v)
+	return _u
 }
 
 // SetNillableTotalProgress sets the "total_progress" field if the given value is not nil.
-func (hu *HistoryUpdate) SetNillableTotalProgress(s *string) *HistoryUpdate {
-	if s != nil {
-		hu.SetTotalProgress(*s)
+func (_u *HistoryUpdate) SetNillableTotalProgress(v *string) *HistoryUpdate {
+	if v != nil {
+		_u.SetTotalProgress(*v)
 	}
-	return hu
+	return _u
 }
 
 // SetDate sets the "date" field.
-func (hu *HistoryUpdate) SetDate(t time.Time) *HistoryUpdate {
-	hu.mutation.SetDate(t)
-	return hu
+func (_u *HistoryUpdate) SetDate(v time.Time) *HistoryUpdate {
+	_u.mutation.SetDate(v)
+	return _u
 }
 
 // SetNillableDate sets the "date" field if the given value is not nil.
-func (hu *HistoryUpdate) SetNillableDate(t *time.Time) *HistoryUpdate {
-	if t != nil {
-		hu.SetDate(*t)
+func (_u *HistoryUpdate) SetNillableDate(v *time.Time) *HistoryUpdate {
+	if v != nil {
+		_u.SetDate(*v)
 	}
-	return hu
+	return _u
 }
 
 // Mutation returns the HistoryMutation object of the builder.
-func (hu *HistoryUpdate) Mutation() *HistoryMutation {
-	return hu.mutation
+func (_u *HistoryUpdate) Mutation() *HistoryMutation {
+	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (hu *HistoryUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, hu.sqlSave, hu.mutation, hu.hooks)
+func (_u *HistoryUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (hu *HistoryUpdate) SaveX(ctx context.Context) int {
-	affected, err := hu.Save(ctx)
+func (_u *HistoryUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -222,51 +222,51 @@ func (hu *HistoryUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (hu *HistoryUpdate) Exec(ctx context.Context) error {
-	_, err := hu.Save(ctx)
+func (_u *HistoryUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (hu *HistoryUpdate) ExecX(ctx context.Context) {
-	if err := hu.Exec(ctx); err != nil {
+func (_u *HistoryUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (hu *HistoryUpdate) check() error {
-	if v, ok := hu.mutation.Package(); ok {
+func (_u *HistoryUpdate) check() error {
+	if v, ok := _u.mutation.Package(); ok {
 		if err := history.PackageValidator(v); err != nil {
 			return &ValidationError{Name: "package", err: fmt.Errorf(`ent: validator failed for field "History.package": %w`, err)}
 		}
 	}
-	if v, ok := hu.mutation.URL(); ok {
+	if v, ok := _u.mutation.URL(); ok {
 		if err := history.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "History.url": %w`, err)}
 		}
 	}
-	if v, ok := hu.mutation.GetType(); ok {
+	if v, ok := _u.mutation.GetType(); ok {
 		if err := history.TypeValidator(v); err != nil {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "History.type": %w`, err)}
 		}
 	}
-	if v, ok := hu.mutation.Title(); ok {
+	if v, ok := _u.mutation.Title(); ok {
 		if err := history.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "History.title": %w`, err)}
 		}
 	}
-	if v, ok := hu.mutation.EpisodeTitle(); ok {
+	if v, ok := _u.mutation.EpisodeTitle(); ok {
 		if err := history.EpisodeTitleValidator(v); err != nil {
 			return &ValidationError{Name: "episode_title", err: fmt.Errorf(`ent: validator failed for field "History.episode_title": %w`, err)}
 		}
 	}
-	if v, ok := hu.mutation.Progress(); ok {
+	if v, ok := _u.mutation.Progress(); ok {
 		if err := history.ProgressValidator(v); err != nil {
 			return &ValidationError{Name: "progress", err: fmt.Errorf(`ent: validator failed for field "History.progress": %w`, err)}
 		}
 	}
-	if v, ok := hu.mutation.TotalProgress(); ok {
+	if v, ok := _u.mutation.TotalProgress(); ok {
 		if err := history.TotalProgressValidator(v); err != nil {
 			return &ValidationError{Name: "total_progress", err: fmt.Errorf(`ent: validator failed for field "History.total_progress": %w`, err)}
 		}
@@ -274,61 +274,61 @@ func (hu *HistoryUpdate) check() error {
 	return nil
 }
 
-func (hu *HistoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := hu.check(); err != nil {
-		return n, err
+func (_u *HistoryUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(history.Table, history.Columns, sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt))
-	if ps := hu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := hu.mutation.Package(); ok {
+	if value, ok := _u.mutation.Package(); ok {
 		_spec.SetField(history.FieldPackage, field.TypeString, value)
 	}
-	if value, ok := hu.mutation.URL(); ok {
+	if value, ok := _u.mutation.URL(); ok {
 		_spec.SetField(history.FieldURL, field.TypeString, value)
 	}
-	if value, ok := hu.mutation.Cover(); ok {
+	if value, ok := _u.mutation.Cover(); ok {
 		_spec.SetField(history.FieldCover, field.TypeString, value)
 	}
-	if hu.mutation.CoverCleared() {
+	if _u.mutation.CoverCleared() {
 		_spec.ClearField(history.FieldCover, field.TypeString)
 	}
-	if value, ok := hu.mutation.GetType(); ok {
+	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(history.FieldType, field.TypeString, value)
 	}
-	if value, ok := hu.mutation.EpisodeGroupID(); ok {
+	if value, ok := _u.mutation.EpisodeGroupID(); ok {
 		_spec.SetField(history.FieldEpisodeGroupID, field.TypeInt, value)
 	}
-	if value, ok := hu.mutation.AddedEpisodeGroupID(); ok {
+	if value, ok := _u.mutation.AddedEpisodeGroupID(); ok {
 		_spec.AddField(history.FieldEpisodeGroupID, field.TypeInt, value)
 	}
-	if value, ok := hu.mutation.EpisodeID(); ok {
+	if value, ok := _u.mutation.EpisodeID(); ok {
 		_spec.SetField(history.FieldEpisodeID, field.TypeInt, value)
 	}
-	if value, ok := hu.mutation.AddedEpisodeID(); ok {
+	if value, ok := _u.mutation.AddedEpisodeID(); ok {
 		_spec.AddField(history.FieldEpisodeID, field.TypeInt, value)
 	}
-	if value, ok := hu.mutation.Title(); ok {
+	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(history.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := hu.mutation.EpisodeTitle(); ok {
+	if value, ok := _u.mutation.EpisodeTitle(); ok {
 		_spec.SetField(history.FieldEpisodeTitle, field.TypeString, value)
 	}
-	if value, ok := hu.mutation.Progress(); ok {
+	if value, ok := _u.mutation.Progress(); ok {
 		_spec.SetField(history.FieldProgress, field.TypeString, value)
 	}
-	if value, ok := hu.mutation.TotalProgress(); ok {
+	if value, ok := _u.mutation.TotalProgress(); ok {
 		_spec.SetField(history.FieldTotalProgress, field.TypeString, value)
 	}
-	if value, ok := hu.mutation.Date(); ok {
+	if value, ok := _u.mutation.Date(); ok {
 		_spec.SetField(history.FieldDate, field.TypeTime, value)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, hu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{history.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -336,8 +336,8 @@ func (hu *HistoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	hu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // HistoryUpdateOne is the builder for updating a single History entity.
@@ -349,205 +349,205 @@ type HistoryUpdateOne struct {
 }
 
 // SetPackage sets the "package" field.
-func (huo *HistoryUpdateOne) SetPackage(s string) *HistoryUpdateOne {
-	huo.mutation.SetPackage(s)
-	return huo
+func (_u *HistoryUpdateOne) SetPackage(v string) *HistoryUpdateOne {
+	_u.mutation.SetPackage(v)
+	return _u
 }
 
 // SetNillablePackage sets the "package" field if the given value is not nil.
-func (huo *HistoryUpdateOne) SetNillablePackage(s *string) *HistoryUpdateOne {
-	if s != nil {
-		huo.SetPackage(*s)
+func (_u *HistoryUpdateOne) SetNillablePackage(v *string) *HistoryUpdateOne {
+	if v != nil {
+		_u.SetPackage(*v)
 	}
-	return huo
+	return _u
 }
 
 // SetURL sets the "url" field.
-func (huo *HistoryUpdateOne) SetURL(s string) *HistoryUpdateOne {
-	huo.mutation.SetURL(s)
-	return huo
+func (_u *HistoryUpdateOne) SetURL(v string) *HistoryUpdateOne {
+	_u.mutation.SetURL(v)
+	return _u
 }
 
 // SetNillableURL sets the "url" field if the given value is not nil.
-func (huo *HistoryUpdateOne) SetNillableURL(s *string) *HistoryUpdateOne {
-	if s != nil {
-		huo.SetURL(*s)
+func (_u *HistoryUpdateOne) SetNillableURL(v *string) *HistoryUpdateOne {
+	if v != nil {
+		_u.SetURL(*v)
 	}
-	return huo
+	return _u
 }
 
 // SetCover sets the "cover" field.
-func (huo *HistoryUpdateOne) SetCover(s string) *HistoryUpdateOne {
-	huo.mutation.SetCover(s)
-	return huo
+func (_u *HistoryUpdateOne) SetCover(v string) *HistoryUpdateOne {
+	_u.mutation.SetCover(v)
+	return _u
 }
 
 // SetNillableCover sets the "cover" field if the given value is not nil.
-func (huo *HistoryUpdateOne) SetNillableCover(s *string) *HistoryUpdateOne {
-	if s != nil {
-		huo.SetCover(*s)
+func (_u *HistoryUpdateOne) SetNillableCover(v *string) *HistoryUpdateOne {
+	if v != nil {
+		_u.SetCover(*v)
 	}
-	return huo
+	return _u
 }
 
 // ClearCover clears the value of the "cover" field.
-func (huo *HistoryUpdateOne) ClearCover() *HistoryUpdateOne {
-	huo.mutation.ClearCover()
-	return huo
+func (_u *HistoryUpdateOne) ClearCover() *HistoryUpdateOne {
+	_u.mutation.ClearCover()
+	return _u
 }
 
 // SetType sets the "type" field.
-func (huo *HistoryUpdateOne) SetType(s string) *HistoryUpdateOne {
-	huo.mutation.SetType(s)
-	return huo
+func (_u *HistoryUpdateOne) SetType(v string) *HistoryUpdateOne {
+	_u.mutation.SetType(v)
+	return _u
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (huo *HistoryUpdateOne) SetNillableType(s *string) *HistoryUpdateOne {
-	if s != nil {
-		huo.SetType(*s)
+func (_u *HistoryUpdateOne) SetNillableType(v *string) *HistoryUpdateOne {
+	if v != nil {
+		_u.SetType(*v)
 	}
-	return huo
+	return _u
 }
 
 // SetEpisodeGroupID sets the "episode_group_id" field.
-func (huo *HistoryUpdateOne) SetEpisodeGroupID(i int) *HistoryUpdateOne {
-	huo.mutation.ResetEpisodeGroupID()
-	huo.mutation.SetEpisodeGroupID(i)
-	return huo
+func (_u *HistoryUpdateOne) SetEpisodeGroupID(v int) *HistoryUpdateOne {
+	_u.mutation.ResetEpisodeGroupID()
+	_u.mutation.SetEpisodeGroupID(v)
+	return _u
 }
 
 // SetNillableEpisodeGroupID sets the "episode_group_id" field if the given value is not nil.
-func (huo *HistoryUpdateOne) SetNillableEpisodeGroupID(i *int) *HistoryUpdateOne {
-	if i != nil {
-		huo.SetEpisodeGroupID(*i)
+func (_u *HistoryUpdateOne) SetNillableEpisodeGroupID(v *int) *HistoryUpdateOne {
+	if v != nil {
+		_u.SetEpisodeGroupID(*v)
 	}
-	return huo
+	return _u
 }
 
-// AddEpisodeGroupID adds i to the "episode_group_id" field.
-func (huo *HistoryUpdateOne) AddEpisodeGroupID(i int) *HistoryUpdateOne {
-	huo.mutation.AddEpisodeGroupID(i)
-	return huo
+// AddEpisodeGroupID adds value to the "episode_group_id" field.
+func (_u *HistoryUpdateOne) AddEpisodeGroupID(v int) *HistoryUpdateOne {
+	_u.mutation.AddEpisodeGroupID(v)
+	return _u
 }
 
 // SetEpisodeID sets the "episode_id" field.
-func (huo *HistoryUpdateOne) SetEpisodeID(i int) *HistoryUpdateOne {
-	huo.mutation.ResetEpisodeID()
-	huo.mutation.SetEpisodeID(i)
-	return huo
+func (_u *HistoryUpdateOne) SetEpisodeID(v int) *HistoryUpdateOne {
+	_u.mutation.ResetEpisodeID()
+	_u.mutation.SetEpisodeID(v)
+	return _u
 }
 
 // SetNillableEpisodeID sets the "episode_id" field if the given value is not nil.
-func (huo *HistoryUpdateOne) SetNillableEpisodeID(i *int) *HistoryUpdateOne {
-	if i != nil {
-		huo.SetEpisodeID(*i)
+func (_u *HistoryUpdateOne) SetNillableEpisodeID(v *int) *HistoryUpdateOne {
+	if v != nil {
+		_u.SetEpisodeID(*v)
 	}
-	return huo
+	return _u
 }
 
-// AddEpisodeID adds i to the "episode_id" field.
-func (huo *HistoryUpdateOne) AddEpisodeID(i int) *HistoryUpdateOne {
-	huo.mutation.AddEpisodeID(i)
-	return huo
+// AddEpisodeID adds value to the "episode_id" field.
+func (_u *HistoryUpdateOne) AddEpisodeID(v int) *HistoryUpdateOne {
+	_u.mutation.AddEpisodeID(v)
+	return _u
 }
 
 // SetTitle sets the "title" field.
-func (huo *HistoryUpdateOne) SetTitle(s string) *HistoryUpdateOne {
-	huo.mutation.SetTitle(s)
-	return huo
+func (_u *HistoryUpdateOne) SetTitle(v string) *HistoryUpdateOne {
+	_u.mutation.SetTitle(v)
+	return _u
 }
 
 // SetNillableTitle sets the "title" field if the given value is not nil.
-func (huo *HistoryUpdateOne) SetNillableTitle(s *string) *HistoryUpdateOne {
-	if s != nil {
-		huo.SetTitle(*s)
+func (_u *HistoryUpdateOne) SetNillableTitle(v *string) *HistoryUpdateOne {
+	if v != nil {
+		_u.SetTitle(*v)
 	}
-	return huo
+	return _u
 }
 
 // SetEpisodeTitle sets the "episode_title" field.
-func (huo *HistoryUpdateOne) SetEpisodeTitle(s string) *HistoryUpdateOne {
-	huo.mutation.SetEpisodeTitle(s)
-	return huo
+func (_u *HistoryUpdateOne) SetEpisodeTitle(v string) *HistoryUpdateOne {
+	_u.mutation.SetEpisodeTitle(v)
+	return _u
 }
 
 // SetNillableEpisodeTitle sets the "episode_title" field if the given value is not nil.
-func (huo *HistoryUpdateOne) SetNillableEpisodeTitle(s *string) *HistoryUpdateOne {
-	if s != nil {
-		huo.SetEpisodeTitle(*s)
+func (_u *HistoryUpdateOne) SetNillableEpisodeTitle(v *string) *HistoryUpdateOne {
+	if v != nil {
+		_u.SetEpisodeTitle(*v)
 	}
-	return huo
+	return _u
 }
 
 // SetProgress sets the "progress" field.
-func (huo *HistoryUpdateOne) SetProgress(s string) *HistoryUpdateOne {
-	huo.mutation.SetProgress(s)
-	return huo
+func (_u *HistoryUpdateOne) SetProgress(v string) *HistoryUpdateOne {
+	_u.mutation.SetProgress(v)
+	return _u
 }
 
 // SetNillableProgress sets the "progress" field if the given value is not nil.
-func (huo *HistoryUpdateOne) SetNillableProgress(s *string) *HistoryUpdateOne {
-	if s != nil {
-		huo.SetProgress(*s)
+func (_u *HistoryUpdateOne) SetNillableProgress(v *string) *HistoryUpdateOne {
+	if v != nil {
+		_u.SetProgress(*v)
 	}
-	return huo
+	return _u
 }
 
 // SetTotalProgress sets the "total_progress" field.
-func (huo *HistoryUpdateOne) SetTotalProgress(s string) *HistoryUpdateOne {
-	huo.mutation.SetTotalProgress(s)
-	return huo
+func (_u *HistoryUpdateOne) SetTotalProgress(v string) *HistoryUpdateOne {
+	_u.mutation.SetTotalProgress(v)
+	return _u
 }
 
 // SetNillableTotalProgress sets the "total_progress" field if the given value is not nil.
-func (huo *HistoryUpdateOne) SetNillableTotalProgress(s *string) *HistoryUpdateOne {
-	if s != nil {
-		huo.SetTotalProgress(*s)
+func (_u *HistoryUpdateOne) SetNillableTotalProgress(v *string) *HistoryUpdateOne {
+	if v != nil {
+		_u.SetTotalProgress(*v)
 	}
-	return huo
+	return _u
 }
 
 // SetDate sets the "date" field.
-func (huo *HistoryUpdateOne) SetDate(t time.Time) *HistoryUpdateOne {
-	huo.mutation.SetDate(t)
-	return huo
+func (_u *HistoryUpdateOne) SetDate(v time.Time) *HistoryUpdateOne {
+	_u.mutation.SetDate(v)
+	return _u
 }
 
 // SetNillableDate sets the "date" field if the given value is not nil.
-func (huo *HistoryUpdateOne) SetNillableDate(t *time.Time) *HistoryUpdateOne {
-	if t != nil {
-		huo.SetDate(*t)
+func (_u *HistoryUpdateOne) SetNillableDate(v *time.Time) *HistoryUpdateOne {
+	if v != nil {
+		_u.SetDate(*v)
 	}
-	return huo
+	return _u
 }
 
 // Mutation returns the HistoryMutation object of the builder.
-func (huo *HistoryUpdateOne) Mutation() *HistoryMutation {
-	return huo.mutation
+func (_u *HistoryUpdateOne) Mutation() *HistoryMutation {
+	return _u.mutation
 }
 
 // Where appends a list predicates to the HistoryUpdate builder.
-func (huo *HistoryUpdateOne) Where(ps ...predicate.History) *HistoryUpdateOne {
-	huo.mutation.Where(ps...)
-	return huo
+func (_u *HistoryUpdateOne) Where(ps ...predicate.History) *HistoryUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (huo *HistoryUpdateOne) Select(field string, fields ...string) *HistoryUpdateOne {
-	huo.fields = append([]string{field}, fields...)
-	return huo
+func (_u *HistoryUpdateOne) Select(field string, fields ...string) *HistoryUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated History entity.
-func (huo *HistoryUpdateOne) Save(ctx context.Context) (*History, error) {
-	return withHooks(ctx, huo.sqlSave, huo.mutation, huo.hooks)
+func (_u *HistoryUpdateOne) Save(ctx context.Context) (*History, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (huo *HistoryUpdateOne) SaveX(ctx context.Context) *History {
-	node, err := huo.Save(ctx)
+func (_u *HistoryUpdateOne) SaveX(ctx context.Context) *History {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -555,51 +555,51 @@ func (huo *HistoryUpdateOne) SaveX(ctx context.Context) *History {
 }
 
 // Exec executes the query on the entity.
-func (huo *HistoryUpdateOne) Exec(ctx context.Context) error {
-	_, err := huo.Save(ctx)
+func (_u *HistoryUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (huo *HistoryUpdateOne) ExecX(ctx context.Context) {
-	if err := huo.Exec(ctx); err != nil {
+func (_u *HistoryUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (huo *HistoryUpdateOne) check() error {
-	if v, ok := huo.mutation.Package(); ok {
+func (_u *HistoryUpdateOne) check() error {
+	if v, ok := _u.mutation.Package(); ok {
 		if err := history.PackageValidator(v); err != nil {
 			return &ValidationError{Name: "package", err: fmt.Errorf(`ent: validator failed for field "History.package": %w`, err)}
 		}
 	}
-	if v, ok := huo.mutation.URL(); ok {
+	if v, ok := _u.mutation.URL(); ok {
 		if err := history.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "History.url": %w`, err)}
 		}
 	}
-	if v, ok := huo.mutation.GetType(); ok {
+	if v, ok := _u.mutation.GetType(); ok {
 		if err := history.TypeValidator(v); err != nil {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "History.type": %w`, err)}
 		}
 	}
-	if v, ok := huo.mutation.Title(); ok {
+	if v, ok := _u.mutation.Title(); ok {
 		if err := history.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "History.title": %w`, err)}
 		}
 	}
-	if v, ok := huo.mutation.EpisodeTitle(); ok {
+	if v, ok := _u.mutation.EpisodeTitle(); ok {
 		if err := history.EpisodeTitleValidator(v); err != nil {
 			return &ValidationError{Name: "episode_title", err: fmt.Errorf(`ent: validator failed for field "History.episode_title": %w`, err)}
 		}
 	}
-	if v, ok := huo.mutation.Progress(); ok {
+	if v, ok := _u.mutation.Progress(); ok {
 		if err := history.ProgressValidator(v); err != nil {
 			return &ValidationError{Name: "progress", err: fmt.Errorf(`ent: validator failed for field "History.progress": %w`, err)}
 		}
 	}
-	if v, ok := huo.mutation.TotalProgress(); ok {
+	if v, ok := _u.mutation.TotalProgress(); ok {
 		if err := history.TotalProgressValidator(v); err != nil {
 			return &ValidationError{Name: "total_progress", err: fmt.Errorf(`ent: validator failed for field "History.total_progress": %w`, err)}
 		}
@@ -607,17 +607,17 @@ func (huo *HistoryUpdateOne) check() error {
 	return nil
 }
 
-func (huo *HistoryUpdateOne) sqlSave(ctx context.Context) (_node *History, err error) {
-	if err := huo.check(); err != nil {
+func (_u *HistoryUpdateOne) sqlSave(ctx context.Context) (_node *History, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(history.Table, history.Columns, sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt))
-	id, ok := huo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "History.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := huo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, history.FieldID)
 		for _, f := range fields {
@@ -629,59 +629,59 @@ func (huo *HistoryUpdateOne) sqlSave(ctx context.Context) (_node *History, err e
 			}
 		}
 	}
-	if ps := huo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := huo.mutation.Package(); ok {
+	if value, ok := _u.mutation.Package(); ok {
 		_spec.SetField(history.FieldPackage, field.TypeString, value)
 	}
-	if value, ok := huo.mutation.URL(); ok {
+	if value, ok := _u.mutation.URL(); ok {
 		_spec.SetField(history.FieldURL, field.TypeString, value)
 	}
-	if value, ok := huo.mutation.Cover(); ok {
+	if value, ok := _u.mutation.Cover(); ok {
 		_spec.SetField(history.FieldCover, field.TypeString, value)
 	}
-	if huo.mutation.CoverCleared() {
+	if _u.mutation.CoverCleared() {
 		_spec.ClearField(history.FieldCover, field.TypeString)
 	}
-	if value, ok := huo.mutation.GetType(); ok {
+	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(history.FieldType, field.TypeString, value)
 	}
-	if value, ok := huo.mutation.EpisodeGroupID(); ok {
+	if value, ok := _u.mutation.EpisodeGroupID(); ok {
 		_spec.SetField(history.FieldEpisodeGroupID, field.TypeInt, value)
 	}
-	if value, ok := huo.mutation.AddedEpisodeGroupID(); ok {
+	if value, ok := _u.mutation.AddedEpisodeGroupID(); ok {
 		_spec.AddField(history.FieldEpisodeGroupID, field.TypeInt, value)
 	}
-	if value, ok := huo.mutation.EpisodeID(); ok {
+	if value, ok := _u.mutation.EpisodeID(); ok {
 		_spec.SetField(history.FieldEpisodeID, field.TypeInt, value)
 	}
-	if value, ok := huo.mutation.AddedEpisodeID(); ok {
+	if value, ok := _u.mutation.AddedEpisodeID(); ok {
 		_spec.AddField(history.FieldEpisodeID, field.TypeInt, value)
 	}
-	if value, ok := huo.mutation.Title(); ok {
+	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(history.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := huo.mutation.EpisodeTitle(); ok {
+	if value, ok := _u.mutation.EpisodeTitle(); ok {
 		_spec.SetField(history.FieldEpisodeTitle, field.TypeString, value)
 	}
-	if value, ok := huo.mutation.Progress(); ok {
+	if value, ok := _u.mutation.Progress(); ok {
 		_spec.SetField(history.FieldProgress, field.TypeString, value)
 	}
-	if value, ok := huo.mutation.TotalProgress(); ok {
+	if value, ok := _u.mutation.TotalProgress(); ok {
 		_spec.SetField(history.FieldTotalProgress, field.TypeString, value)
 	}
-	if value, ok := huo.mutation.Date(); ok {
+	if value, ok := _u.mutation.Date(); ok {
 		_spec.SetField(history.FieldDate, field.TypeTime, value)
 	}
-	_node = &History{config: huo.config}
+	_node = &History{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, huo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{history.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -689,6 +689,6 @@ func (huo *HistoryUpdateOne) sqlSave(ctx context.Context) (_node *History, err e
 		}
 		return nil, err
 	}
-	huo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

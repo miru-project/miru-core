@@ -19,7 +19,6 @@ func (Favorite) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("id").
 			Positive().
-			Immutable().
 			Comment("The ID of the favorite"),
 
 		field.String("package").

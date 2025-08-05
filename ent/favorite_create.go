@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/miru-project/miru-core/ent/favorite"
@@ -19,95 +20,96 @@ type FavoriteCreate struct {
 	config
 	mutation *FavoriteMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetPackage sets the "package" field.
-func (fc *FavoriteCreate) SetPackage(s string) *FavoriteCreate {
-	fc.mutation.SetPackage(s)
-	return fc
+func (_c *FavoriteCreate) SetPackage(v string) *FavoriteCreate {
+	_c.mutation.SetPackage(v)
+	return _c
 }
 
 // SetURL sets the "url" field.
-func (fc *FavoriteCreate) SetURL(s string) *FavoriteCreate {
-	fc.mutation.SetURL(s)
-	return fc
+func (_c *FavoriteCreate) SetURL(v string) *FavoriteCreate {
+	_c.mutation.SetURL(v)
+	return _c
 }
 
 // SetType sets the "type" field.
-func (fc *FavoriteCreate) SetType(s string) *FavoriteCreate {
-	fc.mutation.SetType(s)
-	return fc
+func (_c *FavoriteCreate) SetType(v string) *FavoriteCreate {
+	_c.mutation.SetType(v)
+	return _c
 }
 
 // SetTitle sets the "title" field.
-func (fc *FavoriteCreate) SetTitle(s string) *FavoriteCreate {
-	fc.mutation.SetTitle(s)
-	return fc
+func (_c *FavoriteCreate) SetTitle(v string) *FavoriteCreate {
+	_c.mutation.SetTitle(v)
+	return _c
 }
 
 // SetCover sets the "cover" field.
-func (fc *FavoriteCreate) SetCover(s string) *FavoriteCreate {
-	fc.mutation.SetCover(s)
-	return fc
+func (_c *FavoriteCreate) SetCover(v string) *FavoriteCreate {
+	_c.mutation.SetCover(v)
+	return _c
 }
 
 // SetNillableCover sets the "cover" field if the given value is not nil.
-func (fc *FavoriteCreate) SetNillableCover(s *string) *FavoriteCreate {
-	if s != nil {
-		fc.SetCover(*s)
+func (_c *FavoriteCreate) SetNillableCover(v *string) *FavoriteCreate {
+	if v != nil {
+		_c.SetCover(*v)
 	}
-	return fc
+	return _c
 }
 
 // SetDate sets the "date" field.
-func (fc *FavoriteCreate) SetDate(t time.Time) *FavoriteCreate {
-	fc.mutation.SetDate(t)
-	return fc
+func (_c *FavoriteCreate) SetDate(v time.Time) *FavoriteCreate {
+	_c.mutation.SetDate(v)
+	return _c
 }
 
 // SetNillableDate sets the "date" field if the given value is not nil.
-func (fc *FavoriteCreate) SetNillableDate(t *time.Time) *FavoriteCreate {
-	if t != nil {
-		fc.SetDate(*t)
+func (_c *FavoriteCreate) SetNillableDate(v *time.Time) *FavoriteCreate {
+	if v != nil {
+		_c.SetDate(*v)
 	}
-	return fc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (fc *FavoriteCreate) SetID(i int) *FavoriteCreate {
-	fc.mutation.SetID(i)
-	return fc
+func (_c *FavoriteCreate) SetID(v int) *FavoriteCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // AddGroupIDs adds the "group" edge to the FavoriteGroup entity by IDs.
-func (fc *FavoriteCreate) AddGroupIDs(ids ...int) *FavoriteCreate {
-	fc.mutation.AddGroupIDs(ids...)
-	return fc
+func (_c *FavoriteCreate) AddGroupIDs(ids ...int) *FavoriteCreate {
+	_c.mutation.AddGroupIDs(ids...)
+	return _c
 }
 
 // AddGroup adds the "group" edges to the FavoriteGroup entity.
-func (fc *FavoriteCreate) AddGroup(f ...*FavoriteGroup) *FavoriteCreate {
-	ids := make([]int, len(f))
-	for i := range f {
-		ids[i] = f[i].ID
+func (_c *FavoriteCreate) AddGroup(v ...*FavoriteGroup) *FavoriteCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return fc.AddGroupIDs(ids...)
+	return _c.AddGroupIDs(ids...)
 }
 
 // Mutation returns the FavoriteMutation object of the builder.
-func (fc *FavoriteCreate) Mutation() *FavoriteMutation {
-	return fc.mutation
+func (_c *FavoriteCreate) Mutation() *FavoriteMutation {
+	return _c.mutation
 }
 
 // Save creates the Favorite in the database.
-func (fc *FavoriteCreate) Save(ctx context.Context) (*Favorite, error) {
-	fc.defaults()
-	return withHooks(ctx, fc.sqlSave, fc.mutation, fc.hooks)
+func (_c *FavoriteCreate) Save(ctx context.Context) (*Favorite, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (fc *FavoriteCreate) SaveX(ctx context.Context) *Favorite {
-	v, err := fc.Save(ctx)
+func (_c *FavoriteCreate) SaveX(ctx context.Context) *Favorite {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -115,64 +117,64 @@ func (fc *FavoriteCreate) SaveX(ctx context.Context) *Favorite {
 }
 
 // Exec executes the query.
-func (fc *FavoriteCreate) Exec(ctx context.Context) error {
-	_, err := fc.Save(ctx)
+func (_c *FavoriteCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fc *FavoriteCreate) ExecX(ctx context.Context) {
-	if err := fc.Exec(ctx); err != nil {
+func (_c *FavoriteCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (fc *FavoriteCreate) defaults() {
-	if _, ok := fc.mutation.Date(); !ok {
+func (_c *FavoriteCreate) defaults() {
+	if _, ok := _c.mutation.Date(); !ok {
 		v := favorite.DefaultDate()
-		fc.mutation.SetDate(v)
+		_c.mutation.SetDate(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (fc *FavoriteCreate) check() error {
-	if _, ok := fc.mutation.Package(); !ok {
+func (_c *FavoriteCreate) check() error {
+	if _, ok := _c.mutation.Package(); !ok {
 		return &ValidationError{Name: "package", err: errors.New(`ent: missing required field "Favorite.package"`)}
 	}
-	if v, ok := fc.mutation.Package(); ok {
+	if v, ok := _c.mutation.Package(); ok {
 		if err := favorite.PackageValidator(v); err != nil {
 			return &ValidationError{Name: "package", err: fmt.Errorf(`ent: validator failed for field "Favorite.package": %w`, err)}
 		}
 	}
-	if _, ok := fc.mutation.URL(); !ok {
+	if _, ok := _c.mutation.URL(); !ok {
 		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "Favorite.url"`)}
 	}
-	if v, ok := fc.mutation.URL(); ok {
+	if v, ok := _c.mutation.URL(); ok {
 		if err := favorite.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Favorite.url": %w`, err)}
 		}
 	}
-	if _, ok := fc.mutation.GetType(); !ok {
+	if _, ok := _c.mutation.GetType(); !ok {
 		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Favorite.type"`)}
 	}
-	if v, ok := fc.mutation.GetType(); ok {
+	if v, ok := _c.mutation.GetType(); ok {
 		if err := favorite.TypeValidator(v); err != nil {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Favorite.type": %w`, err)}
 		}
 	}
-	if _, ok := fc.mutation.Title(); !ok {
+	if _, ok := _c.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Favorite.title"`)}
 	}
-	if v, ok := fc.mutation.Title(); ok {
+	if v, ok := _c.mutation.Title(); ok {
 		if err := favorite.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Favorite.title": %w`, err)}
 		}
 	}
-	if _, ok := fc.mutation.Date(); !ok {
+	if _, ok := _c.mutation.Date(); !ok {
 		return &ValidationError{Name: "date", err: errors.New(`ent: missing required field "Favorite.date"`)}
 	}
-	if v, ok := fc.mutation.ID(); ok {
+	if v, ok := _c.mutation.ID(); ok {
 		if err := favorite.IDValidator(v); err != nil {
 			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "Favorite.id": %w`, err)}
 		}
@@ -180,12 +182,12 @@ func (fc *FavoriteCreate) check() error {
 	return nil
 }
 
-func (fc *FavoriteCreate) sqlSave(ctx context.Context) (*Favorite, error) {
-	if err := fc.check(); err != nil {
+func (_c *FavoriteCreate) sqlSave(ctx context.Context) (*Favorite, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := fc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, fc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -195,45 +197,46 @@ func (fc *FavoriteCreate) sqlSave(ctx context.Context) (*Favorite, error) {
 		id := _spec.ID.Value.(int64)
 		_node.ID = int(id)
 	}
-	fc.mutation.id = &_node.ID
-	fc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (fc *FavoriteCreate) createSpec() (*Favorite, *sqlgraph.CreateSpec) {
+func (_c *FavoriteCreate) createSpec() (*Favorite, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Favorite{config: fc.config}
+		_node = &Favorite{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(favorite.Table, sqlgraph.NewFieldSpec(favorite.FieldID, field.TypeInt))
 	)
-	if id, ok := fc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := fc.mutation.Package(); ok {
+	if value, ok := _c.mutation.Package(); ok {
 		_spec.SetField(favorite.FieldPackage, field.TypeString, value)
 		_node.Package = value
 	}
-	if value, ok := fc.mutation.URL(); ok {
+	if value, ok := _c.mutation.URL(); ok {
 		_spec.SetField(favorite.FieldURL, field.TypeString, value)
 		_node.URL = value
 	}
-	if value, ok := fc.mutation.GetType(); ok {
+	if value, ok := _c.mutation.GetType(); ok {
 		_spec.SetField(favorite.FieldType, field.TypeString, value)
 		_node.Type = value
 	}
-	if value, ok := fc.mutation.Title(); ok {
+	if value, ok := _c.mutation.Title(); ok {
 		_spec.SetField(favorite.FieldTitle, field.TypeString, value)
 		_node.Title = value
 	}
-	if value, ok := fc.mutation.Cover(); ok {
+	if value, ok := _c.mutation.Cover(); ok {
 		_spec.SetField(favorite.FieldCover, field.TypeString, value)
 		_node.Cover = &value
 	}
-	if value, ok := fc.mutation.Date(); ok {
+	if value, ok := _c.mutation.Date(); ok {
 		_spec.SetField(favorite.FieldDate, field.TypeTime, value)
 		_node.Date = value
 	}
-	if nodes := fc.mutation.GroupIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.GroupIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -252,24 +255,324 @@ func (fc *FavoriteCreate) createSpec() (*Favorite, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Favorite.Create().
+//		SetPackage(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.FavoriteUpsert) {
+//			SetPackage(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *FavoriteCreate) OnConflict(opts ...sql.ConflictOption) *FavoriteUpsertOne {
+	_c.conflict = opts
+	return &FavoriteUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Favorite.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *FavoriteCreate) OnConflictColumns(columns ...string) *FavoriteUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &FavoriteUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// FavoriteUpsertOne is the builder for "upsert"-ing
+	//  one Favorite node.
+	FavoriteUpsertOne struct {
+		create *FavoriteCreate
+	}
+
+	// FavoriteUpsert is the "OnConflict" setter.
+	FavoriteUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetPackage sets the "package" field.
+func (u *FavoriteUpsert) SetPackage(v string) *FavoriteUpsert {
+	u.Set(favorite.FieldPackage, v)
+	return u
+}
+
+// UpdatePackage sets the "package" field to the value that was provided on create.
+func (u *FavoriteUpsert) UpdatePackage() *FavoriteUpsert {
+	u.SetExcluded(favorite.FieldPackage)
+	return u
+}
+
+// SetURL sets the "url" field.
+func (u *FavoriteUpsert) SetURL(v string) *FavoriteUpsert {
+	u.Set(favorite.FieldURL, v)
+	return u
+}
+
+// UpdateURL sets the "url" field to the value that was provided on create.
+func (u *FavoriteUpsert) UpdateURL() *FavoriteUpsert {
+	u.SetExcluded(favorite.FieldURL)
+	return u
+}
+
+// SetType sets the "type" field.
+func (u *FavoriteUpsert) SetType(v string) *FavoriteUpsert {
+	u.Set(favorite.FieldType, v)
+	return u
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *FavoriteUpsert) UpdateType() *FavoriteUpsert {
+	u.SetExcluded(favorite.FieldType)
+	return u
+}
+
+// SetTitle sets the "title" field.
+func (u *FavoriteUpsert) SetTitle(v string) *FavoriteUpsert {
+	u.Set(favorite.FieldTitle, v)
+	return u
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *FavoriteUpsert) UpdateTitle() *FavoriteUpsert {
+	u.SetExcluded(favorite.FieldTitle)
+	return u
+}
+
+// SetCover sets the "cover" field.
+func (u *FavoriteUpsert) SetCover(v string) *FavoriteUpsert {
+	u.Set(favorite.FieldCover, v)
+	return u
+}
+
+// UpdateCover sets the "cover" field to the value that was provided on create.
+func (u *FavoriteUpsert) UpdateCover() *FavoriteUpsert {
+	u.SetExcluded(favorite.FieldCover)
+	return u
+}
+
+// ClearCover clears the value of the "cover" field.
+func (u *FavoriteUpsert) ClearCover() *FavoriteUpsert {
+	u.SetNull(favorite.FieldCover)
+	return u
+}
+
+// SetDate sets the "date" field.
+func (u *FavoriteUpsert) SetDate(v time.Time) *FavoriteUpsert {
+	u.Set(favorite.FieldDate, v)
+	return u
+}
+
+// UpdateDate sets the "date" field to the value that was provided on create.
+func (u *FavoriteUpsert) UpdateDate() *FavoriteUpsert {
+	u.SetExcluded(favorite.FieldDate)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.Favorite.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(favorite.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *FavoriteUpsertOne) UpdateNewValues() *FavoriteUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(favorite.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Favorite.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *FavoriteUpsertOne) Ignore() *FavoriteUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *FavoriteUpsertOne) DoNothing() *FavoriteUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the FavoriteCreate.OnConflict
+// documentation for more info.
+func (u *FavoriteUpsertOne) Update(set func(*FavoriteUpsert)) *FavoriteUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&FavoriteUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetPackage sets the "package" field.
+func (u *FavoriteUpsertOne) SetPackage(v string) *FavoriteUpsertOne {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.SetPackage(v)
+	})
+}
+
+// UpdatePackage sets the "package" field to the value that was provided on create.
+func (u *FavoriteUpsertOne) UpdatePackage() *FavoriteUpsertOne {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.UpdatePackage()
+	})
+}
+
+// SetURL sets the "url" field.
+func (u *FavoriteUpsertOne) SetURL(v string) *FavoriteUpsertOne {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.SetURL(v)
+	})
+}
+
+// UpdateURL sets the "url" field to the value that was provided on create.
+func (u *FavoriteUpsertOne) UpdateURL() *FavoriteUpsertOne {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.UpdateURL()
+	})
+}
+
+// SetType sets the "type" field.
+func (u *FavoriteUpsertOne) SetType(v string) *FavoriteUpsertOne {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.SetType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *FavoriteUpsertOne) UpdateType() *FavoriteUpsertOne {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.UpdateType()
+	})
+}
+
+// SetTitle sets the "title" field.
+func (u *FavoriteUpsertOne) SetTitle(v string) *FavoriteUpsertOne {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.SetTitle(v)
+	})
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *FavoriteUpsertOne) UpdateTitle() *FavoriteUpsertOne {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.UpdateTitle()
+	})
+}
+
+// SetCover sets the "cover" field.
+func (u *FavoriteUpsertOne) SetCover(v string) *FavoriteUpsertOne {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.SetCover(v)
+	})
+}
+
+// UpdateCover sets the "cover" field to the value that was provided on create.
+func (u *FavoriteUpsertOne) UpdateCover() *FavoriteUpsertOne {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.UpdateCover()
+	})
+}
+
+// ClearCover clears the value of the "cover" field.
+func (u *FavoriteUpsertOne) ClearCover() *FavoriteUpsertOne {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.ClearCover()
+	})
+}
+
+// SetDate sets the "date" field.
+func (u *FavoriteUpsertOne) SetDate(v time.Time) *FavoriteUpsertOne {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.SetDate(v)
+	})
+}
+
+// UpdateDate sets the "date" field to the value that was provided on create.
+func (u *FavoriteUpsertOne) UpdateDate() *FavoriteUpsertOne {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.UpdateDate()
+	})
+}
+
+// Exec executes the query.
+func (u *FavoriteUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for FavoriteCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *FavoriteUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *FavoriteUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *FavoriteUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // FavoriteCreateBulk is the builder for creating many Favorite entities in bulk.
 type FavoriteCreateBulk struct {
 	config
 	err      error
 	builders []*FavoriteCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Favorite entities in the database.
-func (fcb *FavoriteCreateBulk) Save(ctx context.Context) ([]*Favorite, error) {
-	if fcb.err != nil {
-		return nil, fcb.err
+func (_c *FavoriteCreateBulk) Save(ctx context.Context) ([]*Favorite, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(fcb.builders))
-	nodes := make([]*Favorite, len(fcb.builders))
-	mutators := make([]Mutator, len(fcb.builders))
-	for i := range fcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Favorite, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := fcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*FavoriteMutation)
@@ -283,11 +586,12 @@ func (fcb *FavoriteCreateBulk) Save(ctx context.Context) ([]*Favorite, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, fcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, fcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -311,7 +615,7 @@ func (fcb *FavoriteCreateBulk) Save(ctx context.Context) ([]*Favorite, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, fcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -319,8 +623,8 @@ func (fcb *FavoriteCreateBulk) Save(ctx context.Context) ([]*Favorite, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (fcb *FavoriteCreateBulk) SaveX(ctx context.Context) []*Favorite {
-	v, err := fcb.Save(ctx)
+func (_c *FavoriteCreateBulk) SaveX(ctx context.Context) []*Favorite {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -328,14 +632,219 @@ func (fcb *FavoriteCreateBulk) SaveX(ctx context.Context) []*Favorite {
 }
 
 // Exec executes the query.
-func (fcb *FavoriteCreateBulk) Exec(ctx context.Context) error {
-	_, err := fcb.Save(ctx)
+func (_c *FavoriteCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fcb *FavoriteCreateBulk) ExecX(ctx context.Context) {
-	if err := fcb.Exec(ctx); err != nil {
+func (_c *FavoriteCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Favorite.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.FavoriteUpsert) {
+//			SetPackage(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *FavoriteCreateBulk) OnConflict(opts ...sql.ConflictOption) *FavoriteUpsertBulk {
+	_c.conflict = opts
+	return &FavoriteUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Favorite.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *FavoriteCreateBulk) OnConflictColumns(columns ...string) *FavoriteUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &FavoriteUpsertBulk{
+		create: _c,
+	}
+}
+
+// FavoriteUpsertBulk is the builder for "upsert"-ing
+// a bulk of Favorite nodes.
+type FavoriteUpsertBulk struct {
+	create *FavoriteCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Favorite.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(favorite.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *FavoriteUpsertBulk) UpdateNewValues() *FavoriteUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(favorite.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Favorite.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *FavoriteUpsertBulk) Ignore() *FavoriteUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *FavoriteUpsertBulk) DoNothing() *FavoriteUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the FavoriteCreateBulk.OnConflict
+// documentation for more info.
+func (u *FavoriteUpsertBulk) Update(set func(*FavoriteUpsert)) *FavoriteUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&FavoriteUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetPackage sets the "package" field.
+func (u *FavoriteUpsertBulk) SetPackage(v string) *FavoriteUpsertBulk {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.SetPackage(v)
+	})
+}
+
+// UpdatePackage sets the "package" field to the value that was provided on create.
+func (u *FavoriteUpsertBulk) UpdatePackage() *FavoriteUpsertBulk {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.UpdatePackage()
+	})
+}
+
+// SetURL sets the "url" field.
+func (u *FavoriteUpsertBulk) SetURL(v string) *FavoriteUpsertBulk {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.SetURL(v)
+	})
+}
+
+// UpdateURL sets the "url" field to the value that was provided on create.
+func (u *FavoriteUpsertBulk) UpdateURL() *FavoriteUpsertBulk {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.UpdateURL()
+	})
+}
+
+// SetType sets the "type" field.
+func (u *FavoriteUpsertBulk) SetType(v string) *FavoriteUpsertBulk {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.SetType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *FavoriteUpsertBulk) UpdateType() *FavoriteUpsertBulk {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.UpdateType()
+	})
+}
+
+// SetTitle sets the "title" field.
+func (u *FavoriteUpsertBulk) SetTitle(v string) *FavoriteUpsertBulk {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.SetTitle(v)
+	})
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *FavoriteUpsertBulk) UpdateTitle() *FavoriteUpsertBulk {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.UpdateTitle()
+	})
+}
+
+// SetCover sets the "cover" field.
+func (u *FavoriteUpsertBulk) SetCover(v string) *FavoriteUpsertBulk {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.SetCover(v)
+	})
+}
+
+// UpdateCover sets the "cover" field to the value that was provided on create.
+func (u *FavoriteUpsertBulk) UpdateCover() *FavoriteUpsertBulk {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.UpdateCover()
+	})
+}
+
+// ClearCover clears the value of the "cover" field.
+func (u *FavoriteUpsertBulk) ClearCover() *FavoriteUpsertBulk {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.ClearCover()
+	})
+}
+
+// SetDate sets the "date" field.
+func (u *FavoriteUpsertBulk) SetDate(v time.Time) *FavoriteUpsertBulk {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.SetDate(v)
+	})
+}
+
+// UpdateDate sets the "date" field to the value that was provided on create.
+func (u *FavoriteUpsertBulk) UpdateDate() *FavoriteUpsertBulk {
+	return u.Update(func(s *FavoriteUpsert) {
+		s.UpdateDate()
+	})
+}
+
+// Exec executes the query.
+func (u *FavoriteUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the FavoriteCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for FavoriteCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *FavoriteUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

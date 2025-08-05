@@ -11,7 +11,7 @@ func DownloadBangumi(filePath string, url string, header map[string]string, isHL
 
 	res, err := download.DownloadBangumi(filePath, url, header, isHLS)
 	if err != nil {
-		return result.NewErrorResult("Failed to download bangumi", 500), err
+		return result.NewErrorResult("Failed to download bangumi", 500, nil), err
 	}
 
 	return result.NewSuccessResult(res), nil
@@ -25,12 +25,12 @@ func DownloadStatus() *result.Result[any] {
 func CancelTask(taskId string) (*result.Result[any], error) {
 	id, err := strconv.Atoi(taskId)
 	if err != nil {
-		return result.NewErrorResult("Invalid task ID", 400), err
+		return result.NewErrorResult("Invalid task ID", 400, nil), err
 	}
 
 	err = download.CancelTask(id)
 	if err != nil {
-		return result.NewErrorResult("Failed to cancel task", 500), err
+		return result.NewErrorResult("Failed to cancel task", 500, nil), err
 	}
 
 	return result.NewSuccessResult("ok"), nil
@@ -39,12 +39,12 @@ func CancelTask(taskId string) (*result.Result[any], error) {
 func ResumeTask(taskId string) (*result.Result[any], error) {
 	id, err := strconv.Atoi(taskId)
 	if err != nil {
-		return result.NewErrorResult("Invalid task ID", 400), err
+		return result.NewErrorResult("Invalid task ID", 400, nil), err
 	}
 
 	err = download.ResumeTask(id)
 	if err != nil {
-		return result.NewErrorResult("Failed to resume task", 500), err
+		return result.NewErrorResult("Failed to resume task", 500, nil), err
 	}
 
 	return result.NewSuccessResult("ok"), nil
@@ -53,12 +53,12 @@ func ResumeTask(taskId string) (*result.Result[any], error) {
 func PauseTask(taskId string) (*result.Result[any], error) {
 	id, err := strconv.Atoi(taskId)
 	if err != nil {
-		return result.NewErrorResult("Invalid task ID", 400), err
+		return result.NewErrorResult("Invalid task ID", 400, nil), err
 	}
 
 	err = download.PauseTask(id)
 	if err != nil {
-		return result.NewErrorResult("Failed to pause task", 500), err
+		return result.NewErrorResult("Failed to pause task", 500, nil), err
 	}
 
 	return result.NewSuccessResult("ok"), nil

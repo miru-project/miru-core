@@ -20,56 +20,56 @@ type FavoriteGroupDelete struct {
 }
 
 // Where appends a list predicates to the FavoriteGroupDelete builder.
-func (fgd *FavoriteGroupDelete) Where(ps ...predicate.FavoriteGroup) *FavoriteGroupDelete {
-	fgd.mutation.Where(ps...)
-	return fgd
+func (_d *FavoriteGroupDelete) Where(ps ...predicate.FavoriteGroup) *FavoriteGroupDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (fgd *FavoriteGroupDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, fgd.sqlExec, fgd.mutation, fgd.hooks)
+func (_d *FavoriteGroupDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fgd *FavoriteGroupDelete) ExecX(ctx context.Context) int {
-	n, err := fgd.Exec(ctx)
+func (_d *FavoriteGroupDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (fgd *FavoriteGroupDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *FavoriteGroupDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(favoritegroup.Table, sqlgraph.NewFieldSpec(favoritegroup.FieldID, field.TypeInt))
-	if ps := fgd.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, fgd.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	fgd.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // FavoriteGroupDeleteOne is the builder for deleting a single FavoriteGroup entity.
 type FavoriteGroupDeleteOne struct {
-	fgd *FavoriteGroupDelete
+	_d *FavoriteGroupDelete
 }
 
 // Where appends a list predicates to the FavoriteGroupDelete builder.
-func (fgdo *FavoriteGroupDeleteOne) Where(ps ...predicate.FavoriteGroup) *FavoriteGroupDeleteOne {
-	fgdo.fgd.mutation.Where(ps...)
-	return fgdo
+func (_d *FavoriteGroupDeleteOne) Where(ps ...predicate.FavoriteGroup) *FavoriteGroupDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (fgdo *FavoriteGroupDeleteOne) Exec(ctx context.Context) error {
-	n, err := fgdo.fgd.Exec(ctx)
+func (_d *FavoriteGroupDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (fgdo *FavoriteGroupDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fgdo *FavoriteGroupDeleteOne) ExecX(ctx context.Context) {
-	if err := fgdo.Exec(ctx); err != nil {
+func (_d *FavoriteGroupDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

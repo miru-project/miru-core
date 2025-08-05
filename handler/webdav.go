@@ -10,7 +10,7 @@ func Login(host string, user string, passwd string) (*result.Result[any], error)
 
 	err := webdav.Authenticate(host, user, passwd)
 	if err != nil {
-		return result.NewErrorResult("Failed to login WebDav server", 500), err
+		return result.NewErrorResult("Failed to login WebDav server", 500, nil), err
 	}
 
 	return result.NewSuccessResult("ok"), err
@@ -21,7 +21,7 @@ func Backup() (*result.Result[any], error) {
 
 	err := webdav.Backup()
 	if err != nil {
-		return result.NewErrorResult("Failed to backup WebDav server", 500), err
+		return result.NewErrorResult("Failed to backup WebDav server", 500, nil), err
 	}
 
 	return result.NewSuccessResult("ok"), err
@@ -30,7 +30,7 @@ func Backup() (*result.Result[any], error) {
 func Restore() (*result.Result[any], error) {
 	err := webdav.Restore()
 	if err != nil {
-		return result.NewErrorResult("Failed to restore WebDav server", 500), err
+		return result.NewErrorResult("Failed to restore WebDav server", 500, nil), err
 	}
 
 	return result.NewSuccessResult("ok"), err

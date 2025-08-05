@@ -4,8 +4,10 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/miru-project/miru-core/ent/extension"
@@ -16,21 +18,22 @@ type ExtensionCreate struct {
 	config
 	mutation *ExtensionMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // Mutation returns the ExtensionMutation object of the builder.
-func (ec *ExtensionCreate) Mutation() *ExtensionMutation {
-	return ec.mutation
+func (_c *ExtensionCreate) Mutation() *ExtensionMutation {
+	return _c.mutation
 }
 
 // Save creates the Extension in the database.
-func (ec *ExtensionCreate) Save(ctx context.Context) (*Extension, error) {
-	return withHooks(ctx, ec.sqlSave, ec.mutation, ec.hooks)
+func (_c *ExtensionCreate) Save(ctx context.Context) (*Extension, error) {
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (ec *ExtensionCreate) SaveX(ctx context.Context) *Extension {
-	v, err := ec.Save(ctx)
+func (_c *ExtensionCreate) SaveX(ctx context.Context) *Extension {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -38,29 +41,29 @@ func (ec *ExtensionCreate) SaveX(ctx context.Context) *Extension {
 }
 
 // Exec executes the query.
-func (ec *ExtensionCreate) Exec(ctx context.Context) error {
-	_, err := ec.Save(ctx)
+func (_c *ExtensionCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ec *ExtensionCreate) ExecX(ctx context.Context) {
-	if err := ec.Exec(ctx); err != nil {
+func (_c *ExtensionCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ec *ExtensionCreate) check() error {
+func (_c *ExtensionCreate) check() error {
 	return nil
 }
 
-func (ec *ExtensionCreate) sqlSave(ctx context.Context) (*Extension, error) {
-	if err := ec.check(); err != nil {
+func (_c *ExtensionCreate) sqlSave(ctx context.Context) (*Extension, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := ec.createSpec()
-	if err := sqlgraph.CreateNode(ctx, ec.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -68,17 +71,134 @@ func (ec *ExtensionCreate) sqlSave(ctx context.Context) (*Extension, error) {
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
-	ec.mutation.id = &_node.ID
-	ec.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (ec *ExtensionCreate) createSpec() (*Extension, *sqlgraph.CreateSpec) {
+func (_c *ExtensionCreate) createSpec() (*Extension, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Extension{config: ec.config}
+		_node = &Extension{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(extension.Table, sqlgraph.NewFieldSpec(extension.FieldID, field.TypeInt))
 	)
+	_spec.OnConflict = _c.conflict
 	return _node, _spec
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Extension.Create().
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (_c *ExtensionCreate) OnConflict(opts ...sql.ConflictOption) *ExtensionUpsertOne {
+	_c.conflict = opts
+	return &ExtensionUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Extension.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *ExtensionCreate) OnConflictColumns(columns ...string) *ExtensionUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &ExtensionUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// ExtensionUpsertOne is the builder for "upsert"-ing
+	//  one Extension node.
+	ExtensionUpsertOne struct {
+		create *ExtensionCreate
+	}
+
+	// ExtensionUpsert is the "OnConflict" setter.
+	ExtensionUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.Extension.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *ExtensionUpsertOne) UpdateNewValues() *ExtensionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Extension.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *ExtensionUpsertOne) Ignore() *ExtensionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *ExtensionUpsertOne) DoNothing() *ExtensionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the ExtensionCreate.OnConflict
+// documentation for more info.
+func (u *ExtensionUpsertOne) Update(set func(*ExtensionUpsert)) *ExtensionUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&ExtensionUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// Exec executes the query.
+func (u *ExtensionUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for ExtensionCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *ExtensionUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *ExtensionUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *ExtensionUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
 }
 
 // ExtensionCreateBulk is the builder for creating many Extension entities in bulk.
@@ -86,19 +206,20 @@ type ExtensionCreateBulk struct {
 	config
 	err      error
 	builders []*ExtensionCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Extension entities in the database.
-func (ecb *ExtensionCreateBulk) Save(ctx context.Context) ([]*Extension, error) {
-	if ecb.err != nil {
-		return nil, ecb.err
+func (_c *ExtensionCreateBulk) Save(ctx context.Context) ([]*Extension, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(ecb.builders))
-	nodes := make([]*Extension, len(ecb.builders))
-	mutators := make([]Mutator, len(ecb.builders))
-	for i := range ecb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Extension, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := ecb.builders[i]
+			builder := _c.builders[i]
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*ExtensionMutation)
 				if !ok {
@@ -111,11 +232,12 @@ func (ecb *ExtensionCreateBulk) Save(ctx context.Context) ([]*Extension, error) 
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, ecb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, ecb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -139,7 +261,7 @@ func (ecb *ExtensionCreateBulk) Save(ctx context.Context) ([]*Extension, error) 
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, ecb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -147,8 +269,8 @@ func (ecb *ExtensionCreateBulk) Save(ctx context.Context) ([]*Extension, error) 
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (ecb *ExtensionCreateBulk) SaveX(ctx context.Context) []*Extension {
-	v, err := ecb.Save(ctx)
+func (_c *ExtensionCreateBulk) SaveX(ctx context.Context) []*Extension {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -156,14 +278,113 @@ func (ecb *ExtensionCreateBulk) SaveX(ctx context.Context) []*Extension {
 }
 
 // Exec executes the query.
-func (ecb *ExtensionCreateBulk) Exec(ctx context.Context) error {
-	_, err := ecb.Save(ctx)
+func (_c *ExtensionCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ecb *ExtensionCreateBulk) ExecX(ctx context.Context) {
-	if err := ecb.Exec(ctx); err != nil {
+func (_c *ExtensionCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Extension.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (_c *ExtensionCreateBulk) OnConflict(opts ...sql.ConflictOption) *ExtensionUpsertBulk {
+	_c.conflict = opts
+	return &ExtensionUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Extension.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *ExtensionCreateBulk) OnConflictColumns(columns ...string) *ExtensionUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &ExtensionUpsertBulk{
+		create: _c,
+	}
+}
+
+// ExtensionUpsertBulk is the builder for "upsert"-ing
+// a bulk of Extension nodes.
+type ExtensionUpsertBulk struct {
+	create *ExtensionCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Extension.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *ExtensionUpsertBulk) UpdateNewValues() *ExtensionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Extension.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *ExtensionUpsertBulk) Ignore() *ExtensionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *ExtensionUpsertBulk) DoNothing() *ExtensionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the ExtensionCreateBulk.OnConflict
+// documentation for more info.
+func (u *ExtensionUpsertBulk) Update(set func(*ExtensionUpsert)) *ExtensionUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&ExtensionUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// Exec executes the query.
+func (u *ExtensionUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the ExtensionCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for ExtensionCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *ExtensionUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

@@ -12,6 +12,9 @@ type AppSetting func(*sql.Selector)
 // Extension is the predicate function for extension builders.
 type Extension func(*sql.Selector)
 
+// ExtensionRepo is the predicate function for extensionrepo builders.
+type ExtensionRepo func(*sql.Selector)
+
 // Favorite is the predicate function for favorite builders.
 type Favorite func(*sql.Selector)
 

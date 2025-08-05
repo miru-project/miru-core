@@ -33,6 +33,18 @@ func (f ExtensionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, e
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ExtensionMutation", m)
 }
 
+// The ExtensionRepoFunc type is an adapter to allow the use of ordinary
+// function as ExtensionRepo mutator.
+type ExtensionRepoFunc func(context.Context, *ent.ExtensionRepoMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ExtensionRepoFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ExtensionRepoMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ExtensionRepoMutation", m)
+}
+
 // The FavoriteFunc type is an adapter to allow the use of ordinary
 // function as Favorite mutator.
 type FavoriteFunc func(context.Context, *ent.FavoriteMutation) (ent.Value, error)

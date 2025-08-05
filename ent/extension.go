@@ -35,7 +35,7 @@ func (*Extension) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Extension fields.
-func (e *Extension) assignValues(columns []string, values []any) error {
+func (_m *Extension) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -46,9 +46,9 @@ func (e *Extension) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			e.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		default:
-			e.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -56,33 +56,33 @@ func (e *Extension) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Extension.
 // This includes values selected through modifiers, order, etc.
-func (e *Extension) Value(name string) (ent.Value, error) {
-	return e.selectValues.Get(name)
+func (_m *Extension) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this Extension.
 // Note that you need to call Extension.Unwrap() before calling this method if this Extension
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (e *Extension) Update() *ExtensionUpdateOne {
-	return NewExtensionClient(e.config).UpdateOne(e)
+func (_m *Extension) Update() *ExtensionUpdateOne {
+	return NewExtensionClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Extension entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (e *Extension) Unwrap() *Extension {
-	_tx, ok := e.config.driver.(*txDriver)
+func (_m *Extension) Unwrap() *Extension {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Extension is not a transactional entity")
 	}
-	e.config.driver = _tx.drv
-	return e
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (e *Extension) String() string {
+func (_m *Extension) String() string {
 	var builder strings.Builder
 	builder.WriteString("Extension(")
-	builder.WriteString(fmt.Sprintf("id=%v", e.ID))
+	builder.WriteString(fmt.Sprintf("id=%v", _m.ID))
 	builder.WriteByte(')')
 	return builder.String()
 }

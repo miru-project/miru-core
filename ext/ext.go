@@ -62,8 +62,30 @@ func EntClient() *ent.Client {
 	}
 
 	entClient = client
-
+	Initialize()
 	return client
+}
+
+func Initialize() {
+
+	// Init official Miru extension
+	if _, e := entClient.ExtensionRepo.Query().First(context.Background()); e != nil {
+		log.Println("No extension repositories found, initializing...")
+
+		SetDefaultRepository()
+	}
+}
+func GetAllRepositories() ([]*ent.ExtensionRepo, error) {
+	return entClient.ExtensionRepo.Query().All(context.Background())
+}
+func SetDefaultRepository() error {
+	return SetRepository("Official Miru Extension", "https://miru-repo.0n0.dev/index.json")
+}
+
+func SetRepository(name string, url string) error {
+	return entClient.ExtensionRepo.Create().SetName(name).
+		SetURL(url).OnConflict().UpdateNewValues().
+		Exec(context.Background())
 }
 
 func GetAllSettings() ([]*ent.AppSetting, error) {

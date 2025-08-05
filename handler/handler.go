@@ -2,22 +2,25 @@ package handler
 
 import (
 	"github.com/miru-project/miru-core/ext"
+	"github.com/miru-project/miru-core/pkg/download"
 	"github.com/miru-project/miru-core/pkg/jsExtension"
 	"github.com/miru-project/miru-core/pkg/result"
 )
 
 func HelloMiru() (*result.Result[any], error) {
 	out := make(map[string]any)
+
+	// Extension metaData
 	extMeta := make([]*jsExtension.Ext, 0)
-
 	for _, cache := range jsExtension.ApiPkgCache {
-		extMeta = append(extMeta, cache.Ext)
-	}
-
-	for _, cache := range jsExtension.ApiPkgCache {
-		extMeta = append(extMeta, cache.Ext)
+		extCopy := *cache.Ext
+		extCopy.Context = nil
+		extMeta = append(extMeta, &extCopy)
 	}
 	out["extensionMeta"] = extMeta
+
+	// Download status
+	out["downloadStatus"] = download.DownloadStatus()
 
 	return result.NewSuccessResult(out), nil
 }
@@ -26,7 +29,7 @@ func GetAppSetting() (*result.Result[any], error) {
 	// Get all settings
 	settings, err := ext.GetAllSettings()
 	if err != nil {
-		return result.NewErrorResult("Failed to get settings", 500), err
+		return result.NewErrorResult("Failed to get settings", 500, nil), err
 	}
 
 	return result.NewSuccessResult(settings), nil

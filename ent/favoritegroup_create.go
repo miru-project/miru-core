@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/miru-project/miru-core/ent/favorite"
@@ -19,63 +20,64 @@ type FavoriteGroupCreate struct {
 	config
 	mutation *FavoriteGroupMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetName sets the "name" field.
-func (fgc *FavoriteGroupCreate) SetName(s string) *FavoriteGroupCreate {
-	fgc.mutation.SetName(s)
-	return fgc
+func (_c *FavoriteGroupCreate) SetName(v string) *FavoriteGroupCreate {
+	_c.mutation.SetName(v)
+	return _c
 }
 
 // SetDate sets the "date" field.
-func (fgc *FavoriteGroupCreate) SetDate(t time.Time) *FavoriteGroupCreate {
-	fgc.mutation.SetDate(t)
-	return fgc
+func (_c *FavoriteGroupCreate) SetDate(v time.Time) *FavoriteGroupCreate {
+	_c.mutation.SetDate(v)
+	return _c
 }
 
 // SetNillableDate sets the "date" field if the given value is not nil.
-func (fgc *FavoriteGroupCreate) SetNillableDate(t *time.Time) *FavoriteGroupCreate {
-	if t != nil {
-		fgc.SetDate(*t)
+func (_c *FavoriteGroupCreate) SetNillableDate(v *time.Time) *FavoriteGroupCreate {
+	if v != nil {
+		_c.SetDate(*v)
 	}
-	return fgc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (fgc *FavoriteGroupCreate) SetID(i int) *FavoriteGroupCreate {
-	fgc.mutation.SetID(i)
-	return fgc
+func (_c *FavoriteGroupCreate) SetID(v int) *FavoriteGroupCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // AddFavoriteIDs adds the "favorites" edge to the Favorite entity by IDs.
-func (fgc *FavoriteGroupCreate) AddFavoriteIDs(ids ...int) *FavoriteGroupCreate {
-	fgc.mutation.AddFavoriteIDs(ids...)
-	return fgc
+func (_c *FavoriteGroupCreate) AddFavoriteIDs(ids ...int) *FavoriteGroupCreate {
+	_c.mutation.AddFavoriteIDs(ids...)
+	return _c
 }
 
 // AddFavorites adds the "favorites" edges to the Favorite entity.
-func (fgc *FavoriteGroupCreate) AddFavorites(f ...*Favorite) *FavoriteGroupCreate {
-	ids := make([]int, len(f))
-	for i := range f {
-		ids[i] = f[i].ID
+func (_c *FavoriteGroupCreate) AddFavorites(v ...*Favorite) *FavoriteGroupCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return fgc.AddFavoriteIDs(ids...)
+	return _c.AddFavoriteIDs(ids...)
 }
 
 // Mutation returns the FavoriteGroupMutation object of the builder.
-func (fgc *FavoriteGroupCreate) Mutation() *FavoriteGroupMutation {
-	return fgc.mutation
+func (_c *FavoriteGroupCreate) Mutation() *FavoriteGroupMutation {
+	return _c.mutation
 }
 
 // Save creates the FavoriteGroup in the database.
-func (fgc *FavoriteGroupCreate) Save(ctx context.Context) (*FavoriteGroup, error) {
-	fgc.defaults()
-	return withHooks(ctx, fgc.sqlSave, fgc.mutation, fgc.hooks)
+func (_c *FavoriteGroupCreate) Save(ctx context.Context) (*FavoriteGroup, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (fgc *FavoriteGroupCreate) SaveX(ctx context.Context) *FavoriteGroup {
-	v, err := fgc.Save(ctx)
+func (_c *FavoriteGroupCreate) SaveX(ctx context.Context) *FavoriteGroup {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -83,40 +85,40 @@ func (fgc *FavoriteGroupCreate) SaveX(ctx context.Context) *FavoriteGroup {
 }
 
 // Exec executes the query.
-func (fgc *FavoriteGroupCreate) Exec(ctx context.Context) error {
-	_, err := fgc.Save(ctx)
+func (_c *FavoriteGroupCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fgc *FavoriteGroupCreate) ExecX(ctx context.Context) {
-	if err := fgc.Exec(ctx); err != nil {
+func (_c *FavoriteGroupCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (fgc *FavoriteGroupCreate) defaults() {
-	if _, ok := fgc.mutation.Date(); !ok {
+func (_c *FavoriteGroupCreate) defaults() {
+	if _, ok := _c.mutation.Date(); !ok {
 		v := favoritegroup.DefaultDate()
-		fgc.mutation.SetDate(v)
+		_c.mutation.SetDate(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (fgc *FavoriteGroupCreate) check() error {
-	if _, ok := fgc.mutation.Name(); !ok {
+func (_c *FavoriteGroupCreate) check() error {
+	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "FavoriteGroup.name"`)}
 	}
-	if v, ok := fgc.mutation.Name(); ok {
+	if v, ok := _c.mutation.Name(); ok {
 		if err := favoritegroup.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "FavoriteGroup.name": %w`, err)}
 		}
 	}
-	if _, ok := fgc.mutation.Date(); !ok {
+	if _, ok := _c.mutation.Date(); !ok {
 		return &ValidationError{Name: "date", err: errors.New(`ent: missing required field "FavoriteGroup.date"`)}
 	}
-	if v, ok := fgc.mutation.ID(); ok {
+	if v, ok := _c.mutation.ID(); ok {
 		if err := favoritegroup.IDValidator(v); err != nil {
 			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "FavoriteGroup.id": %w`, err)}
 		}
@@ -124,12 +126,12 @@ func (fgc *FavoriteGroupCreate) check() error {
 	return nil
 }
 
-func (fgc *FavoriteGroupCreate) sqlSave(ctx context.Context) (*FavoriteGroup, error) {
-	if err := fgc.check(); err != nil {
+func (_c *FavoriteGroupCreate) sqlSave(ctx context.Context) (*FavoriteGroup, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := fgc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, fgc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -139,29 +141,30 @@ func (fgc *FavoriteGroupCreate) sqlSave(ctx context.Context) (*FavoriteGroup, er
 		id := _spec.ID.Value.(int64)
 		_node.ID = int(id)
 	}
-	fgc.mutation.id = &_node.ID
-	fgc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (fgc *FavoriteGroupCreate) createSpec() (*FavoriteGroup, *sqlgraph.CreateSpec) {
+func (_c *FavoriteGroupCreate) createSpec() (*FavoriteGroup, *sqlgraph.CreateSpec) {
 	var (
-		_node = &FavoriteGroup{config: fgc.config}
+		_node = &FavoriteGroup{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(favoritegroup.Table, sqlgraph.NewFieldSpec(favoritegroup.FieldID, field.TypeInt))
 	)
-	if id, ok := fgc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := fgc.mutation.Name(); ok {
+	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(favoritegroup.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := fgc.mutation.Date(); ok {
+	if value, ok := _c.mutation.Date(); ok {
 		_spec.SetField(favoritegroup.FieldDate, field.TypeTime, value)
 		_node.Date = value
 	}
-	if nodes := fgc.mutation.FavoritesIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.FavoritesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -180,24 +183,207 @@ func (fgc *FavoriteGroupCreate) createSpec() (*FavoriteGroup, *sqlgraph.CreateSp
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.FavoriteGroup.Create().
+//		SetName(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.FavoriteGroupUpsert) {
+//			SetName(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *FavoriteGroupCreate) OnConflict(opts ...sql.ConflictOption) *FavoriteGroupUpsertOne {
+	_c.conflict = opts
+	return &FavoriteGroupUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.FavoriteGroup.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *FavoriteGroupCreate) OnConflictColumns(columns ...string) *FavoriteGroupUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &FavoriteGroupUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// FavoriteGroupUpsertOne is the builder for "upsert"-ing
+	//  one FavoriteGroup node.
+	FavoriteGroupUpsertOne struct {
+		create *FavoriteGroupCreate
+	}
+
+	// FavoriteGroupUpsert is the "OnConflict" setter.
+	FavoriteGroupUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetName sets the "name" field.
+func (u *FavoriteGroupUpsert) SetName(v string) *FavoriteGroupUpsert {
+	u.Set(favoritegroup.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *FavoriteGroupUpsert) UpdateName() *FavoriteGroupUpsert {
+	u.SetExcluded(favoritegroup.FieldName)
+	return u
+}
+
+// SetDate sets the "date" field.
+func (u *FavoriteGroupUpsert) SetDate(v time.Time) *FavoriteGroupUpsert {
+	u.Set(favoritegroup.FieldDate, v)
+	return u
+}
+
+// UpdateDate sets the "date" field to the value that was provided on create.
+func (u *FavoriteGroupUpsert) UpdateDate() *FavoriteGroupUpsert {
+	u.SetExcluded(favoritegroup.FieldDate)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.FavoriteGroup.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(favoritegroup.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *FavoriteGroupUpsertOne) UpdateNewValues() *FavoriteGroupUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(favoritegroup.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.FavoriteGroup.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *FavoriteGroupUpsertOne) Ignore() *FavoriteGroupUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *FavoriteGroupUpsertOne) DoNothing() *FavoriteGroupUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the FavoriteGroupCreate.OnConflict
+// documentation for more info.
+func (u *FavoriteGroupUpsertOne) Update(set func(*FavoriteGroupUpsert)) *FavoriteGroupUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&FavoriteGroupUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *FavoriteGroupUpsertOne) SetName(v string) *FavoriteGroupUpsertOne {
+	return u.Update(func(s *FavoriteGroupUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *FavoriteGroupUpsertOne) UpdateName() *FavoriteGroupUpsertOne {
+	return u.Update(func(s *FavoriteGroupUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetDate sets the "date" field.
+func (u *FavoriteGroupUpsertOne) SetDate(v time.Time) *FavoriteGroupUpsertOne {
+	return u.Update(func(s *FavoriteGroupUpsert) {
+		s.SetDate(v)
+	})
+}
+
+// UpdateDate sets the "date" field to the value that was provided on create.
+func (u *FavoriteGroupUpsertOne) UpdateDate() *FavoriteGroupUpsertOne {
+	return u.Update(func(s *FavoriteGroupUpsert) {
+		s.UpdateDate()
+	})
+}
+
+// Exec executes the query.
+func (u *FavoriteGroupUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for FavoriteGroupCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *FavoriteGroupUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *FavoriteGroupUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *FavoriteGroupUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // FavoriteGroupCreateBulk is the builder for creating many FavoriteGroup entities in bulk.
 type FavoriteGroupCreateBulk struct {
 	config
 	err      error
 	builders []*FavoriteGroupCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the FavoriteGroup entities in the database.
-func (fgcb *FavoriteGroupCreateBulk) Save(ctx context.Context) ([]*FavoriteGroup, error) {
-	if fgcb.err != nil {
-		return nil, fgcb.err
+func (_c *FavoriteGroupCreateBulk) Save(ctx context.Context) ([]*FavoriteGroup, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(fgcb.builders))
-	nodes := make([]*FavoriteGroup, len(fgcb.builders))
-	mutators := make([]Mutator, len(fgcb.builders))
-	for i := range fgcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*FavoriteGroup, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := fgcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*FavoriteGroupMutation)
@@ -211,11 +397,12 @@ func (fgcb *FavoriteGroupCreateBulk) Save(ctx context.Context) ([]*FavoriteGroup
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, fgcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, fgcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -239,7 +426,7 @@ func (fgcb *FavoriteGroupCreateBulk) Save(ctx context.Context) ([]*FavoriteGroup
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, fgcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -247,8 +434,8 @@ func (fgcb *FavoriteGroupCreateBulk) Save(ctx context.Context) ([]*FavoriteGroup
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (fgcb *FavoriteGroupCreateBulk) SaveX(ctx context.Context) []*FavoriteGroup {
-	v, err := fgcb.Save(ctx)
+func (_c *FavoriteGroupCreateBulk) SaveX(ctx context.Context) []*FavoriteGroup {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -256,14 +443,156 @@ func (fgcb *FavoriteGroupCreateBulk) SaveX(ctx context.Context) []*FavoriteGroup
 }
 
 // Exec executes the query.
-func (fgcb *FavoriteGroupCreateBulk) Exec(ctx context.Context) error {
-	_, err := fgcb.Save(ctx)
+func (_c *FavoriteGroupCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fgcb *FavoriteGroupCreateBulk) ExecX(ctx context.Context) {
-	if err := fgcb.Exec(ctx); err != nil {
+func (_c *FavoriteGroupCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.FavoriteGroup.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.FavoriteGroupUpsert) {
+//			SetName(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *FavoriteGroupCreateBulk) OnConflict(opts ...sql.ConflictOption) *FavoriteGroupUpsertBulk {
+	_c.conflict = opts
+	return &FavoriteGroupUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.FavoriteGroup.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *FavoriteGroupCreateBulk) OnConflictColumns(columns ...string) *FavoriteGroupUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &FavoriteGroupUpsertBulk{
+		create: _c,
+	}
+}
+
+// FavoriteGroupUpsertBulk is the builder for "upsert"-ing
+// a bulk of FavoriteGroup nodes.
+type FavoriteGroupUpsertBulk struct {
+	create *FavoriteGroupCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.FavoriteGroup.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(favoritegroup.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *FavoriteGroupUpsertBulk) UpdateNewValues() *FavoriteGroupUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(favoritegroup.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.FavoriteGroup.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *FavoriteGroupUpsertBulk) Ignore() *FavoriteGroupUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *FavoriteGroupUpsertBulk) DoNothing() *FavoriteGroupUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the FavoriteGroupCreateBulk.OnConflict
+// documentation for more info.
+func (u *FavoriteGroupUpsertBulk) Update(set func(*FavoriteGroupUpsert)) *FavoriteGroupUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&FavoriteGroupUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *FavoriteGroupUpsertBulk) SetName(v string) *FavoriteGroupUpsertBulk {
+	return u.Update(func(s *FavoriteGroupUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *FavoriteGroupUpsertBulk) UpdateName() *FavoriteGroupUpsertBulk {
+	return u.Update(func(s *FavoriteGroupUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetDate sets the "date" field.
+func (u *FavoriteGroupUpsertBulk) SetDate(v time.Time) *FavoriteGroupUpsertBulk {
+	return u.Update(func(s *FavoriteGroupUpsert) {
+		s.SetDate(v)
+	})
+}
+
+// UpdateDate sets the "date" field to the value that was provided on create.
+func (u *FavoriteGroupUpsertBulk) UpdateDate() *FavoriteGroupUpsertBulk {
+	return u.Update(func(s *FavoriteGroupUpsert) {
+		s.UpdateDate()
+	})
+}
+
+// Exec executes the query.
+func (u *FavoriteGroupUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the FavoriteGroupCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for FavoriteGroupCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *FavoriteGroupUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

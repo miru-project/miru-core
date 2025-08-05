@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/miru-project/miru-core/ent/appsetting"
+	"github.com/miru-project/miru-core/ent/extensionrepo"
 	"github.com/miru-project/miru-core/ent/favorite"
 	"github.com/miru-project/miru-core/ent/favoritegroup"
 	"github.com/miru-project/miru-core/ent/history"
@@ -22,6 +23,16 @@ func init() {
 	appsettingDescKey := appsettingFields[0].Descriptor()
 	// appsetting.KeyValidator is a validator for the "key" field. It is called by the builders before save.
 	appsetting.KeyValidator = appsettingDescKey.Validators[0].(func(string) error)
+	extensionrepoFields := schema.ExtensionRepo{}.Fields()
+	_ = extensionrepoFields
+	// extensionrepoDescURL is the schema descriptor for url field.
+	extensionrepoDescURL := extensionrepoFields[0].Descriptor()
+	// extensionrepo.URLValidator is a validator for the "url" field. It is called by the builders before save.
+	extensionrepo.URLValidator = extensionrepoDescURL.Validators[0].(func(string) error)
+	// extensionrepoDescName is the schema descriptor for name field.
+	extensionrepoDescName := extensionrepoFields[1].Descriptor()
+	// extensionrepo.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	extensionrepo.NameValidator = extensionrepoDescName.Validators[0].(func(string) error)
 	favoriteFields := schema.Favorite{}.Fields()
 	_ = favoriteFields
 	// favoriteDescPackage is the schema descriptor for package field.

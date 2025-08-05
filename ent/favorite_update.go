@@ -24,150 +24,150 @@ type FavoriteUpdate struct {
 }
 
 // Where appends a list predicates to the FavoriteUpdate builder.
-func (fu *FavoriteUpdate) Where(ps ...predicate.Favorite) *FavoriteUpdate {
-	fu.mutation.Where(ps...)
-	return fu
+func (_u *FavoriteUpdate) Where(ps ...predicate.Favorite) *FavoriteUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetPackage sets the "package" field.
-func (fu *FavoriteUpdate) SetPackage(s string) *FavoriteUpdate {
-	fu.mutation.SetPackage(s)
-	return fu
+func (_u *FavoriteUpdate) SetPackage(v string) *FavoriteUpdate {
+	_u.mutation.SetPackage(v)
+	return _u
 }
 
 // SetNillablePackage sets the "package" field if the given value is not nil.
-func (fu *FavoriteUpdate) SetNillablePackage(s *string) *FavoriteUpdate {
-	if s != nil {
-		fu.SetPackage(*s)
+func (_u *FavoriteUpdate) SetNillablePackage(v *string) *FavoriteUpdate {
+	if v != nil {
+		_u.SetPackage(*v)
 	}
-	return fu
+	return _u
 }
 
 // SetURL sets the "url" field.
-func (fu *FavoriteUpdate) SetURL(s string) *FavoriteUpdate {
-	fu.mutation.SetURL(s)
-	return fu
+func (_u *FavoriteUpdate) SetURL(v string) *FavoriteUpdate {
+	_u.mutation.SetURL(v)
+	return _u
 }
 
 // SetNillableURL sets the "url" field if the given value is not nil.
-func (fu *FavoriteUpdate) SetNillableURL(s *string) *FavoriteUpdate {
-	if s != nil {
-		fu.SetURL(*s)
+func (_u *FavoriteUpdate) SetNillableURL(v *string) *FavoriteUpdate {
+	if v != nil {
+		_u.SetURL(*v)
 	}
-	return fu
+	return _u
 }
 
 // SetType sets the "type" field.
-func (fu *FavoriteUpdate) SetType(s string) *FavoriteUpdate {
-	fu.mutation.SetType(s)
-	return fu
+func (_u *FavoriteUpdate) SetType(v string) *FavoriteUpdate {
+	_u.mutation.SetType(v)
+	return _u
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (fu *FavoriteUpdate) SetNillableType(s *string) *FavoriteUpdate {
-	if s != nil {
-		fu.SetType(*s)
+func (_u *FavoriteUpdate) SetNillableType(v *string) *FavoriteUpdate {
+	if v != nil {
+		_u.SetType(*v)
 	}
-	return fu
+	return _u
 }
 
 // SetTitle sets the "title" field.
-func (fu *FavoriteUpdate) SetTitle(s string) *FavoriteUpdate {
-	fu.mutation.SetTitle(s)
-	return fu
+func (_u *FavoriteUpdate) SetTitle(v string) *FavoriteUpdate {
+	_u.mutation.SetTitle(v)
+	return _u
 }
 
 // SetNillableTitle sets the "title" field if the given value is not nil.
-func (fu *FavoriteUpdate) SetNillableTitle(s *string) *FavoriteUpdate {
-	if s != nil {
-		fu.SetTitle(*s)
+func (_u *FavoriteUpdate) SetNillableTitle(v *string) *FavoriteUpdate {
+	if v != nil {
+		_u.SetTitle(*v)
 	}
-	return fu
+	return _u
 }
 
 // SetCover sets the "cover" field.
-func (fu *FavoriteUpdate) SetCover(s string) *FavoriteUpdate {
-	fu.mutation.SetCover(s)
-	return fu
+func (_u *FavoriteUpdate) SetCover(v string) *FavoriteUpdate {
+	_u.mutation.SetCover(v)
+	return _u
 }
 
 // SetNillableCover sets the "cover" field if the given value is not nil.
-func (fu *FavoriteUpdate) SetNillableCover(s *string) *FavoriteUpdate {
-	if s != nil {
-		fu.SetCover(*s)
+func (_u *FavoriteUpdate) SetNillableCover(v *string) *FavoriteUpdate {
+	if v != nil {
+		_u.SetCover(*v)
 	}
-	return fu
+	return _u
 }
 
 // ClearCover clears the value of the "cover" field.
-func (fu *FavoriteUpdate) ClearCover() *FavoriteUpdate {
-	fu.mutation.ClearCover()
-	return fu
+func (_u *FavoriteUpdate) ClearCover() *FavoriteUpdate {
+	_u.mutation.ClearCover()
+	return _u
 }
 
 // SetDate sets the "date" field.
-func (fu *FavoriteUpdate) SetDate(t time.Time) *FavoriteUpdate {
-	fu.mutation.SetDate(t)
-	return fu
+func (_u *FavoriteUpdate) SetDate(v time.Time) *FavoriteUpdate {
+	_u.mutation.SetDate(v)
+	return _u
 }
 
 // SetNillableDate sets the "date" field if the given value is not nil.
-func (fu *FavoriteUpdate) SetNillableDate(t *time.Time) *FavoriteUpdate {
-	if t != nil {
-		fu.SetDate(*t)
+func (_u *FavoriteUpdate) SetNillableDate(v *time.Time) *FavoriteUpdate {
+	if v != nil {
+		_u.SetDate(*v)
 	}
-	return fu
+	return _u
 }
 
 // AddGroupIDs adds the "group" edge to the FavoriteGroup entity by IDs.
-func (fu *FavoriteUpdate) AddGroupIDs(ids ...int) *FavoriteUpdate {
-	fu.mutation.AddGroupIDs(ids...)
-	return fu
+func (_u *FavoriteUpdate) AddGroupIDs(ids ...int) *FavoriteUpdate {
+	_u.mutation.AddGroupIDs(ids...)
+	return _u
 }
 
 // AddGroup adds the "group" edges to the FavoriteGroup entity.
-func (fu *FavoriteUpdate) AddGroup(f ...*FavoriteGroup) *FavoriteUpdate {
-	ids := make([]int, len(f))
-	for i := range f {
-		ids[i] = f[i].ID
+func (_u *FavoriteUpdate) AddGroup(v ...*FavoriteGroup) *FavoriteUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return fu.AddGroupIDs(ids...)
+	return _u.AddGroupIDs(ids...)
 }
 
 // Mutation returns the FavoriteMutation object of the builder.
-func (fu *FavoriteUpdate) Mutation() *FavoriteMutation {
-	return fu.mutation
+func (_u *FavoriteUpdate) Mutation() *FavoriteMutation {
+	return _u.mutation
 }
 
 // ClearGroup clears all "group" edges to the FavoriteGroup entity.
-func (fu *FavoriteUpdate) ClearGroup() *FavoriteUpdate {
-	fu.mutation.ClearGroup()
-	return fu
+func (_u *FavoriteUpdate) ClearGroup() *FavoriteUpdate {
+	_u.mutation.ClearGroup()
+	return _u
 }
 
 // RemoveGroupIDs removes the "group" edge to FavoriteGroup entities by IDs.
-func (fu *FavoriteUpdate) RemoveGroupIDs(ids ...int) *FavoriteUpdate {
-	fu.mutation.RemoveGroupIDs(ids...)
-	return fu
+func (_u *FavoriteUpdate) RemoveGroupIDs(ids ...int) *FavoriteUpdate {
+	_u.mutation.RemoveGroupIDs(ids...)
+	return _u
 }
 
 // RemoveGroup removes "group" edges to FavoriteGroup entities.
-func (fu *FavoriteUpdate) RemoveGroup(f ...*FavoriteGroup) *FavoriteUpdate {
-	ids := make([]int, len(f))
-	for i := range f {
-		ids[i] = f[i].ID
+func (_u *FavoriteUpdate) RemoveGroup(v ...*FavoriteGroup) *FavoriteUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return fu.RemoveGroupIDs(ids...)
+	return _u.RemoveGroupIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (fu *FavoriteUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, fu.sqlSave, fu.mutation, fu.hooks)
+func (_u *FavoriteUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (fu *FavoriteUpdate) SaveX(ctx context.Context) int {
-	affected, err := fu.Save(ctx)
+func (_u *FavoriteUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -175,36 +175,36 @@ func (fu *FavoriteUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (fu *FavoriteUpdate) Exec(ctx context.Context) error {
-	_, err := fu.Save(ctx)
+func (_u *FavoriteUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fu *FavoriteUpdate) ExecX(ctx context.Context) {
-	if err := fu.Exec(ctx); err != nil {
+func (_u *FavoriteUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (fu *FavoriteUpdate) check() error {
-	if v, ok := fu.mutation.Package(); ok {
+func (_u *FavoriteUpdate) check() error {
+	if v, ok := _u.mutation.Package(); ok {
 		if err := favorite.PackageValidator(v); err != nil {
 			return &ValidationError{Name: "package", err: fmt.Errorf(`ent: validator failed for field "Favorite.package": %w`, err)}
 		}
 	}
-	if v, ok := fu.mutation.URL(); ok {
+	if v, ok := _u.mutation.URL(); ok {
 		if err := favorite.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Favorite.url": %w`, err)}
 		}
 	}
-	if v, ok := fu.mutation.GetType(); ok {
+	if v, ok := _u.mutation.GetType(); ok {
 		if err := favorite.TypeValidator(v); err != nil {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Favorite.type": %w`, err)}
 		}
 	}
-	if v, ok := fu.mutation.Title(); ok {
+	if v, ok := _u.mutation.Title(); ok {
 		if err := favorite.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Favorite.title": %w`, err)}
 		}
@@ -212,40 +212,40 @@ func (fu *FavoriteUpdate) check() error {
 	return nil
 }
 
-func (fu *FavoriteUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := fu.check(); err != nil {
-		return n, err
+func (_u *FavoriteUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(favorite.Table, favorite.Columns, sqlgraph.NewFieldSpec(favorite.FieldID, field.TypeInt))
-	if ps := fu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := fu.mutation.Package(); ok {
+	if value, ok := _u.mutation.Package(); ok {
 		_spec.SetField(favorite.FieldPackage, field.TypeString, value)
 	}
-	if value, ok := fu.mutation.URL(); ok {
+	if value, ok := _u.mutation.URL(); ok {
 		_spec.SetField(favorite.FieldURL, field.TypeString, value)
 	}
-	if value, ok := fu.mutation.GetType(); ok {
+	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(favorite.FieldType, field.TypeString, value)
 	}
-	if value, ok := fu.mutation.Title(); ok {
+	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(favorite.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := fu.mutation.Cover(); ok {
+	if value, ok := _u.mutation.Cover(); ok {
 		_spec.SetField(favorite.FieldCover, field.TypeString, value)
 	}
-	if fu.mutation.CoverCleared() {
+	if _u.mutation.CoverCleared() {
 		_spec.ClearField(favorite.FieldCover, field.TypeString)
 	}
-	if value, ok := fu.mutation.Date(); ok {
+	if value, ok := _u.mutation.Date(); ok {
 		_spec.SetField(favorite.FieldDate, field.TypeTime, value)
 	}
-	if fu.mutation.GroupCleared() {
+	if _u.mutation.GroupCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -258,7 +258,7 @@ func (fu *FavoriteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := fu.mutation.RemovedGroupIDs(); len(nodes) > 0 && !fu.mutation.GroupCleared() {
+	if nodes := _u.mutation.RemovedGroupIDs(); len(nodes) > 0 && !_u.mutation.GroupCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -274,7 +274,7 @@ func (fu *FavoriteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := fu.mutation.GroupIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.GroupIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -290,7 +290,7 @@ func (fu *FavoriteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, fu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{favorite.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -298,8 +298,8 @@ func (fu *FavoriteUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	fu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // FavoriteUpdateOne is the builder for updating a single Favorite entity.
@@ -311,157 +311,157 @@ type FavoriteUpdateOne struct {
 }
 
 // SetPackage sets the "package" field.
-func (fuo *FavoriteUpdateOne) SetPackage(s string) *FavoriteUpdateOne {
-	fuo.mutation.SetPackage(s)
-	return fuo
+func (_u *FavoriteUpdateOne) SetPackage(v string) *FavoriteUpdateOne {
+	_u.mutation.SetPackage(v)
+	return _u
 }
 
 // SetNillablePackage sets the "package" field if the given value is not nil.
-func (fuo *FavoriteUpdateOne) SetNillablePackage(s *string) *FavoriteUpdateOne {
-	if s != nil {
-		fuo.SetPackage(*s)
+func (_u *FavoriteUpdateOne) SetNillablePackage(v *string) *FavoriteUpdateOne {
+	if v != nil {
+		_u.SetPackage(*v)
 	}
-	return fuo
+	return _u
 }
 
 // SetURL sets the "url" field.
-func (fuo *FavoriteUpdateOne) SetURL(s string) *FavoriteUpdateOne {
-	fuo.mutation.SetURL(s)
-	return fuo
+func (_u *FavoriteUpdateOne) SetURL(v string) *FavoriteUpdateOne {
+	_u.mutation.SetURL(v)
+	return _u
 }
 
 // SetNillableURL sets the "url" field if the given value is not nil.
-func (fuo *FavoriteUpdateOne) SetNillableURL(s *string) *FavoriteUpdateOne {
-	if s != nil {
-		fuo.SetURL(*s)
+func (_u *FavoriteUpdateOne) SetNillableURL(v *string) *FavoriteUpdateOne {
+	if v != nil {
+		_u.SetURL(*v)
 	}
-	return fuo
+	return _u
 }
 
 // SetType sets the "type" field.
-func (fuo *FavoriteUpdateOne) SetType(s string) *FavoriteUpdateOne {
-	fuo.mutation.SetType(s)
-	return fuo
+func (_u *FavoriteUpdateOne) SetType(v string) *FavoriteUpdateOne {
+	_u.mutation.SetType(v)
+	return _u
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (fuo *FavoriteUpdateOne) SetNillableType(s *string) *FavoriteUpdateOne {
-	if s != nil {
-		fuo.SetType(*s)
+func (_u *FavoriteUpdateOne) SetNillableType(v *string) *FavoriteUpdateOne {
+	if v != nil {
+		_u.SetType(*v)
 	}
-	return fuo
+	return _u
 }
 
 // SetTitle sets the "title" field.
-func (fuo *FavoriteUpdateOne) SetTitle(s string) *FavoriteUpdateOne {
-	fuo.mutation.SetTitle(s)
-	return fuo
+func (_u *FavoriteUpdateOne) SetTitle(v string) *FavoriteUpdateOne {
+	_u.mutation.SetTitle(v)
+	return _u
 }
 
 // SetNillableTitle sets the "title" field if the given value is not nil.
-func (fuo *FavoriteUpdateOne) SetNillableTitle(s *string) *FavoriteUpdateOne {
-	if s != nil {
-		fuo.SetTitle(*s)
+func (_u *FavoriteUpdateOne) SetNillableTitle(v *string) *FavoriteUpdateOne {
+	if v != nil {
+		_u.SetTitle(*v)
 	}
-	return fuo
+	return _u
 }
 
 // SetCover sets the "cover" field.
-func (fuo *FavoriteUpdateOne) SetCover(s string) *FavoriteUpdateOne {
-	fuo.mutation.SetCover(s)
-	return fuo
+func (_u *FavoriteUpdateOne) SetCover(v string) *FavoriteUpdateOne {
+	_u.mutation.SetCover(v)
+	return _u
 }
 
 // SetNillableCover sets the "cover" field if the given value is not nil.
-func (fuo *FavoriteUpdateOne) SetNillableCover(s *string) *FavoriteUpdateOne {
-	if s != nil {
-		fuo.SetCover(*s)
+func (_u *FavoriteUpdateOne) SetNillableCover(v *string) *FavoriteUpdateOne {
+	if v != nil {
+		_u.SetCover(*v)
 	}
-	return fuo
+	return _u
 }
 
 // ClearCover clears the value of the "cover" field.
-func (fuo *FavoriteUpdateOne) ClearCover() *FavoriteUpdateOne {
-	fuo.mutation.ClearCover()
-	return fuo
+func (_u *FavoriteUpdateOne) ClearCover() *FavoriteUpdateOne {
+	_u.mutation.ClearCover()
+	return _u
 }
 
 // SetDate sets the "date" field.
-func (fuo *FavoriteUpdateOne) SetDate(t time.Time) *FavoriteUpdateOne {
-	fuo.mutation.SetDate(t)
-	return fuo
+func (_u *FavoriteUpdateOne) SetDate(v time.Time) *FavoriteUpdateOne {
+	_u.mutation.SetDate(v)
+	return _u
 }
 
 // SetNillableDate sets the "date" field if the given value is not nil.
-func (fuo *FavoriteUpdateOne) SetNillableDate(t *time.Time) *FavoriteUpdateOne {
-	if t != nil {
-		fuo.SetDate(*t)
+func (_u *FavoriteUpdateOne) SetNillableDate(v *time.Time) *FavoriteUpdateOne {
+	if v != nil {
+		_u.SetDate(*v)
 	}
-	return fuo
+	return _u
 }
 
 // AddGroupIDs adds the "group" edge to the FavoriteGroup entity by IDs.
-func (fuo *FavoriteUpdateOne) AddGroupIDs(ids ...int) *FavoriteUpdateOne {
-	fuo.mutation.AddGroupIDs(ids...)
-	return fuo
+func (_u *FavoriteUpdateOne) AddGroupIDs(ids ...int) *FavoriteUpdateOne {
+	_u.mutation.AddGroupIDs(ids...)
+	return _u
 }
 
 // AddGroup adds the "group" edges to the FavoriteGroup entity.
-func (fuo *FavoriteUpdateOne) AddGroup(f ...*FavoriteGroup) *FavoriteUpdateOne {
-	ids := make([]int, len(f))
-	for i := range f {
-		ids[i] = f[i].ID
+func (_u *FavoriteUpdateOne) AddGroup(v ...*FavoriteGroup) *FavoriteUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return fuo.AddGroupIDs(ids...)
+	return _u.AddGroupIDs(ids...)
 }
 
 // Mutation returns the FavoriteMutation object of the builder.
-func (fuo *FavoriteUpdateOne) Mutation() *FavoriteMutation {
-	return fuo.mutation
+func (_u *FavoriteUpdateOne) Mutation() *FavoriteMutation {
+	return _u.mutation
 }
 
 // ClearGroup clears all "group" edges to the FavoriteGroup entity.
-func (fuo *FavoriteUpdateOne) ClearGroup() *FavoriteUpdateOne {
-	fuo.mutation.ClearGroup()
-	return fuo
+func (_u *FavoriteUpdateOne) ClearGroup() *FavoriteUpdateOne {
+	_u.mutation.ClearGroup()
+	return _u
 }
 
 // RemoveGroupIDs removes the "group" edge to FavoriteGroup entities by IDs.
-func (fuo *FavoriteUpdateOne) RemoveGroupIDs(ids ...int) *FavoriteUpdateOne {
-	fuo.mutation.RemoveGroupIDs(ids...)
-	return fuo
+func (_u *FavoriteUpdateOne) RemoveGroupIDs(ids ...int) *FavoriteUpdateOne {
+	_u.mutation.RemoveGroupIDs(ids...)
+	return _u
 }
 
 // RemoveGroup removes "group" edges to FavoriteGroup entities.
-func (fuo *FavoriteUpdateOne) RemoveGroup(f ...*FavoriteGroup) *FavoriteUpdateOne {
-	ids := make([]int, len(f))
-	for i := range f {
-		ids[i] = f[i].ID
+func (_u *FavoriteUpdateOne) RemoveGroup(v ...*FavoriteGroup) *FavoriteUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return fuo.RemoveGroupIDs(ids...)
+	return _u.RemoveGroupIDs(ids...)
 }
 
 // Where appends a list predicates to the FavoriteUpdate builder.
-func (fuo *FavoriteUpdateOne) Where(ps ...predicate.Favorite) *FavoriteUpdateOne {
-	fuo.mutation.Where(ps...)
-	return fuo
+func (_u *FavoriteUpdateOne) Where(ps ...predicate.Favorite) *FavoriteUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (fuo *FavoriteUpdateOne) Select(field string, fields ...string) *FavoriteUpdateOne {
-	fuo.fields = append([]string{field}, fields...)
-	return fuo
+func (_u *FavoriteUpdateOne) Select(field string, fields ...string) *FavoriteUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated Favorite entity.
-func (fuo *FavoriteUpdateOne) Save(ctx context.Context) (*Favorite, error) {
-	return withHooks(ctx, fuo.sqlSave, fuo.mutation, fuo.hooks)
+func (_u *FavoriteUpdateOne) Save(ctx context.Context) (*Favorite, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (fuo *FavoriteUpdateOne) SaveX(ctx context.Context) *Favorite {
-	node, err := fuo.Save(ctx)
+func (_u *FavoriteUpdateOne) SaveX(ctx context.Context) *Favorite {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -469,36 +469,36 @@ func (fuo *FavoriteUpdateOne) SaveX(ctx context.Context) *Favorite {
 }
 
 // Exec executes the query on the entity.
-func (fuo *FavoriteUpdateOne) Exec(ctx context.Context) error {
-	_, err := fuo.Save(ctx)
+func (_u *FavoriteUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fuo *FavoriteUpdateOne) ExecX(ctx context.Context) {
-	if err := fuo.Exec(ctx); err != nil {
+func (_u *FavoriteUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (fuo *FavoriteUpdateOne) check() error {
-	if v, ok := fuo.mutation.Package(); ok {
+func (_u *FavoriteUpdateOne) check() error {
+	if v, ok := _u.mutation.Package(); ok {
 		if err := favorite.PackageValidator(v); err != nil {
 			return &ValidationError{Name: "package", err: fmt.Errorf(`ent: validator failed for field "Favorite.package": %w`, err)}
 		}
 	}
-	if v, ok := fuo.mutation.URL(); ok {
+	if v, ok := _u.mutation.URL(); ok {
 		if err := favorite.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Favorite.url": %w`, err)}
 		}
 	}
-	if v, ok := fuo.mutation.GetType(); ok {
+	if v, ok := _u.mutation.GetType(); ok {
 		if err := favorite.TypeValidator(v); err != nil {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Favorite.type": %w`, err)}
 		}
 	}
-	if v, ok := fuo.mutation.Title(); ok {
+	if v, ok := _u.mutation.Title(); ok {
 		if err := favorite.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Favorite.title": %w`, err)}
 		}
@@ -506,17 +506,17 @@ func (fuo *FavoriteUpdateOne) check() error {
 	return nil
 }
 
-func (fuo *FavoriteUpdateOne) sqlSave(ctx context.Context) (_node *Favorite, err error) {
-	if err := fuo.check(); err != nil {
+func (_u *FavoriteUpdateOne) sqlSave(ctx context.Context) (_node *Favorite, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(favorite.Table, favorite.Columns, sqlgraph.NewFieldSpec(favorite.FieldID, field.TypeInt))
-	id, ok := fuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Favorite.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := fuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, favorite.FieldID)
 		for _, f := range fields {
@@ -528,35 +528,35 @@ func (fuo *FavoriteUpdateOne) sqlSave(ctx context.Context) (_node *Favorite, err
 			}
 		}
 	}
-	if ps := fuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := fuo.mutation.Package(); ok {
+	if value, ok := _u.mutation.Package(); ok {
 		_spec.SetField(favorite.FieldPackage, field.TypeString, value)
 	}
-	if value, ok := fuo.mutation.URL(); ok {
+	if value, ok := _u.mutation.URL(); ok {
 		_spec.SetField(favorite.FieldURL, field.TypeString, value)
 	}
-	if value, ok := fuo.mutation.GetType(); ok {
+	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(favorite.FieldType, field.TypeString, value)
 	}
-	if value, ok := fuo.mutation.Title(); ok {
+	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(favorite.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := fuo.mutation.Cover(); ok {
+	if value, ok := _u.mutation.Cover(); ok {
 		_spec.SetField(favorite.FieldCover, field.TypeString, value)
 	}
-	if fuo.mutation.CoverCleared() {
+	if _u.mutation.CoverCleared() {
 		_spec.ClearField(favorite.FieldCover, field.TypeString)
 	}
-	if value, ok := fuo.mutation.Date(); ok {
+	if value, ok := _u.mutation.Date(); ok {
 		_spec.SetField(favorite.FieldDate, field.TypeTime, value)
 	}
-	if fuo.mutation.GroupCleared() {
+	if _u.mutation.GroupCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -569,7 +569,7 @@ func (fuo *FavoriteUpdateOne) sqlSave(ctx context.Context) (_node *Favorite, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := fuo.mutation.RemovedGroupIDs(); len(nodes) > 0 && !fuo.mutation.GroupCleared() {
+	if nodes := _u.mutation.RemovedGroupIDs(); len(nodes) > 0 && !_u.mutation.GroupCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -585,7 +585,7 @@ func (fuo *FavoriteUpdateOne) sqlSave(ctx context.Context) (_node *Favorite, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := fuo.mutation.GroupIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.GroupIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -601,10 +601,10 @@ func (fuo *FavoriteUpdateOne) sqlSave(ctx context.Context) (_node *Favorite, err
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &Favorite{config: fuo.config}
+	_node = &Favorite{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, fuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{favorite.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -612,6 +612,6 @@ func (fuo *FavoriteUpdateOne) sqlSave(ctx context.Context) (_node *Favorite, err
 		}
 		return nil, err
 	}
-	fuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

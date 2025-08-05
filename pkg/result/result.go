@@ -20,6 +20,6 @@ func NewSuccessResult(data any) *Result[any] {
 	return NewResult(true, "success", data, 200)
 }
 
-func NewErrorResult(message string, code int) *Result[any] {
-	return NewResult(false, message, "", code)
+func NewErrorResult(message string, code int, errData any) *Result[any] {
+	return NewResult(false, message, errData, code)
 }

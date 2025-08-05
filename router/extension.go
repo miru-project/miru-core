@@ -4,7 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/miru-project/miru-core/handler"
 	_ "github.com/miru-project/miru-core/pkg/jsExtension"
-	_ "github.com/miru-project/miru-core/pkg/result"
+	"github.com/miru-project/miru-core/pkg/result"
 )
 
 // initExtensionRouter handles all extension related routes
@@ -13,6 +13,7 @@ func initExtensionRouter(app *fiber.App) {
 	SearchContent(app)
 	WatchContent(app)
 	GetContentDetail(app)
+	FetchExtensionRepo(app)
 }
 
 // @Summary		Get latest content from extension
@@ -94,5 +95,31 @@ func GetContentDetail(app *fiber.App) fiber.Router {
 			return err
 		}
 		return c.JSON(result)
+	})
+}
+
+// func DownloadExtension(app *fiber.App) fiber.Router {
+// 	return app.Post("/download/extension", func(c *fiber.Ctx) error {
+// 		// Call the download function from the download package
+// 		download.DownloadExtension()
+
+// 		// Return a success response
+// 		return c.JSON(result.NewSuccessResult("Extension download initiated successfully"))
+// 	})
+
+// }
+
+func FetchExtensionRepo(app *fiber.App) fiber.Router {
+	return app.Get("/ext/repo", func(c *fiber.Ctx) error {
+		repo, err, fetchErr := handler.FetchExtensionRepo()
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).
+				JSON(result.NewErrorResult(err.Error(), fiber.StatusInternalServerError, nil))
+		}
+		if len(fetchErr) != 0 {
+			return c.Status(fiber.StatusInternalServerError).
+				JSON(result.NewErrorResult("Fetch Repo Error!", fiber.StatusInternalServerError, fetchErr))
+		}
+		return c.JSON(result.NewSuccessResult(repo))
 	})
 }

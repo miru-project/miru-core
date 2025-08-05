@@ -107,7 +107,7 @@ func DownloadBangumiContent(app *fiber.App) fiber.Router {
 		var jsonReq *download.DownloadOptions
 
 		if e := json.Unmarshal(c.Body(), &jsonReq); e != nil {
-			return c.JSON(result.NewErrorResult("Invalid JSON in request body sent to miru_core", 400))
+			return c.JSON(result.NewErrorResult("Invalid JSON in request body sent to miru_core", 400, nil))
 		}
 
 		res, err := handler.DownloadBangumi(jsonReq.DownloadPath, jsonReq.Url, jsonReq.Header, jsonReq.IsHls)

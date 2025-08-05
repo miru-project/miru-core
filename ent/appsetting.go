@@ -41,7 +41,7 @@ func (*AppSetting) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the AppSetting fields.
-func (as *AppSetting) assignValues(columns []string, values []any) error {
+func (_m *AppSetting) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -52,21 +52,21 @@ func (as *AppSetting) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			as.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case appsetting.FieldKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field key", values[i])
 			} else if value.Valid {
-				as.Key = value.String
+				_m.Key = value.String
 			}
 		case appsetting.FieldValue:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field value", values[i])
 			} else if value.Valid {
-				as.Value = value.String
+				_m.Value = value.String
 			}
 		default:
-			as.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -74,38 +74,38 @@ func (as *AppSetting) assignValues(columns []string, values []any) error {
 
 // GetValue returns the ent.Value that was dynamically selected and assigned to the AppSetting.
 // This includes values selected through modifiers, order, etc.
-func (as *AppSetting) GetValue(name string) (ent.Value, error) {
-	return as.selectValues.Get(name)
+func (_m *AppSetting) GetValue(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this AppSetting.
 // Note that you need to call AppSetting.Unwrap() before calling this method if this AppSetting
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (as *AppSetting) Update() *AppSettingUpdateOne {
-	return NewAppSettingClient(as.config).UpdateOne(as)
+func (_m *AppSetting) Update() *AppSettingUpdateOne {
+	return NewAppSettingClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the AppSetting entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (as *AppSetting) Unwrap() *AppSetting {
-	_tx, ok := as.config.driver.(*txDriver)
+func (_m *AppSetting) Unwrap() *AppSetting {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: AppSetting is not a transactional entity")
 	}
-	as.config.driver = _tx.drv
-	return as
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (as *AppSetting) String() string {
+func (_m *AppSetting) String() string {
 	var builder strings.Builder
 	builder.WriteString("AppSetting(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", as.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("key=")
-	builder.WriteString(as.Key)
+	builder.WriteString(_m.Key)
 	builder.WriteString(", ")
 	builder.WriteString("value=")
-	builder.WriteString(as.Value)
+	builder.WriteString(_m.Value)
 	builder.WriteByte(')')
 	return builder.String()
 }

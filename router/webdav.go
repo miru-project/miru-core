@@ -33,13 +33,13 @@ func WebDavLogin(app *fiber.App) fiber.Router {
 		var jsonReq *WebDavLoginJson
 
 		if e := json.Unmarshal(c.Body(), &jsonReq); e != nil {
-			return c.JSON(result.NewErrorResult("Invalid JSON in request body sent to miru_core", 400))
+			return c.JSON(result.NewErrorResult("Invalid JSON in request body sent to miru_core", 400, nil))
 		}
 
 		host, user, passwd := jsonReq.Host, jsonReq.User, jsonReq.Passwd
 
 		if host == "" || user == "" || passwd == "" {
-			return c.JSON(result.NewErrorResult("Invalid URL in resuest body sent to miru_core", 400))
+			return c.JSON(result.NewErrorResult("Invalid URL in resuest body sent to miru_core", 400, nil))
 		}
 
 		result, err := handler.Login(host, user, passwd)

@@ -31,44 +31,44 @@ type FavoriteGroupQuery struct {
 }
 
 // Where adds a new predicate for the FavoriteGroupQuery builder.
-func (fgq *FavoriteGroupQuery) Where(ps ...predicate.FavoriteGroup) *FavoriteGroupQuery {
-	fgq.predicates = append(fgq.predicates, ps...)
-	return fgq
+func (_q *FavoriteGroupQuery) Where(ps ...predicate.FavoriteGroup) *FavoriteGroupQuery {
+	_q.predicates = append(_q.predicates, ps...)
+	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (fgq *FavoriteGroupQuery) Limit(limit int) *FavoriteGroupQuery {
-	fgq.ctx.Limit = &limit
-	return fgq
+func (_q *FavoriteGroupQuery) Limit(limit int) *FavoriteGroupQuery {
+	_q.ctx.Limit = &limit
+	return _q
 }
 
 // Offset to start from.
-func (fgq *FavoriteGroupQuery) Offset(offset int) *FavoriteGroupQuery {
-	fgq.ctx.Offset = &offset
-	return fgq
+func (_q *FavoriteGroupQuery) Offset(offset int) *FavoriteGroupQuery {
+	_q.ctx.Offset = &offset
+	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (fgq *FavoriteGroupQuery) Unique(unique bool) *FavoriteGroupQuery {
-	fgq.ctx.Unique = &unique
-	return fgq
+func (_q *FavoriteGroupQuery) Unique(unique bool) *FavoriteGroupQuery {
+	_q.ctx.Unique = &unique
+	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (fgq *FavoriteGroupQuery) Order(o ...favoritegroup.OrderOption) *FavoriteGroupQuery {
-	fgq.order = append(fgq.order, o...)
-	return fgq
+func (_q *FavoriteGroupQuery) Order(o ...favoritegroup.OrderOption) *FavoriteGroupQuery {
+	_q.order = append(_q.order, o...)
+	return _q
 }
 
 // QueryFavorites chains the current query on the "favorites" edge.
-func (fgq *FavoriteGroupQuery) QueryFavorites() *FavoriteQuery {
-	query := (&FavoriteClient{config: fgq.config}).Query()
+func (_q *FavoriteGroupQuery) QueryFavorites() *FavoriteQuery {
+	query := (&FavoriteClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := fgq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := fgq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -77,7 +77,7 @@ func (fgq *FavoriteGroupQuery) QueryFavorites() *FavoriteQuery {
 			sqlgraph.To(favorite.Table, favorite.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, favoritegroup.FavoritesTable, favoritegroup.FavoritesPrimaryKey...),
 		)
-		fromU = sqlgraph.SetNeighbors(fgq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
@@ -85,8 +85,8 @@ func (fgq *FavoriteGroupQuery) QueryFavorites() *FavoriteQuery {
 
 // First returns the first FavoriteGroup entity from the query.
 // Returns a *NotFoundError when no FavoriteGroup was found.
-func (fgq *FavoriteGroupQuery) First(ctx context.Context) (*FavoriteGroup, error) {
-	nodes, err := fgq.Limit(1).All(setContextOp(ctx, fgq.ctx, ent.OpQueryFirst))
+func (_q *FavoriteGroupQuery) First(ctx context.Context) (*FavoriteGroup, error) {
+	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -97,8 +97,8 @@ func (fgq *FavoriteGroupQuery) First(ctx context.Context) (*FavoriteGroup, error
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (fgq *FavoriteGroupQuery) FirstX(ctx context.Context) *FavoriteGroup {
-	node, err := fgq.First(ctx)
+func (_q *FavoriteGroupQuery) FirstX(ctx context.Context) *FavoriteGroup {
+	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -107,9 +107,9 @@ func (fgq *FavoriteGroupQuery) FirstX(ctx context.Context) *FavoriteGroup {
 
 // FirstID returns the first FavoriteGroup ID from the query.
 // Returns a *NotFoundError when no FavoriteGroup ID was found.
-func (fgq *FavoriteGroupQuery) FirstID(ctx context.Context) (id int, err error) {
+func (_q *FavoriteGroupQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = fgq.Limit(1).IDs(setContextOp(ctx, fgq.ctx, ent.OpQueryFirstID)); err != nil {
+	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -120,8 +120,8 @@ func (fgq *FavoriteGroupQuery) FirstID(ctx context.Context) (id int, err error) 
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (fgq *FavoriteGroupQuery) FirstIDX(ctx context.Context) int {
-	id, err := fgq.FirstID(ctx)
+func (_q *FavoriteGroupQuery) FirstIDX(ctx context.Context) int {
+	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -131,8 +131,8 @@ func (fgq *FavoriteGroupQuery) FirstIDX(ctx context.Context) int {
 // Only returns a single FavoriteGroup entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one FavoriteGroup entity is found.
 // Returns a *NotFoundError when no FavoriteGroup entities are found.
-func (fgq *FavoriteGroupQuery) Only(ctx context.Context) (*FavoriteGroup, error) {
-	nodes, err := fgq.Limit(2).All(setContextOp(ctx, fgq.ctx, ent.OpQueryOnly))
+func (_q *FavoriteGroupQuery) Only(ctx context.Context) (*FavoriteGroup, error) {
+	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -147,8 +147,8 @@ func (fgq *FavoriteGroupQuery) Only(ctx context.Context) (*FavoriteGroup, error)
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (fgq *FavoriteGroupQuery) OnlyX(ctx context.Context) *FavoriteGroup {
-	node, err := fgq.Only(ctx)
+func (_q *FavoriteGroupQuery) OnlyX(ctx context.Context) *FavoriteGroup {
+	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -158,9 +158,9 @@ func (fgq *FavoriteGroupQuery) OnlyX(ctx context.Context) *FavoriteGroup {
 // OnlyID is like Only, but returns the only FavoriteGroup ID in the query.
 // Returns a *NotSingularError when more than one FavoriteGroup ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (fgq *FavoriteGroupQuery) OnlyID(ctx context.Context) (id int, err error) {
+func (_q *FavoriteGroupQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = fgq.Limit(2).IDs(setContextOp(ctx, fgq.ctx, ent.OpQueryOnlyID)); err != nil {
+	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -175,8 +175,8 @@ func (fgq *FavoriteGroupQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (fgq *FavoriteGroupQuery) OnlyIDX(ctx context.Context) int {
-	id, err := fgq.OnlyID(ctx)
+func (_q *FavoriteGroupQuery) OnlyIDX(ctx context.Context) int {
+	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -184,18 +184,18 @@ func (fgq *FavoriteGroupQuery) OnlyIDX(ctx context.Context) int {
 }
 
 // All executes the query and returns a list of FavoriteGroups.
-func (fgq *FavoriteGroupQuery) All(ctx context.Context) ([]*FavoriteGroup, error) {
-	ctx = setContextOp(ctx, fgq.ctx, ent.OpQueryAll)
-	if err := fgq.prepareQuery(ctx); err != nil {
+func (_q *FavoriteGroupQuery) All(ctx context.Context) ([]*FavoriteGroup, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
 	qr := querierAll[[]*FavoriteGroup, *FavoriteGroupQuery]()
-	return withInterceptors[[]*FavoriteGroup](ctx, fgq, qr, fgq.inters)
+	return withInterceptors[[]*FavoriteGroup](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (fgq *FavoriteGroupQuery) AllX(ctx context.Context) []*FavoriteGroup {
-	nodes, err := fgq.All(ctx)
+func (_q *FavoriteGroupQuery) AllX(ctx context.Context) []*FavoriteGroup {
+	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -203,20 +203,20 @@ func (fgq *FavoriteGroupQuery) AllX(ctx context.Context) []*FavoriteGroup {
 }
 
 // IDs executes the query and returns a list of FavoriteGroup IDs.
-func (fgq *FavoriteGroupQuery) IDs(ctx context.Context) (ids []int, err error) {
-	if fgq.ctx.Unique == nil && fgq.path != nil {
-		fgq.Unique(true)
+func (_q *FavoriteGroupQuery) IDs(ctx context.Context) (ids []int, err error) {
+	if _q.ctx.Unique == nil && _q.path != nil {
+		_q.Unique(true)
 	}
-	ctx = setContextOp(ctx, fgq.ctx, ent.OpQueryIDs)
-	if err = fgq.Select(favoritegroup.FieldID).Scan(ctx, &ids); err != nil {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
+	if err = _q.Select(favoritegroup.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (fgq *FavoriteGroupQuery) IDsX(ctx context.Context) []int {
-	ids, err := fgq.IDs(ctx)
+func (_q *FavoriteGroupQuery) IDsX(ctx context.Context) []int {
+	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -224,17 +224,17 @@ func (fgq *FavoriteGroupQuery) IDsX(ctx context.Context) []int {
 }
 
 // Count returns the count of the given query.
-func (fgq *FavoriteGroupQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, fgq.ctx, ent.OpQueryCount)
-	if err := fgq.prepareQuery(ctx); err != nil {
+func (_q *FavoriteGroupQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, fgq, querierCount[*FavoriteGroupQuery](), fgq.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*FavoriteGroupQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (fgq *FavoriteGroupQuery) CountX(ctx context.Context) int {
-	count, err := fgq.Count(ctx)
+func (_q *FavoriteGroupQuery) CountX(ctx context.Context) int {
+	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -242,9 +242,9 @@ func (fgq *FavoriteGroupQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (fgq *FavoriteGroupQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, fgq.ctx, ent.OpQueryExist)
-	switch _, err := fgq.FirstID(ctx); {
+func (_q *FavoriteGroupQuery) Exist(ctx context.Context) (bool, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
+	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
 	case err != nil:
@@ -255,8 +255,8 @@ func (fgq *FavoriteGroupQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (fgq *FavoriteGroupQuery) ExistX(ctx context.Context) bool {
-	exist, err := fgq.Exist(ctx)
+func (_q *FavoriteGroupQuery) ExistX(ctx context.Context) bool {
+	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -265,32 +265,32 @@ func (fgq *FavoriteGroupQuery) ExistX(ctx context.Context) bool {
 
 // Clone returns a duplicate of the FavoriteGroupQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (fgq *FavoriteGroupQuery) Clone() *FavoriteGroupQuery {
-	if fgq == nil {
+func (_q *FavoriteGroupQuery) Clone() *FavoriteGroupQuery {
+	if _q == nil {
 		return nil
 	}
 	return &FavoriteGroupQuery{
-		config:        fgq.config,
-		ctx:           fgq.ctx.Clone(),
-		order:         append([]favoritegroup.OrderOption{}, fgq.order...),
-		inters:        append([]Interceptor{}, fgq.inters...),
-		predicates:    append([]predicate.FavoriteGroup{}, fgq.predicates...),
-		withFavorites: fgq.withFavorites.Clone(),
+		config:        _q.config,
+		ctx:           _q.ctx.Clone(),
+		order:         append([]favoritegroup.OrderOption{}, _q.order...),
+		inters:        append([]Interceptor{}, _q.inters...),
+		predicates:    append([]predicate.FavoriteGroup{}, _q.predicates...),
+		withFavorites: _q.withFavorites.Clone(),
 		// clone intermediate query.
-		sql:  fgq.sql.Clone(),
-		path: fgq.path,
+		sql:  _q.sql.Clone(),
+		path: _q.path,
 	}
 }
 
 // WithFavorites tells the query-builder to eager-load the nodes that are connected to
 // the "favorites" edge. The optional arguments are used to configure the query builder of the edge.
-func (fgq *FavoriteGroupQuery) WithFavorites(opts ...func(*FavoriteQuery)) *FavoriteGroupQuery {
-	query := (&FavoriteClient{config: fgq.config}).Query()
+func (_q *FavoriteGroupQuery) WithFavorites(opts ...func(*FavoriteQuery)) *FavoriteGroupQuery {
+	query := (&FavoriteClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	fgq.withFavorites = query
-	return fgq
+	_q.withFavorites = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -307,10 +307,10 @@ func (fgq *FavoriteGroupQuery) WithFavorites(opts ...func(*FavoriteQuery)) *Favo
 //		GroupBy(favoritegroup.FieldName).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (fgq *FavoriteGroupQuery) GroupBy(field string, fields ...string) *FavoriteGroupGroupBy {
-	fgq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &FavoriteGroupGroupBy{build: fgq}
-	grbuild.flds = &fgq.ctx.Fields
+func (_q *FavoriteGroupQuery) GroupBy(field string, fields ...string) *FavoriteGroupGroupBy {
+	_q.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &FavoriteGroupGroupBy{build: _q}
+	grbuild.flds = &_q.ctx.Fields
 	grbuild.label = favoritegroup.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
@@ -328,58 +328,58 @@ func (fgq *FavoriteGroupQuery) GroupBy(field string, fields ...string) *Favorite
 //	client.FavoriteGroup.Query().
 //		Select(favoritegroup.FieldName).
 //		Scan(ctx, &v)
-func (fgq *FavoriteGroupQuery) Select(fields ...string) *FavoriteGroupSelect {
-	fgq.ctx.Fields = append(fgq.ctx.Fields, fields...)
-	sbuild := &FavoriteGroupSelect{FavoriteGroupQuery: fgq}
+func (_q *FavoriteGroupQuery) Select(fields ...string) *FavoriteGroupSelect {
+	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
+	sbuild := &FavoriteGroupSelect{FavoriteGroupQuery: _q}
 	sbuild.label = favoritegroup.Label
-	sbuild.flds, sbuild.scan = &fgq.ctx.Fields, sbuild.Scan
+	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
 // Aggregate returns a FavoriteGroupSelect configured with the given aggregations.
-func (fgq *FavoriteGroupQuery) Aggregate(fns ...AggregateFunc) *FavoriteGroupSelect {
-	return fgq.Select().Aggregate(fns...)
+func (_q *FavoriteGroupQuery) Aggregate(fns ...AggregateFunc) *FavoriteGroupSelect {
+	return _q.Select().Aggregate(fns...)
 }
 
-func (fgq *FavoriteGroupQuery) prepareQuery(ctx context.Context) error {
-	for _, inter := range fgq.inters {
+func (_q *FavoriteGroupQuery) prepareQuery(ctx context.Context) error {
+	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
 		}
 		if trv, ok := inter.(Traverser); ok {
-			if err := trv.Traverse(ctx, fgq); err != nil {
+			if err := trv.Traverse(ctx, _q); err != nil {
 				return err
 			}
 		}
 	}
-	for _, f := range fgq.ctx.Fields {
+	for _, f := range _q.ctx.Fields {
 		if !favoritegroup.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
-	if fgq.path != nil {
-		prev, err := fgq.path(ctx)
+	if _q.path != nil {
+		prev, err := _q.path(ctx)
 		if err != nil {
 			return err
 		}
-		fgq.sql = prev
+		_q.sql = prev
 	}
 	return nil
 }
 
-func (fgq *FavoriteGroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*FavoriteGroup, error) {
+func (_q *FavoriteGroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*FavoriteGroup, error) {
 	var (
 		nodes       = []*FavoriteGroup{}
-		_spec       = fgq.querySpec()
+		_spec       = _q.querySpec()
 		loadedTypes = [1]bool{
-			fgq.withFavorites != nil,
+			_q.withFavorites != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*FavoriteGroup).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &FavoriteGroup{config: fgq.config}
+		node := &FavoriteGroup{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -387,14 +387,14 @@ func (fgq *FavoriteGroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
-	if err := sqlgraph.QueryNodes(ctx, fgq.driver, _spec); err != nil {
+	if err := sqlgraph.QueryNodes(ctx, _q.driver, _spec); err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := fgq.withFavorites; query != nil {
-		if err := fgq.loadFavorites(ctx, query, nodes,
+	if query := _q.withFavorites; query != nil {
+		if err := _q.loadFavorites(ctx, query, nodes,
 			func(n *FavoriteGroup) { n.Edges.Favorites = []*Favorite{} },
 			func(n *FavoriteGroup, e *Favorite) { n.Edges.Favorites = append(n.Edges.Favorites, e) }); err != nil {
 			return nil, err
@@ -403,7 +403,7 @@ func (fgq *FavoriteGroupQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 	return nodes, nil
 }
 
-func (fgq *FavoriteGroupQuery) loadFavorites(ctx context.Context, query *FavoriteQuery, nodes []*FavoriteGroup, init func(*FavoriteGroup), assign func(*FavoriteGroup, *Favorite)) error {
+func (_q *FavoriteGroupQuery) loadFavorites(ctx context.Context, query *FavoriteQuery, nodes []*FavoriteGroup, init func(*FavoriteGroup), assign func(*FavoriteGroup, *Favorite)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[int]*FavoriteGroup)
 	nids := make(map[int]map[*FavoriteGroup]struct{})
@@ -465,24 +465,24 @@ func (fgq *FavoriteGroupQuery) loadFavorites(ctx context.Context, query *Favorit
 	return nil
 }
 
-func (fgq *FavoriteGroupQuery) sqlCount(ctx context.Context) (int, error) {
-	_spec := fgq.querySpec()
-	_spec.Node.Columns = fgq.ctx.Fields
-	if len(fgq.ctx.Fields) > 0 {
-		_spec.Unique = fgq.ctx.Unique != nil && *fgq.ctx.Unique
+func (_q *FavoriteGroupQuery) sqlCount(ctx context.Context) (int, error) {
+	_spec := _q.querySpec()
+	_spec.Node.Columns = _q.ctx.Fields
+	if len(_q.ctx.Fields) > 0 {
+		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
 	}
-	return sqlgraph.CountNodes(ctx, fgq.driver, _spec)
+	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (fgq *FavoriteGroupQuery) querySpec() *sqlgraph.QuerySpec {
+func (_q *FavoriteGroupQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := sqlgraph.NewQuerySpec(favoritegroup.Table, favoritegroup.Columns, sqlgraph.NewFieldSpec(favoritegroup.FieldID, field.TypeInt))
-	_spec.From = fgq.sql
-	if unique := fgq.ctx.Unique; unique != nil {
+	_spec.From = _q.sql
+	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
-	} else if fgq.path != nil {
+	} else if _q.path != nil {
 		_spec.Unique = true
 	}
-	if fields := fgq.ctx.Fields; len(fields) > 0 {
+	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, favoritegroup.FieldID)
 		for i := range fields {
@@ -491,20 +491,20 @@ func (fgq *FavoriteGroupQuery) querySpec() *sqlgraph.QuerySpec {
 			}
 		}
 	}
-	if ps := fgq.predicates; len(ps) > 0 {
+	if ps := _q.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if limit := fgq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := fgq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
-	if ps := fgq.order; len(ps) > 0 {
+	if ps := _q.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -514,33 +514,33 @@ func (fgq *FavoriteGroupQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (fgq *FavoriteGroupQuery) sqlQuery(ctx context.Context) *sql.Selector {
-	builder := sql.Dialect(fgq.driver.Dialect())
+func (_q *FavoriteGroupQuery) sqlQuery(ctx context.Context) *sql.Selector {
+	builder := sql.Dialect(_q.driver.Dialect())
 	t1 := builder.Table(favoritegroup.Table)
-	columns := fgq.ctx.Fields
+	columns := _q.ctx.Fields
 	if len(columns) == 0 {
 		columns = favoritegroup.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
-	if fgq.sql != nil {
-		selector = fgq.sql
+	if _q.sql != nil {
+		selector = _q.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if fgq.ctx.Unique != nil && *fgq.ctx.Unique {
+	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, p := range fgq.predicates {
+	for _, p := range _q.predicates {
 		p(selector)
 	}
-	for _, p := range fgq.order {
+	for _, p := range _q.order {
 		p(selector)
 	}
-	if offset := fgq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := fgq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -553,41 +553,41 @@ type FavoriteGroupGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (fggb *FavoriteGroupGroupBy) Aggregate(fns ...AggregateFunc) *FavoriteGroupGroupBy {
-	fggb.fns = append(fggb.fns, fns...)
-	return fggb
+func (_g *FavoriteGroupGroupBy) Aggregate(fns ...AggregateFunc) *FavoriteGroupGroupBy {
+	_g.fns = append(_g.fns, fns...)
+	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (fggb *FavoriteGroupGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, fggb.build.ctx, ent.OpQueryGroupBy)
-	if err := fggb.build.prepareQuery(ctx); err != nil {
+func (_g *FavoriteGroupGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
+	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*FavoriteGroupQuery, *FavoriteGroupGroupBy](ctx, fggb.build, fggb, fggb.build.inters, v)
+	return scanWithInterceptors[*FavoriteGroupQuery, *FavoriteGroupGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (fggb *FavoriteGroupGroupBy) sqlScan(ctx context.Context, root *FavoriteGroupQuery, v any) error {
+func (_g *FavoriteGroupGroupBy) sqlScan(ctx context.Context, root *FavoriteGroupQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
-	aggregation := make([]string, 0, len(fggb.fns))
-	for _, fn := range fggb.fns {
+	aggregation := make([]string, 0, len(_g.fns))
+	for _, fn := range _g.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
 	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(*fggb.flds)+len(fggb.fns))
-		for _, f := range *fggb.flds {
+		columns := make([]string, 0, len(*_g.flds)+len(_g.fns))
+		for _, f := range *_g.flds {
 			columns = append(columns, selector.C(f))
 		}
 		columns = append(columns, aggregation...)
 		selector.Select(columns...)
 	}
-	selector.GroupBy(selector.Columns(*fggb.flds...)...)
+	selector.GroupBy(selector.Columns(*_g.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := fggb.build.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _g.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
@@ -601,27 +601,27 @@ type FavoriteGroupSelect struct {
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (fgs *FavoriteGroupSelect) Aggregate(fns ...AggregateFunc) *FavoriteGroupSelect {
-	fgs.fns = append(fgs.fns, fns...)
-	return fgs
+func (_s *FavoriteGroupSelect) Aggregate(fns ...AggregateFunc) *FavoriteGroupSelect {
+	_s.fns = append(_s.fns, fns...)
+	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (fgs *FavoriteGroupSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, fgs.ctx, ent.OpQuerySelect)
-	if err := fgs.prepareQuery(ctx); err != nil {
+func (_s *FavoriteGroupSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
+	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*FavoriteGroupQuery, *FavoriteGroupSelect](ctx, fgs.FavoriteGroupQuery, fgs, fgs.inters, v)
+	return scanWithInterceptors[*FavoriteGroupQuery, *FavoriteGroupSelect](ctx, _s.FavoriteGroupQuery, _s, _s.inters, v)
 }
 
-func (fgs *FavoriteGroupSelect) sqlScan(ctx context.Context, root *FavoriteGroupQuery, v any) error {
+func (_s *FavoriteGroupSelect) sqlScan(ctx context.Context, root *FavoriteGroupQuery, v any) error {
 	selector := root.sqlQuery(ctx)
-	aggregation := make([]string, 0, len(fgs.fns))
-	for _, fn := range fgs.fns {
+	aggregation := make([]string, 0, len(_s.fns))
+	for _, fn := range _s.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	switch n := len(*fgs.selector.flds); {
+	switch n := len(*_s.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
 		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
@@ -629,7 +629,7 @@ func (fgs *FavoriteGroupSelect) sqlScan(ctx context.Context, root *FavoriteGroup
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := fgs.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _s.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()

@@ -74,7 +74,7 @@ func (*Favorite) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Favorite fields.
-func (f *Favorite) assignValues(columns []string, values []any) error {
+func (_m *Favorite) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -85,46 +85,46 @@ func (f *Favorite) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			f.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case favorite.FieldPackage:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field package", values[i])
 			} else if value.Valid {
-				f.Package = value.String
+				_m.Package = value.String
 			}
 		case favorite.FieldURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field url", values[i])
 			} else if value.Valid {
-				f.URL = value.String
+				_m.URL = value.String
 			}
 		case favorite.FieldType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
-				f.Type = value.String
+				_m.Type = value.String
 			}
 		case favorite.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
 			} else if value.Valid {
-				f.Title = value.String
+				_m.Title = value.String
 			}
 		case favorite.FieldCover:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field cover", values[i])
 			} else if value.Valid {
-				f.Cover = new(string)
-				*f.Cover = value.String
+				_m.Cover = new(string)
+				*_m.Cover = value.String
 			}
 		case favorite.FieldDate:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field date", values[i])
 			} else if value.Valid {
-				f.Date = value.Time
+				_m.Date = value.Time
 			}
 		default:
-			f.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -132,57 +132,57 @@ func (f *Favorite) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Favorite.
 // This includes values selected through modifiers, order, etc.
-func (f *Favorite) Value(name string) (ent.Value, error) {
-	return f.selectValues.Get(name)
+func (_m *Favorite) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryGroup queries the "group" edge of the Favorite entity.
-func (f *Favorite) QueryGroup() *FavoriteGroupQuery {
-	return NewFavoriteClient(f.config).QueryGroup(f)
+func (_m *Favorite) QueryGroup() *FavoriteGroupQuery {
+	return NewFavoriteClient(_m.config).QueryGroup(_m)
 }
 
 // Update returns a builder for updating this Favorite.
 // Note that you need to call Favorite.Unwrap() before calling this method if this Favorite
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (f *Favorite) Update() *FavoriteUpdateOne {
-	return NewFavoriteClient(f.config).UpdateOne(f)
+func (_m *Favorite) Update() *FavoriteUpdateOne {
+	return NewFavoriteClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Favorite entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (f *Favorite) Unwrap() *Favorite {
-	_tx, ok := f.config.driver.(*txDriver)
+func (_m *Favorite) Unwrap() *Favorite {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Favorite is not a transactional entity")
 	}
-	f.config.driver = _tx.drv
-	return f
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (f *Favorite) String() string {
+func (_m *Favorite) String() string {
 	var builder strings.Builder
 	builder.WriteString("Favorite(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", f.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("package=")
-	builder.WriteString(f.Package)
+	builder.WriteString(_m.Package)
 	builder.WriteString(", ")
 	builder.WriteString("url=")
-	builder.WriteString(f.URL)
+	builder.WriteString(_m.URL)
 	builder.WriteString(", ")
 	builder.WriteString("type=")
-	builder.WriteString(f.Type)
+	builder.WriteString(_m.Type)
 	builder.WriteString(", ")
 	builder.WriteString("title=")
-	builder.WriteString(f.Title)
+	builder.WriteString(_m.Title)
 	builder.WriteString(", ")
-	if v := f.Cover; v != nil {
+	if v := _m.Cover; v != nil {
 		builder.WriteString("cover=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("date=")
-	builder.WriteString(f.Date.Format(time.ANSIC))
+	builder.WriteString(_m.Date.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

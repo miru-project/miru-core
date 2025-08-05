@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/miru-project/miru-core/ent/history"
@@ -18,110 +19,111 @@ type HistoryCreate struct {
 	config
 	mutation *HistoryMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetPackage sets the "package" field.
-func (hc *HistoryCreate) SetPackage(s string) *HistoryCreate {
-	hc.mutation.SetPackage(s)
-	return hc
+func (_c *HistoryCreate) SetPackage(v string) *HistoryCreate {
+	_c.mutation.SetPackage(v)
+	return _c
 }
 
 // SetURL sets the "url" field.
-func (hc *HistoryCreate) SetURL(s string) *HistoryCreate {
-	hc.mutation.SetURL(s)
-	return hc
+func (_c *HistoryCreate) SetURL(v string) *HistoryCreate {
+	_c.mutation.SetURL(v)
+	return _c
 }
 
 // SetCover sets the "cover" field.
-func (hc *HistoryCreate) SetCover(s string) *HistoryCreate {
-	hc.mutation.SetCover(s)
-	return hc
+func (_c *HistoryCreate) SetCover(v string) *HistoryCreate {
+	_c.mutation.SetCover(v)
+	return _c
 }
 
 // SetNillableCover sets the "cover" field if the given value is not nil.
-func (hc *HistoryCreate) SetNillableCover(s *string) *HistoryCreate {
-	if s != nil {
-		hc.SetCover(*s)
+func (_c *HistoryCreate) SetNillableCover(v *string) *HistoryCreate {
+	if v != nil {
+		_c.SetCover(*v)
 	}
-	return hc
+	return _c
 }
 
 // SetType sets the "type" field.
-func (hc *HistoryCreate) SetType(s string) *HistoryCreate {
-	hc.mutation.SetType(s)
-	return hc
+func (_c *HistoryCreate) SetType(v string) *HistoryCreate {
+	_c.mutation.SetType(v)
+	return _c
 }
 
 // SetEpisodeGroupID sets the "episode_group_id" field.
-func (hc *HistoryCreate) SetEpisodeGroupID(i int) *HistoryCreate {
-	hc.mutation.SetEpisodeGroupID(i)
-	return hc
+func (_c *HistoryCreate) SetEpisodeGroupID(v int) *HistoryCreate {
+	_c.mutation.SetEpisodeGroupID(v)
+	return _c
 }
 
 // SetEpisodeID sets the "episode_id" field.
-func (hc *HistoryCreate) SetEpisodeID(i int) *HistoryCreate {
-	hc.mutation.SetEpisodeID(i)
-	return hc
+func (_c *HistoryCreate) SetEpisodeID(v int) *HistoryCreate {
+	_c.mutation.SetEpisodeID(v)
+	return _c
 }
 
 // SetTitle sets the "title" field.
-func (hc *HistoryCreate) SetTitle(s string) *HistoryCreate {
-	hc.mutation.SetTitle(s)
-	return hc
+func (_c *HistoryCreate) SetTitle(v string) *HistoryCreate {
+	_c.mutation.SetTitle(v)
+	return _c
 }
 
 // SetEpisodeTitle sets the "episode_title" field.
-func (hc *HistoryCreate) SetEpisodeTitle(s string) *HistoryCreate {
-	hc.mutation.SetEpisodeTitle(s)
-	return hc
+func (_c *HistoryCreate) SetEpisodeTitle(v string) *HistoryCreate {
+	_c.mutation.SetEpisodeTitle(v)
+	return _c
 }
 
 // SetProgress sets the "progress" field.
-func (hc *HistoryCreate) SetProgress(s string) *HistoryCreate {
-	hc.mutation.SetProgress(s)
-	return hc
+func (_c *HistoryCreate) SetProgress(v string) *HistoryCreate {
+	_c.mutation.SetProgress(v)
+	return _c
 }
 
 // SetTotalProgress sets the "total_progress" field.
-func (hc *HistoryCreate) SetTotalProgress(s string) *HistoryCreate {
-	hc.mutation.SetTotalProgress(s)
-	return hc
+func (_c *HistoryCreate) SetTotalProgress(v string) *HistoryCreate {
+	_c.mutation.SetTotalProgress(v)
+	return _c
 }
 
 // SetDate sets the "date" field.
-func (hc *HistoryCreate) SetDate(t time.Time) *HistoryCreate {
-	hc.mutation.SetDate(t)
-	return hc
+func (_c *HistoryCreate) SetDate(v time.Time) *HistoryCreate {
+	_c.mutation.SetDate(v)
+	return _c
 }
 
 // SetNillableDate sets the "date" field if the given value is not nil.
-func (hc *HistoryCreate) SetNillableDate(t *time.Time) *HistoryCreate {
-	if t != nil {
-		hc.SetDate(*t)
+func (_c *HistoryCreate) SetNillableDate(v *time.Time) *HistoryCreate {
+	if v != nil {
+		_c.SetDate(*v)
 	}
-	return hc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (hc *HistoryCreate) SetID(i int) *HistoryCreate {
-	hc.mutation.SetID(i)
-	return hc
+func (_c *HistoryCreate) SetID(v int) *HistoryCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // Mutation returns the HistoryMutation object of the builder.
-func (hc *HistoryCreate) Mutation() *HistoryMutation {
-	return hc.mutation
+func (_c *HistoryCreate) Mutation() *HistoryMutation {
+	return _c.mutation
 }
 
 // Save creates the History in the database.
-func (hc *HistoryCreate) Save(ctx context.Context) (*History, error) {
-	hc.defaults()
-	return withHooks(ctx, hc.sqlSave, hc.mutation, hc.hooks)
+func (_c *HistoryCreate) Save(ctx context.Context) (*History, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (hc *HistoryCreate) SaveX(ctx context.Context) *History {
-	v, err := hc.Save(ctx)
+func (_c *HistoryCreate) SaveX(ctx context.Context) *History {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -129,94 +131,94 @@ func (hc *HistoryCreate) SaveX(ctx context.Context) *History {
 }
 
 // Exec executes the query.
-func (hc *HistoryCreate) Exec(ctx context.Context) error {
-	_, err := hc.Save(ctx)
+func (_c *HistoryCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (hc *HistoryCreate) ExecX(ctx context.Context) {
-	if err := hc.Exec(ctx); err != nil {
+func (_c *HistoryCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (hc *HistoryCreate) defaults() {
-	if _, ok := hc.mutation.Date(); !ok {
+func (_c *HistoryCreate) defaults() {
+	if _, ok := _c.mutation.Date(); !ok {
 		v := history.DefaultDate()
-		hc.mutation.SetDate(v)
+		_c.mutation.SetDate(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (hc *HistoryCreate) check() error {
-	if _, ok := hc.mutation.Package(); !ok {
+func (_c *HistoryCreate) check() error {
+	if _, ok := _c.mutation.Package(); !ok {
 		return &ValidationError{Name: "package", err: errors.New(`ent: missing required field "History.package"`)}
 	}
-	if v, ok := hc.mutation.Package(); ok {
+	if v, ok := _c.mutation.Package(); ok {
 		if err := history.PackageValidator(v); err != nil {
 			return &ValidationError{Name: "package", err: fmt.Errorf(`ent: validator failed for field "History.package": %w`, err)}
 		}
 	}
-	if _, ok := hc.mutation.URL(); !ok {
+	if _, ok := _c.mutation.URL(); !ok {
 		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "History.url"`)}
 	}
-	if v, ok := hc.mutation.URL(); ok {
+	if v, ok := _c.mutation.URL(); ok {
 		if err := history.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "History.url": %w`, err)}
 		}
 	}
-	if _, ok := hc.mutation.GetType(); !ok {
+	if _, ok := _c.mutation.GetType(); !ok {
 		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "History.type"`)}
 	}
-	if v, ok := hc.mutation.GetType(); ok {
+	if v, ok := _c.mutation.GetType(); ok {
 		if err := history.TypeValidator(v); err != nil {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "History.type": %w`, err)}
 		}
 	}
-	if _, ok := hc.mutation.EpisodeGroupID(); !ok {
+	if _, ok := _c.mutation.EpisodeGroupID(); !ok {
 		return &ValidationError{Name: "episode_group_id", err: errors.New(`ent: missing required field "History.episode_group_id"`)}
 	}
-	if _, ok := hc.mutation.EpisodeID(); !ok {
+	if _, ok := _c.mutation.EpisodeID(); !ok {
 		return &ValidationError{Name: "episode_id", err: errors.New(`ent: missing required field "History.episode_id"`)}
 	}
-	if _, ok := hc.mutation.Title(); !ok {
+	if _, ok := _c.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "History.title"`)}
 	}
-	if v, ok := hc.mutation.Title(); ok {
+	if v, ok := _c.mutation.Title(); ok {
 		if err := history.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "History.title": %w`, err)}
 		}
 	}
-	if _, ok := hc.mutation.EpisodeTitle(); !ok {
+	if _, ok := _c.mutation.EpisodeTitle(); !ok {
 		return &ValidationError{Name: "episode_title", err: errors.New(`ent: missing required field "History.episode_title"`)}
 	}
-	if v, ok := hc.mutation.EpisodeTitle(); ok {
+	if v, ok := _c.mutation.EpisodeTitle(); ok {
 		if err := history.EpisodeTitleValidator(v); err != nil {
 			return &ValidationError{Name: "episode_title", err: fmt.Errorf(`ent: validator failed for field "History.episode_title": %w`, err)}
 		}
 	}
-	if _, ok := hc.mutation.Progress(); !ok {
+	if _, ok := _c.mutation.Progress(); !ok {
 		return &ValidationError{Name: "progress", err: errors.New(`ent: missing required field "History.progress"`)}
 	}
-	if v, ok := hc.mutation.Progress(); ok {
+	if v, ok := _c.mutation.Progress(); ok {
 		if err := history.ProgressValidator(v); err != nil {
 			return &ValidationError{Name: "progress", err: fmt.Errorf(`ent: validator failed for field "History.progress": %w`, err)}
 		}
 	}
-	if _, ok := hc.mutation.TotalProgress(); !ok {
+	if _, ok := _c.mutation.TotalProgress(); !ok {
 		return &ValidationError{Name: "total_progress", err: errors.New(`ent: missing required field "History.total_progress"`)}
 	}
-	if v, ok := hc.mutation.TotalProgress(); ok {
+	if v, ok := _c.mutation.TotalProgress(); ok {
 		if err := history.TotalProgressValidator(v); err != nil {
 			return &ValidationError{Name: "total_progress", err: fmt.Errorf(`ent: validator failed for field "History.total_progress": %w`, err)}
 		}
 	}
-	if _, ok := hc.mutation.Date(); !ok {
+	if _, ok := _c.mutation.Date(); !ok {
 		return &ValidationError{Name: "date", err: errors.New(`ent: missing required field "History.date"`)}
 	}
-	if v, ok := hc.mutation.ID(); ok {
+	if v, ok := _c.mutation.ID(); ok {
 		if err := history.IDValidator(v); err != nil {
 			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "History.id": %w`, err)}
 		}
@@ -224,12 +226,12 @@ func (hc *HistoryCreate) check() error {
 	return nil
 }
 
-func (hc *HistoryCreate) sqlSave(ctx context.Context) (*History, error) {
-	if err := hc.check(); err != nil {
+func (_c *HistoryCreate) sqlSave(ctx context.Context) (*History, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := hc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, hc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -239,65 +241,521 @@ func (hc *HistoryCreate) sqlSave(ctx context.Context) (*History, error) {
 		id := _spec.ID.Value.(int64)
 		_node.ID = int(id)
 	}
-	hc.mutation.id = &_node.ID
-	hc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (hc *HistoryCreate) createSpec() (*History, *sqlgraph.CreateSpec) {
+func (_c *HistoryCreate) createSpec() (*History, *sqlgraph.CreateSpec) {
 	var (
-		_node = &History{config: hc.config}
+		_node = &History{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(history.Table, sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt))
 	)
-	if id, ok := hc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := hc.mutation.Package(); ok {
+	if value, ok := _c.mutation.Package(); ok {
 		_spec.SetField(history.FieldPackage, field.TypeString, value)
 		_node.Package = value
 	}
-	if value, ok := hc.mutation.URL(); ok {
+	if value, ok := _c.mutation.URL(); ok {
 		_spec.SetField(history.FieldURL, field.TypeString, value)
 		_node.URL = value
 	}
-	if value, ok := hc.mutation.Cover(); ok {
+	if value, ok := _c.mutation.Cover(); ok {
 		_spec.SetField(history.FieldCover, field.TypeString, value)
 		_node.Cover = &value
 	}
-	if value, ok := hc.mutation.GetType(); ok {
+	if value, ok := _c.mutation.GetType(); ok {
 		_spec.SetField(history.FieldType, field.TypeString, value)
 		_node.Type = value
 	}
-	if value, ok := hc.mutation.EpisodeGroupID(); ok {
+	if value, ok := _c.mutation.EpisodeGroupID(); ok {
 		_spec.SetField(history.FieldEpisodeGroupID, field.TypeInt, value)
 		_node.EpisodeGroupID = value
 	}
-	if value, ok := hc.mutation.EpisodeID(); ok {
+	if value, ok := _c.mutation.EpisodeID(); ok {
 		_spec.SetField(history.FieldEpisodeID, field.TypeInt, value)
 		_node.EpisodeID = value
 	}
-	if value, ok := hc.mutation.Title(); ok {
+	if value, ok := _c.mutation.Title(); ok {
 		_spec.SetField(history.FieldTitle, field.TypeString, value)
 		_node.Title = value
 	}
-	if value, ok := hc.mutation.EpisodeTitle(); ok {
+	if value, ok := _c.mutation.EpisodeTitle(); ok {
 		_spec.SetField(history.FieldEpisodeTitle, field.TypeString, value)
 		_node.EpisodeTitle = value
 	}
-	if value, ok := hc.mutation.Progress(); ok {
+	if value, ok := _c.mutation.Progress(); ok {
 		_spec.SetField(history.FieldProgress, field.TypeString, value)
 		_node.Progress = value
 	}
-	if value, ok := hc.mutation.TotalProgress(); ok {
+	if value, ok := _c.mutation.TotalProgress(); ok {
 		_spec.SetField(history.FieldTotalProgress, field.TypeString, value)
 		_node.TotalProgress = value
 	}
-	if value, ok := hc.mutation.Date(); ok {
+	if value, ok := _c.mutation.Date(); ok {
 		_spec.SetField(history.FieldDate, field.TypeTime, value)
 		_node.Date = value
 	}
 	return _node, _spec
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.History.Create().
+//		SetPackage(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.HistoryUpsert) {
+//			SetPackage(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *HistoryCreate) OnConflict(opts ...sql.ConflictOption) *HistoryUpsertOne {
+	_c.conflict = opts
+	return &HistoryUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.History.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *HistoryCreate) OnConflictColumns(columns ...string) *HistoryUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &HistoryUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// HistoryUpsertOne is the builder for "upsert"-ing
+	//  one History node.
+	HistoryUpsertOne struct {
+		create *HistoryCreate
+	}
+
+	// HistoryUpsert is the "OnConflict" setter.
+	HistoryUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetPackage sets the "package" field.
+func (u *HistoryUpsert) SetPackage(v string) *HistoryUpsert {
+	u.Set(history.FieldPackage, v)
+	return u
+}
+
+// UpdatePackage sets the "package" field to the value that was provided on create.
+func (u *HistoryUpsert) UpdatePackage() *HistoryUpsert {
+	u.SetExcluded(history.FieldPackage)
+	return u
+}
+
+// SetURL sets the "url" field.
+func (u *HistoryUpsert) SetURL(v string) *HistoryUpsert {
+	u.Set(history.FieldURL, v)
+	return u
+}
+
+// UpdateURL sets the "url" field to the value that was provided on create.
+func (u *HistoryUpsert) UpdateURL() *HistoryUpsert {
+	u.SetExcluded(history.FieldURL)
+	return u
+}
+
+// SetCover sets the "cover" field.
+func (u *HistoryUpsert) SetCover(v string) *HistoryUpsert {
+	u.Set(history.FieldCover, v)
+	return u
+}
+
+// UpdateCover sets the "cover" field to the value that was provided on create.
+func (u *HistoryUpsert) UpdateCover() *HistoryUpsert {
+	u.SetExcluded(history.FieldCover)
+	return u
+}
+
+// ClearCover clears the value of the "cover" field.
+func (u *HistoryUpsert) ClearCover() *HistoryUpsert {
+	u.SetNull(history.FieldCover)
+	return u
+}
+
+// SetType sets the "type" field.
+func (u *HistoryUpsert) SetType(v string) *HistoryUpsert {
+	u.Set(history.FieldType, v)
+	return u
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *HistoryUpsert) UpdateType() *HistoryUpsert {
+	u.SetExcluded(history.FieldType)
+	return u
+}
+
+// SetEpisodeGroupID sets the "episode_group_id" field.
+func (u *HistoryUpsert) SetEpisodeGroupID(v int) *HistoryUpsert {
+	u.Set(history.FieldEpisodeGroupID, v)
+	return u
+}
+
+// UpdateEpisodeGroupID sets the "episode_group_id" field to the value that was provided on create.
+func (u *HistoryUpsert) UpdateEpisodeGroupID() *HistoryUpsert {
+	u.SetExcluded(history.FieldEpisodeGroupID)
+	return u
+}
+
+// AddEpisodeGroupID adds v to the "episode_group_id" field.
+func (u *HistoryUpsert) AddEpisodeGroupID(v int) *HistoryUpsert {
+	u.Add(history.FieldEpisodeGroupID, v)
+	return u
+}
+
+// SetEpisodeID sets the "episode_id" field.
+func (u *HistoryUpsert) SetEpisodeID(v int) *HistoryUpsert {
+	u.Set(history.FieldEpisodeID, v)
+	return u
+}
+
+// UpdateEpisodeID sets the "episode_id" field to the value that was provided on create.
+func (u *HistoryUpsert) UpdateEpisodeID() *HistoryUpsert {
+	u.SetExcluded(history.FieldEpisodeID)
+	return u
+}
+
+// AddEpisodeID adds v to the "episode_id" field.
+func (u *HistoryUpsert) AddEpisodeID(v int) *HistoryUpsert {
+	u.Add(history.FieldEpisodeID, v)
+	return u
+}
+
+// SetTitle sets the "title" field.
+func (u *HistoryUpsert) SetTitle(v string) *HistoryUpsert {
+	u.Set(history.FieldTitle, v)
+	return u
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *HistoryUpsert) UpdateTitle() *HistoryUpsert {
+	u.SetExcluded(history.FieldTitle)
+	return u
+}
+
+// SetEpisodeTitle sets the "episode_title" field.
+func (u *HistoryUpsert) SetEpisodeTitle(v string) *HistoryUpsert {
+	u.Set(history.FieldEpisodeTitle, v)
+	return u
+}
+
+// UpdateEpisodeTitle sets the "episode_title" field to the value that was provided on create.
+func (u *HistoryUpsert) UpdateEpisodeTitle() *HistoryUpsert {
+	u.SetExcluded(history.FieldEpisodeTitle)
+	return u
+}
+
+// SetProgress sets the "progress" field.
+func (u *HistoryUpsert) SetProgress(v string) *HistoryUpsert {
+	u.Set(history.FieldProgress, v)
+	return u
+}
+
+// UpdateProgress sets the "progress" field to the value that was provided on create.
+func (u *HistoryUpsert) UpdateProgress() *HistoryUpsert {
+	u.SetExcluded(history.FieldProgress)
+	return u
+}
+
+// SetTotalProgress sets the "total_progress" field.
+func (u *HistoryUpsert) SetTotalProgress(v string) *HistoryUpsert {
+	u.Set(history.FieldTotalProgress, v)
+	return u
+}
+
+// UpdateTotalProgress sets the "total_progress" field to the value that was provided on create.
+func (u *HistoryUpsert) UpdateTotalProgress() *HistoryUpsert {
+	u.SetExcluded(history.FieldTotalProgress)
+	return u
+}
+
+// SetDate sets the "date" field.
+func (u *HistoryUpsert) SetDate(v time.Time) *HistoryUpsert {
+	u.Set(history.FieldDate, v)
+	return u
+}
+
+// UpdateDate sets the "date" field to the value that was provided on create.
+func (u *HistoryUpsert) UpdateDate() *HistoryUpsert {
+	u.SetExcluded(history.FieldDate)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.History.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(history.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *HistoryUpsertOne) UpdateNewValues() *HistoryUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(history.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.History.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *HistoryUpsertOne) Ignore() *HistoryUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *HistoryUpsertOne) DoNothing() *HistoryUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the HistoryCreate.OnConflict
+// documentation for more info.
+func (u *HistoryUpsertOne) Update(set func(*HistoryUpsert)) *HistoryUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&HistoryUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetPackage sets the "package" field.
+func (u *HistoryUpsertOne) SetPackage(v string) *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetPackage(v)
+	})
+}
+
+// UpdatePackage sets the "package" field to the value that was provided on create.
+func (u *HistoryUpsertOne) UpdatePackage() *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdatePackage()
+	})
+}
+
+// SetURL sets the "url" field.
+func (u *HistoryUpsertOne) SetURL(v string) *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetURL(v)
+	})
+}
+
+// UpdateURL sets the "url" field to the value that was provided on create.
+func (u *HistoryUpsertOne) UpdateURL() *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateURL()
+	})
+}
+
+// SetCover sets the "cover" field.
+func (u *HistoryUpsertOne) SetCover(v string) *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetCover(v)
+	})
+}
+
+// UpdateCover sets the "cover" field to the value that was provided on create.
+func (u *HistoryUpsertOne) UpdateCover() *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateCover()
+	})
+}
+
+// ClearCover clears the value of the "cover" field.
+func (u *HistoryUpsertOne) ClearCover() *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.ClearCover()
+	})
+}
+
+// SetType sets the "type" field.
+func (u *HistoryUpsertOne) SetType(v string) *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *HistoryUpsertOne) UpdateType() *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateType()
+	})
+}
+
+// SetEpisodeGroupID sets the "episode_group_id" field.
+func (u *HistoryUpsertOne) SetEpisodeGroupID(v int) *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetEpisodeGroupID(v)
+	})
+}
+
+// AddEpisodeGroupID adds v to the "episode_group_id" field.
+func (u *HistoryUpsertOne) AddEpisodeGroupID(v int) *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.AddEpisodeGroupID(v)
+	})
+}
+
+// UpdateEpisodeGroupID sets the "episode_group_id" field to the value that was provided on create.
+func (u *HistoryUpsertOne) UpdateEpisodeGroupID() *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateEpisodeGroupID()
+	})
+}
+
+// SetEpisodeID sets the "episode_id" field.
+func (u *HistoryUpsertOne) SetEpisodeID(v int) *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetEpisodeID(v)
+	})
+}
+
+// AddEpisodeID adds v to the "episode_id" field.
+func (u *HistoryUpsertOne) AddEpisodeID(v int) *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.AddEpisodeID(v)
+	})
+}
+
+// UpdateEpisodeID sets the "episode_id" field to the value that was provided on create.
+func (u *HistoryUpsertOne) UpdateEpisodeID() *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateEpisodeID()
+	})
+}
+
+// SetTitle sets the "title" field.
+func (u *HistoryUpsertOne) SetTitle(v string) *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetTitle(v)
+	})
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *HistoryUpsertOne) UpdateTitle() *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateTitle()
+	})
+}
+
+// SetEpisodeTitle sets the "episode_title" field.
+func (u *HistoryUpsertOne) SetEpisodeTitle(v string) *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetEpisodeTitle(v)
+	})
+}
+
+// UpdateEpisodeTitle sets the "episode_title" field to the value that was provided on create.
+func (u *HistoryUpsertOne) UpdateEpisodeTitle() *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateEpisodeTitle()
+	})
+}
+
+// SetProgress sets the "progress" field.
+func (u *HistoryUpsertOne) SetProgress(v string) *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetProgress(v)
+	})
+}
+
+// UpdateProgress sets the "progress" field to the value that was provided on create.
+func (u *HistoryUpsertOne) UpdateProgress() *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateProgress()
+	})
+}
+
+// SetTotalProgress sets the "total_progress" field.
+func (u *HistoryUpsertOne) SetTotalProgress(v string) *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetTotalProgress(v)
+	})
+}
+
+// UpdateTotalProgress sets the "total_progress" field to the value that was provided on create.
+func (u *HistoryUpsertOne) UpdateTotalProgress() *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateTotalProgress()
+	})
+}
+
+// SetDate sets the "date" field.
+func (u *HistoryUpsertOne) SetDate(v time.Time) *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetDate(v)
+	})
+}
+
+// UpdateDate sets the "date" field to the value that was provided on create.
+func (u *HistoryUpsertOne) UpdateDate() *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateDate()
+	})
+}
+
+// Exec executes the query.
+func (u *HistoryUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for HistoryCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *HistoryUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *HistoryUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *HistoryUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
 }
 
 // HistoryCreateBulk is the builder for creating many History entities in bulk.
@@ -305,19 +763,20 @@ type HistoryCreateBulk struct {
 	config
 	err      error
 	builders []*HistoryCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the History entities in the database.
-func (hcb *HistoryCreateBulk) Save(ctx context.Context) ([]*History, error) {
-	if hcb.err != nil {
-		return nil, hcb.err
+func (_c *HistoryCreateBulk) Save(ctx context.Context) ([]*History, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(hcb.builders))
-	nodes := make([]*History, len(hcb.builders))
-	mutators := make([]Mutator, len(hcb.builders))
-	for i := range hcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*History, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := hcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*HistoryMutation)
@@ -331,11 +790,12 @@ func (hcb *HistoryCreateBulk) Save(ctx context.Context) ([]*History, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, hcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, hcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -359,7 +819,7 @@ func (hcb *HistoryCreateBulk) Save(ctx context.Context) ([]*History, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, hcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -367,8 +827,8 @@ func (hcb *HistoryCreateBulk) Save(ctx context.Context) ([]*History, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (hcb *HistoryCreateBulk) SaveX(ctx context.Context) []*History {
-	v, err := hcb.Save(ctx)
+func (_c *HistoryCreateBulk) SaveX(ctx context.Context) []*History {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -376,14 +836,303 @@ func (hcb *HistoryCreateBulk) SaveX(ctx context.Context) []*History {
 }
 
 // Exec executes the query.
-func (hcb *HistoryCreateBulk) Exec(ctx context.Context) error {
-	_, err := hcb.Save(ctx)
+func (_c *HistoryCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (hcb *HistoryCreateBulk) ExecX(ctx context.Context) {
-	if err := hcb.Exec(ctx); err != nil {
+func (_c *HistoryCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.History.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.HistoryUpsert) {
+//			SetPackage(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *HistoryCreateBulk) OnConflict(opts ...sql.ConflictOption) *HistoryUpsertBulk {
+	_c.conflict = opts
+	return &HistoryUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.History.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *HistoryCreateBulk) OnConflictColumns(columns ...string) *HistoryUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &HistoryUpsertBulk{
+		create: _c,
+	}
+}
+
+// HistoryUpsertBulk is the builder for "upsert"-ing
+// a bulk of History nodes.
+type HistoryUpsertBulk struct {
+	create *HistoryCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.History.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(history.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *HistoryUpsertBulk) UpdateNewValues() *HistoryUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(history.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.History.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *HistoryUpsertBulk) Ignore() *HistoryUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *HistoryUpsertBulk) DoNothing() *HistoryUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the HistoryCreateBulk.OnConflict
+// documentation for more info.
+func (u *HistoryUpsertBulk) Update(set func(*HistoryUpsert)) *HistoryUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&HistoryUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetPackage sets the "package" field.
+func (u *HistoryUpsertBulk) SetPackage(v string) *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetPackage(v)
+	})
+}
+
+// UpdatePackage sets the "package" field to the value that was provided on create.
+func (u *HistoryUpsertBulk) UpdatePackage() *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdatePackage()
+	})
+}
+
+// SetURL sets the "url" field.
+func (u *HistoryUpsertBulk) SetURL(v string) *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetURL(v)
+	})
+}
+
+// UpdateURL sets the "url" field to the value that was provided on create.
+func (u *HistoryUpsertBulk) UpdateURL() *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateURL()
+	})
+}
+
+// SetCover sets the "cover" field.
+func (u *HistoryUpsertBulk) SetCover(v string) *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetCover(v)
+	})
+}
+
+// UpdateCover sets the "cover" field to the value that was provided on create.
+func (u *HistoryUpsertBulk) UpdateCover() *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateCover()
+	})
+}
+
+// ClearCover clears the value of the "cover" field.
+func (u *HistoryUpsertBulk) ClearCover() *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.ClearCover()
+	})
+}
+
+// SetType sets the "type" field.
+func (u *HistoryUpsertBulk) SetType(v string) *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *HistoryUpsertBulk) UpdateType() *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateType()
+	})
+}
+
+// SetEpisodeGroupID sets the "episode_group_id" field.
+func (u *HistoryUpsertBulk) SetEpisodeGroupID(v int) *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetEpisodeGroupID(v)
+	})
+}
+
+// AddEpisodeGroupID adds v to the "episode_group_id" field.
+func (u *HistoryUpsertBulk) AddEpisodeGroupID(v int) *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.AddEpisodeGroupID(v)
+	})
+}
+
+// UpdateEpisodeGroupID sets the "episode_group_id" field to the value that was provided on create.
+func (u *HistoryUpsertBulk) UpdateEpisodeGroupID() *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateEpisodeGroupID()
+	})
+}
+
+// SetEpisodeID sets the "episode_id" field.
+func (u *HistoryUpsertBulk) SetEpisodeID(v int) *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetEpisodeID(v)
+	})
+}
+
+// AddEpisodeID adds v to the "episode_id" field.
+func (u *HistoryUpsertBulk) AddEpisodeID(v int) *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.AddEpisodeID(v)
+	})
+}
+
+// UpdateEpisodeID sets the "episode_id" field to the value that was provided on create.
+func (u *HistoryUpsertBulk) UpdateEpisodeID() *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateEpisodeID()
+	})
+}
+
+// SetTitle sets the "title" field.
+func (u *HistoryUpsertBulk) SetTitle(v string) *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetTitle(v)
+	})
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *HistoryUpsertBulk) UpdateTitle() *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateTitle()
+	})
+}
+
+// SetEpisodeTitle sets the "episode_title" field.
+func (u *HistoryUpsertBulk) SetEpisodeTitle(v string) *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetEpisodeTitle(v)
+	})
+}
+
+// UpdateEpisodeTitle sets the "episode_title" field to the value that was provided on create.
+func (u *HistoryUpsertBulk) UpdateEpisodeTitle() *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateEpisodeTitle()
+	})
+}
+
+// SetProgress sets the "progress" field.
+func (u *HistoryUpsertBulk) SetProgress(v string) *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetProgress(v)
+	})
+}
+
+// UpdateProgress sets the "progress" field to the value that was provided on create.
+func (u *HistoryUpsertBulk) UpdateProgress() *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateProgress()
+	})
+}
+
+// SetTotalProgress sets the "total_progress" field.
+func (u *HistoryUpsertBulk) SetTotalProgress(v string) *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetTotalProgress(v)
+	})
+}
+
+// UpdateTotalProgress sets the "total_progress" field to the value that was provided on create.
+func (u *HistoryUpsertBulk) UpdateTotalProgress() *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateTotalProgress()
+	})
+}
+
+// SetDate sets the "date" field.
+func (u *HistoryUpsertBulk) SetDate(v time.Time) *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetDate(v)
+	})
+}
+
+// UpdateDate sets the "date" field to the value that was provided on create.
+func (u *HistoryUpsertBulk) UpdateDate() *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateDate()
+	})
+}
+
+// Exec executes the query.
+func (u *HistoryUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the HistoryCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for HistoryCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *HistoryUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

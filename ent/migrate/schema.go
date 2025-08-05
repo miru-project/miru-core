@@ -30,6 +30,18 @@ var (
 		Columns:    ExtensionsColumns,
 		PrimaryKey: []*schema.Column{ExtensionsColumns[0]},
 	}
+	// ExtensionReposColumns holds the columns for the "extension_repos" table.
+	ExtensionReposColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "url", Type: field.TypeString, Unique: true},
+		{Name: "name", Type: field.TypeString},
+	}
+	// ExtensionReposTable holds the schema information for the "extension_repos" table.
+	ExtensionReposTable = &schema.Table{
+		Name:       "extension_repos",
+		Columns:    ExtensionReposColumns,
+		PrimaryKey: []*schema.Column{ExtensionReposColumns[0]},
+	}
 	// FavoritesColumns holds the columns for the "favorites" table.
 	FavoritesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -129,6 +141,7 @@ var (
 	Tables = []*schema.Table{
 		AppSettingsTable,
 		ExtensionsTable,
+		ExtensionReposTable,
 		FavoritesTable,
 		FavoriteGroupsTable,
 		HistoriesTable,

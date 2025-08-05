@@ -63,7 +63,7 @@ func (*History) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the History fields.
-func (h *History) assignValues(columns []string, values []any) error {
+func (_m *History) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -74,76 +74,76 @@ func (h *History) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			h.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case history.FieldPackage:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field package", values[i])
 			} else if value.Valid {
-				h.Package = value.String
+				_m.Package = value.String
 			}
 		case history.FieldURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field url", values[i])
 			} else if value.Valid {
-				h.URL = value.String
+				_m.URL = value.String
 			}
 		case history.FieldCover:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field cover", values[i])
 			} else if value.Valid {
-				h.Cover = new(string)
-				*h.Cover = value.String
+				_m.Cover = new(string)
+				*_m.Cover = value.String
 			}
 		case history.FieldType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
-				h.Type = value.String
+				_m.Type = value.String
 			}
 		case history.FieldEpisodeGroupID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field episode_group_id", values[i])
 			} else if value.Valid {
-				h.EpisodeGroupID = int(value.Int64)
+				_m.EpisodeGroupID = int(value.Int64)
 			}
 		case history.FieldEpisodeID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field episode_id", values[i])
 			} else if value.Valid {
-				h.EpisodeID = int(value.Int64)
+				_m.EpisodeID = int(value.Int64)
 			}
 		case history.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
 			} else if value.Valid {
-				h.Title = value.String
+				_m.Title = value.String
 			}
 		case history.FieldEpisodeTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field episode_title", values[i])
 			} else if value.Valid {
-				h.EpisodeTitle = value.String
+				_m.EpisodeTitle = value.String
 			}
 		case history.FieldProgress:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field progress", values[i])
 			} else if value.Valid {
-				h.Progress = value.String
+				_m.Progress = value.String
 			}
 		case history.FieldTotalProgress:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field total_progress", values[i])
 			} else if value.Valid {
-				h.TotalProgress = value.String
+				_m.TotalProgress = value.String
 			}
 		case history.FieldDate:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field date", values[i])
 			} else if value.Valid {
-				h.Date = value.Time
+				_m.Date = value.Time
 			}
 		default:
-			h.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -151,67 +151,67 @@ func (h *History) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the History.
 // This includes values selected through modifiers, order, etc.
-func (h *History) Value(name string) (ent.Value, error) {
-	return h.selectValues.Get(name)
+func (_m *History) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this History.
 // Note that you need to call History.Unwrap() before calling this method if this History
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (h *History) Update() *HistoryUpdateOne {
-	return NewHistoryClient(h.config).UpdateOne(h)
+func (_m *History) Update() *HistoryUpdateOne {
+	return NewHistoryClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the History entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (h *History) Unwrap() *History {
-	_tx, ok := h.config.driver.(*txDriver)
+func (_m *History) Unwrap() *History {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: History is not a transactional entity")
 	}
-	h.config.driver = _tx.drv
-	return h
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (h *History) String() string {
+func (_m *History) String() string {
 	var builder strings.Builder
 	builder.WriteString("History(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", h.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("package=")
-	builder.WriteString(h.Package)
+	builder.WriteString(_m.Package)
 	builder.WriteString(", ")
 	builder.WriteString("url=")
-	builder.WriteString(h.URL)
+	builder.WriteString(_m.URL)
 	builder.WriteString(", ")
-	if v := h.Cover; v != nil {
+	if v := _m.Cover; v != nil {
 		builder.WriteString("cover=")
 		builder.WriteString(*v)
 	}
 	builder.WriteString(", ")
 	builder.WriteString("type=")
-	builder.WriteString(h.Type)
+	builder.WriteString(_m.Type)
 	builder.WriteString(", ")
 	builder.WriteString("episode_group_id=")
-	builder.WriteString(fmt.Sprintf("%v", h.EpisodeGroupID))
+	builder.WriteString(fmt.Sprintf("%v", _m.EpisodeGroupID))
 	builder.WriteString(", ")
 	builder.WriteString("episode_id=")
-	builder.WriteString(fmt.Sprintf("%v", h.EpisodeID))
+	builder.WriteString(fmt.Sprintf("%v", _m.EpisodeID))
 	builder.WriteString(", ")
 	builder.WriteString("title=")
-	builder.WriteString(h.Title)
+	builder.WriteString(_m.Title)
 	builder.WriteString(", ")
 	builder.WriteString("episode_title=")
-	builder.WriteString(h.EpisodeTitle)
+	builder.WriteString(_m.EpisodeTitle)
 	builder.WriteString(", ")
 	builder.WriteString("progress=")
-	builder.WriteString(h.Progress)
+	builder.WriteString(_m.Progress)
 	builder.WriteString(", ")
 	builder.WriteString("total_progress=")
-	builder.WriteString(h.TotalProgress)
+	builder.WriteString(_m.TotalProgress)
 	builder.WriteString(", ")
 	builder.WriteString("date=")
-	builder.WriteString(h.Date.Format(time.ANSIC))
+	builder.WriteString(_m.Date.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

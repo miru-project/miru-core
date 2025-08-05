@@ -12,13 +12,13 @@ func Latest(page string, pkg string) (*result.Result[any], error) {
 
 	intPage, err := strconv.Atoi(page)
 	if err != nil {
-		return result.NewErrorResult("Invalid page number", 400), err
+		return result.NewErrorResult("Invalid page number", 400, nil), err
 	}
 
 	res, e := jsExtension.Latest(pkg, intPage)
 
 	if res == nil && e == nil {
-		return result.NewErrorResult("No results found", 404), nil
+		return result.NewErrorResult("No results found", 404, nil), nil
 	}
 	return result.NewSuccessResult(res), e
 
@@ -29,13 +29,13 @@ func Search(page string, pkg string, kw string, filter string) (*result.Result[a
 
 	intPage, err := strconv.Atoi(page)
 	if err != nil {
-		return result.NewErrorResult("Invalid page number", 400), err
+		return result.NewErrorResult("Invalid page number", 400, nil), err
 	}
 
 	res, e := jsExtension.Search(pkg, intPage, kw, filter)
 
 	if res == nil {
-		return result.NewErrorResult("No results found", 404), nil
+		return result.NewErrorResult("No results found", 404, nil), nil
 	}
 	return result.NewSuccessResult(res), e
 
@@ -47,7 +47,7 @@ func Watch(pkg string, url string) (*result.Result[any], error) {
 	res, e := jsExtension.Watch(pkg, url)
 
 	if res == nil {
-		return result.NewErrorResult("No results found", 404), nil
+		return result.NewErrorResult("No results found", 404, nil), nil
 	}
 	return result.NewSuccessResult(res), e
 }
@@ -58,7 +58,16 @@ func Detail(pkg string, url string) (*result.Result[any], error) {
 	res, e := jsExtension.Detail(pkg, url)
 
 	if res.Title == "" {
-		return result.NewErrorResult("No results found", 404), nil
+		return result.NewErrorResult("No results found", 404, nil), nil
 	}
 	return result.NewSuccessResult(res), e
+}
+
+func FetchExtensionRepo() (map[string][]jsExtension.GithubExtension, error, map[string]error) {
+	repo, e := jsExtension.LoadExtensionRepo()
+	if e != nil {
+		return nil, e, nil
+	}
+	r, err := jsExtension.FetchExtensionRepo(repo)
+	return r, nil, err
 }

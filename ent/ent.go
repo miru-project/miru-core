@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/miru-project/miru-core/ent/appsetting"
 	"github.com/miru-project/miru-core/ent/extension"
+	"github.com/miru-project/miru-core/ent/extensionrepo"
 	"github.com/miru-project/miru-core/ent/favorite"
 	"github.com/miru-project/miru-core/ent/favoritegroup"
 	"github.com/miru-project/miru-core/ent/history"
@@ -74,17 +75,18 @@ var (
 )
 
 // checkColumn checks if the column exists in the given table.
-func checkColumn(table, column string) error {
+func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			appsetting.Table:    appsetting.ValidColumn,
 			extension.Table:     extension.ValidColumn,
+			extensionrepo.Table: extensionrepo.ValidColumn,
 			favorite.Table:      favorite.ValidColumn,
 			favoritegroup.Table: favoritegroup.ValidColumn,
 			history.Table:       history.ValidColumn,
 		})
 	})
-	return columnCheck(table, column)
+	return columnCheck(t, c)
 }
 
 // Asc applies the given fields in ASC order.

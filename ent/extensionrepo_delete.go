@@ -8,30 +8,30 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/miru-project/miru-core/ent/appsetting"
+	"github.com/miru-project/miru-core/ent/extensionrepo"
 	"github.com/miru-project/miru-core/ent/predicate"
 )
 
-// AppSettingDelete is the builder for deleting a AppSetting entity.
-type AppSettingDelete struct {
+// ExtensionRepoDelete is the builder for deleting a ExtensionRepo entity.
+type ExtensionRepoDelete struct {
 	config
 	hooks    []Hook
-	mutation *AppSettingMutation
+	mutation *ExtensionRepoMutation
 }
 
-// Where appends a list predicates to the AppSettingDelete builder.
-func (_d *AppSettingDelete) Where(ps ...predicate.AppSetting) *AppSettingDelete {
+// Where appends a list predicates to the ExtensionRepoDelete builder.
+func (_d *ExtensionRepoDelete) Where(ps ...predicate.ExtensionRepo) *ExtensionRepoDelete {
 	_d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (_d *AppSettingDelete) Exec(ctx context.Context) (int, error) {
+func (_d *ExtensionRepoDelete) Exec(ctx context.Context) (int, error) {
 	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *AppSettingDelete) ExecX(ctx context.Context) int {
+func (_d *ExtensionRepoDelete) ExecX(ctx context.Context) int {
 	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
@@ -39,8 +39,8 @@ func (_d *AppSettingDelete) ExecX(ctx context.Context) int {
 	return n
 }
 
-func (_d *AppSettingDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(appsetting.Table, sqlgraph.NewFieldSpec(appsetting.FieldID, field.TypeInt))
+func (_d *ExtensionRepoDelete) sqlExec(ctx context.Context) (int, error) {
+	_spec := sqlgraph.NewDeleteSpec(extensionrepo.Table, sqlgraph.NewFieldSpec(extensionrepo.FieldID, field.TypeInt))
 	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -56,32 +56,32 @@ func (_d *AppSettingDelete) sqlExec(ctx context.Context) (int, error) {
 	return affected, err
 }
 
-// AppSettingDeleteOne is the builder for deleting a single AppSetting entity.
-type AppSettingDeleteOne struct {
-	_d *AppSettingDelete
+// ExtensionRepoDeleteOne is the builder for deleting a single ExtensionRepo entity.
+type ExtensionRepoDeleteOne struct {
+	_d *ExtensionRepoDelete
 }
 
-// Where appends a list predicates to the AppSettingDelete builder.
-func (_d *AppSettingDeleteOne) Where(ps ...predicate.AppSetting) *AppSettingDeleteOne {
+// Where appends a list predicates to the ExtensionRepoDelete builder.
+func (_d *ExtensionRepoDeleteOne) Where(ps ...predicate.ExtensionRepo) *ExtensionRepoDeleteOne {
 	_d._d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query.
-func (_d *AppSettingDeleteOne) Exec(ctx context.Context) error {
+func (_d *ExtensionRepoDeleteOne) Exec(ctx context.Context) error {
 	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
 	case n == 0:
-		return &NotFoundError{appsetting.Label}
+		return &NotFoundError{extensionrepo.Label}
 	default:
 		return nil
 	}
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *AppSettingDeleteOne) ExecX(ctx context.Context) {
+func (_d *ExtensionRepoDeleteOne) ExecX(ctx context.Context) {
 	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}

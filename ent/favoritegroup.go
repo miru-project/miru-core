@@ -66,7 +66,7 @@ func (*FavoriteGroup) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the FavoriteGroup fields.
-func (fg *FavoriteGroup) assignValues(columns []string, values []any) error {
+func (_m *FavoriteGroup) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -77,21 +77,21 @@ func (fg *FavoriteGroup) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			fg.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case favoritegroup.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				fg.Name = value.String
+				_m.Name = value.String
 			}
 		case favoritegroup.FieldDate:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field date", values[i])
 			} else if value.Valid {
-				fg.Date = value.Time
+				_m.Date = value.Time
 			}
 		default:
-			fg.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -99,43 +99,43 @@ func (fg *FavoriteGroup) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the FavoriteGroup.
 // This includes values selected through modifiers, order, etc.
-func (fg *FavoriteGroup) Value(name string) (ent.Value, error) {
-	return fg.selectValues.Get(name)
+func (_m *FavoriteGroup) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryFavorites queries the "favorites" edge of the FavoriteGroup entity.
-func (fg *FavoriteGroup) QueryFavorites() *FavoriteQuery {
-	return NewFavoriteGroupClient(fg.config).QueryFavorites(fg)
+func (_m *FavoriteGroup) QueryFavorites() *FavoriteQuery {
+	return NewFavoriteGroupClient(_m.config).QueryFavorites(_m)
 }
 
 // Update returns a builder for updating this FavoriteGroup.
 // Note that you need to call FavoriteGroup.Unwrap() before calling this method if this FavoriteGroup
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (fg *FavoriteGroup) Update() *FavoriteGroupUpdateOne {
-	return NewFavoriteGroupClient(fg.config).UpdateOne(fg)
+func (_m *FavoriteGroup) Update() *FavoriteGroupUpdateOne {
+	return NewFavoriteGroupClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the FavoriteGroup entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (fg *FavoriteGroup) Unwrap() *FavoriteGroup {
-	_tx, ok := fg.config.driver.(*txDriver)
+func (_m *FavoriteGroup) Unwrap() *FavoriteGroup {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: FavoriteGroup is not a transactional entity")
 	}
-	fg.config.driver = _tx.drv
-	return fg
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (fg *FavoriteGroup) String() string {
+func (_m *FavoriteGroup) String() string {
 	var builder strings.Builder
 	builder.WriteString("FavoriteGroup(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", fg.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("name=")
-	builder.WriteString(fg.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("date=")
-	builder.WriteString(fg.Date.Format(time.ANSIC))
+	builder.WriteString(_m.Date.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

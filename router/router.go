@@ -98,11 +98,11 @@ func SetAppSetting(app *fiber.App) fiber.Router {
 		var jsonUrl *[]ext.AppSettingJson
 
 		if e := json.Unmarshal(c.Body(), &jsonUrl); e != nil {
-			return c.JSON(result.NewErrorResult("Invalid JSON in request body sent to miru_core", 400))
+			return c.JSON(result.NewErrorResult("Invalid JSON in request body sent to miru_core", 400, nil))
 		}
 
 		if jsonUrl == nil {
-			return c.JSON(result.NewErrorResult("Invalid JSON in request body sent to miru_core", 400))
+			return c.JSON(result.NewErrorResult("Invalid JSON in request body sent to miru_core", 400, nil))
 		}
 
 		if err := handler.SetAppSetting(jsonUrl); err != nil {
@@ -113,7 +113,7 @@ func SetAppSetting(app *fiber.App) fiber.Router {
 				errStr += e.Error() + ","
 			}
 
-			return c.JSON(result.NewErrorResult(errStr, 500))
+			return c.JSON(result.NewErrorResult(errStr, 500, nil))
 		}
 
 		return c.JSON(result.NewSuccessResult("Settings updated successfully"))

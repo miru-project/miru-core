@@ -66,7 +66,7 @@ func ProcessAnilistToken(app *fiber.App) fiber.Router {
 		// Get the cookie from request headers
 		cookie := c.Cookies("anilist")
 		if cookie == "" {
-			return c.JSON(result.NewErrorResult("Failed to get cookie", 500))
+			return c.JSON(result.NewErrorResult("Failed to get cookie", 500, nil))
 		}
 
 		// Parse the cookie to get the token
@@ -81,7 +81,7 @@ func ProcessAnilistToken(app *fiber.App) fiber.Router {
 
 		// Save the token to the database
 		if e := handler.SetAppSetting(&setting); e != nil {
-			return c.JSON(result.NewErrorResult("Failed to set app settings"+e[0].Error(), 500))
+			return c.JSON(result.NewErrorResult("Failed to set app settings"+e[0].Error(), 500, nil))
 		}
 
 		anilist.InitToken()
@@ -168,7 +168,7 @@ func EditAnilistList(app *fiber.App) fiber.Router {
 		var jsonReq *anilist.AnilistEditListJson
 
 		if e := json.Unmarshal(c.Body(), &jsonReq); e != nil {
-			return c.JSON(result.NewErrorResult("Invalid JSON in request body sent to miru_core", 400))
+			return c.JSON(result.NewErrorResult("Invalid JSON in request body sent to miru_core", 400, nil))
 		}
 
 		res, err := handler.EditAnilistList(jsonReq.Status, jsonReq.MediaId, jsonReq.Id, jsonReq.Progress, jsonReq.Score, jsonReq.StartDate, jsonReq.EndDate, jsonReq.IsPrivate)

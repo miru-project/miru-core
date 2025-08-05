@@ -28,40 +28,40 @@ type AppSettingQuery struct {
 }
 
 // Where adds a new predicate for the AppSettingQuery builder.
-func (asq *AppSettingQuery) Where(ps ...predicate.AppSetting) *AppSettingQuery {
-	asq.predicates = append(asq.predicates, ps...)
-	return asq
+func (_q *AppSettingQuery) Where(ps ...predicate.AppSetting) *AppSettingQuery {
+	_q.predicates = append(_q.predicates, ps...)
+	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (asq *AppSettingQuery) Limit(limit int) *AppSettingQuery {
-	asq.ctx.Limit = &limit
-	return asq
+func (_q *AppSettingQuery) Limit(limit int) *AppSettingQuery {
+	_q.ctx.Limit = &limit
+	return _q
 }
 
 // Offset to start from.
-func (asq *AppSettingQuery) Offset(offset int) *AppSettingQuery {
-	asq.ctx.Offset = &offset
-	return asq
+func (_q *AppSettingQuery) Offset(offset int) *AppSettingQuery {
+	_q.ctx.Offset = &offset
+	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (asq *AppSettingQuery) Unique(unique bool) *AppSettingQuery {
-	asq.ctx.Unique = &unique
-	return asq
+func (_q *AppSettingQuery) Unique(unique bool) *AppSettingQuery {
+	_q.ctx.Unique = &unique
+	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (asq *AppSettingQuery) Order(o ...appsetting.OrderOption) *AppSettingQuery {
-	asq.order = append(asq.order, o...)
-	return asq
+func (_q *AppSettingQuery) Order(o ...appsetting.OrderOption) *AppSettingQuery {
+	_q.order = append(_q.order, o...)
+	return _q
 }
 
 // First returns the first AppSetting entity from the query.
 // Returns a *NotFoundError when no AppSetting was found.
-func (asq *AppSettingQuery) First(ctx context.Context) (*AppSetting, error) {
-	nodes, err := asq.Limit(1).All(setContextOp(ctx, asq.ctx, ent.OpQueryFirst))
+func (_q *AppSettingQuery) First(ctx context.Context) (*AppSetting, error) {
+	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -72,8 +72,8 @@ func (asq *AppSettingQuery) First(ctx context.Context) (*AppSetting, error) {
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (asq *AppSettingQuery) FirstX(ctx context.Context) *AppSetting {
-	node, err := asq.First(ctx)
+func (_q *AppSettingQuery) FirstX(ctx context.Context) *AppSetting {
+	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -82,9 +82,9 @@ func (asq *AppSettingQuery) FirstX(ctx context.Context) *AppSetting {
 
 // FirstID returns the first AppSetting ID from the query.
 // Returns a *NotFoundError when no AppSetting ID was found.
-func (asq *AppSettingQuery) FirstID(ctx context.Context) (id int, err error) {
+func (_q *AppSettingQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = asq.Limit(1).IDs(setContextOp(ctx, asq.ctx, ent.OpQueryFirstID)); err != nil {
+	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -95,8 +95,8 @@ func (asq *AppSettingQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (asq *AppSettingQuery) FirstIDX(ctx context.Context) int {
-	id, err := asq.FirstID(ctx)
+func (_q *AppSettingQuery) FirstIDX(ctx context.Context) int {
+	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -106,8 +106,8 @@ func (asq *AppSettingQuery) FirstIDX(ctx context.Context) int {
 // Only returns a single AppSetting entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one AppSetting entity is found.
 // Returns a *NotFoundError when no AppSetting entities are found.
-func (asq *AppSettingQuery) Only(ctx context.Context) (*AppSetting, error) {
-	nodes, err := asq.Limit(2).All(setContextOp(ctx, asq.ctx, ent.OpQueryOnly))
+func (_q *AppSettingQuery) Only(ctx context.Context) (*AppSetting, error) {
+	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -122,8 +122,8 @@ func (asq *AppSettingQuery) Only(ctx context.Context) (*AppSetting, error) {
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (asq *AppSettingQuery) OnlyX(ctx context.Context) *AppSetting {
-	node, err := asq.Only(ctx)
+func (_q *AppSettingQuery) OnlyX(ctx context.Context) *AppSetting {
+	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -133,9 +133,9 @@ func (asq *AppSettingQuery) OnlyX(ctx context.Context) *AppSetting {
 // OnlyID is like Only, but returns the only AppSetting ID in the query.
 // Returns a *NotSingularError when more than one AppSetting ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (asq *AppSettingQuery) OnlyID(ctx context.Context) (id int, err error) {
+func (_q *AppSettingQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = asq.Limit(2).IDs(setContextOp(ctx, asq.ctx, ent.OpQueryOnlyID)); err != nil {
+	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -150,8 +150,8 @@ func (asq *AppSettingQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (asq *AppSettingQuery) OnlyIDX(ctx context.Context) int {
-	id, err := asq.OnlyID(ctx)
+func (_q *AppSettingQuery) OnlyIDX(ctx context.Context) int {
+	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -159,18 +159,18 @@ func (asq *AppSettingQuery) OnlyIDX(ctx context.Context) int {
 }
 
 // All executes the query and returns a list of AppSettings.
-func (asq *AppSettingQuery) All(ctx context.Context) ([]*AppSetting, error) {
-	ctx = setContextOp(ctx, asq.ctx, ent.OpQueryAll)
-	if err := asq.prepareQuery(ctx); err != nil {
+func (_q *AppSettingQuery) All(ctx context.Context) ([]*AppSetting, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
 	qr := querierAll[[]*AppSetting, *AppSettingQuery]()
-	return withInterceptors[[]*AppSetting](ctx, asq, qr, asq.inters)
+	return withInterceptors[[]*AppSetting](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (asq *AppSettingQuery) AllX(ctx context.Context) []*AppSetting {
-	nodes, err := asq.All(ctx)
+func (_q *AppSettingQuery) AllX(ctx context.Context) []*AppSetting {
+	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -178,20 +178,20 @@ func (asq *AppSettingQuery) AllX(ctx context.Context) []*AppSetting {
 }
 
 // IDs executes the query and returns a list of AppSetting IDs.
-func (asq *AppSettingQuery) IDs(ctx context.Context) (ids []int, err error) {
-	if asq.ctx.Unique == nil && asq.path != nil {
-		asq.Unique(true)
+func (_q *AppSettingQuery) IDs(ctx context.Context) (ids []int, err error) {
+	if _q.ctx.Unique == nil && _q.path != nil {
+		_q.Unique(true)
 	}
-	ctx = setContextOp(ctx, asq.ctx, ent.OpQueryIDs)
-	if err = asq.Select(appsetting.FieldID).Scan(ctx, &ids); err != nil {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
+	if err = _q.Select(appsetting.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (asq *AppSettingQuery) IDsX(ctx context.Context) []int {
-	ids, err := asq.IDs(ctx)
+func (_q *AppSettingQuery) IDsX(ctx context.Context) []int {
+	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -199,17 +199,17 @@ func (asq *AppSettingQuery) IDsX(ctx context.Context) []int {
 }
 
 // Count returns the count of the given query.
-func (asq *AppSettingQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, asq.ctx, ent.OpQueryCount)
-	if err := asq.prepareQuery(ctx); err != nil {
+func (_q *AppSettingQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, asq, querierCount[*AppSettingQuery](), asq.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*AppSettingQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (asq *AppSettingQuery) CountX(ctx context.Context) int {
-	count, err := asq.Count(ctx)
+func (_q *AppSettingQuery) CountX(ctx context.Context) int {
+	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -217,9 +217,9 @@ func (asq *AppSettingQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (asq *AppSettingQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, asq.ctx, ent.OpQueryExist)
-	switch _, err := asq.FirstID(ctx); {
+func (_q *AppSettingQuery) Exist(ctx context.Context) (bool, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
+	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
 	case err != nil:
@@ -230,8 +230,8 @@ func (asq *AppSettingQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (asq *AppSettingQuery) ExistX(ctx context.Context) bool {
-	exist, err := asq.Exist(ctx)
+func (_q *AppSettingQuery) ExistX(ctx context.Context) bool {
+	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -240,19 +240,19 @@ func (asq *AppSettingQuery) ExistX(ctx context.Context) bool {
 
 // Clone returns a duplicate of the AppSettingQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (asq *AppSettingQuery) Clone() *AppSettingQuery {
-	if asq == nil {
+func (_q *AppSettingQuery) Clone() *AppSettingQuery {
+	if _q == nil {
 		return nil
 	}
 	return &AppSettingQuery{
-		config:     asq.config,
-		ctx:        asq.ctx.Clone(),
-		order:      append([]appsetting.OrderOption{}, asq.order...),
-		inters:     append([]Interceptor{}, asq.inters...),
-		predicates: append([]predicate.AppSetting{}, asq.predicates...),
+		config:     _q.config,
+		ctx:        _q.ctx.Clone(),
+		order:      append([]appsetting.OrderOption{}, _q.order...),
+		inters:     append([]Interceptor{}, _q.inters...),
+		predicates: append([]predicate.AppSetting{}, _q.predicates...),
 		// clone intermediate query.
-		sql:  asq.sql.Clone(),
-		path: asq.path,
+		sql:  _q.sql.Clone(),
+		path: _q.path,
 	}
 }
 
@@ -270,10 +270,10 @@ func (asq *AppSettingQuery) Clone() *AppSettingQuery {
 //		GroupBy(appsetting.FieldKey).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (asq *AppSettingQuery) GroupBy(field string, fields ...string) *AppSettingGroupBy {
-	asq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &AppSettingGroupBy{build: asq}
-	grbuild.flds = &asq.ctx.Fields
+func (_q *AppSettingQuery) GroupBy(field string, fields ...string) *AppSettingGroupBy {
+	_q.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &AppSettingGroupBy{build: _q}
+	grbuild.flds = &_q.ctx.Fields
 	grbuild.label = appsetting.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
@@ -291,62 +291,62 @@ func (asq *AppSettingQuery) GroupBy(field string, fields ...string) *AppSettingG
 //	client.AppSetting.Query().
 //		Select(appsetting.FieldKey).
 //		Scan(ctx, &v)
-func (asq *AppSettingQuery) Select(fields ...string) *AppSettingSelect {
-	asq.ctx.Fields = append(asq.ctx.Fields, fields...)
-	sbuild := &AppSettingSelect{AppSettingQuery: asq}
+func (_q *AppSettingQuery) Select(fields ...string) *AppSettingSelect {
+	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
+	sbuild := &AppSettingSelect{AppSettingQuery: _q}
 	sbuild.label = appsetting.Label
-	sbuild.flds, sbuild.scan = &asq.ctx.Fields, sbuild.Scan
+	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
 // Aggregate returns a AppSettingSelect configured with the given aggregations.
-func (asq *AppSettingQuery) Aggregate(fns ...AggregateFunc) *AppSettingSelect {
-	return asq.Select().Aggregate(fns...)
+func (_q *AppSettingQuery) Aggregate(fns ...AggregateFunc) *AppSettingSelect {
+	return _q.Select().Aggregate(fns...)
 }
 
-func (asq *AppSettingQuery) prepareQuery(ctx context.Context) error {
-	for _, inter := range asq.inters {
+func (_q *AppSettingQuery) prepareQuery(ctx context.Context) error {
+	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
 		}
 		if trv, ok := inter.(Traverser); ok {
-			if err := trv.Traverse(ctx, asq); err != nil {
+			if err := trv.Traverse(ctx, _q); err != nil {
 				return err
 			}
 		}
 	}
-	for _, f := range asq.ctx.Fields {
+	for _, f := range _q.ctx.Fields {
 		if !appsetting.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
-	if asq.path != nil {
-		prev, err := asq.path(ctx)
+	if _q.path != nil {
+		prev, err := _q.path(ctx)
 		if err != nil {
 			return err
 		}
-		asq.sql = prev
+		_q.sql = prev
 	}
 	return nil
 }
 
-func (asq *AppSettingQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*AppSetting, error) {
+func (_q *AppSettingQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*AppSetting, error) {
 	var (
 		nodes = []*AppSetting{}
-		_spec = asq.querySpec()
+		_spec = _q.querySpec()
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*AppSetting).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &AppSetting{config: asq.config}
+		node := &AppSetting{config: _q.config}
 		nodes = append(nodes, node)
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
-	if err := sqlgraph.QueryNodes(ctx, asq.driver, _spec); err != nil {
+	if err := sqlgraph.QueryNodes(ctx, _q.driver, _spec); err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
@@ -355,24 +355,24 @@ func (asq *AppSettingQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	return nodes, nil
 }
 
-func (asq *AppSettingQuery) sqlCount(ctx context.Context) (int, error) {
-	_spec := asq.querySpec()
-	_spec.Node.Columns = asq.ctx.Fields
-	if len(asq.ctx.Fields) > 0 {
-		_spec.Unique = asq.ctx.Unique != nil && *asq.ctx.Unique
+func (_q *AppSettingQuery) sqlCount(ctx context.Context) (int, error) {
+	_spec := _q.querySpec()
+	_spec.Node.Columns = _q.ctx.Fields
+	if len(_q.ctx.Fields) > 0 {
+		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
 	}
-	return sqlgraph.CountNodes(ctx, asq.driver, _spec)
+	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (asq *AppSettingQuery) querySpec() *sqlgraph.QuerySpec {
+func (_q *AppSettingQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := sqlgraph.NewQuerySpec(appsetting.Table, appsetting.Columns, sqlgraph.NewFieldSpec(appsetting.FieldID, field.TypeInt))
-	_spec.From = asq.sql
-	if unique := asq.ctx.Unique; unique != nil {
+	_spec.From = _q.sql
+	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
-	} else if asq.path != nil {
+	} else if _q.path != nil {
 		_spec.Unique = true
 	}
-	if fields := asq.ctx.Fields; len(fields) > 0 {
+	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, appsetting.FieldID)
 		for i := range fields {
@@ -381,20 +381,20 @@ func (asq *AppSettingQuery) querySpec() *sqlgraph.QuerySpec {
 			}
 		}
 	}
-	if ps := asq.predicates; len(ps) > 0 {
+	if ps := _q.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if limit := asq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := asq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
-	if ps := asq.order; len(ps) > 0 {
+	if ps := _q.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -404,33 +404,33 @@ func (asq *AppSettingQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (asq *AppSettingQuery) sqlQuery(ctx context.Context) *sql.Selector {
-	builder := sql.Dialect(asq.driver.Dialect())
+func (_q *AppSettingQuery) sqlQuery(ctx context.Context) *sql.Selector {
+	builder := sql.Dialect(_q.driver.Dialect())
 	t1 := builder.Table(appsetting.Table)
-	columns := asq.ctx.Fields
+	columns := _q.ctx.Fields
 	if len(columns) == 0 {
 		columns = appsetting.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
-	if asq.sql != nil {
-		selector = asq.sql
+	if _q.sql != nil {
+		selector = _q.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if asq.ctx.Unique != nil && *asq.ctx.Unique {
+	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, p := range asq.predicates {
+	for _, p := range _q.predicates {
 		p(selector)
 	}
-	for _, p := range asq.order {
+	for _, p := range _q.order {
 		p(selector)
 	}
-	if offset := asq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := asq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -443,41 +443,41 @@ type AppSettingGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (asgb *AppSettingGroupBy) Aggregate(fns ...AggregateFunc) *AppSettingGroupBy {
-	asgb.fns = append(asgb.fns, fns...)
-	return asgb
+func (_g *AppSettingGroupBy) Aggregate(fns ...AggregateFunc) *AppSettingGroupBy {
+	_g.fns = append(_g.fns, fns...)
+	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (asgb *AppSettingGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, asgb.build.ctx, ent.OpQueryGroupBy)
-	if err := asgb.build.prepareQuery(ctx); err != nil {
+func (_g *AppSettingGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
+	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*AppSettingQuery, *AppSettingGroupBy](ctx, asgb.build, asgb, asgb.build.inters, v)
+	return scanWithInterceptors[*AppSettingQuery, *AppSettingGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (asgb *AppSettingGroupBy) sqlScan(ctx context.Context, root *AppSettingQuery, v any) error {
+func (_g *AppSettingGroupBy) sqlScan(ctx context.Context, root *AppSettingQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
-	aggregation := make([]string, 0, len(asgb.fns))
-	for _, fn := range asgb.fns {
+	aggregation := make([]string, 0, len(_g.fns))
+	for _, fn := range _g.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
 	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(*asgb.flds)+len(asgb.fns))
-		for _, f := range *asgb.flds {
+		columns := make([]string, 0, len(*_g.flds)+len(_g.fns))
+		for _, f := range *_g.flds {
 			columns = append(columns, selector.C(f))
 		}
 		columns = append(columns, aggregation...)
 		selector.Select(columns...)
 	}
-	selector.GroupBy(selector.Columns(*asgb.flds...)...)
+	selector.GroupBy(selector.Columns(*_g.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := asgb.build.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _g.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
@@ -491,27 +491,27 @@ type AppSettingSelect struct {
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (ass *AppSettingSelect) Aggregate(fns ...AggregateFunc) *AppSettingSelect {
-	ass.fns = append(ass.fns, fns...)
-	return ass
+func (_s *AppSettingSelect) Aggregate(fns ...AggregateFunc) *AppSettingSelect {
+	_s.fns = append(_s.fns, fns...)
+	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (ass *AppSettingSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, ass.ctx, ent.OpQuerySelect)
-	if err := ass.prepareQuery(ctx); err != nil {
+func (_s *AppSettingSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
+	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*AppSettingQuery, *AppSettingSelect](ctx, ass.AppSettingQuery, ass, ass.inters, v)
+	return scanWithInterceptors[*AppSettingQuery, *AppSettingSelect](ctx, _s.AppSettingQuery, _s, _s.inters, v)
 }
 
-func (ass *AppSettingSelect) sqlScan(ctx context.Context, root *AppSettingQuery, v any) error {
+func (_s *AppSettingSelect) sqlScan(ctx context.Context, root *AppSettingQuery, v any) error {
 	selector := root.sqlQuery(ctx)
-	aggregation := make([]string, 0, len(ass.fns))
-	for _, fn := range ass.fns {
+	aggregation := make([]string, 0, len(_s.fns))
+	for _, fn := range _s.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	switch n := len(*ass.selector.flds); {
+	switch n := len(*_s.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
 		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
@@ -519,7 +519,7 @@ func (ass *AppSettingSelect) sqlScan(ctx context.Context, root *AppSettingQuery,
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := ass.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _s.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
