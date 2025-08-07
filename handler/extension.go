@@ -3,6 +3,7 @@ package handler
 import (
 	"strconv"
 
+	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/pkg/jsExtension"
 	"github.com/miru-project/miru-core/pkg/result"
 )
@@ -63,11 +64,20 @@ func Detail(pkg string, url string) (*result.Result[any], error) {
 	return result.NewSuccessResult(res), e
 }
 
-func FetchExtensionRepo() (map[string][]jsExtension.GithubExtension, error, map[string]error) {
-	repo, e := jsExtension.LoadExtensionRepo()
-	if e != nil {
-		return nil, e, nil
-	}
-	r, err := jsExtension.FetchExtensionRepo(repo)
-	return r, nil, err
+// fetch the extension repository
+func FetchExtensionRepo() (map[string][]jsExtension.GithubExtension, map[string]error, error) {
+	return jsExtension.FetchExtensionRepo()
+}
+
+func SetExtensionRepo(repoUrl string, name string) error {
+	return jsExtension.SaveExtensionRepo(repoUrl, name)
+}
+
+func GetExtensionRepo() ([]*ent.ExtensionRepo, error) {
+	return jsExtension.LoadExtensionRepo()
+}
+
+// Download the extension by the given repository and package name
+func DownloadExtension(repoUrl string, pkg string) error {
+	return jsExtension.DownloadExtension(repoUrl, pkg)
 }

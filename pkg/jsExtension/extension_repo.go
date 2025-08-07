@@ -2,7 +2,11 @@ package jsExtension
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
+	"net/url"
+	"path"
+	"path/filepath"
 
 	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/ext"
@@ -23,6 +27,8 @@ type GithubExtension struct {
 	Package     string  `json:"package"`
 }
 
+var fetchedExtensionRepo map[string][]GithubExtension
+
 func LoadExtensionRepo() ([]*ent.ExtensionRepo, error) {
 	repo, e := ext.GetAllRepositories()
 	if e != nil {
@@ -36,8 +42,19 @@ func LoadExtensionRepo() ([]*ent.ExtensionRepo, error) {
 	return repo, nil
 }
 
-func FetchExtensionRepo(repo []*ent.ExtensionRepo) (map[string][]GithubExtension, map[string]error) {
-	result := make(map[string][]GithubExtension)
+func SaveExtensionRepo(repoUrl string, name string) error {
+	if _, err := url.Parse(repoUrl); err != nil {
+		return fmt.Errorf("invalid repository URL: %s", repoUrl)
+	}
+	return ext.SetRepository(name, repoUrl)
+}
+
+func FetchExtensionRepo() (map[string][]GithubExtension, map[string]error, error) {
+	repo, e := LoadExtensionRepo()
+	if e != nil {
+		return nil, nil, e
+	}
+	fetchedExtensionRepo = make(map[string][]GithubExtension)
 	err := make(map[string]error)
 	for _, rep := range repo {
 		req, e := network.Request[string](rep.URL, &network.RequestOptions{Method: "GET"}, network.ReadAll)
@@ -52,7 +69,45 @@ func FetchExtensionRepo(repo []*ent.ExtensionRepo) (map[string][]GithubExtension
 			err[rep.URL] = e
 			continue
 		}
-		result[rep.URL] = ex
+		fetchedExtensionRepo[rep.URL] = ex
 	}
-	return result, err
+	return fetchedExtensionRepo, err, nil
+}
+
+func DownloadExtension(repoUrl string, pkg string) error {
+	if len(fetchedExtensionRepo) == 0 {
+		FetchExtensionRepo()
+	}
+	repo, ok := fetchedExtensionRepo[repoUrl]
+	if !ok {
+		return fmt.Errorf("package %s not found in %s", pkg, repoUrl)
+	}
+	link, e := url.Parse(repoUrl)
+	if e != nil {
+		return fmt.Errorf("invalid repository URL: %s", repoUrl)
+	}
+	for _, ext := range repo {
+
+		if ext.Package == pkg {
+			link.Path = path.Join(path.Dir(link.Path), "repo", ext.Package+".js")
+			fileName := path.Base(link.Path)
+			res, e := network.Request[[]byte](link.String(), &network.RequestOptions{Method: "GET"}, network.ReadAll)
+			if e != nil {
+				return fmt.Errorf("failed to download package %s from %s: %v", pkg, link.String(), e)
+			}
+			if e := network.SaveFile(filepath.Join(ExtPath, fileName), &res); e != nil {
+				return fmt.Errorf("failed to save js extension %s to %s: %v", pkg, ExtPath, e)
+			}
+			log.Println("Downloaded package:", ext.Package, "from", link.String())
+
+			// ex, e := ParseExtMetadata(string(res), fileName)
+			// if e != nil {
+			// 	return fmt.Errorf("failed to parse metadata for package %s: %v", pkg, e)
+			// }
+
+			// ReloadExtension(ex, res)
+			return nil
+		}
+	}
+	return fmt.Errorf("package %s not found in repository %s", pkg, repoUrl)
 }

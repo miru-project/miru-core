@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"regexp"
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"
@@ -12,42 +11,33 @@ import (
 	"github.com/miru-project/miru-core/pkg/network"
 )
 
-// type ExtApi struct {
-// 	Ext     *Ext
-// 	service *ExtBaseService
-// }
-
-// var ApiPkgCacheV1 = make(map[string]*ExtApi)
-
-func LoadApiV1(ext *Ext, script string) {
-	scriptV1 := fmt.Sprintf(script, ext.Pkg, ext.Name, ext.Website)
-	re := regexp.MustCompile(`export\s+default\s+class.+extends\s+Extension\s*{`)
-	*ext.Context = re.ReplaceAllString(*ext.Context, "class Ext extends Extension {")
+func LoadApiV1(ext *Ext, baseScript string) {
+	scriptV1 := fmt.Sprintf(baseScript, ext.Pkg, ext.Name, ext.Website)
+	*ext.Context = ReplaceClassExtendsDeclaration(*ext.Context)
 	runtimeV1 := errorhandle.HandleFatal(goja.Compile("runtime_v1.js", scriptV1, true))
-	api := &ExtApi{Ext: ext, service: &ExtBaseService{base: runtimeV1}}
+	compiledExt, e := compileExtension(ext)
+	if e != nil {
+		log.Println("Error compiling extension:", e)
+		ext.Error = e.Error()
+		ApiPkgCache[ext.Pkg].Ext.Error = ""
+		return
+	}
+	api := &ExtApi{Ext: ext, service: &ExtBaseService{base: runtimeV1, program: compiledExt}}
 	ApiPkgCache[ext.Pkg] = api
-	ApiPkgCache[ext.Pkg].service.program = compileScript(ext)
 	ApiPkgCache[ext.Pkg].Ext.Error = ""
+	api.InitV1Script(ext.Pkg)
+
 }
 
-func AsyncCallBackV1[T any](api *ExtApi, pkg string, evalStr string) (T, error) {
+func (api *ExtApi) InitV1Script(pkg string) error {
 	ApiPkgCache[pkg] = api
 
-	var loop *eventloop.EventLoop
-
-	// check extension does  contain eventloop runtime
-	lop, eventLoopIsExist := extMemMap.Load(pkg)
-	if eventLoopIsExist {
-		loop = lop.(*eventloop.EventLoop)
-	} else {
-		loop = eventloop.NewEventLoop(
-			eventloop.WithRegistry(SharedRegistry),
-		)
-		extMemMap.Store(pkg, loop)
-	}
+	loop := eventloop.NewEventLoop(
+		eventloop.WithRegistry(SharedRegistry),
+	)
 
 	if api == nil || api.service.program == nil {
-		return *new(T), fmt.Errorf("extension %s not found", pkg)
+		return fmt.Errorf("extension %s not found", pkg)
 	}
 	ser := api.service
 	res := make(chan PromiseResult)
@@ -56,24 +46,39 @@ func AsyncCallBackV1[T any](api *ExtApi, pkg string, evalStr string) (T, error) 
 	// var runtime *goja.Runtime
 	loop.RunOnLoop(func(vm *goja.Runtime) {
 
+		defer func() {
+			if r := recover(); r != nil {
+				if err, ok := r.(error); ok {
+					ApiPkgCache[pkg].Ext.Error = err.Error()
+					res <- PromiseResult{err: err}
+					return
+				}
+				log.Print("Unknown panic:", r)
+			}
+		}()
+
 		service := api.service
 		var job = Job{loop: loop}
 		// Run the program for the  first time
-		if !eventLoopIsExist {
-			reg := SharedRegistry.Enable(vm)
-			ser.initModule(reg, vm, &job)
-			// eval base runtime
-			vm.RunProgram(service.base)
-			// eval extension program
-			vm.RunProgram(api.service.program)
-			// Initialize the Ext class
-			_, e := vm.RunString(fmt.Sprintf(`
+		reg := SharedRegistry.Enable(vm)
+		ser.initModule(reg, vm, &job)
+		// eval base runtime
+		if _, e := vm.RunProgram(service.base); e != nil {
+			log.Println("Error running base script:", e)
+			panic(e)
+		}
+		// eval extension program
+		if _, e := vm.RunString(ReplaceClassExtendsDeclaration(*api.Ext.Context)); e != nil {
+			log.Println("Error running extension script:", e)
+			panic(e)
+		}
+		// Initialize the Ext class
+		_, e := vm.RunString(fmt.Sprintf(`
 			ext = new Ext("%s");
 			`, api.Ext.Website))
 
-			if e != nil {
-				panic(e)
-			}
+		if e != nil {
+			panic(e)
 		}
 
 		vm.Set(`println`, func(args ...any) {
@@ -98,6 +103,57 @@ func AsyncCallBackV1[T any](api *ExtApi, pkg string, evalStr string) (T, error) 
 			}
 			return res
 		})
+
+		o, e := (vm.RunString(fmt.Sprintf(`
+		try{%s}catch(e){println(e);throw e}`, "ext.load()")))
+		handlePromise(o, res, e)
+
+	})
+	loop.Start()
+	defer loop.Stop()
+
+	result := <-res
+	extMemMap.Store(pkg, loop)
+	// handle error from PromiseResult{err: e}
+	if result.err != nil {
+		return result.err
+	}
+	// handle result when Promise has established
+	_, e := await[any](result.promise)
+	return e
+
+}
+
+func handlePromise(o goja.Value, res chan PromiseResult, e error) {
+	if e != nil {
+		// This kind of error happens before the async function is called
+		res <- PromiseResult{err: e}
+	} else {
+		// Because it eval async funcion the value become a promise and send to channel
+		res <- PromiseResult{promise: o.Export().(*goja.Promise)}
+	}
+}
+
+func AsyncCallBackV1[T any](api *ExtApi, pkg string, evalStr string) (T, error) {
+	ApiPkgCache[pkg] = api
+
+	var loop *eventloop.EventLoop
+
+	// check extension does  contain eventloop runtime
+	lop, eventLoopIsExist := extMemMap.Load(pkg)
+	if eventLoopIsExist {
+		loop = lop.(*eventloop.EventLoop)
+	} else {
+		api.InitV1Script(pkg)
+		lop, _ = extMemMap.Load(pkg)
+		loop = lop.(*eventloop.EventLoop)
+	}
+
+	res := make(chan PromiseResult)
+	defer close(res)
+
+	// var runtime *goja.Runtime
+	loop.RunOnLoop(func(vm *goja.Runtime) {
 
 		o, e := vm.RunString(fmt.Sprintf(`
 		try{%s}catch(e){println(e);throw e}`, evalStr))

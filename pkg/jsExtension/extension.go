@@ -33,8 +33,11 @@ var fs embed.FS
 
 // jsRoot is the root directory for JavaScript files copy from the embedded filesystem
 var jsRoot string
+
 var ScriptV1 string
 var ScriptV2 string
+
+var ExtPath string
 
 type ExtApi struct {
 	Ext     *Ext
@@ -72,6 +75,7 @@ func (j *Job) Done() {
 func InitRuntime(extPath string, f embed.FS) {
 	exts := filterExts(extPath)
 	fs = f
+	ExtPath = extPath
 
 	jsRoot = filepath.Join(extPath, "root")
 
@@ -83,6 +87,8 @@ func InitRuntime(extPath string, f embed.FS) {
 		}
 	}
 
+	// Embeded file are externel js library that need to copy to jsRoot so that
+	// goja can require them as node js module
 	readEmbedFileToDisk("assets", jsRoot)
 	WatchDir(extPath)
 	ScriptV2 = string(errorhandle.HandleFatal(fs.ReadFile("assets/runtime_v2.js")))
@@ -110,12 +116,9 @@ func InitRuntime(extPath string, f embed.FS) {
 	}
 }
 
-func compileScript(ext *Ext) *goja.Program {
+func compileExtension(ext *Ext) (*goja.Program, error) {
 	compile, e := goja.Compile(ext.Pkg+".js", *ext.Context, true)
-	if e != nil {
-		panic(map[string]string{ext.Pkg: fmt.Sprintf("Error compiling extension %s: %v", ext.Pkg, e)})
-	}
-	return compile
+	return compile, e
 }
 
 // Watch the extension directory for changes
@@ -124,63 +127,24 @@ func WatchDir(dir string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// defer watcher.Close()
 
 	go func() {
+		locked := false
 		for {
 			select {
 			case event := <-watcher.Events:
-				if event.Has(fsnotify.Write) {
+				if event.Has(fsnotify.Write) && !locked {
 					log.Println("Modified file:", event.Name)
-
+					locked = true
 					ext, ok := filterExt(event.Name)
 					if !ok {
 						log.Println("File is not a valid extension:", event.Name)
+						locked = false
 						continue
 					}
 
-					// Create a new extension runtime
-					switch ext.Api {
-					case "2":
-						LoadApiV2(&ext, ScriptV2)
-					case "1", "":
-						LoadApiV1(&ext, ScriptV1)
-					}
-
-					// // Compile the extension file and update the cache
-					// compile, e := goja.Compile(ext.Pkg+".js", *ext.Context, true)
-					// if e != nil {
-					// 	ApiPkgCache[ext.Pkg].Ext.Error = fmt.Sprintf("Error compiling extension %s: %v", ext.Pkg, e)
-					// }
-
-					// ApiPkgCache[ext.Pkg] = &ExtApi{
-					// 	Ext:     &ext,
-					// 	service: &ExtBaseService{program: compile}}
-
-					// Reload the extension
-					lop, ok := extMemMap.Load(ext.Pkg)
-					if !ok {
-						log.Println("Extension not found in memory map:", ext.Pkg)
-						continue
-					}
-
-					loop := lop.(*eventloop.EventLoop)
-					loop.Run(func(vm *goja.Runtime) {
-						file := (errorhandle.HandleFatal(os.ReadFile(event.Name)))
-						script := ReplaceClassExtendsDeclaration(string(file))
-						if _, e := vm.RunString(script); e != nil {
-							log.Println("Error running extension script:", e)
-							return
-						}
-
-						if ext.Api == "1" || ext.Api == "" {
-							vm.RunString(`ext = new Ext();
-											ext.load();`)
-						}
-
-					})
-					log.Println("Reloaded extension:", ext.Name, "-", ext.Pkg)
-					ApiPkgCache[ext.Pkg].Ext.Error = ""
+					ReloadExtension(ext, errorhandle.HandleFatal(os.ReadFile(event.Name)))
+					locked = false
 				}
 			case err := <-watcher.Errors:
 				if err != nil {
@@ -195,11 +159,23 @@ func WatchDir(dir string) {
 		log.Fatal(err)
 	}
 }
+func ReloadExtension(ext Ext, file []byte) error {
+
+	// Create a new extension runtime
+	switch ext.Api {
+	case "2":
+		LoadApiV2(&ext, ScriptV2)
+	case "1", "":
+		LoadApiV1(&ext, ScriptV1)
+	}
+
+	return nil
+}
 
 // ReplaceClassExtendsDeclaration replaces `class X extends Extension` with `X = class extends Extension {`
 func ReplaceClassExtendsDeclaration(jsCode string) string {
-	re := regexp.MustCompile(`export\s+default\s+class.+extends\s+Extension\s*{`)
-	return re.ReplaceAllString(jsCode, `Ext = class extends Extension {`)
+	re := regexp.MustCompile(`(?m)^.*class.+extends\s+Extension\s*{.*$`)
+	return re.ReplaceAllString(jsCode, "Ext = class extends Extension {")
 }
 
 func filterExts(dir string) []Ext {
@@ -227,7 +203,7 @@ func filterExts(dir string) []Ext {
 
 func filterExt(fileLoc string) (Ext, bool) {
 	name := filepath.Base(fileLoc)
-	re := regexp.MustCompile(`\w.+\.\w+\.js`)
+	re := regexp.MustCompile(`\w.+\.\w+\.js$`)
 
 	if _, e := os.Stat(fileLoc); !re.MatchString(name) || os.IsNotExist(e) {
 		return Ext{}, false

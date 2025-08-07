@@ -18,7 +18,7 @@ func LoadApiV2(ext *Ext, script string) {
 
 	runtimeV2 := errorhandle.HandleFatal(goja.Compile("runtime_v2.js", scriptV2, true))
 	api := &ExtApi{Ext: ext, service: &ExtBaseService{base: runtimeV2}}
-	api.service.program = compileScript(ext)
+	api.service.program, _ = compileExtension(ext)
 	ApiPkgCache[ext.Pkg] = api
 	api.Ext.Error = ""
 }
@@ -29,7 +29,7 @@ func AsyncCallBackV2[T any](api *ExtApi, pkg string, evalStr string) (T, error) 
 
 	var loop *eventloop.EventLoop
 
-	// check extension does  contain eventloop runtime
+	// Check extension does contain eventloop runtime,if not create a new one
 	lop, eventLoopIsExist := extMemMap.Load(pkg)
 	if eventLoopIsExist {
 		loop = lop.(*eventloop.EventLoop)

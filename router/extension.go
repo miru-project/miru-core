@@ -14,6 +14,9 @@ func initExtensionRouter(app *fiber.App) {
 	WatchContent(app)
 	GetContentDetail(app)
 	FetchExtensionRepo(app)
+	SetExtensionRepo(app)
+	DownloadExtension(app)
+	GetExtensionRepo(app)
 }
 
 // @Summary		Get latest content from extension
@@ -98,20 +101,30 @@ func GetContentDetail(app *fiber.App) fiber.Router {
 	})
 }
 
-// func DownloadExtension(app *fiber.App) fiber.Router {
-// 	return app.Post("/download/extension", func(c *fiber.Ctx) error {
-// 		// Call the download function from the download package
-// 		download.DownloadExtension()
+func DownloadExtension(app *fiber.App) fiber.Router {
+	return app.Post("/download/extension", func(c *fiber.Ctx) error {
+		repoUrl := c.FormValue("repoUrl")
+		pkg := c.FormValue("pkg")
 
-// 		// Return a success response
-// 		return c.JSON(result.NewSuccessResult("Extension download initiated successfully"))
-// 	})
+		if repoUrl == "" || pkg == "" {
+			return c.Status(fiber.StatusBadRequest).
+				JSON(result.NewErrorResult("Repository URL and package name are required", fiber.StatusBadRequest, nil))
+		}
 
-// }
+		if e := handler.DownloadExtension(repoUrl, pkg); e != nil {
+			return c.Status(fiber.StatusInternalServerError).
+				JSON(result.NewErrorResult(e.Error(), fiber.StatusInternalServerError, nil))
+		}
+
+		// Return a success response
+		return c.JSON(result.NewSuccessResult("Extension download initiated successfully"))
+	})
+
+}
 
 func FetchExtensionRepo(app *fiber.App) fiber.Router {
 	return app.Get("/ext/repo", func(c *fiber.Ctx) error {
-		repo, err, fetchErr := handler.FetchExtensionRepo()
+		repo, fetchErr, err := handler.FetchExtensionRepo()
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).
 				JSON(result.NewErrorResult(err.Error(), fiber.StatusInternalServerError, nil))
@@ -119,6 +132,33 @@ func FetchExtensionRepo(app *fiber.App) fiber.Router {
 		if len(fetchErr) != 0 {
 			return c.Status(fiber.StatusInternalServerError).
 				JSON(result.NewErrorResult("Fetch Repo Error!", fiber.StatusInternalServerError, fetchErr))
+		}
+		return c.JSON(result.NewSuccessResult(repo))
+	})
+}
+
+func SetExtensionRepo(app *fiber.App) fiber.Router {
+	return app.Post("/ext/repo/set", func(c *fiber.Ctx) error {
+		repoUrl := c.FormValue("repoUrl")
+		name := c.FormValue("name")
+		if repoUrl == "" || name == "" {
+			return c.Status(fiber.StatusBadRequest).
+				JSON(result.NewErrorResult("Repository URL and name are required", fiber.StatusBadRequest, nil))
+		}
+		err := handler.SetExtensionRepo(repoUrl, name)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).
+				JSON(result.NewErrorResult(err.Error(), fiber.StatusInternalServerError, nil))
+		}
+		return c.JSON(result.NewSuccessResult("Repository set successfully"))
+	})
+}
+func GetExtensionRepo(app *fiber.App) fiber.Router {
+	return app.Get("/ext/repo/get", func(c *fiber.Ctx) error {
+		repo, err := handler.GetExtensionRepo()
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).
+				JSON(result.NewErrorResult(err.Error(), fiber.StatusInternalServerError, nil))
 		}
 		return c.JSON(result.NewSuccessResult(repo))
 	})
