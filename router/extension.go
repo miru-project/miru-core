@@ -17,6 +17,8 @@ func initExtensionRouter(app *fiber.App) {
 	SetExtensionRepo(app)
 	DownloadExtension(app)
 	GetExtensionRepo(app)
+	RemoveExtensionRepo(app)
+	RemoveExtension(app)
 }
 
 // @Summary		Get latest content from extension
@@ -123,7 +125,7 @@ func DownloadExtension(app *fiber.App) fiber.Router {
 }
 
 func FetchExtensionRepo(app *fiber.App) fiber.Router {
-	return app.Get("/ext/repo", func(c *fiber.Ctx) error {
+	return app.Get("/ext/repolist", func(c *fiber.Ctx) error {
 		repo, fetchErr, err := handler.FetchExtensionRepo()
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).
@@ -136,9 +138,54 @@ func FetchExtensionRepo(app *fiber.App) fiber.Router {
 		return c.JSON(result.NewSuccessResult(repo))
 	})
 }
+func RemoveExtensionRepo(app *fiber.App) fiber.Router {
+	return app.Delete("/ext/repo", func(c *fiber.Ctx) error {
+		repoUrl := c.FormValue("repoUrl")
+		if repoUrl == "" {
+			return c.Status(fiber.StatusBadRequest).
+				JSON(result.NewErrorResult("Repository URL is required", fiber.StatusBadRequest, nil))
+		}
+		if err := handler.RemoveExtensionRepo(repoUrl); err != nil {
+			return c.Status(fiber.StatusInternalServerError).
+				JSON(result.NewErrorResult(err.Error(), fiber.StatusInternalServerError, nil))
+		}
+		return c.JSON(result.NewSuccessResult("Repository removed successfully"))
+	})
+}
 
+func RemoveExtension(app *fiber.App) fiber.Router {
+	return app.Delete("/rm/extension", func(c *fiber.Ctx) error {
+		pkg := c.FormValue("pkg")
+
+		if pkg == "" {
+			return c.Status(fiber.StatusBadRequest).
+				JSON(result.NewErrorResult("Package name is required", fiber.StatusBadRequest, nil))
+		}
+
+		if e := handler.RemoveExtension(pkg); e != nil {
+			return c.Status(fiber.StatusInternalServerError).
+				JSON(result.NewErrorResult(e.Error(), fiber.StatusInternalServerError, nil))
+		}
+
+		// Return a success response
+		return c.JSON(result.NewSuccessResult("Extension removal initiated successfully"))
+	})
+
+}
+
+// @Summary		Add or update an extension repository
+// @Description	Adds a new extension repository or updates an existing one
+// @Tags			extension
+// @Accept			json
+// @Produce		json
+// @Param			repoUrl	formData	string	true	"Repository URL"
+// @Param			name	formData	string	true	"Repository name"
+// @Success		200	{object}	result.Result[string]
+// @Failure		400	{object}	result.Result[string]	"Invalid input"
+// @Failure		500	{object}	result.Result[string]	"Server error"
+// @Router			/ext/repo [post]
 func SetExtensionRepo(app *fiber.App) fiber.Router {
-	return app.Post("/ext/repo/set", func(c *fiber.Ctx) error {
+	return app.Post("/ext/repo", func(c *fiber.Ctx) error {
 		repoUrl := c.FormValue("repoUrl")
 		name := c.FormValue("name")
 		if repoUrl == "" || name == "" {
@@ -154,7 +201,7 @@ func SetExtensionRepo(app *fiber.App) fiber.Router {
 	})
 }
 func GetExtensionRepo(app *fiber.App) fiber.Router {
-	return app.Get("/ext/repo/get", func(c *fiber.Ctx) error {
+	return app.Get("/ext/repo", func(c *fiber.Ctx) error {
 		repo, err := handler.GetExtensionRepo()
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).

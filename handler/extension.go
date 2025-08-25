@@ -81,3 +81,10 @@ func GetExtensionRepo() ([]*ent.ExtensionRepo, error) {
 func DownloadExtension(repoUrl string, pkg string) error {
 	return jsExtension.DownloadExtension(repoUrl, pkg)
 }
+
+func RemoveExtensionRepo(id string) error {
+	return jsExtension.RemoveExtensionRepo(id)
+}
+func RemoveExtension(pkg string) error {
+	return jsExtension.RemoveExtension(pkg)
+}

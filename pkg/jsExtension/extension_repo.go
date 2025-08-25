@@ -111,3 +111,17 @@ func DownloadExtension(repoUrl string, pkg string) error {
 	}
 	return fmt.Errorf("package %s not found in repository %s", pkg, repoUrl)
 }
+
+func RemoveExtensionRepo(id string) error {
+	return ext.RemoveExtensionRepo(id)
+
+}
+
+func RemoveExtension(pkg string) error {
+	loc := filepath.Join(ExtPath, pkg+".js")
+	if e := network.DeleteFile(loc); e != nil {
+		return fmt.Errorf("failed to delete extension file %s: %v", loc, e)
+	}
+	log.Println("Deleted extension file:", loc)
+	return nil
+}

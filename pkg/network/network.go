@@ -195,7 +195,14 @@ func SaveFile(filePath string, data *[]byte) error {
 
 	return nil
 }
+func DeleteFile(filePath string) error {
+	if err := os.Remove(filePath); err != nil {
+		return err
+	}
+	return nil
+}
 
+// ReadAll reads the entire response body and returns it as a byte slice.
 func ReadAll(res *http.Response) ([]byte, error) {
 	return io.ReadAll(res.Body)
 }

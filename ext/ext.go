@@ -12,6 +12,7 @@ import (
 	"github.com/miru-project/miru-core/config"
 	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/ent/appsetting"
+	"github.com/miru-project/miru-core/ent/extensionrepo"
 )
 
 var (
@@ -86,6 +87,13 @@ func SetRepository(name string, url string) error {
 	return entClient.ExtensionRepo.Create().SetName(name).
 		SetURL(url).OnConflict().UpdateNewValues().
 		Exec(context.Background())
+}
+
+func RemoveExtensionRepo(url string) error {
+	_, e := entClient.ExtensionRepo.Delete().
+		Where(extensionrepo.URLEQ(url)).
+		Exec(context.Background())
+	return e
 }
 
 func GetAllSettings() ([]*ent.AppSetting, error) {
