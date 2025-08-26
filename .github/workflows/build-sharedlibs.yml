@@ -101,9 +101,9 @@ jobs:
           mkdir -p "$sdk_root"
           cd "$HOME"
           # Download and unpack the desired NDK before configuring cmdline-tools
-          ndk_version=25.2.9519653
-          ndk_zip="android-ndk-r${ndk_version}-linux.zip"
-          ndk_url="https://dl.google.com/android/repository/${ndk_zip}"
+          ndk_version=27.3.13750724
+          ndk_zip="android-ndk-r27d-linux.zip"
+          ndk_url="https://dl.google.com/android/repository/android-ndk-r27d-linux.zip"
           echo "Downloading NDK $ndk_version from $ndk_url"
           wget -q "$ndk_url" -O "$ndk_zip" || {
             echo "NDK download failed, aborting"
@@ -132,7 +132,7 @@ jobs:
       - name: Initialize gomobile (may download toolchain)
         run: |
           export PATH="$GOPATH/bin:$PATH"
-          export ANDROID_NDK_HOME="$RUNNER_TEMP/android-sdk/ndk/25.2.9519653"
+          export ANDROID_NDK_HOME="$RUNNER_TEMP/android-sdk/ndk/27.3.13750724"
           gomobile init -ndk "$ANDROID_NDK_HOME"
 
       - name: Build Android AAR (gomobile bind)
