@@ -20,7 +20,7 @@ jobs:
           go-version: '1.24.6'
 
       - name: Prepare build dir
-        run: mkdir -p build
+        run: mkdir -p binary/build
 
       - name: Build .so (linux/amd64)
         env:
@@ -155,6 +155,7 @@ jobs:
           gomobile init
 
       - name: Build Android AAR (gomobile bind)
+        working-directory: binary
         run: |
           export PATH="$GOPATH/bin:$PATH"
           # Use explicit gomobile binary and pass -androidapi as the build requires
@@ -162,12 +163,10 @@ jobs:
           ANDROID_API=21
           echo "Using gomobile: $GOMOBILE_BIN"
           "$GOMOBILE_BIN" version || true
-          # Bind from the repository root. If the repo root is not a bindable package,
-          # change '.' to the specific package path intended for binding (for example ./pkg/jsExtension)
           "$GOMOBILE_BIN" bind -v -target=android -o build/miru.aar -androidapi "$ANDROID_API" .
 
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
         with:
           name: miru-android-artifacts
-          path: build/miru.aar
+          path: binary/build/miru.aar
