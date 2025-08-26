@@ -2,9 +2,9 @@ name: Build shared libraries
 
 on:
   push:
-    branches: [ main ]
+    branches: [ CI ]
   pull_request:
-    branches: [ main ]
+    branches: [ CI ]
 
 jobs:
   build-linux:
@@ -76,8 +76,7 @@ jobs:
   build-android:
     name: Build Android library via gomobile (AAR and .so)
     runs-on: ubuntu-latest
-    env:
-      ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
+    # Use RUNNER_TEMP inside steps (runner context is not available at workflow-evaluation time)
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -92,7 +91,7 @@ jobs:
 
       - name: Install Android command-line tools
         run: |
-          sdk_root=${ANDROID_SDK_ROOT}
+          sdk_root="$RUNNER_TEMP/android-sdk"
           mkdir -p "$sdk_root"
           cd "$HOME"
           # Download and unpack the desired NDK before configuring cmdline-tools
@@ -127,7 +126,7 @@ jobs:
       - name: Initialize gomobile (may download toolchain)
         run: |
           export PATH="$GOPATH/bin:$PATH"
-          export ANDROID_NDK_HOME="${ANDROID_SDK_ROOT}/ndk/25.2.9519653"
+          export ANDROID_NDK_HOME="$RUNNER_TEMP/android-sdk/ndk/25.2.9519653"
           gomobile init -ndk "$ANDROID_NDK_HOME"
 
       - name: Build Android AAR (gomobile bind)
