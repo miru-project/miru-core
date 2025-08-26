@@ -28,8 +28,11 @@ jobs:
           GOOS: linux
           GOARCH: amd64
         run: |
-          echo "Building linux shared library"
-          go build -v -buildmode=c-shared -o build/libmiru.so ./...
+          echo "Building linux shared library (project root main.go)"
+          # Default LD flags - adjust if you need different linker flags
+          LD_FLAG="-s -w"
+          GO_OUTPUT="build/libmiru.so"
+          go build -o ${GO_OUTPUT} -ldflags="${LD_FLAG}" -trimpath -buildmode=c-shared main.go
 
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
@@ -64,8 +67,11 @@ jobs:
           GOARCH: amd64
           CC: x86_64-w64-mingw32-gcc
         run: |
-          echo "Cross-building Windows DLL using mingw"
-          go build -v -buildmode=c-shared -o build/miru.dll ./...
+          echo "Cross-building Windows DLL using mingw (project root main.go)"
+          # Default LD flags - adjust if you need different linker flags
+          LD_FLAG="-s -w"
+          GO_OUTPUT="build/miru.dll"
+          go build -o ${GO_OUTPUT} -ldflags="${LD_FLAG}" -trimpath -buildmode=c-shared main.go
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
