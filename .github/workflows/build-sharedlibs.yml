@@ -138,9 +138,14 @@ jobs:
       - name: Build Android AAR (gomobile bind)
         run: |
           export PATH="$GOPATH/bin:$PATH"
-          # Attempt to bind the package(s). gomobile expects library packages (not package main).
-          # We try to bind the module root; this may need adjusting if the repository does not expose bindable packages.
-          gomobile bind -v -target=android -o build/miru.aar ./...
+          # Use explicit gomobile binary and pass -androidapi as the build requires
+          GOMOBILE_BIN="$HOME/go/bin/gomobile"
+          ANDROID_API=21
+          echo "Using gomobile: $GOMOBILE_BIN"
+          "$GOMOBILE_BIN" version || true
+          # Bind from the repository root. If the repo root is not a bindable package,
+          # change '.' to the specific package path intended for binding (for example ./pkg/jsExtension)
+          "$GOMOBILE_BIN" bind -v -target=android -o build/miru.aar -androidapi "$ANDROID_API" .
 
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
