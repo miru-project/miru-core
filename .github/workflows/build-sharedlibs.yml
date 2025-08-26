@@ -112,9 +112,23 @@ jobs:
           }
           mkdir -p "$sdk_root/ndk/$ndk_version"
           unzip -q "$ndk_zip" -d "$sdk_root/ndk/$ndk_version/tmp_unzip"
-          # Move/unpack to the expected ndk path (strip top-level folder if present)
-          mv "$sdk_root/ndk/$ndk_version/tmp_unzip"/* "$sdk_root/ndk/$ndk_version/" || true
-          rm -rf "$sdk_root/ndk/$ndk_version/tmp_unzip" "$ndk_zip"
+          # Normalize layout: some NDK zips contain a single top-level folder (e.g. android-ndk-r27d)
+          # Move its contents one level up so we end up with: $sdk_root/ndk/$ndk_version/meta/...
+          TMP_DIR="$sdk_root/ndk/$ndk_version/tmp_unzip"
+          # If tmp_unzip contains exactly one directory, move its contents up
+          entries=("$TMP_DIR"/*)
+          if [ ${#entries[@]} -eq 1 ] && [ -d "${entries[0]}" ]; then
+            mv "${entries[0]}"/* "$sdk_root/ndk/$ndk_version/" || true
+          else
+            mv "$TMP_DIR"/* "$sdk_root/ndk/$ndk_version/" || true
+          fi
+          rm -rf "$TMP_DIR" "$ndk_zip"
+          # Quick diagnostic: ensure meta/platforms.json exists where gomobile expects it
+          if [ ! -f "$sdk_root/ndk/$ndk_version/meta/platforms.json" ]; then
+            echo "WARNING: meta/platforms.json not found at $sdk_root/ndk/$ndk_version/meta/platforms.json"
+            echo "Listing $sdk_root/ndk/$ndk_version:" 
+            ls -la "$sdk_root/ndk/$ndk_version" || true
+          fi
 
           # Install command-line tools and platforms
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
