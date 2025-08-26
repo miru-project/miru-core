@@ -1,0 +1,144 @@
+name: Build shared libraries
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-linux:
+    name: Build Linux shared library (.so)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24.6'
+
+      - name: Prepare build dir
+        run: mkdir -p build
+
+      - name: Build .so (linux/amd64)
+        env:
+          CGO_ENABLED: '1'
+          GOOS: linux
+          GOARCH: amd64
+        run: |
+          echo "Building linux shared library"
+          go build -v -buildmode=c-shared -o build/libmiru.so ./...
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: libmiru-linux-amd64.so
+          path: build/libmiru.so
+
+  build-windows:
+    name: Cross-compile Windows DLL (.dll) on Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install mingw-w64 (for cross C toolchain)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mingw-w64
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24.2'
+
+      - name: Prepare build dir
+        run: mkdir -p build
+
+      - name: Build .dll (windows/amd64)
+        env:
+          CGO_ENABLED: '1'
+          GOOS: windows
+          GOARCH: amd64
+          CC: x86_64-w64-mingw32-gcc
+        run: |
+          echo "Cross-building Windows DLL using mingw"
+          go build -v -buildmode=c-shared -o build/miru.dll ./...
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: miru-windows-amd64.dll
+          path: build/miru.dll
+
+  build-android:
+    name: Build Android library via gomobile (AAR and .so)
+    runs-on: ubuntu-latest
+    env:
+      ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24.6'
+
+      - name: Prepare build dir
+        run: mkdir -p build
+
+      - name: Install Android command-line tools
+        run: |
+          sdk_root=${ANDROID_SDK_ROOT}
+          mkdir -p "$sdk_root"
+          cd "$HOME"
+          # Download and unpack the desired NDK before configuring cmdline-tools
+          ndk_version=25.2.9519653
+          ndk_zip="android-ndk-r${ndk_version}-linux.zip"
+          ndk_url="https://dl.google.com/android/repository/${ndk_zip}"
+          echo "Downloading NDK $ndk_version from $ndk_url"
+          wget -q "$ndk_url" -O "$ndk_zip" || {
+            echo "NDK download failed, aborting"
+            exit 1
+          }
+          mkdir -p "$sdk_root/ndk/$ndk_version"
+          unzip -q "$ndk_zip" -d "$sdk_root/ndk/$ndk_version/tmp_unzip"
+          # Move/unpack to the expected ndk path (strip top-level folder if present)
+          mv "$sdk_root/ndk/$ndk_version/tmp_unzip"/* "$sdk_root/ndk/$ndk_version/" || true
+          rm -rf "$sdk_root/ndk/$ndk_version/tmp_unzip" "$ndk_zip"
+
+          # Install command-line tools and platforms
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
+          unzip -q cmdline-tools.zip -d "$sdk_root/cmdline-tools"
+          mkdir -p "$sdk_root/cmdline-tools/latest"
+          mv "$sdk_root/cmdline-tools/cmdline-tools"/* "$sdk_root/cmdline-tools/latest/" || true
+          export PATH="$sdk_root/cmdline-tools/latest/bin:$PATH"
+          yes | "$sdk_root/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$sdk_root" "platform-tools" "platforms;android-33"
+
+      - name: Install gomobile
+        run: |
+          export PATH="$GOPATH/bin:$PATH"
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          gomobile version || true
+
+      - name: Initialize gomobile (may download toolchain)
+        run: |
+          export PATH="$GOPATH/bin:$PATH"
+          export ANDROID_NDK_HOME="${ANDROID_SDK_ROOT}/ndk/25.2.9519653"
+          gomobile init -ndk "$ANDROID_NDK_HOME"
+
+      - name: Build Android AAR (gomobile bind)
+        run: |
+          export PATH="$GOPATH/bin:$PATH"
+          # Attempt to bind the package(s). gomobile expects library packages (not package main).
+          # We try to bind the module root; this may need adjusting if the repository does not expose bindable packages.
+          gomobile bind -v -target=android -o build/miru.aar ./...
+
+      - name: Upload Android artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: miru-android-artifacts
+          path: build/miru.aar
