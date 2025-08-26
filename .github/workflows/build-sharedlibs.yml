@@ -2,7 +2,7 @@ name: Build shared libraries
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main]
   pull_request:
     branches: [ main ]
 
@@ -20,7 +20,7 @@ jobs:
           go-version: '1.24.6'
 
       - name: Prepare build dir
-        run: mkdir -p build
+        run: mkdir -p binary/build
 
       - name: Build .so (linux/amd64)
         env:
@@ -28,8 +28,11 @@ jobs:
           GOOS: linux
           GOARCH: amd64
         run: |
-          echo "Building linux shared library"
-          go build -v -buildmode=c-shared -o build/libmiru.so ./...
+          echo "Building linux shared library (project root main.go)"
+          # Default LD flags - adjust if you need different linker flags
+          LD_FLAG="-s -w"
+          GO_OUTPUT="build/libmiru.so"
+          go build -o ${GO_OUTPUT} -ldflags="${LD_FLAG}" -trimpath -buildmode=c-shared main.go
 
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
@@ -64,8 +67,11 @@ jobs:
           GOARCH: amd64
           CC: x86_64-w64-mingw32-gcc
         run: |
-          echo "Cross-building Windows DLL using mingw"
-          go build -v -buildmode=c-shared -o build/miru.dll ./...
+          echo "Cross-building Windows DLL using mingw (project root main.go)"
+          # Default LD flags - adjust if you need different linker flags
+          LD_FLAG="-s -w"
+          GO_OUTPUT="build/miru.dll"
+          go build -o ${GO_OUTPUT} -ldflags="${LD_FLAG}" -trimpath -buildmode=c-shared main.go
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
@@ -76,8 +82,7 @@ jobs:
   build-android:
     name: Build Android library via gomobile (AAR and .so)
     runs-on: ubuntu-latest
-    env:
-      ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
+    # Use RUNNER_TEMP inside steps (runner context is not available at workflow-evaluation time)
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -88,17 +93,18 @@ jobs:
           go-version: '1.24.6'
 
       - name: Prepare build dir
-        run: mkdir -p build
+        run: mkdir -p binary/build
 
       - name: Install Android command-line tools
         run: |
-          sdk_root=${ANDROID_SDK_ROOT}
+          # Use conventional Android SDK location under the runner's home directory
+          sdk_root="$HOME/Android/Sdk"
           mkdir -p "$sdk_root"
           cd "$HOME"
           # Download and unpack the desired NDK before configuring cmdline-tools
-          ndk_version=25.2.9519653
-          ndk_zip="android-ndk-r${ndk_version}-linux.zip"
-          ndk_url="https://dl.google.com/android/repository/${ndk_zip}"
+          ndk_version=27.3.13750724
+          ndk_zip="android-ndk-r27d-linux.zip"
+          ndk_url="https://dl.google.com/android/repository/android-ndk-r27d-linux.zip"
           echo "Downloading NDK $ndk_version from $ndk_url"
           wget -q "$ndk_url" -O "$ndk_zip" || {
             echo "NDK download failed, aborting"
@@ -106,9 +112,23 @@ jobs:
           }
           mkdir -p "$sdk_root/ndk/$ndk_version"
           unzip -q "$ndk_zip" -d "$sdk_root/ndk/$ndk_version/tmp_unzip"
-          # Move/unpack to the expected ndk path (strip top-level folder if present)
-          mv "$sdk_root/ndk/$ndk_version/tmp_unzip"/* "$sdk_root/ndk/$ndk_version/" || true
-          rm -rf "$sdk_root/ndk/$ndk_version/tmp_unzip" "$ndk_zip"
+          # Normalize layout: some NDK zips contain a single top-level folder (e.g. android-ndk-r27d)
+          # Move its contents one level up so we end up with: $sdk_root/ndk/$ndk_version/meta/...
+          TMP_DIR="$sdk_root/ndk/$ndk_version/tmp_unzip"
+          # If tmp_unzip contains exactly one directory, move its contents up
+          entries=("$TMP_DIR"/*)
+          if [ ${#entries[@]} -eq 1 ] && [ -d "${entries[0]}" ]; then
+            mv "${entries[0]}"/* "$sdk_root/ndk/$ndk_version/" || true
+          else
+            mv "$TMP_DIR"/* "$sdk_root/ndk/$ndk_version/" || true
+          fi
+          rm -rf "$TMP_DIR" "$ndk_zip"
+          # Quick diagnostic: ensure meta/platforms.json exists where gomobile expects it
+          if [ ! -f "$sdk_root/ndk/$ndk_version/meta/platforms.json" ]; then
+            echo "WARNING: meta/platforms.json not found at $sdk_root/ndk/$ndk_version/meta/platforms.json"
+            echo "Listing $sdk_root/ndk/$ndk_version:" 
+            ls -la "$sdk_root/ndk/$ndk_version" || true
+          fi
 
           # Install command-line tools and platforms
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline-tools.zip
@@ -117,6 +137,10 @@ jobs:
           mv "$sdk_root/cmdline-tools/cmdline-tools"/* "$sdk_root/cmdline-tools/latest/" || true
           export PATH="$sdk_root/cmdline-tools/latest/bin:$PATH"
           yes | "$sdk_root/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$sdk_root" "platform-tools" "platforms;android-33"
+          # Persist environment variables so subsequent steps use the SDK/NDK we just installed
+          echo "ANDROID_HOME=$sdk_root" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$sdk_root" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=$sdk_root/ndk/$ndk_version" >> $GITHUB_ENV
 
       - name: Install gomobile
         run: |
@@ -127,18 +151,22 @@ jobs:
       - name: Initialize gomobile (may download toolchain)
         run: |
           export PATH="$GOPATH/bin:$PATH"
-          export ANDROID_NDK_HOME="${ANDROID_SDK_ROOT}/ndk/25.2.9519653"
-          gomobile init -ndk "$ANDROID_NDK_HOME"
+
+          gomobile init
 
       - name: Build Android AAR (gomobile bind)
+        working-directory: binary
         run: |
           export PATH="$GOPATH/bin:$PATH"
-          # Attempt to bind the package(s). gomobile expects library packages (not package main).
-          # We try to bind the module root; this may need adjusting if the repository does not expose bindable packages.
-          gomobile bind -v -target=android -o build/miru.aar ./...
+          # Use explicit gomobile binary and pass -androidapi as the build requires
+          GOMOBILE_BIN="$HOME/go/bin/gomobile"
+          ANDROID_API=21
+          echo "Using gomobile: $GOMOBILE_BIN"
+          "$GOMOBILE_BIN" version || true
+          "$GOMOBILE_BIN" bind -v -target=android -o build/miru.aar -androidapi "$ANDROID_API" .
 
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: miru-android-artifacts
-          path: build/miru.aar
+          name: miru-android-artifacts.aar
+          path: binary/build/miru.aar
