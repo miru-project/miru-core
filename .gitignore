@@ -26,6 +26,7 @@ go.work.sum
 
 /tmp
 .vscode/launch.json
+/extensions
 miru.db
 config.json
 miru
