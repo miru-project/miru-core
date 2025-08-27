@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 
 	"github.com/dop251/goja"
@@ -11,17 +12,19 @@ import (
 )
 
 // read folder from  embed fs and write to file system
-func readEmbedFileToDisk(path string, tagetDir string) {
-	// Read the file from the embedded filesystem
-	data, err := fs.ReadDir(path)
+func readEmbedFileToDisk(embedPath string, targetDir string) {
+	// Read the file from the embedded filesystem (embed.FS uses forward slashes)
+	data, err := fs.ReadDir(embedPath)
 	if err != nil {
 		log.Fatalf("Failed to read asset directory in embedFs: %v", err)
 	}
 
 	for _, file := range data {
 
-		childFs := filepath.Join(path, file.Name())
-		childDir := filepath.Join(tagetDir, file.Name())
+		// Use POSIX path joining for embedded FS paths so we always use '/'
+		childFs := path.Join(embedPath, file.Name())
+		// Use filepath for OS paths so platform-specific separators are used
+		childDir := filepath.Join(targetDir, file.Name())
 
 		// Recursively read the directory
 		if file.IsDir() {
@@ -34,7 +37,7 @@ func readEmbedFileToDisk(path string, tagetDir string) {
 			readEmbedFileToDisk(childFs, childDir)
 		} else {
 
-			file, err := fs.ReadFile(childFs)
+			content, err := fs.ReadFile(childFs)
 			if err != nil {
 				log.Fatalf("Failed to read file %s from embedFs: %v", childFs, err)
 			}
@@ -47,7 +50,7 @@ func readEmbedFileToDisk(path string, tagetDir string) {
 			defer outFile.Close()
 
 			// Write the content to the file
-			if _, err := outFile.Write(file); err != nil {
+			if _, err := outFile.Write(content); err != nil {
 				log.Fatalf("Failed to write file %s: %v", childDir, err)
 			}
 		}
