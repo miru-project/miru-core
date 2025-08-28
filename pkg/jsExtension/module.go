@@ -13,21 +13,19 @@ import (
 
 // read folder from  embed fs and write to file system
 func readEmbedFileToDisk(embedPath string, targetDir string) {
-	// Read the file from the embedded filesystem (embed.FS uses forward slashes)
-	data, err := fs.ReadDir(embedPath)
+	// Read the file from the embedded filesystem
+	entries, err := fs.ReadDir(embedPath)
 	if err != nil {
 		log.Fatalf("Failed to read asset directory in embedFs: %v", err)
 	}
 
-	for _, file := range data {
+	for _, entry := range entries {
 
-		// Use POSIX path joining for embedded FS paths so we always use '/'
-		childFs := path.Join(embedPath, file.Name())
-		// Use filepath for OS paths so platform-specific separators are used
-		childDir := filepath.Join(targetDir, file.Name())
+		childFs := path.Join(embedPath, entry.Name())
+		childDir := filepath.Join(targetDir, entry.Name())
 
 		// Recursively read the directory
-		if file.IsDir() {
+		if entry.IsDir() {
 
 			// Create the directory in the file system
 			if err := os.MkdirAll(childDir, os.ModePerm); err != nil {
@@ -37,7 +35,7 @@ func readEmbedFileToDisk(embedPath string, targetDir string) {
 			readEmbedFileToDisk(childFs, childDir)
 		} else {
 
-			content, err := fs.ReadFile(childFs)
+			data, err := fs.ReadFile(childFs)
 			if err != nil {
 				log.Fatalf("Failed to read file %s from embedFs: %v", childFs, err)
 			}
@@ -50,7 +48,7 @@ func readEmbedFileToDisk(embedPath string, targetDir string) {
 			defer outFile.Close()
 
 			// Write the content to the file
-			if _, err := outFile.Write(content); err != nil {
+			if _, err := outFile.Write(data); err != nil {
 				log.Fatalf("Failed to write file %s: %v", childDir, err)
 			}
 		}

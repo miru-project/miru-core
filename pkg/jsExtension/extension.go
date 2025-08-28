@@ -136,8 +136,8 @@ func WatchDir(dir string) {
 				if event.Has(fsnotify.Write) && !locked {
 					log.Println("Modified file:", event.Name)
 					locked = true
-					ext, ok := filterExt(event.Name)
-					if !ok {
+					ext, err := filterExt(event.Name)
+					if err != nil {
 						log.Println("File is not a valid extension:", event.Name)
 						locked = false
 						continue
@@ -194,27 +194,31 @@ func filterExts(dir string) []Ext {
 			continue
 		}
 		name := file.Name()
-		if ext, ok := filterExt(dir + "/" + name); ok {
+		if ext, err := filterExt(dir + "/" + name); err == nil {
 			exts = append(exts, ext)
+		} else {
+			ApiPkgCache[name] = &ExtApi{Ext: &Ext{Name: name}, service: nil}
 		}
 	}
 	return exts
 }
 
-func filterExt(fileLoc string) (Ext, bool) {
+func filterExt(fileLoc string) (Ext, error) {
 	name := filepath.Base(fileLoc)
 	re := regexp.MustCompile(`\w.+\.\w+\.js$`)
-
-	if _, e := os.Stat(fileLoc); !re.MatchString(name) || os.IsNotExist(e) {
-		return Ext{}, false
+	if !(re.MatchString(name)) {
+		return Ext{}, errors.New("invalid file name")
+	}
+	if _, e := os.Stat(fileLoc); os.IsNotExist(e) {
+		return Ext{}, e
 	}
 	f := errorhandle.HandleFatal(os.ReadFile(fileLoc))
 	ext, err := ParseExtMetadata(string(f), name)
 	if err != nil {
 		log.Println(err)
-		return Ext{}, false
+		return Ext{}, err
 	}
-	return ext, true
+	return ext, nil
 }
 
 func ParseExtMetadata(content string, fileName string) (Ext, error) {
