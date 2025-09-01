@@ -18,8 +18,8 @@ func Latest(page string, pkg string) (*result.Result[any], error) {
 
 	res, e := jsExtension.Latest(pkg, intPage)
 
-	if res == nil && e == nil {
-		return result.NewErrorResult("No results found", 404, nil), nil
+	if res == nil && e != nil {
+		return result.NewErrorResult(e.Error(), 404, nil), nil
 	}
 	return result.NewSuccessResult(res), e
 
@@ -36,7 +36,7 @@ func Search(page string, pkg string, kw string, filter string) (*result.Result[a
 	res, e := jsExtension.Search(pkg, intPage, kw, filter)
 
 	if res == nil {
-		return result.NewErrorResult("No results found", 404, nil), nil
+		return result.NewErrorResult(e.Error(), 404, nil), nil
 	}
 	return result.NewSuccessResult(res), e
 
@@ -48,7 +48,7 @@ func Watch(pkg string, url string) (*result.Result[any], error) {
 	res, e := jsExtension.Watch(pkg, url)
 
 	if res == nil {
-		return result.NewErrorResult("No results found", 404, nil), nil
+		return result.NewErrorResult(e.Error(), 404, nil), nil
 	}
 	return result.NewSuccessResult(res), e
 }
@@ -58,8 +58,8 @@ func Detail(pkg string, url string) (*result.Result[any], error) {
 
 	res, e := jsExtension.Detail(pkg, url)
 
-	if res.Title == "" {
-		return result.NewErrorResult("No results found", 404, nil), nil
+	if res == nil {
+		return result.NewErrorResult(e.Error(), 404, nil), nil
 	}
 	return result.NewSuccessResult(res), e
 }
@@ -78,13 +78,34 @@ func GetExtensionRepo() ([]*ent.ExtensionRepo, error) {
 }
 
 // Download the extension by the given repository and package name
-func DownloadExtension(repoUrl string, pkg string) error {
-	return jsExtension.DownloadExtension(repoUrl, pkg)
+func DownloadExtension(repoUrl string, pkg string) (*result.Result[any], error) {
+	if repoUrl == "" || pkg == "" {
+		return result.NewErrorResult("Repository URL and package name are required", 400, nil), nil
+	}
+
+	if e := jsExtension.DownloadExtension(repoUrl, pkg); e != nil {
+		return result.NewErrorResult(e.Error(), 500, nil), nil
+	}
+
+	return result.NewSuccessResult("Extension download initiated successfully"), nil
 }
 
-func RemoveExtensionRepo(id string) error {
-	return jsExtension.RemoveExtensionRepo(id)
+func RemoveExtensionRepo(id string) (*result.Result[any], error) {
+	if id == "" {
+		return result.NewErrorResult("Repository URL is required", 400, nil), nil
+	}
+	if err := jsExtension.RemoveExtensionRepo(id); err != nil {
+		return result.NewErrorResult(err.Error(), 500, nil), nil
+	}
+	return result.NewSuccessResult("Repository removed successfully"), nil
 }
-func RemoveExtension(pkg string) error {
-	return jsExtension.RemoveExtension(pkg)
+
+func RemoveExtension(pkg string) (*result.Result[any], error) {
+	if pkg == "" {
+		return result.NewErrorResult("Package name is required", 400, nil), nil
+	}
+	if e := jsExtension.RemoveExtension(pkg); e != nil {
+		return result.NewErrorResult(e.Error(), 500, nil), nil
+	}
+	return result.NewSuccessResult("Extension removal initiated successfully"), nil
 }

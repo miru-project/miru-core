@@ -40,8 +40,13 @@ var ScriptV2 string
 var ExtPath string
 
 type ExtApi struct {
-	Ext     *Ext
-	service *ExtBaseService
+	Ext           *Ext
+	service       *ExtBaseService
+	asyncCallBack func(api *ExtApi, pkg string, evalStr string) (any, error)
+	latestEval    string
+	searchEval    string
+	detailEval    string
+	watchEval     string
 }
 
 type Job struct {
@@ -108,9 +113,9 @@ func InitRuntime(extPath string, f embed.FS) {
 	}()
 	for _, ext := range exts {
 		if ext.Api == "2" {
-			LoadApiV2(&ext, ScriptV2)
+			LoadApiV2(ext, ScriptV2)
 		} else {
-			LoadApiV1(&ext, ScriptV1)
+			LoadApiV1(ext, ScriptV1)
 
 		}
 	}
@@ -125,7 +130,7 @@ func compileExtension(ext *Ext) (*goja.Program, error) {
 func WatchDir(dir string) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Failed to start fsnotiy: ", err)
 	}
 
 	go func() {
@@ -133,18 +138,29 @@ func WatchDir(dir string) {
 		for {
 			select {
 			case event := <-watcher.Events:
-				if event.Has(fsnotify.Write) && !locked {
+
+				// Write or Modify event
+				if event.Has(fsnotify.Write|fsnotify.Create) && !locked {
 					log.Println("Modified file:", event.Name)
 					locked = true
-					ext, err := filterExt(event.Name)
+					ext := &Ext{Name: filepath.Base(event.Name)}
+					err := ext.filterExt(event.Name)
 					if err != nil {
 						log.Println("File is not a valid extension:", event.Name)
 						locked = false
 						continue
 					}
 
-					ReloadExtension(ext, errorhandle.HandleFatal(os.ReadFile(event.Name)))
+					ext.ReloadExtension()
 					locked = false
+				}
+
+				// Call when file is missing
+				if event.Has(fsnotify.Rename | fsnotify.Remove) {
+					log.Println("Removed file:", event.Name)
+					name := filepath.Base(event.Name)
+					pkg := strings.TrimSuffix(name, ".js")
+					delete(ApiPkgCache, pkg)
 				}
 			case err := <-watcher.Errors:
 				if err != nil {
@@ -155,18 +171,19 @@ func WatchDir(dir string) {
 	}()
 
 	err = watcher.Add(dir)
+	log.Println("Watching directory:", dir)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
-func ReloadExtension(ext Ext, file []byte) error {
+func (ext *Ext) ReloadExtension() error {
 
 	// Create a new extension runtime
 	switch ext.Api {
 	case "2":
-		LoadApiV2(&ext, ScriptV2)
+		LoadApiV2(ext, ScriptV2)
 	case "1", "":
-		LoadApiV1(&ext, ScriptV1)
+		LoadApiV1(ext, ScriptV1)
 	}
 
 	return nil
@@ -178,7 +195,7 @@ func ReplaceClassExtendsDeclaration(jsCode string) string {
 	return re.ReplaceAllString(jsCode, "Ext = class extends Extension {")
 }
 
-func filterExts(dir string) []Ext {
+func filterExts(dir string) []*Ext {
 	_, err := os.Stat(dir)
 	if os.IsNotExist(err) {
 		if e := os.Mkdir(dir, os.ModePerm); e != nil {
@@ -187,14 +204,15 @@ func filterExts(dir string) []Ext {
 		}
 	}
 	files := errorhandle.HandleFatal(os.ReadDir(dir))
-	var exts []Ext
+	var exts []*Ext
 	for _, file := range files {
 
 		if file.IsDir() {
 			continue
 		}
 		name := file.Name()
-		if ext, err := filterExt(dir + "/" + name); err == nil {
+		ext := &Ext{Name: name}
+		if err := ext.filterExt(dir + "/" + name); err == nil {
 			exts = append(exts, ext)
 		} else {
 			ApiPkgCache[name] = &ExtApi{Ext: &Ext{Name: name}, service: nil}
@@ -203,26 +221,25 @@ func filterExts(dir string) []Ext {
 	return exts
 }
 
-func filterExt(fileLoc string) (Ext, error) {
+func (ext *Ext) filterExt(fileLoc string) error {
 	name := filepath.Base(fileLoc)
 	re := regexp.MustCompile(`\w.+\.\w+\.js$`)
 	if !(re.MatchString(name)) {
-		return Ext{}, errors.New("invalid file name")
+		return errors.New("invalid file name")
 	}
 	if _, e := os.Stat(fileLoc); os.IsNotExist(e) {
-		return Ext{}, e
+		return e
 	}
 	f := errorhandle.HandleFatal(os.ReadFile(fileLoc))
-	ext, err := ParseExtMetadata(string(f), name)
+	err := ext.ParseExtMetadata(string(f), name)
 	if err != nil {
 		log.Println(err)
-		return Ext{}, err
+		return err
 	}
-	return ext, nil
+	return nil
 }
 
-func ParseExtMetadata(content string, fileName string) (Ext, error) {
-	ext := Ext{}
+func (ext *Ext) ParseExtMetadata(content string, fileName string) error {
 	err := error(nil)
 
 	// Regex to match @key value pattern
@@ -274,67 +291,64 @@ func ParseExtMetadata(content string, fileName string) (Ext, error) {
 	}
 
 	ext.Context = &content
-	return ext, err
-}
-
-func isV2(pkg string) bool {
-	api, ok := ApiPkgCache[pkg]
-	return ok && api.Ext != nil && api.Ext.Api == "2"
-}
-
-func isV1(pkg string) bool {
-	api, ok := ApiPkgCache[pkg]
-	return ok && api.Ext != nil
+	return err
 }
 
 // Extension latest should contain V1 and V2 api
-func Latest(pkg string, page int) (ExtensionListItems, error) {
-	if isV2(pkg) {
-		evalStr := fmt.Sprintf("latest(%d)", page)
-		return AsyncCallBackV2[ExtensionListItems](ApiPkgCache[pkg], pkg, evalStr)
+func Latest(pkg string, page int) (any, error) {
+	api, e := getPkgFromCache(pkg)
+	if e != nil {
+		return nil, e
 	}
-	if isV1(pkg) {
-		evalStr := fmt.Sprintf("ext.latest(%d)", page)
-		return AsyncCallBackV1[ExtensionListItems](ApiPkgCache[pkg], pkg, evalStr)
-	}
-	return ExtensionListItems{}, errors.New("extension not found")
+	return api.asyncCallBack(api, pkg, fmt.Sprintf(api.latestEval, page))
 }
 
 // Extension search should contain V1 and V2 api
-func Search(pkg string, page int, kw string, filter string) (ExtensionListItems, error) {
-	evalStr := fmt.Sprintf("search(`%s`,%d,%s)", kw, page, filter)
-	return AsyncCallBackV2[ExtensionListItems](ApiPkgCache[pkg], pkg, evalStr)
+func Search(pkg string, page int, kw string, filter string) (any, error) {
+	api, e := getPkgFromCache(pkg)
+	if e != nil {
+		return nil, e
+	}
+	return api.asyncCallBack(api, pkg, fmt.Sprintf(api.searchEval, page, kw, filter))
 
 }
 
 // Extension watch should contain V1 and V2 api
 func Watch(pkg string, url string) (any, error) {
 
-	api := ApiPkgCache[pkg]
-	watchType := api.Ext.WatchType
-	funcall := fmt.Sprintf("watch(`%s`)", url)
-
-	switch watchType {
-	case "manga":
-		return AsyncCallBackV2[ExtensionMangaWatch](api, pkg, funcall)
-	case "bangumi":
-		return AsyncCallBackV2[ExtensionBangumiWatch](api, pkg, funcall)
-	case "fikushon":
-		return AsyncCallBackV2[ExtensionFikushonWatch](api, pkg, funcall)
-	default:
-		return "Invalid watch type", errors.New("invalid watch type")
+	api, e := getPkgFromCache(pkg)
+	if e != nil {
+		return nil, e
 	}
+	return api.asyncCallBack(api, pkg, fmt.Sprintf(api.watchEval, url))
 
 }
 
-func Detail(pkg string, url string) (ExtensionDetail, error) {
-
-	evalStr := fmt.Sprintf("detail(`%s`)", url)
-	o, e := AsyncCallBackV2[ExtensionDetail](ApiPkgCache[pkg], pkg, evalStr)
-
+func Detail(pkg string, url string) (any, error) {
+	api, e := getPkgFromCache(pkg)
 	if e != nil {
-		return ExtensionDetail{}, e
+		return nil, e
+	}
+	return api.asyncCallBack(api, pkg, fmt.Sprintf(api.detailEval, url))
+}
+
+func getPkgFromCache(pkg string) (*ExtApi, error) {
+	api, ok := ApiPkgCache[pkg]
+	if ok {
+		return api, nil
+	}
+	ext := &Ext{Name: pkg + ".js"}
+	fileLoc, e := os.ReadFile(filepath.Join(ExtPath, pkg+".js"))
+	if e != nil {
+		return nil, e
+	}
+	e = ext.filterExt(string(fileLoc))
+	if e != nil {
+		return nil, e
 	}
 
-	return o, nil
+	if e := ext.ReloadExtension(); e != nil {
+		return nil, e
+	}
+	return ApiPkgCache[pkg], nil
 }

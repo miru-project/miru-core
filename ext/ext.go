@@ -80,7 +80,7 @@ func GetAllRepositories() ([]*ent.ExtensionRepo, error) {
 	return entClient.ExtensionRepo.Query().All(context.Background())
 }
 func SetDefaultRepository() error {
-	return SetRepository("Official Miru Extension", "https://miru-repo.0n0.dev/index.json")
+	return SetRepository("Official Miru Extension", "https://raw.githubusercontent.com/miru-project/repo/refs/heads/main/index.json")
 }
 
 func SetRepository(name string, url string) error {

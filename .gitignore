@@ -32,3 +32,4 @@ config.json
 miru
 *jar
 *aar
+__debug_bin*

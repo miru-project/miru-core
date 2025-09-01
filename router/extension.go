@@ -31,8 +31,8 @@ func initExtensionRouter(app *fiber.App) {
 // @Failure		500		{object}	result.Result[string]	"Server error"
 // @Router			/ext/latest/{pkg}/{page} [get]
 func GetLatestContent(app *fiber.App) fiber.Router {
-	return app.Get("/ext/latest/:pkg/:page", func(c *fiber.Ctx) error {
-		result, err := handler.Latest(c.Params("page"), c.Params("pkg"))
+	return app.Get("/ext/latest", func(c *fiber.Ctx) error {
+		result, err := handler.Latest(c.FormValue("page"), c.FormValue("pkg"))
 		if err != nil {
 			return err
 		}
@@ -74,8 +74,8 @@ func SearchContent(app *fiber.App) fiber.Router {
 // @Failure		500	{object}	result.Result[jsExtension.ExtensionFikushonWatch]	"Server error"
 // @Router			/ext/watch/{pkg} [get]
 func WatchContent(app *fiber.App) fiber.Router {
-	return app.Get("/ext/watch/:pkg", func(c *fiber.Ctx) error {
-		result, err := handler.Watch(c.Params("pkg"), string(c.Body()))
+	return app.Get("/ext/watch", func(c *fiber.Ctx) error {
+		result, err := handler.Watch(c.Params("pkg"), c.FormValue("url"))
 		if err != nil {
 			return err
 		}
@@ -94,8 +94,8 @@ func WatchContent(app *fiber.App) fiber.Router {
 // @Failure		500	{object}	result.Result[string]	"Server error"
 // @Router			/ext/detail/{pkg} [get]
 func GetContentDetail(app *fiber.App) fiber.Router {
-	return app.Get("/ext/detail/:pkg", func(c *fiber.Ctx) error {
-		result, err := handler.Detail(c.Params("pkg"), string(c.Body()))
+	return app.Get("/ext/detail", func(c *fiber.Ctx) error {
+		result, err := handler.Detail(c.FormValue("pkg"), c.FormValue("url"))
 		if err != nil {
 			return err
 		}
@@ -107,19 +107,14 @@ func DownloadExtension(app *fiber.App) fiber.Router {
 	return app.Post("/download/extension", func(c *fiber.Ctx) error {
 		repoUrl := c.FormValue("repoUrl")
 		pkg := c.FormValue("pkg")
-
-		if repoUrl == "" || pkg == "" {
-			return c.Status(fiber.StatusBadRequest).
-				JSON(result.NewErrorResult("Repository URL and package name are required", fiber.StatusBadRequest, nil))
+		res, err := handler.DownloadExtension(repoUrl, pkg)
+		if err != nil {
+			return err
 		}
-
-		if e := handler.DownloadExtension(repoUrl, pkg); e != nil {
-			return c.Status(fiber.StatusInternalServerError).
-				JSON(result.NewErrorResult(e.Error(), fiber.StatusInternalServerError, nil))
+		if res.Code >= 400 {
+			return c.Status(res.Code).JSON(res)
 		}
-
-		// Return a success response
-		return c.JSON(result.NewSuccessResult("Extension download initiated successfully"))
+		return c.JSON(res)
 	})
 
 }
@@ -141,34 +136,28 @@ func FetchExtensionRepo(app *fiber.App) fiber.Router {
 func RemoveExtensionRepo(app *fiber.App) fiber.Router {
 	return app.Delete("/ext/repo", func(c *fiber.Ctx) error {
 		repoUrl := c.FormValue("repoUrl")
-		if repoUrl == "" {
-			return c.Status(fiber.StatusBadRequest).
-				JSON(result.NewErrorResult("Repository URL is required", fiber.StatusBadRequest, nil))
+		res, err := handler.RemoveExtensionRepo(repoUrl)
+		if err != nil {
+			return err
 		}
-		if err := handler.RemoveExtensionRepo(repoUrl); err != nil {
-			return c.Status(fiber.StatusInternalServerError).
-				JSON(result.NewErrorResult(err.Error(), fiber.StatusInternalServerError, nil))
+		if res.Code >= 400 {
+			return c.Status(res.Code).JSON(res)
 		}
-		return c.JSON(result.NewSuccessResult("Repository removed successfully"))
+		return c.JSON(res)
 	})
 }
 
 func RemoveExtension(app *fiber.App) fiber.Router {
 	return app.Delete("/rm/extension", func(c *fiber.Ctx) error {
 		pkg := c.FormValue("pkg")
-
-		if pkg == "" {
-			return c.Status(fiber.StatusBadRequest).
-				JSON(result.NewErrorResult("Package name is required", fiber.StatusBadRequest, nil))
+		res, err := handler.RemoveExtension(pkg)
+		if err != nil {
+			return err
 		}
-
-		if e := handler.RemoveExtension(pkg); e != nil {
-			return c.Status(fiber.StatusInternalServerError).
-				JSON(result.NewErrorResult(e.Error(), fiber.StatusInternalServerError, nil))
+		if res.Code >= 400 {
+			return c.Status(res.Code).JSON(res)
 		}
-
-		// Return a success response
-		return c.JSON(result.NewSuccessResult("Extension removal initiated successfully"))
+		return c.JSON(res)
 	})
 
 }

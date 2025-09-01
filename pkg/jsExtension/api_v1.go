@@ -12,6 +12,7 @@ import (
 )
 
 func LoadApiV1(ext *Ext, baseScript string) {
+
 	scriptV1 := fmt.Sprintf(baseScript, ext.Pkg, ext.Name, ext.Website)
 	*ext.Context = ReplaceClassExtendsDeclaration(*ext.Context)
 	runtimeV1 := errorhandle.HandleFatal(goja.Compile("runtime_v1.js", scriptV1, true))
@@ -25,13 +26,23 @@ func LoadApiV1(ext *Ext, baseScript string) {
 	api := &ExtApi{Ext: ext, service: &ExtBaseService{base: runtimeV1, program: compiledExt}}
 	ApiPkgCache[ext.Pkg] = api
 	ApiPkgCache[ext.Pkg].Ext.Error = ""
+	api.initEvalV1String()
 	api.InitV1Script(ext.Pkg)
 
 }
 
-func (api *ExtApi) InitV1Script(pkg string) error {
-	ApiPkgCache[pkg] = api
+func (api *ExtApi) initEvalV1String() {
+	// Register  the async callback function for V1
+	api.asyncCallBack = AsyncCallBackV1[any]
+	api.latestEval = "ext.latest(%d)"
+	api.searchEval = "ext.search(%d, '%s', %s)"
+	api.detailEval = "ext.detail('%s')"
+	api.watchEval = "ext.watch('%s')"
+}
 
+func (api *ExtApi) InitV1Script(pkg string) error {
+
+	ApiPkgCache[pkg] = api
 	loop := eventloop.NewEventLoop(
 		eventloop.WithRegistry(SharedRegistry),
 	)
