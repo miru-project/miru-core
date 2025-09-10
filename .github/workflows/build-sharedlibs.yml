@@ -145,6 +145,7 @@ jobs:
       - name: Install gomobile
         run: |
           export PATH="$GOPATH/bin:$PATH"
+          go get golang.org/x/mobile/cmd/gomobile
           go install golang.org/x/mobile/cmd/gomobile@latest
           gomobile version || true
 
