@@ -75,7 +75,7 @@ func SearchContent(app *fiber.App) fiber.Router {
 // @Router			/ext/watch/{pkg} [get]
 func WatchContent(app *fiber.App) fiber.Router {
 	return app.Get("/ext/watch", func(c *fiber.Ctx) error {
-		result, err := handler.Watch(c.Params("pkg"), c.FormValue("url"))
+		result, err := handler.Watch(c.FormValue("pkg"), c.FormValue("url"))
 		if err != nil {
 			return err
 		}

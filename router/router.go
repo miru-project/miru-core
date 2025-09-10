@@ -39,7 +39,7 @@ func InitRouter(app *fiber.App) {
 	initWebDavRouter(app)
 	initAnilistRouter(app)
 	initDownloadRouter(app)
-
+	initNetworkRouter(app)
 	GetAppSetting(app)
 	SetAppSetting(app)
 	app.Get("/swagger/*", fiberSwagger.WrapHandler)

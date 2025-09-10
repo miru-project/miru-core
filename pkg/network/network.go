@@ -5,16 +5,12 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net/http/cookiejar"
 	"net/url"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/Danny-Dasilva/CycleTLS/cycletls"
 )
-
-var jar, _ = cookiejar.New(nil)
 
 // Request makes an HTTP request and returns the response as type T.
 //
@@ -39,15 +35,6 @@ func Request[T StringOrBytes](url string, option *RequestOptions, readPreference
 	return request[T](url, option, readPreference)
 }
 
-func getHeadersFromJar(jar *cookiejar.Jar, url *url.URL) string {
-	cookies := jar.Cookies(url)
-	var cookieStrs []string
-	for _, cookie := range cookies {
-		cookieStrs = append(cookieStrs, cookie.Name+"="+cookie.Value)
-	}
-	return strings.Join(cookieStrs, "; ")
-}
-
 // Request with cycle TLS
 func requestWithCycleTLS(requrl string, option *RequestOptions) (string, error) {
 	client := cycletls.Init()
@@ -57,9 +44,9 @@ func requestWithCycleTLS(requrl string, option *RequestOptions) (string, error) 
 
 	// Set cookie from cookiejar
 	if _, e := config.Headers["Cookie"]; !e {
-		config.Headers["Cookie"] = getHeadersFromJar(jar, reqUrl)
+		config.Headers["Cookie"] = getHeadersFromJar(reqUrl)
 	} else {
-		config.Headers["Cookie"] += "; " + getHeadersFromJar(jar, reqUrl)
+		config.Headers["Cookie"] += "; " + getHeadersFromJar(reqUrl)
 	}
 
 	// Set cycleTls headers from header

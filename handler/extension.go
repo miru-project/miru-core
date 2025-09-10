@@ -90,16 +90,18 @@ func DownloadExtension(repoUrl string, pkg string) (*result.Result[any], error) 
 	return result.NewSuccessResult("Extension download initiated successfully"), nil
 }
 
-func RemoveExtensionRepo(id string) (*result.Result[any], error) {
-	if id == "" {
+// Remove  the extension repository by the given url
+func RemoveExtensionRepo(url string) (*result.Result[any], error) {
+	if url == "" {
 		return result.NewErrorResult("Repository URL is required", 400, nil), nil
 	}
-	if err := jsExtension.RemoveExtensionRepo(id); err != nil {
+	if err := jsExtension.RemoveExtensionRepo(url); err != nil {
 		return result.NewErrorResult(err.Error(), 500, nil), nil
 	}
 	return result.NewSuccessResult("Repository removed successfully"), nil
 }
 
+// Remove the extension by the given package name
 func RemoveExtension(pkg string) (*result.Result[any], error) {
 	if pkg == "" {
 		return result.NewErrorResult("Package name is required", 400, nil), nil

@@ -10,6 +10,7 @@ import (
 	"github.com/miru-project/miru-core/ext"
 	"github.com/miru-project/miru-core/pkg/anilist"
 	jsext "github.com/miru-project/miru-core/pkg/jsExtension"
+	"github.com/miru-project/miru-core/pkg/network"
 	"github.com/miru-project/miru-core/router"
 )
 
@@ -41,8 +42,8 @@ func InitProgram(configPath *string) {
 
 	ext.EntClient()
 	anilist.InitToken()
+	network.InitCookieJar()
 	jsext.InitRuntime(config.Global.ExtensionPath, f)
-
 	log.Println("Miru Core initialized successfully!")
 	app := fiber.New()
 
