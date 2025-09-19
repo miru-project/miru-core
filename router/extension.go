@@ -32,11 +32,11 @@ func initExtensionRouter(app *fiber.App) {
 // @Router			/ext/latest/{pkg}/{page} [get]
 func GetLatestContent(app *fiber.App) fiber.Router {
 	return app.Get("/ext/latest", func(c *fiber.Ctx) error {
-		result, err := handler.Latest(c.FormValue("page"), c.FormValue("pkg"))
-		if err != nil {
-			return err
+		res := handler.Latest(c.FormValue("page"), c.FormValue("pkg"))
+		if res.Code >= 400 {
+			return c.Status(fiber.StatusInternalServerError).JSON(res)
 		}
-		return c.JSON(result)
+		return c.JSON(res)
 	})
 }
 
@@ -54,11 +54,11 @@ func GetLatestContent(app *fiber.App) fiber.Router {
 // @Router			/ext/search/{pkg}/{page}/{kw} [get]
 func SearchContent(app *fiber.App) fiber.Router {
 	return app.Get("/ext/search/:pkg/:page/:kw", func(c *fiber.Ctx) error {
-		result, err := handler.Search(c.Params("page"), c.Params("pkg"), c.Params("kw"), string(c.Body()))
-		if err != nil {
-			return err
+		res := handler.Search(c.Params("page"), c.Params("pkg"), c.Params("kw"), string(c.Body()))
+		if res.Code >= 400 {
+			return c.Status(fiber.StatusInternalServerError).JSON(res)
 		}
-		return c.JSON(result)
+		return c.JSON(res)
 	})
 }
 
@@ -75,11 +75,11 @@ func SearchContent(app *fiber.App) fiber.Router {
 // @Router			/ext/watch/{pkg} [get]
 func WatchContent(app *fiber.App) fiber.Router {
 	return app.Get("/ext/watch", func(c *fiber.Ctx) error {
-		result, err := handler.Watch(c.FormValue("pkg"), c.FormValue("url"))
-		if err != nil {
-			return err
+		res := handler.Watch(c.FormValue("pkg"), c.FormValue("url"))
+		if res.Code >= 400 {
+			return c.Status(fiber.StatusInternalServerError).JSON(res)
 		}
-		return c.JSON(result)
+		return c.JSON(res)
 	})
 }
 
@@ -97,7 +97,7 @@ func GetContentDetail(app *fiber.App) fiber.Router {
 	return app.Get("/ext/detail", func(c *fiber.Ctx) error {
 		result, err := handler.Detail(c.FormValue("pkg"), c.FormValue("url"))
 		if err != nil {
-			return err
+			return c.Status(fiber.StatusInternalServerError).JSON(result)
 		}
 		return c.JSON(result)
 	})
@@ -107,10 +107,7 @@ func DownloadExtension(app *fiber.App) fiber.Router {
 	return app.Post("/download/extension", func(c *fiber.Ctx) error {
 		repoUrl := c.FormValue("repoUrl")
 		pkg := c.FormValue("pkg")
-		res, err := handler.DownloadExtension(repoUrl, pkg)
-		if err != nil {
-			return err
-		}
+		res := handler.DownloadExtension(repoUrl, pkg)
 		if res.Code >= 400 {
 			return c.Status(res.Code).JSON(res)
 		}

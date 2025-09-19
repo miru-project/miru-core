@@ -192,7 +192,7 @@ func (ext *Ext) ReloadExtension() error {
 // ReplaceClassExtendsDeclaration replaces `class X extends Extension` with `X = class extends Extension {`
 func ReplaceClassExtendsDeclaration(jsCode string) string {
 	re := regexp.MustCompile(`(?m)^.*class.+extends\s+Extension\s*{.*$`)
-	return re.ReplaceAllString(jsCode, "Ext = class extends Extension {")
+	return re.ReplaceAllString(jsCode, "globalThis.Ext = class extends Extension {")
 }
 
 func filterExts(dir string) []*Ext {

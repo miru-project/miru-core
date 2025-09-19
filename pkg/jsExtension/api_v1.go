@@ -34,7 +34,7 @@ func LoadApiV1(ext *Ext, baseScript string) {
 func (api *ExtApi) initEvalV1String() {
 	// Register  the async callback function for V1
 	api.asyncCallBack = AsyncCallBackV1[any]
-	api.latestEval = "ext.latest(%d)"
+	api.latestEval = "try{ext.latest(%d)}catch(e){errPrint(e);throw e}"
 	api.searchEval = "ext.search(%d, '%s', %s)"
 	api.detailEval = "ext.detail('%s')"
 	api.watchEval = "ext.watch('%s')"
@@ -79,13 +79,13 @@ func (api *ExtApi) InitV1Script(pkg string) error {
 			panic(e)
 		}
 		// eval extension program
-		if _, e := vm.RunString(ReplaceClassExtendsDeclaration(*api.Ext.Context)); e != nil {
+		if _, e := vm.RunProgram(api.service.program); e != nil {
 			log.Println("Error running extension script:", e)
 			panic(e)
 		}
 		// Initialize the Ext class
 		_, e := vm.RunString(fmt.Sprintf(`
-			ext = new Ext("%s");
+			ext = new globalThis.Ext("%s");
 			`, api.Ext.Website))
 
 		if e != nil {
@@ -96,6 +96,9 @@ func (api *ExtApi) InitV1Script(pkg string) error {
 			log.Println(args...)
 		})
 
+		vm.Set(`errPrint`, func(args ...any) {
+			log.Println(args...)
+		})
 		ser.createSingleChannel(vm, "jsRequest", &job, func(call goja.FunctionCall, resolve func(any) error) any {
 
 			url := call.Argument(0).ToString().String()
@@ -166,8 +169,7 @@ func AsyncCallBackV1[T any](api *ExtApi, pkg string, evalStr string) (T, error) 
 	// var runtime *goja.Runtime
 	loop.RunOnLoop(func(vm *goja.Runtime) {
 
-		o, e := vm.RunString(fmt.Sprintf(`
-		try{%s}catch(e){println(e);throw e}`, evalStr))
+		o, e := vm.RunString(evalStr)
 
 		if e != nil {
 			// This kind of error happens before the async function is called

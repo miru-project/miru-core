@@ -9,48 +9,48 @@ import (
 )
 
 // handle Latest when receiving a request
-func Latest(page string, pkg string) (*result.Result[any], error) {
+func Latest(page string, pkg string) *result.Result[any] {
 
 	intPage, err := strconv.Atoi(page)
 	if err != nil {
-		return result.NewErrorResult("Invalid page number", 400, nil), err
+		return result.NewErrorResult("Invalid page number", 400, nil)
 	}
 
 	res, e := jsExtension.Latest(pkg, intPage)
 
 	if res == nil && e != nil {
-		return result.NewErrorResult(e.Error(), 404, nil), nil
+		return result.NewErrorResult(e.Error(), 404, nil)
 	}
-	return result.NewSuccessResult(res), e
+	return result.NewSuccessResult(res)
 
 }
 
 // handle Search when receiving a request
-func Search(page string, pkg string, kw string, filter string) (*result.Result[any], error) {
+func Search(page string, pkg string, kw string, filter string) *result.Result[any] {
 
 	intPage, err := strconv.Atoi(page)
 	if err != nil {
-		return result.NewErrorResult("Invalid page number", 400, nil), err
+		return result.NewErrorResult("Invalid page number", 400, nil)
 	}
 
 	res, e := jsExtension.Search(pkg, intPage, kw, filter)
 
 	if res == nil {
-		return result.NewErrorResult(e.Error(), 404, nil), nil
+		return result.NewErrorResult(e.Error(), 404, nil)
 	}
-	return result.NewSuccessResult(res), e
+	return result.NewSuccessResult(res)
 
 }
 
 // handle Watch when receiving a request
-func Watch(pkg string, url string) (*result.Result[any], error) {
+func Watch(pkg string, url string) *result.Result[any] {
 
 	res, e := jsExtension.Watch(pkg, url)
 
 	if res == nil {
-		return result.NewErrorResult(e.Error(), 404, nil), nil
+		return result.NewErrorResult(e.Error(), 404, nil)
 	}
-	return result.NewSuccessResult(res), e
+	return result.NewSuccessResult(res)
 }
 
 // handle Detail when receiving a request
@@ -78,16 +78,16 @@ func GetExtensionRepo() ([]*ent.ExtensionRepo, error) {
 }
 
 // Download the extension by the given repository and package name
-func DownloadExtension(repoUrl string, pkg string) (*result.Result[any], error) {
+func DownloadExtension(repoUrl string, pkg string) *result.Result[any] {
 	if repoUrl == "" || pkg == "" {
-		return result.NewErrorResult("Repository URL and package name are required", 400, nil), nil
+		return result.NewErrorResult("Repository URL and package name are required", 400, nil)
 	}
 
 	if e := jsExtension.DownloadExtension(repoUrl, pkg); e != nil {
-		return result.NewErrorResult(e.Error(), 500, nil), nil
+		return result.NewErrorResult(e.Error(), 500, nil)
 	}
 
-	return result.NewSuccessResult("Extension download initiated successfully"), nil
+	return result.NewSuccessResult("Extension download initiated successfully")
 }
 
 // Remove  the extension repository by the given url

@@ -2,6 +2,7 @@ package jsExtension
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -37,10 +38,15 @@ func await[T any](promise *goja.Promise) (T, error) {
 
 		state := promise.State()
 		log.Println(state)
-		err := promise.Result().Export()
-		e := fmt.Errorf("%q", err)
+		res := promise.Result().(*goja.Object)
 
-		return dataOut, e
+		err := res.GetOwnPropertyNames()
+		errStr := "Js exception:"
+		for _, v := range err {
+			errStr += fmt.Sprintln(v, ":", res.Get(v).String())
+		}
+
+		return dataOut, errors.New(errStr)
 	}
 }
 
