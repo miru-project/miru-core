@@ -43,7 +43,7 @@ func InitProgram(configPath *string) {
 	ext.EntClient()
 	anilist.InitToken()
 	network.InitCookieJar()
-	jsext.InitRuntime(config.Global.ExtensionPath, f)
+	go jsext.InitRuntime(config.Global.ExtensionPath, f)
 	log.Println("Miru Core initialized successfully!")
 	app := fiber.New()
 
