@@ -9,13 +9,14 @@ import (
 // Config represents the application configuration
 type Config struct {
 	Database struct {
-		Driver   string `json:"driver"`
-		Host     string `json:"host"`
-		Port     int    `json:"port"`
-		User     string `json:"user"`
-		Password string `json:"password"`
-		DBName   string `json:"dbname"`
-		SSLMode  string `json:"sslmode"`
+		Driver         string `json:"driver"`
+		Host           string `json:"host"`
+		Port           int    `json:"port"`
+		User           string `json:"user"`
+		Password       string `json:"password"`
+		DBName         string `json:"dbname"`
+		SSLMode        string `json:"sslmode"`
+		CookieLocation string `json:"cookieLocation"`
 	} `json:"database"`
 	ExtensionPath string `json:"extensionPath"`
 	Debug         bool   `json:"debug"`

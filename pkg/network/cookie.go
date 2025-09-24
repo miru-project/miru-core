@@ -6,8 +6,10 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
+	"github.com/miru-project/miru-core/config"
 	"go.nhat.io/cookiejar"
 	"golang.org/x/net/publicsuffix"
 )
@@ -43,7 +45,11 @@ func GetCookies(u string) ([]*http.Cookie, error) {
 }
 
 func InitCookieJar() {
-	tempDir, e := os.MkdirTemp(os.TempDir(), "miru")
+	dir := os.TempDir()
+	if runtime.GOOS == "android" {
+		dir = config.Global.Database.CookieLocation
+	}
+	tempDir, e := os.MkdirTemp(dir, "miru")
 	if e != nil {
 		panic(e)
 	}
