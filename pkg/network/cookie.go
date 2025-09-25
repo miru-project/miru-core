@@ -2,6 +2,7 @@ package network
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -47,7 +48,8 @@ func GetCookies(u string) ([]*http.Cookie, error) {
 func InitCookieJar() {
 	dir := os.TempDir()
 	if runtime.GOOS == "android" {
-		dir = config.Global.Database.CookieLocation
+		dir = config.Global.CookieStoreLoc
+		log.Println("Running on Android, using cookie location:", dir)
 	}
 	tempDir, e := os.MkdirTemp(dir, "miru")
 	if e != nil {

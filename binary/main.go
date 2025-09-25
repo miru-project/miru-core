@@ -12,6 +12,7 @@ import (
 	jsext "github.com/miru-project/miru-core/pkg/jsExtension"
 	"github.com/miru-project/miru-core/pkg/network"
 	"github.com/miru-project/miru-core/router"
+	_ "golang.org/x/mobile/bind"
 )
 
 func InitProgram(configPath *string) {
