@@ -14,7 +14,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/miru-project/miru-core/ent/appsetting"
 	"github.com/miru-project/miru-core/ent/extension"
-	"github.com/miru-project/miru-core/ent/extensionrepo"
+	"github.com/miru-project/miru-core/ent/extensionreposetting"
+	"github.com/miru-project/miru-core/ent/extensionsetting"
 	"github.com/miru-project/miru-core/ent/favorite"
 	"github.com/miru-project/miru-core/ent/favoritegroup"
 	"github.com/miru-project/miru-core/ent/history"
@@ -78,12 +79,13 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			appsetting.Table:    appsetting.ValidColumn,
-			extension.Table:     extension.ValidColumn,
-			extensionrepo.Table: extensionrepo.ValidColumn,
-			favorite.Table:      favorite.ValidColumn,
-			favoritegroup.Table: favoritegroup.ValidColumn,
-			history.Table:       history.ValidColumn,
+			appsetting.Table:           appsetting.ValidColumn,
+			extension.Table:            extension.ValidColumn,
+			extensionreposetting.Table: extensionreposetting.ValidColumn,
+			extensionsetting.Table:     extensionsetting.ValidColumn,
+			favorite.Table:             favorite.ValidColumn,
+			favoritegroup.Table:        favoritegroup.ValidColumn,
+			history.Table:              history.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

@@ -2,12 +2,14 @@ package jsExtension
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"
 	errorhandle "github.com/miru-project/miru-core/errorHandle"
+	"github.com/miru-project/miru-core/pkg/db"
 	"github.com/miru-project/miru-core/pkg/network"
 )
 
@@ -33,14 +35,14 @@ func LoadApiV1(ext *Ext, baseScript string) {
 
 func (api *ExtApi) initEvalV1String() {
 	// Register  the async callback function for V1
-	api.asyncCallBack = AsyncCallBackV1[any]
-	api.latestEval = "try{ext.latest(%d)}catch(e){errPrint(e);throw e}"
+	api.asyncCallBack = AsyncCallBackV1
+	api.latestEval = "ext.latest(%d)"
 	api.searchEval = "ext.search(%d, '%s', %s)"
 	api.detailEval = "ext.detail('%s')"
 	api.watchEval = "ext.watch('%s')"
 }
 
-func (api *ExtApi) InitV1Script(pkg string) error {
+func (api *ExtApi) InitV1Script(pkg string) {
 
 	ApiPkgCache[pkg] = api
 	loop := eventloop.NewEventLoop(
@@ -48,11 +50,11 @@ func (api *ExtApi) InitV1Script(pkg string) error {
 	)
 
 	if api == nil || api.service.program == nil {
-		return fmt.Errorf("extension %s not found", pkg)
+		ApiPkgCache[pkg].Ext.Error = fmt.Sprintf("extension %s not found", pkg)
 	}
 	ser := api.service
-	res := make(chan PromiseResult)
-	defer close(res)
+	// res := make(chan PromiseResult)
+	// defer close(res)
 
 	// var runtime *goja.Runtime
 	loop.RunOnLoop(func(vm *goja.Runtime) {
@@ -61,7 +63,6 @@ func (api *ExtApi) InitV1Script(pkg string) error {
 			if r := recover(); r != nil {
 				if err, ok := r.(error); ok {
 					ApiPkgCache[pkg].Ext.Error = err.Error()
-					res <- PromiseResult{err: err}
 					return
 				}
 				log.Print("Unknown panic:", r)
@@ -96,16 +97,55 @@ func (api *ExtApi) InitV1Script(pkg string) error {
 			log.Println(args...)
 		})
 
-		vm.Set(`errPrint`, func(args ...any) {
-			log.Println(args...)
+		// vm.Set("registerSetting", )
+		vm.Set("registerSetting", func(call goja.FunctionCall) goja.Value {
+
+			val := call.Argument(0).ToObject(vm).Export()
+			value, ok := val.(map[string]any)
+			if !ok {
+				panic(vm.ToValue(errors.New("invalid setting object need map")))
+			}
+
+			e = db.RegisterSetting(value, pkg)
+			if e != nil {
+				panic(vm.ToValue(fmt.Errorf("error registering setting: %w", e)))
+			}
+			return vm.ToValue(nil)
 		})
+
+		vm.Set("getSetting", func(call goja.FunctionCall) goja.Value {
+			key := call.Argument(0).ToString().String()
+			setting, e := db.GetSetting(pkg, key)
+			if e != nil {
+				panic(vm.ToValue(errors.New("Error getting setting:" + e.Error())))
+			}
+			if setting == nil {
+				return nil
+			}
+			return vm.ToValue(setting.Value)
+		})
+
+		vm.Set("setSetting", func(call goja.FunctionCall) any {
+			pkg := call.Argument(0).ToString().String()
+			key := call.Argument(1).ToString().String()
+			value := call.Argument(2).ToString().String()
+			e := db.SetSetting(pkg, key, value)
+			if e != nil {
+				panic("Error setting setting:" + e.Error())
+			}
+			return nil
+		})
+
 		ser.createSingleChannel(vm, "jsRequest", &job, func(call goja.FunctionCall, resolve func(any) error) any {
 
 			url := call.Argument(0).ToString().String()
 			opt := call.Argument(1).ToObject(vm).Export()
 			var requestOptions network.RequestOptions
+			jsonData, e := json.Marshal(opt)
+			if e != nil {
+				panic("Error marshalling options to JSON:" + e.Error())
+			}
 
-			jsonData := errorhandle.HandleFatal(json.Marshal(opt))
 			if err := json.Unmarshal(jsonData, &requestOptions); err != nil {
 				panic("Error unmarshalling JSON:" + err.Error())
 			}
@@ -118,23 +158,14 @@ func (api *ExtApi) InitV1Script(pkg string) error {
 			return res
 		})
 
-		o, e := (vm.RunString(fmt.Sprintf(`
-		try{%s}catch(e){println(e);throw e}`, "ext.load()")))
-		handlePromise(o, res, e)
-
 	})
 	loop.Start()
 	defer loop.Stop()
 
-	result := <-res
 	extMemMap.Store(pkg, loop)
-	// handle error from PromiseResult{err: e}
-	if result.err != nil {
-		return result.err
+	if _, e := AsyncCallBackV1(api, pkg, "ext.load()"); e != nil {
+		ApiPkgCache[pkg].Ext.Error = e.Error()
 	}
-	// handle result when Promise has established
-	_, e := await[any](result.promise)
-	return e
 
 }
 
@@ -142,13 +173,13 @@ func handlePromise(o goja.Value, res chan PromiseResult, e error) {
 	if e != nil {
 		// This kind of error happens before the async function is called
 		res <- PromiseResult{err: e}
-	} else {
-		// Because it eval async funcion the value become a promise and send to channel
-		res <- PromiseResult{promise: o.Export().(*goja.Promise)}
+		return
 	}
+	// Because it eval async funcion the value become a promise and send to channel
+	res <- PromiseResult{promise: o.Export().(*goja.Promise)}
 }
 
-func AsyncCallBackV1[T any](api *ExtApi, pkg string, evalStr string) (T, error) {
+func AsyncCallBackV1(api *ExtApi, pkg string, evalStr string) (any, error) {
 	ApiPkgCache[pkg] = api
 
 	var loop *eventloop.EventLoop
@@ -164,33 +195,21 @@ func AsyncCallBackV1[T any](api *ExtApi, pkg string, evalStr string) (T, error) 
 	}
 
 	res := make(chan PromiseResult)
-	defer close(res)
 
-	// var runtime *goja.Runtime
 	loop.RunOnLoop(func(vm *goja.Runtime) {
-
 		o, e := vm.RunString(evalStr)
-
-		if e != nil {
-			// This kind of error happens before the async function is called
-			res <- PromiseResult{err: e}
-		} else {
-			// Because it eval async funcion the value become a promise and send to channel
-			res <- PromiseResult{promise: o.Export().(*goja.Promise)}
-		}
-
+		handlePromise(o, res, e)
 	})
-	loop.Start()
-	defer loop.Stop()
 
+	// Wait for the scheduled callback to send a result. We don't close `res`.
 	result := <-res
 	// handle error from PromiseResult{err: e}
 	if result.err != nil {
-		var zero T
+		var zero any
 		return zero, result.err
 	}
 	// handle result when Promise has established
-	o, e := await[T](result.promise)
+	o, e := await(result.promise)
 	return o, e
 
 }

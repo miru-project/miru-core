@@ -30,17 +30,42 @@ var (
 		Columns:    ExtensionsColumns,
 		PrimaryKey: []*schema.Column{ExtensionsColumns[0]},
 	}
-	// ExtensionReposColumns holds the columns for the "extension_repos" table.
-	ExtensionReposColumns = []*schema.Column{
+	// ExtensionRepoSettingsColumns holds the columns for the "extension_repo_settings" table.
+	ExtensionRepoSettingsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "url", Type: field.TypeString, Unique: true},
+		{Name: "link", Type: field.TypeString, Unique: true},
 		{Name: "name", Type: field.TypeString},
 	}
-	// ExtensionReposTable holds the schema information for the "extension_repos" table.
-	ExtensionReposTable = &schema.Table{
-		Name:       "extension_repos",
-		Columns:    ExtensionReposColumns,
-		PrimaryKey: []*schema.Column{ExtensionReposColumns[0]},
+	// ExtensionRepoSettingsTable holds the schema information for the "extension_repo_settings" table.
+	ExtensionRepoSettingsTable = &schema.Table{
+		Name:       "extension_repo_settings",
+		Columns:    ExtensionRepoSettingsColumns,
+		PrimaryKey: []*schema.Column{ExtensionRepoSettingsColumns[0]},
+	}
+	// ExtensionSettingsColumns holds the columns for the "extension_settings" table.
+	ExtensionSettingsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "package", Type: field.TypeString},
+		{Name: "title", Type: field.TypeString},
+		{Name: "key", Type: field.TypeString},
+		{Name: "value", Type: field.TypeString, Nullable: true},
+		{Name: "default_value", Type: field.TypeString, Default: ""},
+		{Name: "db_type", Type: field.TypeEnum, Enums: []string{"input", "radio", "toggle"}, Default: "input"},
+		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "options", Type: field.TypeString, Nullable: true},
+	}
+	// ExtensionSettingsTable holds the schema information for the "extension_settings" table.
+	ExtensionSettingsTable = &schema.Table{
+		Name:       "extension_settings",
+		Columns:    ExtensionSettingsColumns,
+		PrimaryKey: []*schema.Column{ExtensionSettingsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "idx_extension_setting_package_key",
+				Unique:  true,
+				Columns: []*schema.Column{ExtensionSettingsColumns[1], ExtensionSettingsColumns[3]},
+			},
+		},
 	}
 	// FavoritesColumns holds the columns for the "favorites" table.
 	FavoritesColumns = []*schema.Column{
@@ -141,7 +166,8 @@ var (
 	Tables = []*schema.Table{
 		AppSettingsTable,
 		ExtensionsTable,
-		ExtensionReposTable,
+		ExtensionRepoSettingsTable,
+		ExtensionSettingsTable,
 		FavoritesTable,
 		FavoriteGroupsTable,
 		HistoriesTable,

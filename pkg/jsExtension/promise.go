@@ -13,9 +13,9 @@ import (
 
 // Create a go routine that check Promise is fulfilled or rejected
 // and return the result
-func await[T any](promise *goja.Promise) (T, error) {
+func await(promise *goja.Promise) (any, error) {
 	done := make(chan int)
-	var dataOut T
+	var dataOut any
 	go func() {
 		defer close(done)
 

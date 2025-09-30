@@ -8,29 +8,29 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/miru-project/miru-core/ent/extensionrepo"
+	"github.com/miru-project/miru-core/ent/extensionreposetting"
 )
 
-// ExtensionRepo is the model entity for the ExtensionRepo schema.
-type ExtensionRepo struct {
+// ExtensionRepoSetting is the model entity for the ExtensionRepoSetting schema.
+type ExtensionRepoSetting struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
 	// The URL of the extension repository
-	URL string `json:"url,omitempty"`
+	Link string `json:"link,omitempty"`
 	// The name of the extension repository
 	Name         string `json:"name,omitempty"`
 	selectValues sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*ExtensionRepo) scanValues(columns []string) ([]any, error) {
+func (*ExtensionRepoSetting) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case extensionrepo.FieldID:
+		case extensionreposetting.FieldID:
 			values[i] = new(sql.NullInt64)
-		case extensionrepo.FieldURL, extensionrepo.FieldName:
+		case extensionreposetting.FieldLink, extensionreposetting.FieldName:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -40,26 +40,26 @@ func (*ExtensionRepo) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the ExtensionRepo fields.
-func (_m *ExtensionRepo) assignValues(columns []string, values []any) error {
+// to the ExtensionRepoSetting fields.
+func (_m *ExtensionRepoSetting) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case extensionrepo.FieldID:
+		case extensionreposetting.FieldID:
 			value, ok := values[i].(*sql.NullInt64)
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = int(value.Int64)
-		case extensionrepo.FieldURL:
+		case extensionreposetting.FieldLink:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field url", values[i])
+				return fmt.Errorf("unexpected type %T for field link", values[i])
 			} else if value.Valid {
-				_m.URL = value.String
+				_m.Link = value.String
 			}
-		case extensionrepo.FieldName:
+		case extensionreposetting.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
@@ -72,37 +72,37 @@ func (_m *ExtensionRepo) assignValues(columns []string, values []any) error {
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the ExtensionRepo.
+// Value returns the ent.Value that was dynamically selected and assigned to the ExtensionRepoSetting.
 // This includes values selected through modifiers, order, etc.
-func (_m *ExtensionRepo) Value(name string) (ent.Value, error) {
+func (_m *ExtensionRepoSetting) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// Update returns a builder for updating this ExtensionRepo.
-// Note that you need to call ExtensionRepo.Unwrap() before calling this method if this ExtensionRepo
+// Update returns a builder for updating this ExtensionRepoSetting.
+// Note that you need to call ExtensionRepoSetting.Unwrap() before calling this method if this ExtensionRepoSetting
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (_m *ExtensionRepo) Update() *ExtensionRepoUpdateOne {
-	return NewExtensionRepoClient(_m.config).UpdateOne(_m)
+func (_m *ExtensionRepoSetting) Update() *ExtensionRepoSettingUpdateOne {
+	return NewExtensionRepoSettingClient(_m.config).UpdateOne(_m)
 }
 
-// Unwrap unwraps the ExtensionRepo entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the ExtensionRepoSetting entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (_m *ExtensionRepo) Unwrap() *ExtensionRepo {
+func (_m *ExtensionRepoSetting) Unwrap() *ExtensionRepoSetting {
 	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: ExtensionRepo is not a transactional entity")
+		panic("ent: ExtensionRepoSetting is not a transactional entity")
 	}
 	_m.config.driver = _tx.drv
 	return _m
 }
 
 // String implements the fmt.Stringer.
-func (_m *ExtensionRepo) String() string {
+func (_m *ExtensionRepoSetting) String() string {
 	var builder strings.Builder
-	builder.WriteString("ExtensionRepo(")
+	builder.WriteString("ExtensionRepoSetting(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
-	builder.WriteString("url=")
-	builder.WriteString(_m.URL)
+	builder.WriteString("link=")
+	builder.WriteString(_m.Link)
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
@@ -110,5 +110,5 @@ func (_m *ExtensionRepo) String() string {
 	return builder.String()
 }
 
-// ExtensionRepos is a parsable slice of ExtensionRepo.
-type ExtensionRepos []*ExtensionRepo
+// ExtensionRepoSettings is a parsable slice of ExtensionRepoSetting.
+type ExtensionRepoSettings []*ExtensionRepoSetting

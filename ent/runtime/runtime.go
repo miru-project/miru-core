@@ -2,7 +2,141 @@
 
 package runtime
 
-// The schema-stitching logic is generated in github.com/miru-project/miru-core/ent/runtime.go
+import (
+	"time"
+
+	"github.com/miru-project/miru-core/ent/appsetting"
+	"github.com/miru-project/miru-core/ent/extensionreposetting"
+	"github.com/miru-project/miru-core/ent/extensionsetting"
+	"github.com/miru-project/miru-core/ent/favorite"
+	"github.com/miru-project/miru-core/ent/favoritegroup"
+	"github.com/miru-project/miru-core/ent/history"
+	"github.com/miru-project/miru-core/ent/schema"
+)
+
+// The init function reads all schema descriptors with runtime code
+// (default values, validators, hooks and policies) and stitches it
+// to their package variables.
+func init() {
+	appsettingFields := schema.AppSetting{}.Fields()
+	_ = appsettingFields
+	// appsettingDescKey is the schema descriptor for key field.
+	appsettingDescKey := appsettingFields[0].Descriptor()
+	// appsetting.KeyValidator is a validator for the "key" field. It is called by the builders before save.
+	appsetting.KeyValidator = appsettingDescKey.Validators[0].(func(string) error)
+	extensionreposettingHooks := schema.ExtensionRepoSetting{}.Hooks()
+	extensionreposetting.Hooks[0] = extensionreposettingHooks[0]
+	extensionreposettingFields := schema.ExtensionRepoSetting{}.Fields()
+	_ = extensionreposettingFields
+	// extensionreposettingDescLink is the schema descriptor for link field.
+	extensionreposettingDescLink := extensionreposettingFields[0].Descriptor()
+	// extensionreposetting.LinkValidator is a validator for the "link" field. It is called by the builders before save.
+	extensionreposetting.LinkValidator = extensionreposettingDescLink.Validators[0].(func(string) error)
+	// extensionreposettingDescName is the schema descriptor for name field.
+	extensionreposettingDescName := extensionreposettingFields[1].Descriptor()
+	// extensionreposetting.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	extensionreposetting.NameValidator = extensionreposettingDescName.Validators[0].(func(string) error)
+	extensionsettingHooks := schema.ExtensionSetting{}.Hooks()
+	extensionsetting.Hooks[0] = extensionsettingHooks[0]
+	extensionsettingFields := schema.ExtensionSetting{}.Fields()
+	_ = extensionsettingFields
+	// extensionsettingDescPackage is the schema descriptor for package field.
+	extensionsettingDescPackage := extensionsettingFields[0].Descriptor()
+	// extensionsetting.PackageValidator is a validator for the "package" field. It is called by the builders before save.
+	extensionsetting.PackageValidator = extensionsettingDescPackage.Validators[0].(func(string) error)
+	// extensionsettingDescTitle is the schema descriptor for title field.
+	extensionsettingDescTitle := extensionsettingFields[1].Descriptor()
+	// extensionsetting.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	extensionsetting.TitleValidator = extensionsettingDescTitle.Validators[0].(func(string) error)
+	// extensionsettingDescKey is the schema descriptor for key field.
+	extensionsettingDescKey := extensionsettingFields[2].Descriptor()
+	// extensionsetting.KeyValidator is a validator for the "key" field. It is called by the builders before save.
+	extensionsetting.KeyValidator = extensionsettingDescKey.Validators[0].(func(string) error)
+	// extensionsettingDescDefaultValue is the schema descriptor for default_value field.
+	extensionsettingDescDefaultValue := extensionsettingFields[4].Descriptor()
+	// extensionsetting.DefaultDefaultValue holds the default value on creation for the default_value field.
+	extensionsetting.DefaultDefaultValue = extensionsettingDescDefaultValue.Default.(string)
+	// extensionsetting.DefaultValueValidator is a validator for the "default_value" field. It is called by the builders before save.
+	extensionsetting.DefaultValueValidator = extensionsettingDescDefaultValue.Validators[0].(func(string) error)
+	favoriteFields := schema.Favorite{}.Fields()
+	_ = favoriteFields
+	// favoriteDescPackage is the schema descriptor for package field.
+	favoriteDescPackage := favoriteFields[1].Descriptor()
+	// favorite.PackageValidator is a validator for the "package" field. It is called by the builders before save.
+	favorite.PackageValidator = favoriteDescPackage.Validators[0].(func(string) error)
+	// favoriteDescURL is the schema descriptor for url field.
+	favoriteDescURL := favoriteFields[2].Descriptor()
+	// favorite.URLValidator is a validator for the "url" field. It is called by the builders before save.
+	favorite.URLValidator = favoriteDescURL.Validators[0].(func(string) error)
+	// favoriteDescType is the schema descriptor for type field.
+	favoriteDescType := favoriteFields[3].Descriptor()
+	// favorite.TypeValidator is a validator for the "type" field. It is called by the builders before save.
+	favorite.TypeValidator = favoriteDescType.Validators[0].(func(string) error)
+	// favoriteDescTitle is the schema descriptor for title field.
+	favoriteDescTitle := favoriteFields[4].Descriptor()
+	// favorite.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	favorite.TitleValidator = favoriteDescTitle.Validators[0].(func(string) error)
+	// favoriteDescDate is the schema descriptor for date field.
+	favoriteDescDate := favoriteFields[6].Descriptor()
+	// favorite.DefaultDate holds the default value on creation for the date field.
+	favorite.DefaultDate = favoriteDescDate.Default.(func() time.Time)
+	// favoriteDescID is the schema descriptor for id field.
+	favoriteDescID := favoriteFields[0].Descriptor()
+	// favorite.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	favorite.IDValidator = favoriteDescID.Validators[0].(func(int) error)
+	favoritegroupFields := schema.FavoriteGroup{}.Fields()
+	_ = favoritegroupFields
+	// favoritegroupDescName is the schema descriptor for name field.
+	favoritegroupDescName := favoritegroupFields[1].Descriptor()
+	// favoritegroup.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	favoritegroup.NameValidator = favoritegroupDescName.Validators[0].(func(string) error)
+	// favoritegroupDescDate is the schema descriptor for date field.
+	favoritegroupDescDate := favoritegroupFields[2].Descriptor()
+	// favoritegroup.DefaultDate holds the default value on creation for the date field.
+	favoritegroup.DefaultDate = favoritegroupDescDate.Default.(func() time.Time)
+	// favoritegroupDescID is the schema descriptor for id field.
+	favoritegroupDescID := favoritegroupFields[0].Descriptor()
+	// favoritegroup.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	favoritegroup.IDValidator = favoritegroupDescID.Validators[0].(func(int) error)
+	historyFields := schema.History{}.Fields()
+	_ = historyFields
+	// historyDescPackage is the schema descriptor for package field.
+	historyDescPackage := historyFields[1].Descriptor()
+	// history.PackageValidator is a validator for the "package" field. It is called by the builders before save.
+	history.PackageValidator = historyDescPackage.Validators[0].(func(string) error)
+	// historyDescURL is the schema descriptor for url field.
+	historyDescURL := historyFields[2].Descriptor()
+	// history.URLValidator is a validator for the "url" field. It is called by the builders before save.
+	history.URLValidator = historyDescURL.Validators[0].(func(string) error)
+	// historyDescType is the schema descriptor for type field.
+	historyDescType := historyFields[4].Descriptor()
+	// history.TypeValidator is a validator for the "type" field. It is called by the builders before save.
+	history.TypeValidator = historyDescType.Validators[0].(func(string) error)
+	// historyDescTitle is the schema descriptor for title field.
+	historyDescTitle := historyFields[7].Descriptor()
+	// history.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	history.TitleValidator = historyDescTitle.Validators[0].(func(string) error)
+	// historyDescEpisodeTitle is the schema descriptor for episode_title field.
+	historyDescEpisodeTitle := historyFields[8].Descriptor()
+	// history.EpisodeTitleValidator is a validator for the "episode_title" field. It is called by the builders before save.
+	history.EpisodeTitleValidator = historyDescEpisodeTitle.Validators[0].(func(string) error)
+	// historyDescProgress is the schema descriptor for progress field.
+	historyDescProgress := historyFields[9].Descriptor()
+	// history.ProgressValidator is a validator for the "progress" field. It is called by the builders before save.
+	history.ProgressValidator = historyDescProgress.Validators[0].(func(string) error)
+	// historyDescTotalProgress is the schema descriptor for total_progress field.
+	historyDescTotalProgress := historyFields[10].Descriptor()
+	// history.TotalProgressValidator is a validator for the "total_progress" field. It is called by the builders before save.
+	history.TotalProgressValidator = historyDescTotalProgress.Validators[0].(func(string) error)
+	// historyDescDate is the schema descriptor for date field.
+	historyDescDate := historyFields[11].Descriptor()
+	// history.DefaultDate holds the default value on creation for the date field.
+	history.DefaultDate = historyDescDate.Default.(func() time.Time)
+	// historyDescID is the schema descriptor for id field.
+	historyDescID := historyFields[0].Descriptor()
+	// history.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	history.IDValidator = historyDescID.Validators[0].(func(int) error)
+}
 
 const (
 	Version = "v0.14.5"                                         // Version of ent codegen.

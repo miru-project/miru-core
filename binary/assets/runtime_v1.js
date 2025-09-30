@@ -107,7 +107,7 @@ class Extension {
     if (options.headers["Miru-Url"]) {
       delete options.headers["Miru-Url"];
     }
-    const res = await jsRequest(miruUrl + url,options);
+    const res = await jsRequest(miruUrl + url, options);
     try {
       return JSON.parse(res);
     } catch (e) {
@@ -121,7 +121,7 @@ class Extension {
   queryXPath(content, selector) {
     return new XPathNode(content, selector, this.extension);
   }
-   async querySelectorAll(content, selector) {
+  async querySelectorAll(content, selector) {
     const { document } = parseHTML(content);
     const nodes = document.querySelectorAll(selector);
     let elements = [];
@@ -170,13 +170,17 @@ class Extension {
   }
 
   async getSetting(key) {
-    return sendMessage("getSetting"+this.extension.className, JSON.stringify([key]));
+    return getSetting(key);
   }
 
   async registerSetting(settings) {
-    console.log(JSON.stringify([settings]));
-    this.settingKeys.push(settings.key);
-    return sendMessage(`registerSetting${this.extension.className}`, JSON.stringify([settings]));
+    console.log("Register setting:", settings);
+    // this.settingKeys.push(settings.key);
+    return await registerSetting(settings);
+  }
+
+  async setSetting(key, value) {
+
   }
 
   async load() { }

@@ -26,7 +26,7 @@ func LoadApiV2(ext *Ext, script string) {
 }
 func (api *ExtApi) initEvalV2String() {
 	// Register  the async callback function for V2
-	api.asyncCallBack = AsyncCallBackV2[any]
+	api.asyncCallBack = AsyncCallBackV2
 	api.latestEval = "latest(%d)"
 	api.searchEval = "search(%d, '%s', %s)"
 	api.detailEval = "detail('%s')"
@@ -34,7 +34,7 @@ func (api *ExtApi) initEvalV2String() {
 }
 
 // Handle any extension async callback like latest, search, watch etc
-func AsyncCallBackV2[T any](api *ExtApi, pkg string, evalStr string) (T, error) {
+func AsyncCallBackV2(api *ExtApi, pkg string, evalStr string) (any, error) {
 	ApiPkgCache[pkg] = api
 
 	var loop *eventloop.EventLoop
@@ -51,7 +51,7 @@ func AsyncCallBackV2[T any](api *ExtApi, pkg string, evalStr string) (T, error) 
 	}
 
 	if api == nil || api.service.program == nil {
-		return *new(T), fmt.Errorf("extension %s not found", pkg)
+		return *new(any), fmt.Errorf("extension %s not found", pkg)
 	}
 	ser := api.service
 	res := make(chan PromiseResult)
@@ -110,11 +110,11 @@ func AsyncCallBackV2[T any](api *ExtApi, pkg string, evalStr string) (T, error) 
 	result := <-res
 	// handle error from PromiseResult{err: e}
 	if result.err != nil {
-		var zero T
+		var zero any
 		return zero, result.err
 	}
 	// handle result when Promise has established
-	o, e := await[T](result.promise)
+	o, e := await(result.promise)
 	return o, e
 
 }

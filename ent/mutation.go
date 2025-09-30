@@ -12,7 +12,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/miru-project/miru-core/ent/appsetting"
-	"github.com/miru-project/miru-core/ent/extensionrepo"
+	"github.com/miru-project/miru-core/ent/extensionreposetting"
+	"github.com/miru-project/miru-core/ent/extensionsetting"
 	"github.com/miru-project/miru-core/ent/favorite"
 	"github.com/miru-project/miru-core/ent/favoritegroup"
 	"github.com/miru-project/miru-core/ent/history"
@@ -28,12 +29,13 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeAppSetting    = "AppSetting"
-	TypeExtension     = "Extension"
-	TypeExtensionRepo = "ExtensionRepo"
-	TypeFavorite      = "Favorite"
-	TypeFavoriteGroup = "FavoriteGroup"
-	TypeHistory       = "History"
+	TypeAppSetting           = "AppSetting"
+	TypeExtension            = "Extension"
+	TypeExtensionRepoSetting = "ExtensionRepoSetting"
+	TypeExtensionSetting     = "ExtensionSetting"
+	TypeFavorite             = "Favorite"
+	TypeFavoriteGroup        = "FavoriteGroup"
+	TypeHistory              = "History"
 )
 
 // AppSettingMutation represents an operation that mutates the AppSetting nodes in the graph.
@@ -680,31 +682,31 @@ func (m *ExtensionMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Extension edge %s", name)
 }
 
-// ExtensionRepoMutation represents an operation that mutates the ExtensionRepo nodes in the graph.
-type ExtensionRepoMutation struct {
+// ExtensionRepoSettingMutation represents an operation that mutates the ExtensionRepoSetting nodes in the graph.
+type ExtensionRepoSettingMutation struct {
 	config
 	op            Op
 	typ           string
 	id            *int
-	url           *string
+	link          *string
 	name          *string
 	clearedFields map[string]struct{}
 	done          bool
-	oldValue      func(context.Context) (*ExtensionRepo, error)
-	predicates    []predicate.ExtensionRepo
+	oldValue      func(context.Context) (*ExtensionRepoSetting, error)
+	predicates    []predicate.ExtensionRepoSetting
 }
 
-var _ ent.Mutation = (*ExtensionRepoMutation)(nil)
+var _ ent.Mutation = (*ExtensionRepoSettingMutation)(nil)
 
-// extensionrepoOption allows management of the mutation configuration using functional options.
-type extensionrepoOption func(*ExtensionRepoMutation)
+// extensionreposettingOption allows management of the mutation configuration using functional options.
+type extensionreposettingOption func(*ExtensionRepoSettingMutation)
 
-// newExtensionRepoMutation creates new mutation for the ExtensionRepo entity.
-func newExtensionRepoMutation(c config, op Op, opts ...extensionrepoOption) *ExtensionRepoMutation {
-	m := &ExtensionRepoMutation{
+// newExtensionRepoSettingMutation creates new mutation for the ExtensionRepoSetting entity.
+func newExtensionRepoSettingMutation(c config, op Op, opts ...extensionreposettingOption) *ExtensionRepoSettingMutation {
+	m := &ExtensionRepoSettingMutation{
 		config:        c,
 		op:            op,
-		typ:           TypeExtensionRepo,
+		typ:           TypeExtensionRepoSetting,
 		clearedFields: make(map[string]struct{}),
 	}
 	for _, opt := range opts {
@@ -713,20 +715,20 @@ func newExtensionRepoMutation(c config, op Op, opts ...extensionrepoOption) *Ext
 	return m
 }
 
-// withExtensionRepoID sets the ID field of the mutation.
-func withExtensionRepoID(id int) extensionrepoOption {
-	return func(m *ExtensionRepoMutation) {
+// withExtensionRepoSettingID sets the ID field of the mutation.
+func withExtensionRepoSettingID(id int) extensionreposettingOption {
+	return func(m *ExtensionRepoSettingMutation) {
 		var (
 			err   error
 			once  sync.Once
-			value *ExtensionRepo
+			value *ExtensionRepoSetting
 		)
-		m.oldValue = func(ctx context.Context) (*ExtensionRepo, error) {
+		m.oldValue = func(ctx context.Context) (*ExtensionRepoSetting, error) {
 			once.Do(func() {
 				if m.done {
 					err = errors.New("querying old values post mutation is not allowed")
 				} else {
-					value, err = m.Client().ExtensionRepo.Get(ctx, id)
+					value, err = m.Client().ExtensionRepoSetting.Get(ctx, id)
 				}
 			})
 			return value, err
@@ -735,10 +737,10 @@ func withExtensionRepoID(id int) extensionrepoOption {
 	}
 }
 
-// withExtensionRepo sets the old ExtensionRepo of the mutation.
-func withExtensionRepo(node *ExtensionRepo) extensionrepoOption {
-	return func(m *ExtensionRepoMutation) {
-		m.oldValue = func(context.Context) (*ExtensionRepo, error) {
+// withExtensionRepoSetting sets the old ExtensionRepoSetting of the mutation.
+func withExtensionRepoSetting(node *ExtensionRepoSetting) extensionreposettingOption {
+	return func(m *ExtensionRepoSettingMutation) {
+		m.oldValue = func(context.Context) (*ExtensionRepoSetting, error) {
 			return node, nil
 		}
 		m.id = &node.ID
@@ -747,7 +749,7 @@ func withExtensionRepo(node *ExtensionRepo) extensionrepoOption {
 
 // Client returns a new `ent.Client` from the mutation. If the mutation was
 // executed in a transaction (ent.Tx), a transactional client is returned.
-func (m ExtensionRepoMutation) Client() *Client {
+func (m ExtensionRepoSettingMutation) Client() *Client {
 	client := &Client{config: m.config}
 	client.init()
 	return client
@@ -755,7 +757,7 @@ func (m ExtensionRepoMutation) Client() *Client {
 
 // Tx returns an `ent.Tx` for mutations that were executed in transactions;
 // it returns an error otherwise.
-func (m ExtensionRepoMutation) Tx() (*Tx, error) {
+func (m ExtensionRepoSettingMutation) Tx() (*Tx, error) {
 	if _, ok := m.driver.(*txDriver); !ok {
 		return nil, errors.New("ent: mutation is not running in a transaction")
 	}
@@ -766,7 +768,7 @@ func (m ExtensionRepoMutation) Tx() (*Tx, error) {
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *ExtensionRepoMutation) ID() (id int, exists bool) {
+func (m *ExtensionRepoSettingMutation) ID() (id int, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -777,7 +779,7 @@ func (m *ExtensionRepoMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *ExtensionRepoMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *ExtensionRepoSettingMutation) IDs(ctx context.Context) ([]int, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
@@ -786,55 +788,55 @@ func (m *ExtensionRepoMutation) IDs(ctx context.Context) ([]int, error) {
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().ExtensionRepo.Query().Where(m.predicates...).IDs(ctx)
+		return m.Client().ExtensionRepoSetting.Query().Where(m.predicates...).IDs(ctx)
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
 }
 
-// SetURL sets the "url" field.
-func (m *ExtensionRepoMutation) SetURL(s string) {
-	m.url = &s
+// SetLink sets the "link" field.
+func (m *ExtensionRepoSettingMutation) SetLink(s string) {
+	m.link = &s
 }
 
-// URL returns the value of the "url" field in the mutation.
-func (m *ExtensionRepoMutation) URL() (r string, exists bool) {
-	v := m.url
+// Link returns the value of the "link" field in the mutation.
+func (m *ExtensionRepoSettingMutation) Link() (r string, exists bool) {
+	v := m.link
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldURL returns the old "url" field's value of the ExtensionRepo entity.
-// If the ExtensionRepo object wasn't provided to the builder, the object is fetched from the database.
+// OldLink returns the old "link" field's value of the ExtensionRepoSetting entity.
+// If the ExtensionRepoSetting object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ExtensionRepoMutation) OldURL(ctx context.Context) (v string, err error) {
+func (m *ExtensionRepoSettingMutation) OldLink(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldURL is only allowed on UpdateOne operations")
+		return v, errors.New("OldLink is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldURL requires an ID field in the mutation")
+		return v, errors.New("OldLink requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldURL: %w", err)
+		return v, fmt.Errorf("querying old value for OldLink: %w", err)
 	}
-	return oldValue.URL, nil
+	return oldValue.Link, nil
 }
 
-// ResetURL resets all changes to the "url" field.
-func (m *ExtensionRepoMutation) ResetURL() {
-	m.url = nil
+// ResetLink resets all changes to the "link" field.
+func (m *ExtensionRepoSettingMutation) ResetLink() {
+	m.link = nil
 }
 
 // SetName sets the "name" field.
-func (m *ExtensionRepoMutation) SetName(s string) {
+func (m *ExtensionRepoSettingMutation) SetName(s string) {
 	m.name = &s
 }
 
 // Name returns the value of the "name" field in the mutation.
-func (m *ExtensionRepoMutation) Name() (r string, exists bool) {
+func (m *ExtensionRepoSettingMutation) Name() (r string, exists bool) {
 	v := m.name
 	if v == nil {
 		return
@@ -842,10 +844,10 @@ func (m *ExtensionRepoMutation) Name() (r string, exists bool) {
 	return *v, true
 }
 
-// OldName returns the old "name" field's value of the ExtensionRepo entity.
-// If the ExtensionRepo object wasn't provided to the builder, the object is fetched from the database.
+// OldName returns the old "name" field's value of the ExtensionRepoSetting entity.
+// If the ExtensionRepoSetting object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *ExtensionRepoMutation) OldName(ctx context.Context) (v string, err error) {
+func (m *ExtensionRepoSettingMutation) OldName(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldName is only allowed on UpdateOne operations")
 	}
@@ -860,19 +862,19 @@ func (m *ExtensionRepoMutation) OldName(ctx context.Context) (v string, err erro
 }
 
 // ResetName resets all changes to the "name" field.
-func (m *ExtensionRepoMutation) ResetName() {
+func (m *ExtensionRepoSettingMutation) ResetName() {
 	m.name = nil
 }
 
-// Where appends a list predicates to the ExtensionRepoMutation builder.
-func (m *ExtensionRepoMutation) Where(ps ...predicate.ExtensionRepo) {
+// Where appends a list predicates to the ExtensionRepoSettingMutation builder.
+func (m *ExtensionRepoSettingMutation) Where(ps ...predicate.ExtensionRepoSetting) {
 	m.predicates = append(m.predicates, ps...)
 }
 
-// WhereP appends storage-level predicates to the ExtensionRepoMutation builder. Using this method,
+// WhereP appends storage-level predicates to the ExtensionRepoSettingMutation builder. Using this method,
 // users can use type-assertion to append predicates that do not depend on any generated package.
-func (m *ExtensionRepoMutation) WhereP(ps ...func(*sql.Selector)) {
-	p := make([]predicate.ExtensionRepo, len(ps))
+func (m *ExtensionRepoSettingMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.ExtensionRepoSetting, len(ps))
 	for i := range ps {
 		p[i] = ps[i]
 	}
@@ -880,30 +882,30 @@ func (m *ExtensionRepoMutation) WhereP(ps ...func(*sql.Selector)) {
 }
 
 // Op returns the operation name.
-func (m *ExtensionRepoMutation) Op() Op {
+func (m *ExtensionRepoSettingMutation) Op() Op {
 	return m.op
 }
 
 // SetOp allows setting the mutation operation.
-func (m *ExtensionRepoMutation) SetOp(op Op) {
+func (m *ExtensionRepoSettingMutation) SetOp(op Op) {
 	m.op = op
 }
 
-// Type returns the node type of this mutation (ExtensionRepo).
-func (m *ExtensionRepoMutation) Type() string {
+// Type returns the node type of this mutation (ExtensionRepoSetting).
+func (m *ExtensionRepoSettingMutation) Type() string {
 	return m.typ
 }
 
 // Fields returns all fields that were changed during this mutation. Note that in
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
-func (m *ExtensionRepoMutation) Fields() []string {
+func (m *ExtensionRepoSettingMutation) Fields() []string {
 	fields := make([]string, 0, 2)
-	if m.url != nil {
-		fields = append(fields, extensionrepo.FieldURL)
+	if m.link != nil {
+		fields = append(fields, extensionreposetting.FieldLink)
 	}
 	if m.name != nil {
-		fields = append(fields, extensionrepo.FieldName)
+		fields = append(fields, extensionreposetting.FieldName)
 	}
 	return fields
 }
@@ -911,11 +913,11 @@ func (m *ExtensionRepoMutation) Fields() []string {
 // Field returns the value of a field with the given name. The second boolean
 // return value indicates that this field was not set, or was not defined in the
 // schema.
-func (m *ExtensionRepoMutation) Field(name string) (ent.Value, bool) {
+func (m *ExtensionRepoSettingMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case extensionrepo.FieldURL:
-		return m.URL()
-	case extensionrepo.FieldName:
+	case extensionreposetting.FieldLink:
+		return m.Link()
+	case extensionreposetting.FieldName:
 		return m.Name()
 	}
 	return nil, false
@@ -924,29 +926,29 @@ func (m *ExtensionRepoMutation) Field(name string) (ent.Value, bool) {
 // OldField returns the old value of the field from the database. An error is
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
-func (m *ExtensionRepoMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+func (m *ExtensionRepoSettingMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case extensionrepo.FieldURL:
-		return m.OldURL(ctx)
-	case extensionrepo.FieldName:
+	case extensionreposetting.FieldLink:
+		return m.OldLink(ctx)
+	case extensionreposetting.FieldName:
 		return m.OldName(ctx)
 	}
-	return nil, fmt.Errorf("unknown ExtensionRepo field %s", name)
+	return nil, fmt.Errorf("unknown ExtensionRepoSetting field %s", name)
 }
 
 // SetField sets the value of a field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *ExtensionRepoMutation) SetField(name string, value ent.Value) error {
+func (m *ExtensionRepoSettingMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case extensionrepo.FieldURL:
+	case extensionreposetting.FieldLink:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetURL(v)
+		m.SetLink(v)
 		return nil
-	case extensionrepo.FieldName:
+	case extensionreposetting.FieldName:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
@@ -954,110 +956,874 @@ func (m *ExtensionRepoMutation) SetField(name string, value ent.Value) error {
 		m.SetName(v)
 		return nil
 	}
-	return fmt.Errorf("unknown ExtensionRepo field %s", name)
+	return fmt.Errorf("unknown ExtensionRepoSetting field %s", name)
 }
 
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
-func (m *ExtensionRepoMutation) AddedFields() []string {
+func (m *ExtensionRepoSettingMutation) AddedFields() []string {
 	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
-func (m *ExtensionRepoMutation) AddedField(name string) (ent.Value, bool) {
+func (m *ExtensionRepoSettingMutation) AddedField(name string) (ent.Value, bool) {
 	return nil, false
 }
 
 // AddField adds the value to the field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *ExtensionRepoMutation) AddField(name string, value ent.Value) error {
+func (m *ExtensionRepoSettingMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	}
-	return fmt.Errorf("unknown ExtensionRepo numeric field %s", name)
+	return fmt.Errorf("unknown ExtensionRepoSetting numeric field %s", name)
 }
 
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
-func (m *ExtensionRepoMutation) ClearedFields() []string {
+func (m *ExtensionRepoSettingMutation) ClearedFields() []string {
 	return nil
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
 // cleared in this mutation.
-func (m *ExtensionRepoMutation) FieldCleared(name string) bool {
+func (m *ExtensionRepoSettingMutation) FieldCleared(name string) bool {
 	_, ok := m.clearedFields[name]
 	return ok
 }
 
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
-func (m *ExtensionRepoMutation) ClearField(name string) error {
-	return fmt.Errorf("unknown ExtensionRepo nullable field %s", name)
+func (m *ExtensionRepoSettingMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown ExtensionRepoSetting nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
-func (m *ExtensionRepoMutation) ResetField(name string) error {
+func (m *ExtensionRepoSettingMutation) ResetField(name string) error {
 	switch name {
-	case extensionrepo.FieldURL:
-		m.ResetURL()
+	case extensionreposetting.FieldLink:
+		m.ResetLink()
 		return nil
-	case extensionrepo.FieldName:
+	case extensionreposetting.FieldName:
 		m.ResetName()
 		return nil
 	}
-	return fmt.Errorf("unknown ExtensionRepo field %s", name)
+	return fmt.Errorf("unknown ExtensionRepoSetting field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
-func (m *ExtensionRepoMutation) AddedEdges() []string {
+func (m *ExtensionRepoSettingMutation) AddedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
-func (m *ExtensionRepoMutation) AddedIDs(name string) []ent.Value {
+func (m *ExtensionRepoSettingMutation) AddedIDs(name string) []ent.Value {
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
-func (m *ExtensionRepoMutation) RemovedEdges() []string {
+func (m *ExtensionRepoSettingMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
-func (m *ExtensionRepoMutation) RemovedIDs(name string) []ent.Value {
+func (m *ExtensionRepoSettingMutation) RemovedIDs(name string) []ent.Value {
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *ExtensionRepoMutation) ClearedEdges() []string {
+func (m *ExtensionRepoSettingMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 0)
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
-func (m *ExtensionRepoMutation) EdgeCleared(name string) bool {
+func (m *ExtensionRepoSettingMutation) EdgeCleared(name string) bool {
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
-func (m *ExtensionRepoMutation) ClearEdge(name string) error {
-	return fmt.Errorf("unknown ExtensionRepo unique edge %s", name)
+func (m *ExtensionRepoSettingMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown ExtensionRepoSetting unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
-func (m *ExtensionRepoMutation) ResetEdge(name string) error {
-	return fmt.Errorf("unknown ExtensionRepo edge %s", name)
+func (m *ExtensionRepoSettingMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown ExtensionRepoSetting edge %s", name)
+}
+
+// ExtensionSettingMutation represents an operation that mutates the ExtensionSetting nodes in the graph.
+type ExtensionSettingMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	_package      *string
+	title         *string
+	key           *string
+	value         *string
+	default_value *string
+	db_type       *extensionsetting.DbType
+	description   *string
+	options       *string
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*ExtensionSetting, error)
+	predicates    []predicate.ExtensionSetting
+}
+
+var _ ent.Mutation = (*ExtensionSettingMutation)(nil)
+
+// extensionsettingOption allows management of the mutation configuration using functional options.
+type extensionsettingOption func(*ExtensionSettingMutation)
+
+// newExtensionSettingMutation creates new mutation for the ExtensionSetting entity.
+func newExtensionSettingMutation(c config, op Op, opts ...extensionsettingOption) *ExtensionSettingMutation {
+	m := &ExtensionSettingMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeExtensionSetting,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withExtensionSettingID sets the ID field of the mutation.
+func withExtensionSettingID(id int) extensionsettingOption {
+	return func(m *ExtensionSettingMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *ExtensionSetting
+		)
+		m.oldValue = func(ctx context.Context) (*ExtensionSetting, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().ExtensionSetting.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withExtensionSetting sets the old ExtensionSetting of the mutation.
+func withExtensionSetting(node *ExtensionSetting) extensionsettingOption {
+	return func(m *ExtensionSettingMutation) {
+		m.oldValue = func(context.Context) (*ExtensionSetting, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ExtensionSettingMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ExtensionSettingMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ExtensionSettingMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ExtensionSettingMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().ExtensionSetting.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetPackage sets the "package" field.
+func (m *ExtensionSettingMutation) SetPackage(s string) {
+	m._package = &s
+}
+
+// Package returns the value of the "package" field in the mutation.
+func (m *ExtensionSettingMutation) Package() (r string, exists bool) {
+	v := m._package
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPackage returns the old "package" field's value of the ExtensionSetting entity.
+// If the ExtensionSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExtensionSettingMutation) OldPackage(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPackage is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPackage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPackage: %w", err)
+	}
+	return oldValue.Package, nil
+}
+
+// ResetPackage resets all changes to the "package" field.
+func (m *ExtensionSettingMutation) ResetPackage() {
+	m._package = nil
+}
+
+// SetTitle sets the "title" field.
+func (m *ExtensionSettingMutation) SetTitle(s string) {
+	m.title = &s
+}
+
+// Title returns the value of the "title" field in the mutation.
+func (m *ExtensionSettingMutation) Title() (r string, exists bool) {
+	v := m.title
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTitle returns the old "title" field's value of the ExtensionSetting entity.
+// If the ExtensionSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExtensionSettingMutation) OldTitle(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTitle is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTitle requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
+	}
+	return oldValue.Title, nil
+}
+
+// ResetTitle resets all changes to the "title" field.
+func (m *ExtensionSettingMutation) ResetTitle() {
+	m.title = nil
+}
+
+// SetKey sets the "key" field.
+func (m *ExtensionSettingMutation) SetKey(s string) {
+	m.key = &s
+}
+
+// Key returns the value of the "key" field in the mutation.
+func (m *ExtensionSettingMutation) Key() (r string, exists bool) {
+	v := m.key
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldKey returns the old "key" field's value of the ExtensionSetting entity.
+// If the ExtensionSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExtensionSettingMutation) OldKey(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldKey is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldKey requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldKey: %w", err)
+	}
+	return oldValue.Key, nil
+}
+
+// ResetKey resets all changes to the "key" field.
+func (m *ExtensionSettingMutation) ResetKey() {
+	m.key = nil
+}
+
+// SetValue sets the "value" field.
+func (m *ExtensionSettingMutation) SetValue(s string) {
+	m.value = &s
+}
+
+// Value returns the value of the "value" field in the mutation.
+func (m *ExtensionSettingMutation) Value() (r string, exists bool) {
+	v := m.value
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldValue returns the old "value" field's value of the ExtensionSetting entity.
+// If the ExtensionSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExtensionSettingMutation) OldValue(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldValue is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldValue requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldValue: %w", err)
+	}
+	return oldValue.Value, nil
+}
+
+// ClearValue clears the value of the "value" field.
+func (m *ExtensionSettingMutation) ClearValue() {
+	m.value = nil
+	m.clearedFields[extensionsetting.FieldValue] = struct{}{}
+}
+
+// ValueCleared returns if the "value" field was cleared in this mutation.
+func (m *ExtensionSettingMutation) ValueCleared() bool {
+	_, ok := m.clearedFields[extensionsetting.FieldValue]
+	return ok
+}
+
+// ResetValue resets all changes to the "value" field.
+func (m *ExtensionSettingMutation) ResetValue() {
+	m.value = nil
+	delete(m.clearedFields, extensionsetting.FieldValue)
+}
+
+// SetDefaultValue sets the "default_value" field.
+func (m *ExtensionSettingMutation) SetDefaultValue(s string) {
+	m.default_value = &s
+}
+
+// DefaultValue returns the value of the "default_value" field in the mutation.
+func (m *ExtensionSettingMutation) DefaultValue() (r string, exists bool) {
+	v := m.default_value
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDefaultValue returns the old "default_value" field's value of the ExtensionSetting entity.
+// If the ExtensionSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExtensionSettingMutation) OldDefaultValue(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDefaultValue is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDefaultValue requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDefaultValue: %w", err)
+	}
+	return oldValue.DefaultValue, nil
+}
+
+// ResetDefaultValue resets all changes to the "default_value" field.
+func (m *ExtensionSettingMutation) ResetDefaultValue() {
+	m.default_value = nil
+}
+
+// SetDbType sets the "db_type" field.
+func (m *ExtensionSettingMutation) SetDbType(et extensionsetting.DbType) {
+	m.db_type = &et
+}
+
+// DbType returns the value of the "db_type" field in the mutation.
+func (m *ExtensionSettingMutation) DbType() (r extensionsetting.DbType, exists bool) {
+	v := m.db_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDbType returns the old "db_type" field's value of the ExtensionSetting entity.
+// If the ExtensionSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExtensionSettingMutation) OldDbType(ctx context.Context) (v extensionsetting.DbType, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDbType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDbType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDbType: %w", err)
+	}
+	return oldValue.DbType, nil
+}
+
+// ResetDbType resets all changes to the "db_type" field.
+func (m *ExtensionSettingMutation) ResetDbType() {
+	m.db_type = nil
+}
+
+// SetDescription sets the "description" field.
+func (m *ExtensionSettingMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *ExtensionSettingMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the ExtensionSetting entity.
+// If the ExtensionSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExtensionSettingMutation) OldDescription(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ClearDescription clears the value of the "description" field.
+func (m *ExtensionSettingMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[extensionsetting.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *ExtensionSettingMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[extensionsetting.FieldDescription]
+	return ok
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *ExtensionSettingMutation) ResetDescription() {
+	m.description = nil
+	delete(m.clearedFields, extensionsetting.FieldDescription)
+}
+
+// SetOptions sets the "options" field.
+func (m *ExtensionSettingMutation) SetOptions(s string) {
+	m.options = &s
+}
+
+// Options returns the value of the "options" field in the mutation.
+func (m *ExtensionSettingMutation) Options() (r string, exists bool) {
+	v := m.options
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOptions returns the old "options" field's value of the ExtensionSetting entity.
+// If the ExtensionSetting object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ExtensionSettingMutation) OldOptions(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOptions is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOptions requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOptions: %w", err)
+	}
+	return oldValue.Options, nil
+}
+
+// ClearOptions clears the value of the "options" field.
+func (m *ExtensionSettingMutation) ClearOptions() {
+	m.options = nil
+	m.clearedFields[extensionsetting.FieldOptions] = struct{}{}
+}
+
+// OptionsCleared returns if the "options" field was cleared in this mutation.
+func (m *ExtensionSettingMutation) OptionsCleared() bool {
+	_, ok := m.clearedFields[extensionsetting.FieldOptions]
+	return ok
+}
+
+// ResetOptions resets all changes to the "options" field.
+func (m *ExtensionSettingMutation) ResetOptions() {
+	m.options = nil
+	delete(m.clearedFields, extensionsetting.FieldOptions)
+}
+
+// Where appends a list predicates to the ExtensionSettingMutation builder.
+func (m *ExtensionSettingMutation) Where(ps ...predicate.ExtensionSetting) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the ExtensionSettingMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *ExtensionSettingMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.ExtensionSetting, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *ExtensionSettingMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *ExtensionSettingMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (ExtensionSetting).
+func (m *ExtensionSettingMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ExtensionSettingMutation) Fields() []string {
+	fields := make([]string, 0, 8)
+	if m._package != nil {
+		fields = append(fields, extensionsetting.FieldPackage)
+	}
+	if m.title != nil {
+		fields = append(fields, extensionsetting.FieldTitle)
+	}
+	if m.key != nil {
+		fields = append(fields, extensionsetting.FieldKey)
+	}
+	if m.value != nil {
+		fields = append(fields, extensionsetting.FieldValue)
+	}
+	if m.default_value != nil {
+		fields = append(fields, extensionsetting.FieldDefaultValue)
+	}
+	if m.db_type != nil {
+		fields = append(fields, extensionsetting.FieldDbType)
+	}
+	if m.description != nil {
+		fields = append(fields, extensionsetting.FieldDescription)
+	}
+	if m.options != nil {
+		fields = append(fields, extensionsetting.FieldOptions)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ExtensionSettingMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case extensionsetting.FieldPackage:
+		return m.Package()
+	case extensionsetting.FieldTitle:
+		return m.Title()
+	case extensionsetting.FieldKey:
+		return m.Key()
+	case extensionsetting.FieldValue:
+		return m.Value()
+	case extensionsetting.FieldDefaultValue:
+		return m.DefaultValue()
+	case extensionsetting.FieldDbType:
+		return m.DbType()
+	case extensionsetting.FieldDescription:
+		return m.Description()
+	case extensionsetting.FieldOptions:
+		return m.Options()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ExtensionSettingMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case extensionsetting.FieldPackage:
+		return m.OldPackage(ctx)
+	case extensionsetting.FieldTitle:
+		return m.OldTitle(ctx)
+	case extensionsetting.FieldKey:
+		return m.OldKey(ctx)
+	case extensionsetting.FieldValue:
+		return m.OldValue(ctx)
+	case extensionsetting.FieldDefaultValue:
+		return m.OldDefaultValue(ctx)
+	case extensionsetting.FieldDbType:
+		return m.OldDbType(ctx)
+	case extensionsetting.FieldDescription:
+		return m.OldDescription(ctx)
+	case extensionsetting.FieldOptions:
+		return m.OldOptions(ctx)
+	}
+	return nil, fmt.Errorf("unknown ExtensionSetting field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ExtensionSettingMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case extensionsetting.FieldPackage:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPackage(v)
+		return nil
+	case extensionsetting.FieldTitle:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTitle(v)
+		return nil
+	case extensionsetting.FieldKey:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetKey(v)
+		return nil
+	case extensionsetting.FieldValue:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetValue(v)
+		return nil
+	case extensionsetting.FieldDefaultValue:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDefaultValue(v)
+		return nil
+	case extensionsetting.FieldDbType:
+		v, ok := value.(extensionsetting.DbType)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDbType(v)
+		return nil
+	case extensionsetting.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	case extensionsetting.FieldOptions:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOptions(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ExtensionSetting field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ExtensionSettingMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ExtensionSettingMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ExtensionSettingMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown ExtensionSetting numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ExtensionSettingMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(extensionsetting.FieldValue) {
+		fields = append(fields, extensionsetting.FieldValue)
+	}
+	if m.FieldCleared(extensionsetting.FieldDescription) {
+		fields = append(fields, extensionsetting.FieldDescription)
+	}
+	if m.FieldCleared(extensionsetting.FieldOptions) {
+		fields = append(fields, extensionsetting.FieldOptions)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ExtensionSettingMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ExtensionSettingMutation) ClearField(name string) error {
+	switch name {
+	case extensionsetting.FieldValue:
+		m.ClearValue()
+		return nil
+	case extensionsetting.FieldDescription:
+		m.ClearDescription()
+		return nil
+	case extensionsetting.FieldOptions:
+		m.ClearOptions()
+		return nil
+	}
+	return fmt.Errorf("unknown ExtensionSetting nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ExtensionSettingMutation) ResetField(name string) error {
+	switch name {
+	case extensionsetting.FieldPackage:
+		m.ResetPackage()
+		return nil
+	case extensionsetting.FieldTitle:
+		m.ResetTitle()
+		return nil
+	case extensionsetting.FieldKey:
+		m.ResetKey()
+		return nil
+	case extensionsetting.FieldValue:
+		m.ResetValue()
+		return nil
+	case extensionsetting.FieldDefaultValue:
+		m.ResetDefaultValue()
+		return nil
+	case extensionsetting.FieldDbType:
+		m.ResetDbType()
+		return nil
+	case extensionsetting.FieldDescription:
+		m.ResetDescription()
+		return nil
+	case extensionsetting.FieldOptions:
+		m.ResetOptions()
+		return nil
+	}
+	return fmt.Errorf("unknown ExtensionSetting field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ExtensionSettingMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ExtensionSettingMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ExtensionSettingMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ExtensionSettingMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ExtensionSettingMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ExtensionSettingMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ExtensionSettingMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown ExtensionSetting unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ExtensionSettingMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown ExtensionSetting edge %s", name)
 }
 
 // FavoriteMutation represents an operation that mutates the Favorite nodes in the graph.

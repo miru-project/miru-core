@@ -29,7 +29,7 @@ type GithubExtension struct {
 
 var fetchedExtensionRepo map[string][]GithubExtension
 
-func LoadExtensionRepo() ([]*ent.ExtensionRepo, error) {
+func LoadExtensionRepo() ([]*ent.ExtensionRepoSetting, error) {
 	repo, e := ext.GetAllRepositories()
 	if e != nil {
 		return nil, e
@@ -57,19 +57,19 @@ func FetchExtensionRepo() (map[string][]GithubExtension, map[string]error, error
 	fetchedExtensionRepo = make(map[string][]GithubExtension)
 	err := make(map[string]error)
 	for _, rep := range repo {
-		req, e := network.Request[string](rep.URL, &network.RequestOptions{Method: "GET"}, network.ReadAll)
+		req, e := network.Request[string](rep.Link, &network.RequestOptions{Method: "GET"}, network.ReadAll)
 		if e != nil {
-			log.Println("Failed to fetch extension repository", rep.URL, ":", e)
-			err[rep.URL] = e
+			log.Println("Failed to fetch extension repository", rep.Link, ":", e)
+			err[rep.Link] = e
 			continue
 		}
 		var ex []GithubExtension
 		if e := json.Unmarshal([]byte(req), &ex); e != nil {
-			log.Println("Failed to parse extension repository", rep.URL, ":", e)
-			err[rep.URL] = e
+			log.Println("Failed to parse extension repository", rep.Link, ":", e)
+			err[rep.Link] = e
 			continue
 		}
-		fetchedExtensionRepo[rep.URL] = ex
+		fetchedExtensionRepo[rep.Link] = ex
 	}
 	return fetchedExtensionRepo, err, nil
 }

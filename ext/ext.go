@@ -12,7 +12,7 @@ import (
 	"github.com/miru-project/miru-core/config"
 	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/ent/appsetting"
-	"github.com/miru-project/miru-core/ent/extensionrepo"
+	_ "github.com/miru-project/miru-core/ent/runtime"
 )
 
 var (
@@ -70,28 +70,31 @@ func EntClient() *ent.Client {
 func Initialize() {
 
 	// Init official Miru extension
-	if _, e := entClient.ExtensionRepo.Query().First(context.Background()); e != nil {
+	if _, e := entClient.ExtensionRepoSetting.Query().First(context.Background()); e != nil {
 		log.Println("No extension repositories found, initializing...")
 
-		SetDefaultRepository()
+		e := SetDefaultRepository()
+		if e != nil {
+			log.Println("Failed to set default extension repository:", e)
+		}
 	}
 }
-func GetAllRepositories() ([]*ent.ExtensionRepo, error) {
-	return entClient.ExtensionRepo.Query().All(context.Background())
+func GetAllRepositories() ([]*ent.ExtensionRepoSetting, error) {
+	return entClient.ExtensionRepoSetting.Query().All(context.Background())
 }
 func SetDefaultRepository() error {
 	return SetRepository("Official Miru Extension", "https://raw.githubusercontent.com/miru-project/repo/refs/heads/main/index.json")
 }
 
 func SetRepository(name string, url string) error {
-	return entClient.ExtensionRepo.Create().SetName(name).
-		SetURL(url).OnConflict().UpdateNewValues().
+	return entClient.ExtensionRepoSetting.Create().SetName(name).
+		SetLink(url).OnConflict().UpdateNewValues().
 		Exec(context.Background())
 }
 
 func RemoveExtensionRepo(url string) error {
-	_, e := entClient.ExtensionRepo.Delete().
-		Where(extensionrepo.URLEQ(url)).
+	_, e := entClient.ExtensionRepoSetting.Delete().
+		Where().
 		Exec(context.Background())
 	return e
 }

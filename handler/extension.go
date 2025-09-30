@@ -73,7 +73,7 @@ func SetExtensionRepo(repoUrl string, name string) error {
 	return jsExtension.SaveExtensionRepo(repoUrl, name)
 }
 
-func GetExtensionRepo() ([]*ent.ExtensionRepo, error) {
+func GetExtensionRepo() ([]*ent.ExtensionRepoSetting, error) {
 	return jsExtension.LoadExtensionRepo()
 }
 

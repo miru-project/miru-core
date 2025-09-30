@@ -16,8 +16,10 @@ type Tx struct {
 	AppSetting *AppSettingClient
 	// Extension is the client for interacting with the Extension builders.
 	Extension *ExtensionClient
-	// ExtensionRepo is the client for interacting with the ExtensionRepo builders.
-	ExtensionRepo *ExtensionRepoClient
+	// ExtensionRepoSetting is the client for interacting with the ExtensionRepoSetting builders.
+	ExtensionRepoSetting *ExtensionRepoSettingClient
+	// ExtensionSetting is the client for interacting with the ExtensionSetting builders.
+	ExtensionSetting *ExtensionSettingClient
 	// Favorite is the client for interacting with the Favorite builders.
 	Favorite *FavoriteClient
 	// FavoriteGroup is the client for interacting with the FavoriteGroup builders.
@@ -157,7 +159,8 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.AppSetting = NewAppSettingClient(tx.config)
 	tx.Extension = NewExtensionClient(tx.config)
-	tx.ExtensionRepo = NewExtensionRepoClient(tx.config)
+	tx.ExtensionRepoSetting = NewExtensionRepoSettingClient(tx.config)
+	tx.ExtensionSetting = NewExtensionSettingClient(tx.config)
 	tx.Favorite = NewFavoriteClient(tx.config)
 	tx.FavoriteGroup = NewFavoriteGroupClient(tx.config)
 	tx.History = NewHistoryClient(tx.config)

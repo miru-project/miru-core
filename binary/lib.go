@@ -4,8 +4,6 @@ import (
 	"embed"
 )
 
-import "C"
-
 //go:embed assets/*
 var f embed.FS
 

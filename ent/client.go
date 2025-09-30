@@ -17,7 +17,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/miru-project/miru-core/ent/appsetting"
 	"github.com/miru-project/miru-core/ent/extension"
-	"github.com/miru-project/miru-core/ent/extensionrepo"
+	"github.com/miru-project/miru-core/ent/extensionreposetting"
+	"github.com/miru-project/miru-core/ent/extensionsetting"
 	"github.com/miru-project/miru-core/ent/favorite"
 	"github.com/miru-project/miru-core/ent/favoritegroup"
 	"github.com/miru-project/miru-core/ent/history"
@@ -32,8 +33,10 @@ type Client struct {
 	AppSetting *AppSettingClient
 	// Extension is the client for interacting with the Extension builders.
 	Extension *ExtensionClient
-	// ExtensionRepo is the client for interacting with the ExtensionRepo builders.
-	ExtensionRepo *ExtensionRepoClient
+	// ExtensionRepoSetting is the client for interacting with the ExtensionRepoSetting builders.
+	ExtensionRepoSetting *ExtensionRepoSettingClient
+	// ExtensionSetting is the client for interacting with the ExtensionSetting builders.
+	ExtensionSetting *ExtensionSettingClient
 	// Favorite is the client for interacting with the Favorite builders.
 	Favorite *FavoriteClient
 	// FavoriteGroup is the client for interacting with the FavoriteGroup builders.
@@ -53,7 +56,8 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.AppSetting = NewAppSettingClient(c.config)
 	c.Extension = NewExtensionClient(c.config)
-	c.ExtensionRepo = NewExtensionRepoClient(c.config)
+	c.ExtensionRepoSetting = NewExtensionRepoSettingClient(c.config)
+	c.ExtensionSetting = NewExtensionSettingClient(c.config)
 	c.Favorite = NewFavoriteClient(c.config)
 	c.FavoriteGroup = NewFavoriteGroupClient(c.config)
 	c.History = NewHistoryClient(c.config)
@@ -147,14 +151,15 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:           ctx,
-		config:        cfg,
-		AppSetting:    NewAppSettingClient(cfg),
-		Extension:     NewExtensionClient(cfg),
-		ExtensionRepo: NewExtensionRepoClient(cfg),
-		Favorite:      NewFavoriteClient(cfg),
-		FavoriteGroup: NewFavoriteGroupClient(cfg),
-		History:       NewHistoryClient(cfg),
+		ctx:                  ctx,
+		config:               cfg,
+		AppSetting:           NewAppSettingClient(cfg),
+		Extension:            NewExtensionClient(cfg),
+		ExtensionRepoSetting: NewExtensionRepoSettingClient(cfg),
+		ExtensionSetting:     NewExtensionSettingClient(cfg),
+		Favorite:             NewFavoriteClient(cfg),
+		FavoriteGroup:        NewFavoriteGroupClient(cfg),
+		History:              NewHistoryClient(cfg),
 	}, nil
 }
 
@@ -172,14 +177,15 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:           ctx,
-		config:        cfg,
-		AppSetting:    NewAppSettingClient(cfg),
-		Extension:     NewExtensionClient(cfg),
-		ExtensionRepo: NewExtensionRepoClient(cfg),
-		Favorite:      NewFavoriteClient(cfg),
-		FavoriteGroup: NewFavoriteGroupClient(cfg),
-		History:       NewHistoryClient(cfg),
+		ctx:                  ctx,
+		config:               cfg,
+		AppSetting:           NewAppSettingClient(cfg),
+		Extension:            NewExtensionClient(cfg),
+		ExtensionRepoSetting: NewExtensionRepoSettingClient(cfg),
+		ExtensionSetting:     NewExtensionSettingClient(cfg),
+		Favorite:             NewFavoriteClient(cfg),
+		FavoriteGroup:        NewFavoriteGroupClient(cfg),
+		History:              NewHistoryClient(cfg),
 	}, nil
 }
 
@@ -209,8 +215,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.AppSetting, c.Extension, c.ExtensionRepo, c.Favorite, c.FavoriteGroup,
-		c.History,
+		c.AppSetting, c.Extension, c.ExtensionRepoSetting, c.ExtensionSetting,
+		c.Favorite, c.FavoriteGroup, c.History,
 	} {
 		n.Use(hooks...)
 	}
@@ -220,8 +226,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.AppSetting, c.Extension, c.ExtensionRepo, c.Favorite, c.FavoriteGroup,
-		c.History,
+		c.AppSetting, c.Extension, c.ExtensionRepoSetting, c.ExtensionSetting,
+		c.Favorite, c.FavoriteGroup, c.History,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -234,8 +240,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.AppSetting.mutate(ctx, m)
 	case *ExtensionMutation:
 		return c.Extension.mutate(ctx, m)
-	case *ExtensionRepoMutation:
-		return c.ExtensionRepo.mutate(ctx, m)
+	case *ExtensionRepoSettingMutation:
+		return c.ExtensionRepoSetting.mutate(ctx, m)
+	case *ExtensionSettingMutation:
+		return c.ExtensionSetting.mutate(ctx, m)
 	case *FavoriteMutation:
 		return c.Favorite.mutate(ctx, m)
 	case *FavoriteGroupMutation:
@@ -513,107 +521,107 @@ func (c *ExtensionClient) mutate(ctx context.Context, m *ExtensionMutation) (Val
 	}
 }
 
-// ExtensionRepoClient is a client for the ExtensionRepo schema.
-type ExtensionRepoClient struct {
+// ExtensionRepoSettingClient is a client for the ExtensionRepoSetting schema.
+type ExtensionRepoSettingClient struct {
 	config
 }
 
-// NewExtensionRepoClient returns a client for the ExtensionRepo from the given config.
-func NewExtensionRepoClient(c config) *ExtensionRepoClient {
-	return &ExtensionRepoClient{config: c}
+// NewExtensionRepoSettingClient returns a client for the ExtensionRepoSetting from the given config.
+func NewExtensionRepoSettingClient(c config) *ExtensionRepoSettingClient {
+	return &ExtensionRepoSettingClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `extensionrepo.Hooks(f(g(h())))`.
-func (c *ExtensionRepoClient) Use(hooks ...Hook) {
-	c.hooks.ExtensionRepo = append(c.hooks.ExtensionRepo, hooks...)
+// A call to `Use(f, g, h)` equals to `extensionreposetting.Hooks(f(g(h())))`.
+func (c *ExtensionRepoSettingClient) Use(hooks ...Hook) {
+	c.hooks.ExtensionRepoSetting = append(c.hooks.ExtensionRepoSetting, hooks...)
 }
 
 // Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `extensionrepo.Intercept(f(g(h())))`.
-func (c *ExtensionRepoClient) Intercept(interceptors ...Interceptor) {
-	c.inters.ExtensionRepo = append(c.inters.ExtensionRepo, interceptors...)
+// A call to `Intercept(f, g, h)` equals to `extensionreposetting.Intercept(f(g(h())))`.
+func (c *ExtensionRepoSettingClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ExtensionRepoSetting = append(c.inters.ExtensionRepoSetting, interceptors...)
 }
 
-// Create returns a builder for creating a ExtensionRepo entity.
-func (c *ExtensionRepoClient) Create() *ExtensionRepoCreate {
-	mutation := newExtensionRepoMutation(c.config, OpCreate)
-	return &ExtensionRepoCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a ExtensionRepoSetting entity.
+func (c *ExtensionRepoSettingClient) Create() *ExtensionRepoSettingCreate {
+	mutation := newExtensionRepoSettingMutation(c.config, OpCreate)
+	return &ExtensionRepoSettingCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of ExtensionRepo entities.
-func (c *ExtensionRepoClient) CreateBulk(builders ...*ExtensionRepoCreate) *ExtensionRepoCreateBulk {
-	return &ExtensionRepoCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of ExtensionRepoSetting entities.
+func (c *ExtensionRepoSettingClient) CreateBulk(builders ...*ExtensionRepoSettingCreate) *ExtensionRepoSettingCreateBulk {
+	return &ExtensionRepoSettingCreateBulk{config: c.config, builders: builders}
 }
 
 // MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
 // a builder and applies setFunc on it.
-func (c *ExtensionRepoClient) MapCreateBulk(slice any, setFunc func(*ExtensionRepoCreate, int)) *ExtensionRepoCreateBulk {
+func (c *ExtensionRepoSettingClient) MapCreateBulk(slice any, setFunc func(*ExtensionRepoSettingCreate, int)) *ExtensionRepoSettingCreateBulk {
 	rv := reflect.ValueOf(slice)
 	if rv.Kind() != reflect.Slice {
-		return &ExtensionRepoCreateBulk{err: fmt.Errorf("calling to ExtensionRepoClient.MapCreateBulk with wrong type %T, need slice", slice)}
+		return &ExtensionRepoSettingCreateBulk{err: fmt.Errorf("calling to ExtensionRepoSettingClient.MapCreateBulk with wrong type %T, need slice", slice)}
 	}
-	builders := make([]*ExtensionRepoCreate, rv.Len())
+	builders := make([]*ExtensionRepoSettingCreate, rv.Len())
 	for i := 0; i < rv.Len(); i++ {
 		builders[i] = c.Create()
 		setFunc(builders[i], i)
 	}
-	return &ExtensionRepoCreateBulk{config: c.config, builders: builders}
+	return &ExtensionRepoSettingCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for ExtensionRepo.
-func (c *ExtensionRepoClient) Update() *ExtensionRepoUpdate {
-	mutation := newExtensionRepoMutation(c.config, OpUpdate)
-	return &ExtensionRepoUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for ExtensionRepoSetting.
+func (c *ExtensionRepoSettingClient) Update() *ExtensionRepoSettingUpdate {
+	mutation := newExtensionRepoSettingMutation(c.config, OpUpdate)
+	return &ExtensionRepoSettingUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *ExtensionRepoClient) UpdateOne(_m *ExtensionRepo) *ExtensionRepoUpdateOne {
-	mutation := newExtensionRepoMutation(c.config, OpUpdateOne, withExtensionRepo(_m))
-	return &ExtensionRepoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *ExtensionRepoSettingClient) UpdateOne(_m *ExtensionRepoSetting) *ExtensionRepoSettingUpdateOne {
+	mutation := newExtensionRepoSettingMutation(c.config, OpUpdateOne, withExtensionRepoSetting(_m))
+	return &ExtensionRepoSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *ExtensionRepoClient) UpdateOneID(id int) *ExtensionRepoUpdateOne {
-	mutation := newExtensionRepoMutation(c.config, OpUpdateOne, withExtensionRepoID(id))
-	return &ExtensionRepoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *ExtensionRepoSettingClient) UpdateOneID(id int) *ExtensionRepoSettingUpdateOne {
+	mutation := newExtensionRepoSettingMutation(c.config, OpUpdateOne, withExtensionRepoSettingID(id))
+	return &ExtensionRepoSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for ExtensionRepo.
-func (c *ExtensionRepoClient) Delete() *ExtensionRepoDelete {
-	mutation := newExtensionRepoMutation(c.config, OpDelete)
-	return &ExtensionRepoDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for ExtensionRepoSetting.
+func (c *ExtensionRepoSettingClient) Delete() *ExtensionRepoSettingDelete {
+	mutation := newExtensionRepoSettingMutation(c.config, OpDelete)
+	return &ExtensionRepoSettingDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *ExtensionRepoClient) DeleteOne(_m *ExtensionRepo) *ExtensionRepoDeleteOne {
+func (c *ExtensionRepoSettingClient) DeleteOne(_m *ExtensionRepoSetting) *ExtensionRepoSettingDeleteOne {
 	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ExtensionRepoClient) DeleteOneID(id int) *ExtensionRepoDeleteOne {
-	builder := c.Delete().Where(extensionrepo.ID(id))
+func (c *ExtensionRepoSettingClient) DeleteOneID(id int) *ExtensionRepoSettingDeleteOne {
+	builder := c.Delete().Where(extensionreposetting.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &ExtensionRepoDeleteOne{builder}
+	return &ExtensionRepoSettingDeleteOne{builder}
 }
 
-// Query returns a query builder for ExtensionRepo.
-func (c *ExtensionRepoClient) Query() *ExtensionRepoQuery {
-	return &ExtensionRepoQuery{
+// Query returns a query builder for ExtensionRepoSetting.
+func (c *ExtensionRepoSettingClient) Query() *ExtensionRepoSettingQuery {
+	return &ExtensionRepoSettingQuery{
 		config: c.config,
-		ctx:    &QueryContext{Type: TypeExtensionRepo},
+		ctx:    &QueryContext{Type: TypeExtensionRepoSetting},
 		inters: c.Interceptors(),
 	}
 }
 
-// Get returns a ExtensionRepo entity by its id.
-func (c *ExtensionRepoClient) Get(ctx context.Context, id int) (*ExtensionRepo, error) {
-	return c.Query().Where(extensionrepo.ID(id)).Only(ctx)
+// Get returns a ExtensionRepoSetting entity by its id.
+func (c *ExtensionRepoSettingClient) Get(ctx context.Context, id int) (*ExtensionRepoSetting, error) {
+	return c.Query().Where(extensionreposetting.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *ExtensionRepoClient) GetX(ctx context.Context, id int) *ExtensionRepo {
+func (c *ExtensionRepoSettingClient) GetX(ctx context.Context, id int) *ExtensionRepoSetting {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -622,27 +630,162 @@ func (c *ExtensionRepoClient) GetX(ctx context.Context, id int) *ExtensionRepo {
 }
 
 // Hooks returns the client hooks.
-func (c *ExtensionRepoClient) Hooks() []Hook {
-	return c.hooks.ExtensionRepo
+func (c *ExtensionRepoSettingClient) Hooks() []Hook {
+	hooks := c.hooks.ExtensionRepoSetting
+	return append(hooks[:len(hooks):len(hooks)], extensionreposetting.Hooks[:]...)
 }
 
 // Interceptors returns the client interceptors.
-func (c *ExtensionRepoClient) Interceptors() []Interceptor {
-	return c.inters.ExtensionRepo
+func (c *ExtensionRepoSettingClient) Interceptors() []Interceptor {
+	return c.inters.ExtensionRepoSetting
 }
 
-func (c *ExtensionRepoClient) mutate(ctx context.Context, m *ExtensionRepoMutation) (Value, error) {
+func (c *ExtensionRepoSettingClient) mutate(ctx context.Context, m *ExtensionRepoSettingMutation) (Value, error) {
 	switch m.Op() {
 	case OpCreate:
-		return (&ExtensionRepoCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ExtensionRepoSettingCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdate:
-		return (&ExtensionRepoUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ExtensionRepoSettingUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdateOne:
-		return (&ExtensionRepoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ExtensionRepoSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpDelete, OpDeleteOne:
-		return (&ExtensionRepoDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+		return (&ExtensionRepoSettingDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
-		return nil, fmt.Errorf("ent: unknown ExtensionRepo mutation op: %q", m.Op())
+		return nil, fmt.Errorf("ent: unknown ExtensionRepoSetting mutation op: %q", m.Op())
+	}
+}
+
+// ExtensionSettingClient is a client for the ExtensionSetting schema.
+type ExtensionSettingClient struct {
+	config
+}
+
+// NewExtensionSettingClient returns a client for the ExtensionSetting from the given config.
+func NewExtensionSettingClient(c config) *ExtensionSettingClient {
+	return &ExtensionSettingClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `extensionsetting.Hooks(f(g(h())))`.
+func (c *ExtensionSettingClient) Use(hooks ...Hook) {
+	c.hooks.ExtensionSetting = append(c.hooks.ExtensionSetting, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `extensionsetting.Intercept(f(g(h())))`.
+func (c *ExtensionSettingClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ExtensionSetting = append(c.inters.ExtensionSetting, interceptors...)
+}
+
+// Create returns a builder for creating a ExtensionSetting entity.
+func (c *ExtensionSettingClient) Create() *ExtensionSettingCreate {
+	mutation := newExtensionSettingMutation(c.config, OpCreate)
+	return &ExtensionSettingCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ExtensionSetting entities.
+func (c *ExtensionSettingClient) CreateBulk(builders ...*ExtensionSettingCreate) *ExtensionSettingCreateBulk {
+	return &ExtensionSettingCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ExtensionSettingClient) MapCreateBulk(slice any, setFunc func(*ExtensionSettingCreate, int)) *ExtensionSettingCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ExtensionSettingCreateBulk{err: fmt.Errorf("calling to ExtensionSettingClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ExtensionSettingCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ExtensionSettingCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ExtensionSetting.
+func (c *ExtensionSettingClient) Update() *ExtensionSettingUpdate {
+	mutation := newExtensionSettingMutation(c.config, OpUpdate)
+	return &ExtensionSettingUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ExtensionSettingClient) UpdateOne(_m *ExtensionSetting) *ExtensionSettingUpdateOne {
+	mutation := newExtensionSettingMutation(c.config, OpUpdateOne, withExtensionSetting(_m))
+	return &ExtensionSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ExtensionSettingClient) UpdateOneID(id int) *ExtensionSettingUpdateOne {
+	mutation := newExtensionSettingMutation(c.config, OpUpdateOne, withExtensionSettingID(id))
+	return &ExtensionSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ExtensionSetting.
+func (c *ExtensionSettingClient) Delete() *ExtensionSettingDelete {
+	mutation := newExtensionSettingMutation(c.config, OpDelete)
+	return &ExtensionSettingDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ExtensionSettingClient) DeleteOne(_m *ExtensionSetting) *ExtensionSettingDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ExtensionSettingClient) DeleteOneID(id int) *ExtensionSettingDeleteOne {
+	builder := c.Delete().Where(extensionsetting.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ExtensionSettingDeleteOne{builder}
+}
+
+// Query returns a query builder for ExtensionSetting.
+func (c *ExtensionSettingClient) Query() *ExtensionSettingQuery {
+	return &ExtensionSettingQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeExtensionSetting},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a ExtensionSetting entity by its id.
+func (c *ExtensionSettingClient) Get(ctx context.Context, id int) (*ExtensionSetting, error) {
+	return c.Query().Where(extensionsetting.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ExtensionSettingClient) GetX(ctx context.Context, id int) *ExtensionSetting {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *ExtensionSettingClient) Hooks() []Hook {
+	hooks := c.hooks.ExtensionSetting
+	return append(hooks[:len(hooks):len(hooks)], extensionsetting.Hooks[:]...)
+}
+
+// Interceptors returns the client interceptors.
+func (c *ExtensionSettingClient) Interceptors() []Interceptor {
+	return c.inters.ExtensionSetting
+}
+
+func (c *ExtensionSettingClient) mutate(ctx context.Context, m *ExtensionSettingMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ExtensionSettingCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ExtensionSettingUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ExtensionSettingUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ExtensionSettingDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ExtensionSetting mutation op: %q", m.Op())
 	}
 }
 
@@ -1080,11 +1223,11 @@ func (c *HistoryClient) mutate(ctx context.Context, m *HistoryMutation) (Value, 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AppSetting, Extension, ExtensionRepo, Favorite, FavoriteGroup,
-		History []ent.Hook
+		AppSetting, Extension, ExtensionRepoSetting, ExtensionSetting, Favorite,
+		FavoriteGroup, History []ent.Hook
 	}
 	inters struct {
-		AppSetting, Extension, ExtensionRepo, Favorite, FavoriteGroup,
-		History []ent.Interceptor
+		AppSetting, Extension, ExtensionRepoSetting, ExtensionSetting, Favorite,
+		FavoriteGroup, History []ent.Interceptor
 	}
 )
