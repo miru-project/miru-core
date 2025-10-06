@@ -30,9 +30,14 @@ func LoadApiV1(ext *Ext, baseScript string) {
 	ApiPkgCache[ext.Pkg].Ext.Error = ""
 	api.initEvalV1String()
 	api.InitV1Script(ext.Pkg)
+	api.loadExtension(ext.Pkg)
 
 }
-
+func (api *ExtApi) loadExtension(pkg string) {
+	if _, e := AsyncCallBackV1(api, pkg, "ext.load()"); e != nil {
+		ApiPkgCache[pkg].Ext.Error = e.Error()
+	}
+}
 func (api *ExtApi) initEvalV1String() {
 	// Register  the async callback function for V1
 	api.asyncCallBack = AsyncCallBackV1
@@ -163,9 +168,6 @@ func (api *ExtApi) InitV1Script(pkg string) {
 	defer loop.Stop()
 
 	extMemMap.Store(pkg, loop)
-	if _, e := AsyncCallBackV1(api, pkg, "ext.load()"); e != nil {
-		ApiPkgCache[pkg].Ext.Error = e.Error()
-	}
 
 }
 
@@ -195,14 +197,16 @@ func AsyncCallBackV1(api *ExtApi, pkg string, evalStr string) (any, error) {
 	}
 
 	res := make(chan PromiseResult)
-
+	defer close(res)
 	loop.RunOnLoop(func(vm *goja.Runtime) {
 		o, e := vm.RunString(evalStr)
 		handlePromise(o, res, e)
 	})
 
-	// Wait for the scheduled callback to send a result. We don't close `res`.
+	loop.Start()
+	defer loop.Stop()
 	result := <-res
+	// close(res)
 	// handle error from PromiseResult{err: e}
 	if result.err != nil {
 		var zero any
