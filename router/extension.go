@@ -53,8 +53,8 @@ func GetLatestContent(app *fiber.App) fiber.Router {
 // @Failure		500		{object}	result.Result[string]	"Server error"
 // @Router			/ext/search/{pkg}/{page}/{kw} [get]
 func SearchContent(app *fiber.App) fiber.Router {
-	return app.Get("/ext/search/:pkg/:page/:kw", func(c *fiber.Ctx) error {
-		res := handler.Search(c.Params("page"), c.Params("pkg"), c.Params("kw"), string(c.Body()))
+	return app.Get("/ext/search", func(c *fiber.Ctx) error {
+		res := handler.Search(c.FormValue("page"), c.FormValue("pkg"), c.FormValue("kw"), c.FormValue("filter"))
 		if res.Code >= 400 {
 			return c.Status(fiber.StatusInternalServerError).JSON(res)
 		}
