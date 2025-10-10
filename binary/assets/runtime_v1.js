@@ -180,7 +180,14 @@ class Extension {
   }
 
   async setSetting(key, value) {
+  }
 
+  async listCookies(url) {
+    return await getCookies(url);
+  }
+
+  async setCookies(url, cookies) {
+    return await setCookies(url, cookies);
   }
 
   async load() { }

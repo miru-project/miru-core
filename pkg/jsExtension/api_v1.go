@@ -136,7 +136,34 @@ func (api *ExtApi) InitV1Script(pkg string) {
 			value := call.Argument(2).ToString().String()
 			e := db.SetSetting(pkg, key, value)
 			if e != nil {
-				panic("Error setting setting:" + e.Error())
+				panic(vm.ToValue(errors.New("Error setting setting:" + e.Error())))
+			}
+			return nil
+		})
+
+		vm.Set("getCookies", func(call goja.FunctionCall) any {
+			url := call.Argument(0).ToString().String()
+			cookie, e := network.GetCookies(url)
+			if e != nil {
+				panic(vm.ToValue(errors.New("Error getting cookies:" + e.Error())))
+			}
+			return cookie
+		})
+
+		vm.Set("setCookies", func(call goja.FunctionCall) any {
+			url := call.Argument(0).ToString().String()
+			cookiesInterface := call.Argument(1).ToObject(vm).Export()
+			cookies, ok := cookiesInterface.([]any)
+			if !ok {
+				panic(vm.ToValue(errors.New("invalid cookies format, expected array of strings")))
+			}
+			cookieStrs := make([]string, len(cookies))
+			for i, c := range cookies {
+				cookieStrs[i] = fmt.Sprintf("%v", c)
+			}
+			e := network.SetCookies(url, cookieStrs)
+			if e != nil {
+				panic(vm.ToValue(errors.New("Error setting cookies:" + e.Error())))
 			}
 			return nil
 		})
