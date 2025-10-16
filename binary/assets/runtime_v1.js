@@ -10,7 +10,7 @@ class Element {
   }
 
 
-  async execute(fun) {
+  execute(fun) {
     if (fun === "text") {
       return this.node.textContent;
     }
@@ -24,7 +24,7 @@ class Element {
     return null;
   }
 
-  async removeSelector(selector) {
+  removeSelector(selector) {
     const removeNode = this.node.querySelector(selector);
     if (removeNode && removeNode.parentNode) {
       removeNode.parentNode.removeChild(removeNode);
@@ -33,7 +33,7 @@ class Element {
     return this;
   }
 
-  async getAttributeText(attr) {
+  getAttributeText(attr) {
     return this.node.getAttribute(attr);
   }
 

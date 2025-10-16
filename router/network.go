@@ -24,11 +24,7 @@ func setCookies(app *fiber.App) fiber.Router {
 	return app.Post("/network/cookies", func(c *fiber.Ctx) error {
 		url := c.FormValue("url")
 		cookies := c.FormValue("cookies") // Expecting cookies as a comma-separated string
-		cookieList := []string{}
-		if cookies != "" {
-			cookieList = append(cookieList, cookies)
-		}
-		res := handler.SetCookies(url, cookieList)
+		res := handler.SetCookies(url, cookies)
 		if res.Code >= 400 {
 			return c.Status(fiber.StatusInternalServerError).JSON(res)
 		}

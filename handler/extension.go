@@ -54,14 +54,14 @@ func Watch(pkg string, url string) *result.Result[any] {
 }
 
 // handle Detail when receiving a request
-func Detail(pkg string, url string) (*result.Result[any], error) {
+func Detail(pkg string, url string) *result.Result[any] {
 
 	res, e := jsExtension.Detail(pkg, url)
 
 	if res == nil {
-		return result.NewErrorResult(e.Error(), 404, nil), nil
+		return result.NewErrorResult(e.Error(), 404, nil)
 	}
-	return result.NewSuccessResult(res), e
+	return result.NewSuccessResult(res)
 }
 
 // fetch the extension repository

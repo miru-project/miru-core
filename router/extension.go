@@ -33,10 +33,7 @@ func initExtensionRouter(app *fiber.App) {
 func GetLatestContent(app *fiber.App) fiber.Router {
 	return app.Get("/ext/latest", func(c *fiber.Ctx) error {
 		res := handler.Latest(c.FormValue("page"), c.FormValue("pkg"))
-		if res.Code >= 400 {
-			return c.Status(fiber.StatusInternalServerError).JSON(res)
-		}
-		return c.JSON(res)
+		return c.Status(res.Code).JSON(res)
 	})
 }
 
@@ -55,10 +52,7 @@ func GetLatestContent(app *fiber.App) fiber.Router {
 func SearchContent(app *fiber.App) fiber.Router {
 	return app.Get("/ext/search", func(c *fiber.Ctx) error {
 		res := handler.Search(c.FormValue("page"), c.FormValue("pkg"), c.FormValue("kw"), c.FormValue("filter"))
-		if res.Code >= 400 {
-			return c.Status(fiber.StatusInternalServerError).JSON(res)
-		}
-		return c.JSON(res)
+		return c.Status(res.Code).JSON(res)
 	})
 }
 
@@ -76,10 +70,7 @@ func SearchContent(app *fiber.App) fiber.Router {
 func WatchContent(app *fiber.App) fiber.Router {
 	return app.Get("/ext/watch", func(c *fiber.Ctx) error {
 		res := handler.Watch(c.FormValue("pkg"), c.FormValue("url"))
-		if res.Code >= 400 {
-			return c.Status(fiber.StatusInternalServerError).JSON(res)
-		}
-		return c.JSON(res)
+		return c.Status(res.Code).JSON(res)
 	})
 }
 
@@ -95,11 +86,8 @@ func WatchContent(app *fiber.App) fiber.Router {
 // @Router			/ext/detail/{pkg} [get]
 func GetContentDetail(app *fiber.App) fiber.Router {
 	return app.Get("/ext/detail", func(c *fiber.Ctx) error {
-		result, err := handler.Detail(c.FormValue("pkg"), c.FormValue("url"))
-		if err != nil {
-			return c.Status(fiber.StatusInternalServerError).JSON(result)
-		}
-		return c.JSON(result)
+		result := handler.Detail(c.FormValue("pkg"), c.FormValue("url"))
+		return c.Status(result.Code).JSON(result)
 	})
 }
 

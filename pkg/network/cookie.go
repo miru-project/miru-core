@@ -1,7 +1,6 @@
 package network
 
 import (
-	"errors"
 	"log"
 	"net/http"
 	"net/url"
@@ -26,7 +25,7 @@ func SetCookies(u string, cookies []string) error {
 	for _, c := range cookies {
 		parts := strings.SplitN(c, "=", 2)
 		if len(parts) != 2 {
-			return errors.New("invalid cookie format")
+			continue
 		}
 		parsedCookies = append(parsedCookies, &http.Cookie{
 			Name:  strings.TrimSpace(parts[0]),
@@ -46,16 +45,22 @@ func GetCookies(u string) ([]*http.Cookie, error) {
 }
 
 func InitCookieJar() {
-	dir := os.TempDir()
+	homeDir, e := os.UserHomeDir()
+	if e != nil {
+		log.Fatal(e, "Failed to get user home directory")
+	}
+
+	dir := filepath.Join(homeDir, "Documents", "miru")
 	if runtime.GOOS == "android" {
 		dir = config.Global.CookieStoreLoc
 		log.Println("Running on Android, using cookie location:", dir)
 	}
-	tempDir, e := os.MkdirTemp(dir, "miru")
+
+	e = os.MkdirAll(dir, os.ModeAppend)
 	if e != nil {
 		panic(e)
 	}
-	cookiesFile := filepath.Join(tempDir, "cookies")
+	cookiesFile := filepath.Join(dir, ".cookies")
 	jar = cookiejar.NewPersistentJar(
 		cookiejar.WithFilePath(cookiesFile),
 		cookiejar.WithAutoSync(true),
