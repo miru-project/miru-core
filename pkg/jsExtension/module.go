@@ -2,10 +2,12 @@ package jsExtension
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
+
+	errorhandle "github.com/miru-project/miru-core/errorHandle"
+	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/require"
@@ -16,7 +18,7 @@ func readEmbedFileToDisk(embedPath string, targetDir string) {
 	// Read the file from the embedded filesystem
 	entries, err := fs.ReadDir(embedPath)
 	if err != nil {
-		log.Fatalf("Failed to read asset directory in embedFs: %v", err)
+		errorhandle.PanicF("Failed to read asset directory in embedFs: %v", err)
 	}
 
 	for _, entry := range entries {
@@ -29,7 +31,7 @@ func readEmbedFileToDisk(embedPath string, targetDir string) {
 
 			// Create the directory in the file system
 			if err := os.MkdirAll(childDir, os.ModePerm); err != nil {
-				log.Fatalf("Failed to create directory: %v", err)
+				errorhandle.PanicF("Failed to create directory: %v", err)
 			}
 
 			readEmbedFileToDisk(childFs, childDir)
@@ -37,19 +39,19 @@ func readEmbedFileToDisk(embedPath string, targetDir string) {
 
 			data, err := fs.ReadFile(childFs)
 			if err != nil {
-				log.Fatalf("Failed to read file %s from embedFs: %v", childFs, err)
+				errorhandle.PanicF("Failed to read file %s from embedFs: %v", childFs, err)
 			}
 
 			// Create the file in the file system
 			outFile, err := os.Create(childDir)
 			if err != nil {
-				log.Fatalf("Failed to create file %s: %v", childDir, err)
+				errorhandle.PanicF("Failed to create file %s: %v", childDir, err)
 			}
 			defer outFile.Close()
 
 			// Write the content to the file
 			if _, err := outFile.Write(data); err != nil {
-				log.Fatalf("Failed to write file %s: %v", childDir, err)
+				errorhandle.PanicF("Failed to write file %s: %v", childDir, err)
 			}
 		}
 	}

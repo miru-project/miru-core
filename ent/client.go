@@ -6,8 +6,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"reflect"
+
+	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/miru-project/miru-core/ent/migrate"
 

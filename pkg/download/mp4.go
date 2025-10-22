@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"path"
 	"path/filepath"
+
+	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/miru-project/miru-core/pkg/network"
 )

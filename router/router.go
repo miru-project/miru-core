@@ -2,9 +2,10 @@ package router
 
 import (
 	"encoding/json"
-	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/miru-project/miru-core/config"
+	errorhandle "github.com/miru-project/miru-core/errorHandle"
 	"github.com/miru-project/miru-core/ext"
 	"github.com/miru-project/miru-core/handler"
 	"github.com/miru-project/miru-core/pkg/result"
@@ -44,12 +45,13 @@ func InitRouter(app *fiber.App) {
 	GetAppSetting(app)
 	SetAppSetting(app)
 	app.Get("/swagger/*", fiberSwagger.WrapHandler)
+	startListening(app, config.Global.Address+":"+config.Global.Port)
 
-	if e := app.Listen("127.127.127.127:12777"); e != nil {
-		log.Fatalf("Failed to start server on 127.127.127.127:12777: %v", e)
+}
+func startListening(app *fiber.App, host string) {
+	if e := app.Listen(host); e != nil {
+		errorhandle.PanicF("Can't listen on host %q: %s", host, e)
 	}
-
-	log.Println("Documentation available at http://127.127.127.127:12777/swagger/index.html")
 }
 
 // @Summary		Root endpoint

@@ -3,10 +3,11 @@ package jsExtension
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 	"path"
 	"path/filepath"
+
+	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/ext"

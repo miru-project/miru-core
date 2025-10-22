@@ -19,6 +19,8 @@ type Config struct {
 	} `json:"database"`
 	ExtensionPath  string `json:"extensionPath"`
 	CookieStoreLoc string `json:"cookieStoreLocation"`
+	Address        string `json:"address"`
+	Port           string `json:"port"`
 }
 
 var (
@@ -38,6 +40,9 @@ func Load(path string) error {
 		return err
 	}
 
+	// Apply defaults for empty/nil values
+	applyConfigDefaults(&Global)
+
 	// Ensure extension path is absolute
 	if !filepath.IsAbs(Global.ExtensionPath) {
 		Global.ExtensionPath, err = filepath.Abs(Global.ExtensionPath)
@@ -47,6 +52,40 @@ func Load(path string) error {
 	}
 
 	return nil
+}
+
+// applyConfigDefaults applies default values to nil/empty fields
+func applyConfigDefaults(cfg *Config) {
+	// Database defaults
+	if cfg.Database.Driver == "" {
+		cfg.Database.Driver = "sqlite3"
+	}
+	if cfg.Database.Host == "" {
+		cfg.Database.Host = "localhost"
+	}
+	if cfg.Database.Port == 0 {
+		cfg.Database.Port = 5432
+	}
+	if cfg.Database.User == "" {
+		cfg.Database.User = "miru"
+	}
+	if cfg.Database.DBName == "" {
+		cfg.Database.DBName = "miru"
+	}
+	if cfg.Database.SSLMode == "" {
+		cfg.Database.SSLMode = "disable"
+	}
+
+	// Top-level defaults
+	if cfg.ExtensionPath == "" {
+		cfg.ExtensionPath = "./extensions"
+	}
+	if cfg.Address == "" {
+		cfg.Address = "127.0.0.1"
+	}
+	if cfg.Port == "" {
+		cfg.Port = "3000"
+	}
 }
 
 // Save saves the current configuration to a file
@@ -69,5 +108,7 @@ func GetDefaultConfig() Config {
 	cfg.Database.DBName = "miru"
 	cfg.Database.SSLMode = "disable"
 	cfg.ExtensionPath = "./extensions"
+	cfg.Address = "127.0.0.1"
+	cfg.Port = "3000"
 	return cfg
 }

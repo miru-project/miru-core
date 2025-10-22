@@ -7,9 +7,10 @@ import (
 	"crypto/cipher"
 	"errors"
 	"fmt"
-	"log"
 	"path"
 	"path/filepath"
+
+	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/grafov/m3u8"
 	"github.com/miru-project/miru-core/pkg/network"

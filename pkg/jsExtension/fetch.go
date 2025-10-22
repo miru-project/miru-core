@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"reflect"
 	"strings"
 	"time"
+
+	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/dop251/goja"
 	errorhandle "github.com/miru-project/miru-core/errorHandle"

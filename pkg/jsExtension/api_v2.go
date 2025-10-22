@@ -3,7 +3,8 @@ package jsExtension
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+
+	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"

@@ -1,8 +1,10 @@
 package errorhandle
 
 import (
-	"log"
+	"fmt"
 	"runtime/debug"
+
+	"github.com/miru-project/miru-core/pkg/logger"
 )
 
 func HandleFatal[T any](out T, err error) T {
@@ -12,18 +14,23 @@ func HandleFatal[T any](out T, err error) T {
 	return out
 }
 
+func PanicF(format string, a ...any) {
+	logger.Printf(format, a...)
+	panic(fmt.Sprintf(format, a...))
+}
+
 func PrintStack(err error) {
 	debug.PrintStack()
 	stackTrace := string(debug.Stack())
-	log.Println("Stack trace:", stackTrace)
-	log.Fatal("Fatal: ", err)
+	logger.Println("Stack trace:", stackTrace)
+	panic(err)
 }
 func HandleError[T any](out T, err error) T {
 	if err != nil {
 		debug.PrintStack()
 		stackTrace := string(debug.Stack())
-		log.Println("Stack trace:", stackTrace)
-		log.Println("Error: ", err)
+		logger.Println("Stack trace:", stackTrace)
+		logger.Println("Error: ", err)
 		return out
 	}
 	return out

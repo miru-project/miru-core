@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"time"
+
+	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/dop251/goja"
 	errorhandle "github.com/miru-project/miru-core/errorHandle"

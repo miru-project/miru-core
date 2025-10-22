@@ -3,7 +3,9 @@ package ext
 import (
 	"context"
 	"fmt"
-	"log"
+
+	errorhandle "github.com/miru-project/miru-core/errorHandle"
+	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"entgo.io/ent/dialect"
 	_ "github.com/go-sql-driver/mysql"
@@ -48,17 +50,17 @@ func EntClient() *ent.Client {
 		client, err = ent.Open(dialect.MySQL, dsn)
 
 	default:
-		log.Fatalf("unsupported database driver: %s", dbCfg.Driver)
+		errorhandle.PanicF("unsupported database driver: %s", dbCfg.Driver)
 		return nil
 	}
 
 	if err != nil {
-		log.Fatalf("failed opening connection to database: %s", err)
+		errorhandle.PanicF("failed opening connection to database: %s", err)
 		return nil
 	}
 
 	if err := client.Schema.Create(context.Background()); err != nil {
-		log.Fatalf("failed creating schema resources: %s", err)
+		errorhandle.PanicF("failed creating schema resources: %s", err)
 		return nil
 	}
 
@@ -83,7 +85,7 @@ func GetAllRepositories() ([]*ent.ExtensionRepoSetting, error) {
 	return entClient.ExtensionRepoSetting.Query().All(context.Background())
 }
 func SetDefaultRepository() error {
-	return SetRepository("Official Miru Extension", "https://raw.githubusercontent.com/miru-project/repo/refs/heads/main/index.json")
+	return SetRepository("Official Miru Extension", "https://raw.githubusercontent.com/appdevelpo/repo/refs/heads/miru_alpha/index.json")
 }
 
 func SetRepository(name string, url string) error {

@@ -1,13 +1,14 @@
 package network
 
 import (
-	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/miru-project/miru-core/config"
 	"go.nhat.io/cookiejar"
@@ -56,10 +57,11 @@ func InitCookieJar() {
 		log.Println("Running on Android, using cookie location:", dir)
 	}
 
-	e = os.MkdirAll(dir, os.ModeAppend)
+	e = os.MkdirAll(dir, 0755)
 	if e != nil {
 		panic(e)
 	}
+	log.Println("Cookie jar directory:", dir)
 	cookiesFile := filepath.Join(dir, ".cookies")
 	jar = cookiejar.NewPersistentJar(
 		cookiejar.WithFilePath(cookiesFile),

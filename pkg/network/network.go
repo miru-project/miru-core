@@ -3,11 +3,12 @@ package network
 import (
 	"bytes"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
+
+	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/Danny-Dasilva/CycleTLS/cycletls"
 )
