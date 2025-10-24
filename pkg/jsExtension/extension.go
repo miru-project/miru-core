@@ -113,11 +113,11 @@ func InitRuntime(extPath string, f embed.FS) {
 
 	}()
 	for _, ext := range exts {
-		if ext.Api == "2" {
-			LoadApiV2(ext, ScriptV2)
-		} else {
-			LoadApiV1(ext, ScriptV1)
-
+		switch ext.Api {
+		case "2":
+			go LoadApiV2(ext, ScriptV2)
+		default:
+			go LoadApiV1(ext, ScriptV1)
 		}
 	}
 }

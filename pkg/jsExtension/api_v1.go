@@ -32,6 +32,7 @@ func LoadApiV1(ext *Ext, baseScript string) {
 	api.initEvalV1String()
 	api.InitV1Script(ext.Pkg)
 	api.loadExtension(ext.Pkg)
+	log.Println("Extension loaded:", ext.Name, ext.Pkg)
 
 }
 func (api *ExtApi) loadExtension(pkg string) {
