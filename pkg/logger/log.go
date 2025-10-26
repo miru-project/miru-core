@@ -22,39 +22,40 @@ func Printf(format string, v ...interface{}) {
 	if mirulogger != nil {
 		mirulogger.Printf(format, v...)
 	}
+	log.Printf(format, v...)
 }
 
 func Println(v ...interface{}) {
 	if mirulogger != nil {
 		mirulogger.Println(v...)
 	}
+	log.Println(v...)
+
 }
 
 func Fatalf(format string, v ...interface{}) {
 	if mirulogger != nil {
 		mirulogger.Fatalf(format, v...)
-	} else {
-		log.Fatalf(format, v...)
 	}
+	log.Fatalf(format, v...)
 }
 
 func Fatalln(v ...interface{}) {
 	if mirulogger != nil {
 		mirulogger.Fatalln(v...)
-	} else {
-		log.Fatalln(v...)
 	}
+	log.Fatalln(v...)
 }
 func Fatal(v ...interface{}) {
 	if mirulogger != nil {
 		mirulogger.Fatal(v...)
-	} else {
-		log.Fatal(v...)
 	}
+	log.Fatal(v...)
 }
 
 func Print(v ...interface{}) {
 	if mirulogger != nil {
 		mirulogger.Print(v...)
 	}
+	log.Print(v...)
 }

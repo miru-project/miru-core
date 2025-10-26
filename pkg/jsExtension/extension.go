@@ -22,6 +22,43 @@ import (
 
 var extMemMap = sync.Map{}
 
+type ExtMapCache struct {
+	sync.Map
+}
+
+var ApiPkgCache = &ExtMapCache{sync.Map{}}
+
+func (m *ExtMapCache) Load(key string) *ExtApi {
+	val, _ := m.Map.Load(key)
+	return val.(*ExtApi)
+}
+func (m *ExtMapCache) Store(key string, value *ExtApi) {
+	m.Map.Store(key, value)
+}
+func (m *ExtMapCache) Modify(key string, f func(*ExtApi) *ExtApi) {
+	val, _ := m.Map.Load(key)
+	m.Map.Store(key, f(val.(*ExtApi)))
+}
+func (m *ExtMapCache) SetError(key string, errString string) {
+	m.Modify(key, func(ea *ExtApi) *ExtApi {
+		ea.Ext.Error = errString
+		return ea
+	})
+}
+
+func (m *ExtMapCache) Remove(key string) {
+	m.Map.Delete(key)
+}
+
+func (m *ExtMapCache) GetAll() []*ExtApi {
+	var exts []*ExtApi
+	ApiPkgCache.Map.Range(func(key, value any) bool {
+		exts = append(exts, value.(*ExtApi))
+		return true
+	})
+	return exts
+}
+
 type ExtBaseService struct {
 	// User extension compile into goja program
 	program *goja.Program
@@ -104,7 +141,7 @@ func InitRuntime(extPath string, f embed.FS) {
 		if r := recover(); r != nil {
 			if err, ok := r.(map[string]string); ok {
 				for pkg, msg := range err {
-					ApiPkgCache[pkg].Ext.Error = msg
+					ApiPkgCache.SetError(pkg, msg)
 				}
 				return
 			}
@@ -161,7 +198,7 @@ func WatchDir(dir string) {
 					log.Println("Removed file:", event.Name)
 					name := filepath.Base(event.Name)
 					pkg := strings.TrimSuffix(name, ".js")
-					delete(ApiPkgCache, pkg)
+					ApiPkgCache.Delete(pkg)
 				}
 			case err := <-watcher.Errors:
 				if err != nil {
@@ -216,7 +253,7 @@ func filterExts(dir string) []*Ext {
 		if err := ext.filterExt(dir + "/" + name); err == nil {
 			exts = append(exts, ext)
 		} else {
-			ApiPkgCache[name] = &ExtApi{Ext: &Ext{Name: name}, service: nil}
+			ApiPkgCache.Store(name, &ExtApi{Ext: &Ext{Name: name}, service: nil})
 		}
 	}
 	return exts
@@ -310,7 +347,7 @@ func Search(pkg string, page int, kw string, filter string) (any, error) {
 	if e != nil {
 		return nil, e
 	}
-	return api.asyncCallBack(api, pkg, fmt.Sprintf(api.searchEval, page, kw, filter))
+	return api.asyncCallBack(api, pkg, fmt.Sprintf(api.searchEval, kw, page, filter))
 
 }
 
@@ -334,9 +371,9 @@ func Detail(pkg string, url string) (any, error) {
 }
 
 func getPkgFromCache(pkg string) (*ExtApi, error) {
-	api, ok := ApiPkgCache[pkg]
+	api, ok := ApiPkgCache.Map.Load(pkg)
 	if ok {
-		return api, nil
+		return api.(*ExtApi), nil
 	}
 	ext := &Ext{Name: pkg + ".js"}
 	fileLoc, e := os.ReadFile(filepath.Join(ExtPath, pkg+".js"))
@@ -351,5 +388,5 @@ func getPkgFromCache(pkg string) (*ExtApi, error) {
 	if e := ext.ReloadExtension(); e != nil {
 		return nil, e
 	}
-	return ApiPkgCache[pkg], nil
+	return ApiPkgCache.Load(pkg), nil
 }

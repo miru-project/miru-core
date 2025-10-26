@@ -12,15 +12,13 @@ import (
 	"github.com/miru-project/miru-core/pkg/network"
 )
 
-var ApiPkgCache = make(map[string]*ExtApi)
-
 func LoadApiV2(ext *Ext, script string) {
 	scriptV2 := fmt.Sprintf(script, ext.Pkg, ext.Name, ext.Website)
 
 	runtimeV2 := errorhandle.HandleFatal(goja.Compile("runtime_v2.js", scriptV2, true))
 	api := &ExtApi{Ext: ext, service: &ExtBaseService{base: runtimeV2}}
 	api.service.program, _ = compileExtension(ext)
-	ApiPkgCache[ext.Pkg] = api
+	ApiPkgCache.Store(ext.Pkg, api)
 	api.Ext.Error = ""
 	api.initEvalV2String()
 
@@ -29,14 +27,14 @@ func (api *ExtApi) initEvalV2String() {
 	// Register  the async callback function for V2
 	api.asyncCallBack = AsyncCallBackV2
 	api.latestEval = "latest(%d)"
-	api.searchEval = "search(%d, '%s', %s)"
+	api.searchEval = "search('%s', %d, %s)"
 	api.detailEval = "detail('%s')"
 	api.watchEval = "watch('%s')"
 }
 
 // Handle any extension async callback like latest, search, watch etc
 func AsyncCallBackV2(api *ExtApi, pkg string, evalStr string) (any, error) {
-	ApiPkgCache[pkg] = api
+	ApiPkgCache.Store(pkg, api)
 
 	var loop *eventloop.EventLoop
 

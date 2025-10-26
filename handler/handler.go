@@ -12,7 +12,7 @@ func HelloMiru() (*result.Result[any], error) {
 
 	// Extension metaData
 	extMeta := make([]*jsExtension.Ext, 0)
-	for _, cache := range jsExtension.ApiPkgCache {
+	for _, cache := range jsExtension.ApiPkgCache.GetAll() {
 		extCopy := *cache.Ext
 		extCopy.Context = nil
 		extMeta = append(extMeta, &extCopy)

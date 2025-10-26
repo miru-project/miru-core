@@ -23,12 +23,21 @@ func LoadApiV1(ext *Ext, baseScript string) {
 	if e != nil {
 		log.Println("Error compiling extension:", e)
 		ext.Error = e.Error()
-		ApiPkgCache[ext.Pkg].Ext.Error = ""
+
+		ApiPkgCache.Modify(ext.Pkg, func(ea *ExtApi) *ExtApi {
+			ea.Ext.Error = e.Error()
+			return ea
+		})
 		return
 	}
 	api := &ExtApi{Ext: ext, service: &ExtBaseService{base: runtimeV1, program: compiledExt}}
-	ApiPkgCache[ext.Pkg] = api
-	ApiPkgCache[ext.Pkg].Ext.Error = ""
+	ApiPkgCache.Store(ext.Pkg, api)
+
+	ApiPkgCache.Modify(ext.Pkg, func(ea *ExtApi) *ExtApi {
+		ea.Ext.Error = ""
+		return ea
+	})
+
 	api.initEvalV1String()
 	api.InitV1Script(ext.Pkg)
 	api.loadExtension(ext.Pkg)
@@ -37,27 +46,27 @@ func LoadApiV1(ext *Ext, baseScript string) {
 }
 func (api *ExtApi) loadExtension(pkg string) {
 	if _, e := AsyncCallBackV1(api, pkg, "ext.load()"); e != nil {
-		ApiPkgCache[pkg].Ext.Error = e.Error()
+		ApiPkgCache.SetError(pkg, e.Error())
 	}
 }
 func (api *ExtApi) initEvalV1String() {
 	// Register  the async callback function for V1
 	api.asyncCallBack = AsyncCallBackV1
 	api.latestEval = "ext.latest(%d)"
-	api.searchEval = "ext.search(%d, '%s', %s)"
+	api.searchEval = "ext.search('%s', %d, %s)"
 	api.detailEval = "ext.detail('%s')"
 	api.watchEval = "ext.watch('%s')"
 }
 
 func (api *ExtApi) InitV1Script(pkg string) {
 
-	ApiPkgCache[pkg] = api
+	ApiPkgCache.Store(pkg, api)
 	loop := eventloop.NewEventLoop(
 		eventloop.WithRegistry(SharedRegistry),
 	)
 
 	if api == nil || api.service.program == nil {
-		ApiPkgCache[pkg].Ext.Error = fmt.Sprintf("extension %s not found", pkg)
+		ApiPkgCache.SetError(pkg, fmt.Sprintf("extension %s not found", pkg))
 	}
 	ser := api.service
 	// res := make(chan PromiseResult)
@@ -69,7 +78,7 @@ func (api *ExtApi) InitV1Script(pkg string) {
 		defer func() {
 			if r := recover(); r != nil {
 				if err, ok := r.(error); ok {
-					ApiPkgCache[pkg].Ext.Error = err.Error()
+					ApiPkgCache.SetError(pkg, err.Error())
 					return
 				}
 				log.Print("Unknown panic:", r)
@@ -211,7 +220,7 @@ func handlePromise(o goja.Value, res chan PromiseResult, e error) {
 }
 
 func AsyncCallBackV1(api *ExtApi, pkg string, evalStr string) (any, error) {
-	ApiPkgCache[pkg] = api
+	ApiPkgCache.Store(pkg, api)
 
 	var loop *eventloop.EventLoop
 
@@ -224,16 +233,15 @@ func AsyncCallBackV1(api *ExtApi, pkg string, evalStr string) (any, error) {
 		lop, _ = extMemMap.Load(pkg)
 		loop = lop.(*eventloop.EventLoop)
 	}
-
+	loop.Stop()
 	res := make(chan PromiseResult)
 	defer close(res)
 	loop.RunOnLoop(func(vm *goja.Runtime) {
 		o, e := vm.RunString(evalStr)
 		handlePromise(o, res, e)
 	})
-
 	loop.Start()
-	defer loop.Stop()
+	defer loop.StopNoWait()
 	result := <-res
 	// close(res)
 	// handle error from PromiseResult{err: e}
