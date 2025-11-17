@@ -220,6 +220,9 @@ func handlePromise(o goja.Value, res chan PromiseResult, e error) {
 }
 
 func AsyncCallBackV1(api *ExtApi, pkg string, evalStr string) (any, error) {
+	api.lock.Lock()
+	defer api.lock.Unlock()
+
 	ApiPkgCache.Store(pkg, api)
 
 	var loop *eventloop.EventLoop

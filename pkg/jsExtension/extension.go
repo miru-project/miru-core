@@ -85,6 +85,7 @@ type ExtApi struct {
 	searchEval    string
 	detailEval    string
 	watchEval     string
+	lock          sync.Mutex
 }
 
 type Job struct {
