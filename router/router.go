@@ -4,14 +4,11 @@ import (
 	"encoding/json"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/miru-project/miru-core/config"
-	errorhandle "github.com/miru-project/miru-core/errorHandle"
 	"github.com/miru-project/miru-core/ext"
 	"github.com/miru-project/miru-core/handler"
 	"github.com/miru-project/miru-core/pkg/result"
-	fiberSwagger "github.com/swaggo/fiber-swagger"
-
-	_ "github.com/miru-project/miru-core/docs" // Import generated docs
+	// fiberSwagger "github.com/swaggo/fiber-swagger"
+	// _ "github.com/miru-project/miru-core/docs" // Import generated docs
 )
 
 //	@title			Miru Core API
@@ -44,15 +41,16 @@ func InitRouter(app *fiber.App) {
 	initDBRouter(app)
 	GetAppSetting(app)
 	SetAppSetting(app)
-	app.Get("/swagger/*", fiberSwagger.WrapHandler)
-	startListening(app, config.Global.Address+":"+config.Global.Port)
+	// app.Get("/swagger/*", fiberSwagger.WrapHandler)
+	// startListening(app, config.Global.Address+":"+config.Global.Port)
 
 }
-func startListening(app *fiber.App, host string) {
-	if e := app.Listen(host); e != nil {
-		errorhandle.PanicF("Can't listen on host %q: %s", host, e)
-	}
-}
+
+// func startListening(app *fiber.App, host string) {
+// 	if e := app.Listen(host); e != nil {
+// 		errorhandle.PanicF("Can't listen on host %q: %s", host, e)
+// 	}
+// }
 
 // @Summary		Root endpoint
 // @Description	Returns basic information about Miru
