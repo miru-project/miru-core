@@ -37,6 +37,16 @@ class Element {
     return this.node.getAttribute(attr);
   }
 
+  querySelectorAll(selector) {
+    const nodes = this.node.querySelectorAll(selector);
+    return nodes.map(function (e) {
+      const c = e
+      c.content = e.outerHTML;
+      return c;
+    });
+  }
+
+
   get text() {
     return this.node.textContent;
   }
@@ -121,14 +131,8 @@ class Extension {
   queryXPath(content, selector) {
     return new XPathNode(content, selector, this.extension);
   }
-  async querySelectorAll(content, selector) {
-    const { document } = parseHTML(content);
-    const nodes = document.querySelectorAll(selector);
-    let elements = [];
-    nodes.forEach((node) => {
-      elements.push(node.outerHTML); // Return string, not Element
-    });
-    return elements;
+  querySelectorAll(content, selector) {
+    return new Element(content, null, this.extension).querySelectorAll(selector);
   }
 
   async getAttributeText(content, selector, attr) {
