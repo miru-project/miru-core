@@ -43,15 +43,15 @@ func requestWithCycleTLS(requrl string, option *RequestOptions) (string, error) 
 	config := option.TlsSpoofConfig
 	reqUrl, _ := url.Parse(requrl)
 
+	// Set cycleTls headers from header
+	config.Headers = option.Headers
+
 	// Set cookie from cookiejar
 	if _, e := config.Headers["Cookie"]; !e {
 		config.Headers["Cookie"] = getHeadersFromJar(reqUrl)
 	} else {
 		config.Headers["Cookie"] += "; " + getHeadersFromJar(reqUrl)
 	}
-
-	// Set cycleTls headers from header
-	config.Headers = option.Headers
 
 	res, err := client.Do(requrl, config, checkRequestMethod(option.Method))
 	if err != nil {
