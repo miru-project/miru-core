@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 
 	log "github.com/miru-project/miru-core/pkg/logger"
 
@@ -182,6 +183,7 @@ func (api *ExtApi) InitV1Script(pkg string) {
 		ser.createSingleChannel(vm, "jsRequest", &job, func(call goja.FunctionCall, resolve func(any) error) any {
 
 			url := call.Argument(0).ToString().String()
+			url = strings.ReplaceAll(url, "&amp;", "&")
 			opt := call.Argument(1).ToObject(vm).Export()
 			var requestOptions network.RequestOptions
 			jsonData, e := json.Marshal(opt)
