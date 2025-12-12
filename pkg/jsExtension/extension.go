@@ -12,12 +12,13 @@ import (
 	"time"
 
 	log "github.com/miru-project/miru-core/pkg/logger"
+	"github.com/miru-project/miru-core/pkg/torrent"
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"
 	"github.com/dop251/goja_nodejs/require"
 	"github.com/fsnotify/fsnotify"
-	errorhandle "github.com/miru-project/miru-core/errorHandle"
+	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 )
 
 var extMemMap = sync.Map{}
@@ -359,7 +360,35 @@ func Watch(pkg string, url string) (any, error) {
 	if e != nil {
 		return nil, e
 	}
-	return api.asyncCallBack(api, pkg, fmt.Sprintf(api.watchEval, url))
+
+	o, e := api.asyncCallBack(api, pkg, fmt.Sprintf(api.watchEval, url))
+	if e != nil {
+		return nil, e
+	}
+
+	obj := o.(map[string]any)
+	vidType := obj["type"].(string)
+	switch vidType {
+
+	case "magnet":
+		t, e := torrent.AddMagnet(url)
+		if e != nil {
+			return nil, e
+		}
+		obj["torrent"] = t
+		return obj, nil
+
+	case "torrent":
+		t, e := torrent.AddTorrent(url)
+		if e != nil {
+			return nil, e
+		}
+		obj["torrent"] = t
+		return obj, nil
+
+	default:
+		return obj, nil
+	}
 
 }
 

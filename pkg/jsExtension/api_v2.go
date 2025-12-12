@@ -8,7 +8,7 @@ import (
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"
-	errorhandle "github.com/miru-project/miru-core/errorHandle"
+	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 	"github.com/miru-project/miru-core/pkg/network"
 )
 

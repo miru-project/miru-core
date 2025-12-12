@@ -5,6 +5,7 @@ import (
 	"github.com/miru-project/miru-core/pkg/download"
 	"github.com/miru-project/miru-core/pkg/jsExtension"
 	"github.com/miru-project/miru-core/pkg/result"
+	"github.com/miru-project/miru-core/pkg/torrent"
 )
 
 func HelloMiru() (*result.Result[any], error) {
@@ -21,7 +22,7 @@ func HelloMiru() (*result.Result[any], error) {
 
 	// Download status
 	out["downloadStatus"] = download.DownloadStatus()
-
+	out["torrent"] = torrent.TorrentStatus()
 	return result.NewSuccessResult(out), nil
 }
 

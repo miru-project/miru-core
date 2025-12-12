@@ -5,10 +5,10 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/miru-project/miru-core/config"
-	errorhandle "github.com/miru-project/miru-core/errorHandle"
 	"github.com/miru-project/miru-core/ext"
-	"github.com/miru-project/miru-core/handler"
+	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 	"github.com/miru-project/miru-core/pkg/result"
+	"github.com/miru-project/miru-core/router/handler"
 	// fiberSwagger "github.com/swaggo/fiber-swagger"
 	// _ "github.com/miru-project/miru-core/docs" // Import generated docs
 )
@@ -41,6 +41,7 @@ func InitRouter(app *fiber.App) {
 	initDownloadRouter(app)
 	initNetworkRouter(app)
 	initDBRouter(app)
+	initTorrentRouter(app)
 	GetAppSetting(app)
 	SetAppSetting(app)
 	// app.Get("/swagger/*", fiberSwagger.WrapHandler)

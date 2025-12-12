@@ -10,8 +10,8 @@ import (
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"
-	errorhandle "github.com/miru-project/miru-core/errorHandle"
 	"github.com/miru-project/miru-core/pkg/db"
+	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 	"github.com/miru-project/miru-core/pkg/network"
 )
 
@@ -209,16 +209,6 @@ func (api *ExtApi) InitV1Script(pkg string) {
 
 	extMemMap.Store(pkg, loop)
 
-}
-
-func handlePromise(o goja.Value, res chan PromiseResult, e error) {
-	if e != nil {
-		// This kind of error happens before the async function is called
-		res <- PromiseResult{err: e}
-		return
-	}
-	// Because it eval async funcion the value become a promise and send to channel
-	res <- PromiseResult{promise: o.Export().(*goja.Promise)}
 }
 
 func AsyncCallBackV1(api *ExtApi, pkg string, evalStr string) (any, error) {

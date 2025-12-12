@@ -12,7 +12,7 @@ import (
 	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/dop251/goja"
-	errorhandle "github.com/miru-project/miru-core/errorHandle"
+	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 	"github.com/miru-project/miru-core/pkg/network"
 )
 

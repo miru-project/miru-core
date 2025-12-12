@@ -2,15 +2,17 @@ package network
 
 import (
 	"bytes"
+	"context"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 
-	log "github.com/miru-project/miru-core/pkg/logger"
-
 	"github.com/Danny-Dasilva/CycleTLS/cycletls"
+	logger "github.com/gofiber/fiber/v2/log"
+	log "github.com/miru-project/miru-core/pkg/logger"
 )
 
 // Request makes an HTTP request and returns the response as type T.
@@ -209,4 +211,30 @@ type RequestOptions struct {
 	RequestBody    string            `json:"request_body"`
 	RequestBodyRaw []byte            `json:"request_body_raw"`
 	TlsSpoofConfig cycletls.Options  `json:"tls_spoof_config"`
+}
+
+func dnsResolve() {
+	addrs, err := net.LookupHost("www.google.com")
+	if len(addrs) == 0 {
+		logger.Error("Check dns failed", addrs, err)
+
+		fn := func(ctx context.Context, network, address string) (net.Conn, error) {
+			d := net.Dialer{}
+			return d.DialContext(ctx, "udp", "1.1.1.1:53")
+		}
+
+		net.DefaultResolver = &net.Resolver{
+			Dial: fn,
+		}
+
+		addrs, err = net.LookupHost("www.google.com")
+		logger.Info("Check cloudflare dns", addrs, err)
+	} else {
+		logger.Info("Check dns OK", addrs, err)
+	}
+}
+
+func Init() {
+	go dnsResolve()
+	initCookieJar()
 }

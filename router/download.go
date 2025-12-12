@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/miru-project/miru-core/handler"
+	"github.com/miru-project/miru-core/router/handler"
 	"github.com/miru-project/miru-core/pkg/download"
 	"github.com/miru-project/miru-core/pkg/result"
 )

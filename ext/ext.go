@@ -4,17 +4,16 @@ import (
 	"context"
 	"fmt"
 
-	errorhandle "github.com/miru-project/miru-core/errorHandle"
+	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"entgo.io/ent/dialect"
-	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/lib/pq"
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/miru-project/miru-core/config"
 	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/ent/appsetting"
 	_ "github.com/miru-project/miru-core/ent/runtime"
+
+	_ "github.com/sqlite3ent/sqlite3"
 )
 
 var (

@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/miru-project/miru-core/handler"
+	"github.com/miru-project/miru-core/router/handler"
 	_ "github.com/miru-project/miru-core/pkg/jsExtension"
 	"github.com/miru-project/miru-core/pkg/result"
 )

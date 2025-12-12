@@ -6,12 +6,13 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/miru-project/miru-core/config"
-	errorhandle "github.com/miru-project/miru-core/errorHandle"
 	"github.com/miru-project/miru-core/ext"
 	"github.com/miru-project/miru-core/pkg/anilist"
+	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 	jsext "github.com/miru-project/miru-core/pkg/jsExtension"
 	log "github.com/miru-project/miru-core/pkg/logger"
 	"github.com/miru-project/miru-core/pkg/network"
+	"github.com/miru-project/miru-core/pkg/torrent"
 	"github.com/miru-project/miru-core/router"
 	_ "golang.org/x/mobile/bind"
 )
@@ -54,7 +55,8 @@ func Init() {
 
 	ext.EntClient()
 	anilist.InitToken()
-	network.InitCookieJar()
+	network.Init()
+	torrent.Init()
 	jsext.InitRuntime(config.Global.ExtensionPath, f)
 	log.Println("Miru Core initialized successfully!")
 }

@@ -6,7 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/miru-project/miru-core/ext"
-	"github.com/miru-project/miru-core/handler"
+	"github.com/miru-project/miru-core/router/handler"
 	"github.com/miru-project/miru-core/pkg/anilist"
 	"github.com/miru-project/miru-core/pkg/result"
 )

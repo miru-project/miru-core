@@ -9,7 +9,7 @@ import (
 	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/dop251/goja"
-	errorhandle "github.com/miru-project/miru-core/errorHandle"
+	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 )
 
 // Create a go routine that check Promise is fulfilled or rejected
@@ -89,4 +89,14 @@ func (ser *ExtBaseService) createSingleChannel(vm *goja.Runtime, name string, jo
 		// 返回 promise
 		return vm.ToValue(promise)
 	})
+}
+
+func handlePromise(o goja.Value, res chan PromiseResult, e error) {
+	if e != nil {
+		// This kind of error happens before the async function is called
+		res <- PromiseResult{err: e}
+		return
+	}
+	// Because it eval async funcion the value become a promise and send to channel
+	res <- PromiseResult{promise: o.Export().(*goja.Promise)}
 }

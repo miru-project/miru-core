@@ -6,7 +6,7 @@ import (
 	"path"
 	"path/filepath"
 
-	errorhandle "github.com/miru-project/miru-core/errorHandle"
+	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/dop251/goja"

@@ -21,6 +21,7 @@ type Config struct {
 	CookieStoreLoc string `json:"cookieStoreLocation"`
 	Address        string `json:"address"`
 	Port           string `json:"port"`
+	BTDataDir      string `json:"btDataDir"`
 }
 
 var (
@@ -50,7 +51,10 @@ func Load(path string) error {
 			return err
 		}
 	}
-
+	if !filepath.IsAbs(Global.BTDataDir) {
+		base := filepath.Dir(Global.ExtensionPath)
+		Global.BTDataDir = filepath.Join(base, "bt-data")
+	}
 	return nil
 }
 

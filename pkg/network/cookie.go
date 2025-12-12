@@ -45,7 +45,7 @@ func GetCookies(u string) ([]*http.Cookie, error) {
 	return jar.Cookies(parsedURL), nil
 }
 
-func InitCookieJar() {
+func initCookieJar() {
 	homeDir, e := os.UserHomeDir()
 	if e != nil {
 		log.Fatal(e, "Failed to get user home directory")
