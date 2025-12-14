@@ -50,7 +50,7 @@ jobs:
       - name: Install mingw-w64 (for cross C toolchain)
         run: |
           sudo apt-get update
-          sudo apt-get install -y mingw-w64
+          sudo apt-get install -y mingw-w64 gcc-mingw-w64-i686 gcc-mingw-w64-x86-64
 
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -164,7 +164,8 @@ jobs:
           ANDROID_API=21
           echo "Using gomobile: $GOMOBILE_BIN"
           "$GOMOBILE_BIN" version || true
-          "$GOMOBILE_BIN" bind -v -target=android -o build/miru.aar -androidapi "$ANDROID_API" .
+          LD_FLAG="-s -w -trimpath -checklinkname=0"
+          "$GOMOBILE_BIN" bind -v -target=android -o build/miru.aar -androidapi "$ANDROID_API" -ldflags="$LD_FLAG" .
 
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
