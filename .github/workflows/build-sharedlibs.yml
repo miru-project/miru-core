@@ -5,7 +5,8 @@ on:
     branches: [ main]
   pull_request:
     branches: [ main ]
-
+env:
+  GO_VERSION: '1.25.1'
 jobs:
   build-linux:
     name: Build Linux shared library (.so)
@@ -17,7 +18,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.24.6'
+          go-version: ${{ env.GO_VERSION }}
 
       - name: Prepare build dir
         run: mkdir -p binary/build
@@ -41,16 +42,11 @@ jobs:
           path: build/libmiru.so
 
   build-windows:
-    name: Cross-compile Windows DLL (.dll) on Ubuntu
-    runs-on: ubuntu-latest
+    name: Build Windows DLL (.dll)
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Install mingw-w64 (for cross C toolchain)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y mingw-w64 gcc-mingw-w64-i686 gcc-mingw-w64-x86-64
 
       - name: Set up Go
         uses: actions/setup-go@v4
@@ -58,16 +54,15 @@ jobs:
           go-version: '1.24.2'
 
       - name: Prepare build dir
+        shell: bash
         run: mkdir -p build
 
       - name: Build .dll (windows/amd64)
+        shell: bash
         env:
           CGO_ENABLED: '1'
-          GOOS: windows
-          GOARCH: amd64
-          CC: x86_64-w64-mingw32-gcc
         run: |
-          echo "Cross-building Windows DLL using mingw (project root main.go)"
+          echo "Building Windows DLL on Windows runner"
           # Default LD flags - adjust if you need different linker flags
           LD_FLAG="-s -w"
           GO_OUTPUT="build/miru.dll"
@@ -90,7 +85,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.24.6'
+          go-version: ${{ env.GO_VERSION }}
 
       - name: Prepare build dir
         run: mkdir -p binary/build
@@ -164,7 +159,7 @@ jobs:
           ANDROID_API=21
           echo "Using gomobile: $GOMOBILE_BIN"
           "$GOMOBILE_BIN" version || true
-          LD_FLAG="-s -w -trimpath -checklinkname=0"
+          LD_FLAG="-s -w -checklinkname=0"
           "$GOMOBILE_BIN" bind -v -target=android -o build/miru.aar -androidapi "$ANDROID_API" -ldflags="$LD_FLAG" .
 
       - name: Upload Android artifacts
