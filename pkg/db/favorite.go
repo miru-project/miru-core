@@ -121,3 +121,15 @@ func DeleteFavorite(detailUrl, pkg string) error {
 	_, err := client.Favorite.Delete().Where(favorite.URLEQ(detailUrl), favorite.PackageEQ(pkg)).Exec(ctx)
 	return err
 }
+
+// GetFavoriteGroupsByFavorite returns favorite groups that contain a favorite with the provided package and url.
+func GetFavoriteGroupsByFavorite(pkg, url string) ([]*ent.FavoriteGroup, error) {
+	client := ext.EntClient()
+	ctx := context.Background()
+	return client.FavoriteGroup.Query().
+		Where(favoritegroup.HasFavoritesWith(
+			favorite.PackageEQ(pkg),
+			favorite.URLEQ(url),
+		)).
+		All(ctx)
+}

@@ -21,17 +21,17 @@ const (
 	FieldCover = "cover"
 	// FieldType holds the string denoting the type field in the database.
 	FieldType = "type"
-	// FieldEpisodeGroupID holds the string denoting the episode_group_id field in the database.
+	// FieldEpisodeGroupID holds the string denoting the episodegroupid field in the database.
 	FieldEpisodeGroupID = "episode_group_id"
-	// FieldEpisodeID holds the string denoting the episode_id field in the database.
+	// FieldEpisodeID holds the string denoting the episodeid field in the database.
 	FieldEpisodeID = "episode_id"
 	// FieldTitle holds the string denoting the title field in the database.
 	FieldTitle = "title"
-	// FieldEpisodeTitle holds the string denoting the episode_title field in the database.
+	// FieldEpisodeTitle holds the string denoting the episodetitle field in the database.
 	FieldEpisodeTitle = "episode_title"
 	// FieldProgress holds the string denoting the progress field in the database.
 	FieldProgress = "progress"
-	// FieldTotalProgress holds the string denoting the total_progress field in the database.
+	// FieldTotalProgress holds the string denoting the totalprogress field in the database.
 	FieldTotalProgress = "total_progress"
 	// FieldDate holds the string denoting the date field in the database.
 	FieldDate = "date"
@@ -74,12 +74,8 @@ var (
 	TypeValidator func(string) error
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
-	// EpisodeTitleValidator is a validator for the "episode_title" field. It is called by the builders before save.
+	// EpisodeTitleValidator is a validator for the "episodeTitle" field. It is called by the builders before save.
 	EpisodeTitleValidator func(string) error
-	// ProgressValidator is a validator for the "progress" field. It is called by the builders before save.
-	ProgressValidator func(string) error
-	// TotalProgressValidator is a validator for the "total_progress" field. It is called by the builders before save.
-	TotalProgressValidator func(string) error
 	// DefaultDate holds the default value on creation for the "date" field.
 	DefaultDate func() time.Time
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
@@ -114,12 +110,12 @@ func ByType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldType, opts...).ToFunc()
 }
 
-// ByEpisodeGroupID orders the results by the episode_group_id field.
+// ByEpisodeGroupID orders the results by the episodeGroupID field.
 func ByEpisodeGroupID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEpisodeGroupID, opts...).ToFunc()
 }
 
-// ByEpisodeID orders the results by the episode_id field.
+// ByEpisodeID orders the results by the episodeID field.
 func ByEpisodeID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEpisodeID, opts...).ToFunc()
 }
@@ -129,7 +125,7 @@ func ByTitle(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTitle, opts...).ToFunc()
 }
 
-// ByEpisodeTitle orders the results by the episode_title field.
+// ByEpisodeTitle orders the results by the episodeTitle field.
 func ByEpisodeTitle(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEpisodeTitle, opts...).ToFunc()
 }
@@ -139,7 +135,7 @@ func ByProgress(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProgress, opts...).ToFunc()
 }
 
-// ByTotalProgress orders the results by the total_progress field.
+// ByTotalProgress orders the results by the totalProgress field.
 func ByTotalProgress(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTotalProgress, opts...).ToFunc()
 }

@@ -365,7 +365,9 @@ func Watch(pkg string, url string) (any, error) {
 	if e != nil {
 		return nil, e
 	}
-
+	if api.Ext.WatchType != "bangumi" {
+		return o, nil
+	}
 	obj := o.(map[string]any)
 	vidType := obj["type"].(string)
 	switch vidType {

@@ -27,17 +27,17 @@ type History struct {
 	// Type of content (stored as string representation of enum)
 	Type string `json:"type,omitempty"`
 	// ID of the episode group
-	EpisodeGroupID int `json:"episode_group_id,omitempty"`
+	EpisodeGroupID int `json:"episodeGroupID,omitempty"`
 	// ID of the episode
-	EpisodeID int `json:"episode_id,omitempty"`
+	EpisodeID int `json:"episodeID,omitempty"`
 	// Title of the content
 	Title string `json:"title,omitempty"`
 	// Title of the episode
-	EpisodeTitle string `json:"episode_title,omitempty"`
+	EpisodeTitle string `json:"episodeTitle,omitempty"`
 	// Current progress in the content
-	Progress string `json:"progress,omitempty"`
+	Progress int `json:"progress,omitempty"`
 	// Total progress available
-	TotalProgress string `json:"total_progress,omitempty"`
+	TotalProgress int `json:"totalProgress,omitempty"`
 	// Date when the history entry was created/updated
 	Date         time.Time `json:"date,omitempty"`
 	selectValues sql.SelectValues
@@ -48,9 +48,9 @@ func (*History) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case history.FieldID, history.FieldEpisodeGroupID, history.FieldEpisodeID:
+		case history.FieldID, history.FieldEpisodeGroupID, history.FieldEpisodeID, history.FieldProgress, history.FieldTotalProgress:
 			values[i] = new(sql.NullInt64)
-		case history.FieldPackage, history.FieldURL, history.FieldCover, history.FieldType, history.FieldTitle, history.FieldEpisodeTitle, history.FieldProgress, history.FieldTotalProgress:
+		case history.FieldPackage, history.FieldURL, history.FieldCover, history.FieldType, history.FieldTitle, history.FieldEpisodeTitle:
 			values[i] = new(sql.NullString)
 		case history.FieldDate:
 			values[i] = new(sql.NullTime)
@@ -102,13 +102,13 @@ func (_m *History) assignValues(columns []string, values []any) error {
 			}
 		case history.FieldEpisodeGroupID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field episode_group_id", values[i])
+				return fmt.Errorf("unexpected type %T for field episodeGroupID", values[i])
 			} else if value.Valid {
 				_m.EpisodeGroupID = int(value.Int64)
 			}
 		case history.FieldEpisodeID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field episode_id", values[i])
+				return fmt.Errorf("unexpected type %T for field episodeID", values[i])
 			} else if value.Valid {
 				_m.EpisodeID = int(value.Int64)
 			}
@@ -120,21 +120,21 @@ func (_m *History) assignValues(columns []string, values []any) error {
 			}
 		case history.FieldEpisodeTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field episode_title", values[i])
+				return fmt.Errorf("unexpected type %T for field episodeTitle", values[i])
 			} else if value.Valid {
 				_m.EpisodeTitle = value.String
 			}
 		case history.FieldProgress:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field progress", values[i])
 			} else if value.Valid {
-				_m.Progress = value.String
+				_m.Progress = int(value.Int64)
 			}
 		case history.FieldTotalProgress:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field total_progress", values[i])
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field totalProgress", values[i])
 			} else if value.Valid {
-				_m.TotalProgress = value.String
+				_m.TotalProgress = int(value.Int64)
 			}
 		case history.FieldDate:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -192,23 +192,23 @@ func (_m *History) String() string {
 	builder.WriteString("type=")
 	builder.WriteString(_m.Type)
 	builder.WriteString(", ")
-	builder.WriteString("episode_group_id=")
+	builder.WriteString("episodeGroupID=")
 	builder.WriteString(fmt.Sprintf("%v", _m.EpisodeGroupID))
 	builder.WriteString(", ")
-	builder.WriteString("episode_id=")
+	builder.WriteString("episodeID=")
 	builder.WriteString(fmt.Sprintf("%v", _m.EpisodeID))
 	builder.WriteString(", ")
 	builder.WriteString("title=")
 	builder.WriteString(_m.Title)
 	builder.WriteString(", ")
-	builder.WriteString("episode_title=")
+	builder.WriteString("episodeTitle=")
 	builder.WriteString(_m.EpisodeTitle)
 	builder.WriteString(", ")
 	builder.WriteString("progress=")
-	builder.WriteString(_m.Progress)
+	builder.WriteString(fmt.Sprintf("%v", _m.Progress))
 	builder.WriteString(", ")
-	builder.WriteString("total_progress=")
-	builder.WriteString(_m.TotalProgress)
+	builder.WriteString("totalProgress=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TotalProgress))
 	builder.WriteString(", ")
 	builder.WriteString("date=")
 	builder.WriteString(_m.Date.Format(time.ANSIC))

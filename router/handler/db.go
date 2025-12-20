@@ -154,9 +154,9 @@ func GetHistory(function string, c *fiber.Ctx) (any, error) {
 			break
 		}
 
-	case "GetHistorysByType":
+	case "GetHistoriesByType":
 		t := c.FormValue("type")
-		o, e = db.GetHistorysByType(&t)
+		o, e = db.GetHistoriesByType(&t)
 		if e != nil {
 			break
 		}

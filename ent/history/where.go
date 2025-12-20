@@ -74,12 +74,12 @@ func Type(v string) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldType, v))
 }
 
-// EpisodeGroupID applies equality check predicate on the "episode_group_id" field. It's identical to EpisodeGroupIDEQ.
+// EpisodeGroupID applies equality check predicate on the "episodeGroupID" field. It's identical to EpisodeGroupIDEQ.
 func EpisodeGroupID(v int) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldEpisodeGroupID, v))
 }
 
-// EpisodeID applies equality check predicate on the "episode_id" field. It's identical to EpisodeIDEQ.
+// EpisodeID applies equality check predicate on the "episodeID" field. It's identical to EpisodeIDEQ.
 func EpisodeID(v int) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldEpisodeID, v))
 }
@@ -89,18 +89,18 @@ func Title(v string) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldTitle, v))
 }
 
-// EpisodeTitle applies equality check predicate on the "episode_title" field. It's identical to EpisodeTitleEQ.
+// EpisodeTitle applies equality check predicate on the "episodeTitle" field. It's identical to EpisodeTitleEQ.
 func EpisodeTitle(v string) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldEpisodeTitle, v))
 }
 
 // Progress applies equality check predicate on the "progress" field. It's identical to ProgressEQ.
-func Progress(v string) predicate.History {
+func Progress(v int) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldProgress, v))
 }
 
-// TotalProgress applies equality check predicate on the "total_progress" field. It's identical to TotalProgressEQ.
-func TotalProgress(v string) predicate.History {
+// TotalProgress applies equality check predicate on the "totalProgress" field. It's identical to TotalProgressEQ.
+func TotalProgress(v int) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldTotalProgress, v))
 }
 
@@ -379,82 +379,82 @@ func TypeContainsFold(v string) predicate.History {
 	return predicate.History(sql.FieldContainsFold(FieldType, v))
 }
 
-// EpisodeGroupIDEQ applies the EQ predicate on the "episode_group_id" field.
+// EpisodeGroupIDEQ applies the EQ predicate on the "episodeGroupID" field.
 func EpisodeGroupIDEQ(v int) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldEpisodeGroupID, v))
 }
 
-// EpisodeGroupIDNEQ applies the NEQ predicate on the "episode_group_id" field.
+// EpisodeGroupIDNEQ applies the NEQ predicate on the "episodeGroupID" field.
 func EpisodeGroupIDNEQ(v int) predicate.History {
 	return predicate.History(sql.FieldNEQ(FieldEpisodeGroupID, v))
 }
 
-// EpisodeGroupIDIn applies the In predicate on the "episode_group_id" field.
+// EpisodeGroupIDIn applies the In predicate on the "episodeGroupID" field.
 func EpisodeGroupIDIn(vs ...int) predicate.History {
 	return predicate.History(sql.FieldIn(FieldEpisodeGroupID, vs...))
 }
 
-// EpisodeGroupIDNotIn applies the NotIn predicate on the "episode_group_id" field.
+// EpisodeGroupIDNotIn applies the NotIn predicate on the "episodeGroupID" field.
 func EpisodeGroupIDNotIn(vs ...int) predicate.History {
 	return predicate.History(sql.FieldNotIn(FieldEpisodeGroupID, vs...))
 }
 
-// EpisodeGroupIDGT applies the GT predicate on the "episode_group_id" field.
+// EpisodeGroupIDGT applies the GT predicate on the "episodeGroupID" field.
 func EpisodeGroupIDGT(v int) predicate.History {
 	return predicate.History(sql.FieldGT(FieldEpisodeGroupID, v))
 }
 
-// EpisodeGroupIDGTE applies the GTE predicate on the "episode_group_id" field.
+// EpisodeGroupIDGTE applies the GTE predicate on the "episodeGroupID" field.
 func EpisodeGroupIDGTE(v int) predicate.History {
 	return predicate.History(sql.FieldGTE(FieldEpisodeGroupID, v))
 }
 
-// EpisodeGroupIDLT applies the LT predicate on the "episode_group_id" field.
+// EpisodeGroupIDLT applies the LT predicate on the "episodeGroupID" field.
 func EpisodeGroupIDLT(v int) predicate.History {
 	return predicate.History(sql.FieldLT(FieldEpisodeGroupID, v))
 }
 
-// EpisodeGroupIDLTE applies the LTE predicate on the "episode_group_id" field.
+// EpisodeGroupIDLTE applies the LTE predicate on the "episodeGroupID" field.
 func EpisodeGroupIDLTE(v int) predicate.History {
 	return predicate.History(sql.FieldLTE(FieldEpisodeGroupID, v))
 }
 
-// EpisodeIDEQ applies the EQ predicate on the "episode_id" field.
+// EpisodeIDEQ applies the EQ predicate on the "episodeID" field.
 func EpisodeIDEQ(v int) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldEpisodeID, v))
 }
 
-// EpisodeIDNEQ applies the NEQ predicate on the "episode_id" field.
+// EpisodeIDNEQ applies the NEQ predicate on the "episodeID" field.
 func EpisodeIDNEQ(v int) predicate.History {
 	return predicate.History(sql.FieldNEQ(FieldEpisodeID, v))
 }
 
-// EpisodeIDIn applies the In predicate on the "episode_id" field.
+// EpisodeIDIn applies the In predicate on the "episodeID" field.
 func EpisodeIDIn(vs ...int) predicate.History {
 	return predicate.History(sql.FieldIn(FieldEpisodeID, vs...))
 }
 
-// EpisodeIDNotIn applies the NotIn predicate on the "episode_id" field.
+// EpisodeIDNotIn applies the NotIn predicate on the "episodeID" field.
 func EpisodeIDNotIn(vs ...int) predicate.History {
 	return predicate.History(sql.FieldNotIn(FieldEpisodeID, vs...))
 }
 
-// EpisodeIDGT applies the GT predicate on the "episode_id" field.
+// EpisodeIDGT applies the GT predicate on the "episodeID" field.
 func EpisodeIDGT(v int) predicate.History {
 	return predicate.History(sql.FieldGT(FieldEpisodeID, v))
 }
 
-// EpisodeIDGTE applies the GTE predicate on the "episode_id" field.
+// EpisodeIDGTE applies the GTE predicate on the "episodeID" field.
 func EpisodeIDGTE(v int) predicate.History {
 	return predicate.History(sql.FieldGTE(FieldEpisodeID, v))
 }
 
-// EpisodeIDLT applies the LT predicate on the "episode_id" field.
+// EpisodeIDLT applies the LT predicate on the "episodeID" field.
 func EpisodeIDLT(v int) predicate.History {
 	return predicate.History(sql.FieldLT(FieldEpisodeID, v))
 }
 
-// EpisodeIDLTE applies the LTE predicate on the "episode_id" field.
+// EpisodeIDLTE applies the LTE predicate on the "episodeID" field.
 func EpisodeIDLTE(v int) predicate.History {
 	return predicate.History(sql.FieldLTE(FieldEpisodeID, v))
 }
@@ -524,199 +524,149 @@ func TitleContainsFold(v string) predicate.History {
 	return predicate.History(sql.FieldContainsFold(FieldTitle, v))
 }
 
-// EpisodeTitleEQ applies the EQ predicate on the "episode_title" field.
+// EpisodeTitleEQ applies the EQ predicate on the "episodeTitle" field.
 func EpisodeTitleEQ(v string) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldEpisodeTitle, v))
 }
 
-// EpisodeTitleNEQ applies the NEQ predicate on the "episode_title" field.
+// EpisodeTitleNEQ applies the NEQ predicate on the "episodeTitle" field.
 func EpisodeTitleNEQ(v string) predicate.History {
 	return predicate.History(sql.FieldNEQ(FieldEpisodeTitle, v))
 }
 
-// EpisodeTitleIn applies the In predicate on the "episode_title" field.
+// EpisodeTitleIn applies the In predicate on the "episodeTitle" field.
 func EpisodeTitleIn(vs ...string) predicate.History {
 	return predicate.History(sql.FieldIn(FieldEpisodeTitle, vs...))
 }
 
-// EpisodeTitleNotIn applies the NotIn predicate on the "episode_title" field.
+// EpisodeTitleNotIn applies the NotIn predicate on the "episodeTitle" field.
 func EpisodeTitleNotIn(vs ...string) predicate.History {
 	return predicate.History(sql.FieldNotIn(FieldEpisodeTitle, vs...))
 }
 
-// EpisodeTitleGT applies the GT predicate on the "episode_title" field.
+// EpisodeTitleGT applies the GT predicate on the "episodeTitle" field.
 func EpisodeTitleGT(v string) predicate.History {
 	return predicate.History(sql.FieldGT(FieldEpisodeTitle, v))
 }
 
-// EpisodeTitleGTE applies the GTE predicate on the "episode_title" field.
+// EpisodeTitleGTE applies the GTE predicate on the "episodeTitle" field.
 func EpisodeTitleGTE(v string) predicate.History {
 	return predicate.History(sql.FieldGTE(FieldEpisodeTitle, v))
 }
 
-// EpisodeTitleLT applies the LT predicate on the "episode_title" field.
+// EpisodeTitleLT applies the LT predicate on the "episodeTitle" field.
 func EpisodeTitleLT(v string) predicate.History {
 	return predicate.History(sql.FieldLT(FieldEpisodeTitle, v))
 }
 
-// EpisodeTitleLTE applies the LTE predicate on the "episode_title" field.
+// EpisodeTitleLTE applies the LTE predicate on the "episodeTitle" field.
 func EpisodeTitleLTE(v string) predicate.History {
 	return predicate.History(sql.FieldLTE(FieldEpisodeTitle, v))
 }
 
-// EpisodeTitleContains applies the Contains predicate on the "episode_title" field.
+// EpisodeTitleContains applies the Contains predicate on the "episodeTitle" field.
 func EpisodeTitleContains(v string) predicate.History {
 	return predicate.History(sql.FieldContains(FieldEpisodeTitle, v))
 }
 
-// EpisodeTitleHasPrefix applies the HasPrefix predicate on the "episode_title" field.
+// EpisodeTitleHasPrefix applies the HasPrefix predicate on the "episodeTitle" field.
 func EpisodeTitleHasPrefix(v string) predicate.History {
 	return predicate.History(sql.FieldHasPrefix(FieldEpisodeTitle, v))
 }
 
-// EpisodeTitleHasSuffix applies the HasSuffix predicate on the "episode_title" field.
+// EpisodeTitleHasSuffix applies the HasSuffix predicate on the "episodeTitle" field.
 func EpisodeTitleHasSuffix(v string) predicate.History {
 	return predicate.History(sql.FieldHasSuffix(FieldEpisodeTitle, v))
 }
 
-// EpisodeTitleEqualFold applies the EqualFold predicate on the "episode_title" field.
+// EpisodeTitleEqualFold applies the EqualFold predicate on the "episodeTitle" field.
 func EpisodeTitleEqualFold(v string) predicate.History {
 	return predicate.History(sql.FieldEqualFold(FieldEpisodeTitle, v))
 }
 
-// EpisodeTitleContainsFold applies the ContainsFold predicate on the "episode_title" field.
+// EpisodeTitleContainsFold applies the ContainsFold predicate on the "episodeTitle" field.
 func EpisodeTitleContainsFold(v string) predicate.History {
 	return predicate.History(sql.FieldContainsFold(FieldEpisodeTitle, v))
 }
 
 // ProgressEQ applies the EQ predicate on the "progress" field.
-func ProgressEQ(v string) predicate.History {
+func ProgressEQ(v int) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldProgress, v))
 }
 
 // ProgressNEQ applies the NEQ predicate on the "progress" field.
-func ProgressNEQ(v string) predicate.History {
+func ProgressNEQ(v int) predicate.History {
 	return predicate.History(sql.FieldNEQ(FieldProgress, v))
 }
 
 // ProgressIn applies the In predicate on the "progress" field.
-func ProgressIn(vs ...string) predicate.History {
+func ProgressIn(vs ...int) predicate.History {
 	return predicate.History(sql.FieldIn(FieldProgress, vs...))
 }
 
 // ProgressNotIn applies the NotIn predicate on the "progress" field.
-func ProgressNotIn(vs ...string) predicate.History {
+func ProgressNotIn(vs ...int) predicate.History {
 	return predicate.History(sql.FieldNotIn(FieldProgress, vs...))
 }
 
 // ProgressGT applies the GT predicate on the "progress" field.
-func ProgressGT(v string) predicate.History {
+func ProgressGT(v int) predicate.History {
 	return predicate.History(sql.FieldGT(FieldProgress, v))
 }
 
 // ProgressGTE applies the GTE predicate on the "progress" field.
-func ProgressGTE(v string) predicate.History {
+func ProgressGTE(v int) predicate.History {
 	return predicate.History(sql.FieldGTE(FieldProgress, v))
 }
 
 // ProgressLT applies the LT predicate on the "progress" field.
-func ProgressLT(v string) predicate.History {
+func ProgressLT(v int) predicate.History {
 	return predicate.History(sql.FieldLT(FieldProgress, v))
 }
 
 // ProgressLTE applies the LTE predicate on the "progress" field.
-func ProgressLTE(v string) predicate.History {
+func ProgressLTE(v int) predicate.History {
 	return predicate.History(sql.FieldLTE(FieldProgress, v))
 }
 
-// ProgressContains applies the Contains predicate on the "progress" field.
-func ProgressContains(v string) predicate.History {
-	return predicate.History(sql.FieldContains(FieldProgress, v))
-}
-
-// ProgressHasPrefix applies the HasPrefix predicate on the "progress" field.
-func ProgressHasPrefix(v string) predicate.History {
-	return predicate.History(sql.FieldHasPrefix(FieldProgress, v))
-}
-
-// ProgressHasSuffix applies the HasSuffix predicate on the "progress" field.
-func ProgressHasSuffix(v string) predicate.History {
-	return predicate.History(sql.FieldHasSuffix(FieldProgress, v))
-}
-
-// ProgressEqualFold applies the EqualFold predicate on the "progress" field.
-func ProgressEqualFold(v string) predicate.History {
-	return predicate.History(sql.FieldEqualFold(FieldProgress, v))
-}
-
-// ProgressContainsFold applies the ContainsFold predicate on the "progress" field.
-func ProgressContainsFold(v string) predicate.History {
-	return predicate.History(sql.FieldContainsFold(FieldProgress, v))
-}
-
-// TotalProgressEQ applies the EQ predicate on the "total_progress" field.
-func TotalProgressEQ(v string) predicate.History {
+// TotalProgressEQ applies the EQ predicate on the "totalProgress" field.
+func TotalProgressEQ(v int) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldTotalProgress, v))
 }
 
-// TotalProgressNEQ applies the NEQ predicate on the "total_progress" field.
-func TotalProgressNEQ(v string) predicate.History {
+// TotalProgressNEQ applies the NEQ predicate on the "totalProgress" field.
+func TotalProgressNEQ(v int) predicate.History {
 	return predicate.History(sql.FieldNEQ(FieldTotalProgress, v))
 }
 
-// TotalProgressIn applies the In predicate on the "total_progress" field.
-func TotalProgressIn(vs ...string) predicate.History {
+// TotalProgressIn applies the In predicate on the "totalProgress" field.
+func TotalProgressIn(vs ...int) predicate.History {
 	return predicate.History(sql.FieldIn(FieldTotalProgress, vs...))
 }
 
-// TotalProgressNotIn applies the NotIn predicate on the "total_progress" field.
-func TotalProgressNotIn(vs ...string) predicate.History {
+// TotalProgressNotIn applies the NotIn predicate on the "totalProgress" field.
+func TotalProgressNotIn(vs ...int) predicate.History {
 	return predicate.History(sql.FieldNotIn(FieldTotalProgress, vs...))
 }
 
-// TotalProgressGT applies the GT predicate on the "total_progress" field.
-func TotalProgressGT(v string) predicate.History {
+// TotalProgressGT applies the GT predicate on the "totalProgress" field.
+func TotalProgressGT(v int) predicate.History {
 	return predicate.History(sql.FieldGT(FieldTotalProgress, v))
 }
 
-// TotalProgressGTE applies the GTE predicate on the "total_progress" field.
-func TotalProgressGTE(v string) predicate.History {
+// TotalProgressGTE applies the GTE predicate on the "totalProgress" field.
+func TotalProgressGTE(v int) predicate.History {
 	return predicate.History(sql.FieldGTE(FieldTotalProgress, v))
 }
 
-// TotalProgressLT applies the LT predicate on the "total_progress" field.
-func TotalProgressLT(v string) predicate.History {
+// TotalProgressLT applies the LT predicate on the "totalProgress" field.
+func TotalProgressLT(v int) predicate.History {
 	return predicate.History(sql.FieldLT(FieldTotalProgress, v))
 }
 
-// TotalProgressLTE applies the LTE predicate on the "total_progress" field.
-func TotalProgressLTE(v string) predicate.History {
+// TotalProgressLTE applies the LTE predicate on the "totalProgress" field.
+func TotalProgressLTE(v int) predicate.History {
 	return predicate.History(sql.FieldLTE(FieldTotalProgress, v))
-}
-
-// TotalProgressContains applies the Contains predicate on the "total_progress" field.
-func TotalProgressContains(v string) predicate.History {
-	return predicate.History(sql.FieldContains(FieldTotalProgress, v))
-}
-
-// TotalProgressHasPrefix applies the HasPrefix predicate on the "total_progress" field.
-func TotalProgressHasPrefix(v string) predicate.History {
-	return predicate.History(sql.FieldHasPrefix(FieldTotalProgress, v))
-}
-
-// TotalProgressHasSuffix applies the HasSuffix predicate on the "total_progress" field.
-func TotalProgressHasSuffix(v string) predicate.History {
-	return predicate.History(sql.FieldHasSuffix(FieldTotalProgress, v))
-}
-
-// TotalProgressEqualFold applies the EqualFold predicate on the "total_progress" field.
-func TotalProgressEqualFold(v string) predicate.History {
-	return predicate.History(sql.FieldEqualFold(FieldTotalProgress, v))
-}
-
-// TotalProgressContainsFold applies the ContainsFold predicate on the "total_progress" field.
-func TotalProgressContainsFold(v string) predicate.History {
-	return predicate.History(sql.FieldContainsFold(FieldTotalProgress, v))
 }
 
 // DateEQ applies the EQ predicate on the "date" field.

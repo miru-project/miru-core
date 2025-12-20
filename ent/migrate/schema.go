@@ -120,8 +120,8 @@ var (
 		{Name: "episode_id", Type: field.TypeInt},
 		{Name: "title", Type: field.TypeString},
 		{Name: "episode_title", Type: field.TypeString},
-		{Name: "progress", Type: field.TypeString},
-		{Name: "total_progress", Type: field.TypeString},
+		{Name: "progress", Type: field.TypeInt},
+		{Name: "total_progress", Type: field.TypeInt},
 		{Name: "date", Type: field.TypeTime},
 	}
 	// HistoriesTable holds the schema information for the "histories" table.

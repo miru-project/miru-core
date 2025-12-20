@@ -16,7 +16,7 @@ func GetFavoritesByType(t *string, limit *int) ([]*ent.Favorite, error) {
 	ctx := context.Background()
 
 	q := client.Favorite.Query()
-	if t != nil {
+	if t != nil && *t != "" {
 		q = q.Where(favorite.TypeEQ(*t))
 	}
 	q = q.Order(ent.Desc(favorite.FieldDate))
@@ -26,14 +26,15 @@ func GetFavoritesByType(t *string, limit *int) ([]*ent.Favorite, error) {
 	return q.All(ctx)
 }
 
-// GetHistorysByType returns histories optionally filtered by type ordered by date desc.
-func GetHistorysByType(t *string) ([]*ent.History, error) {
+// GetHistoriesByType returns histories optionally filtered by type ordered by date desc.
+func GetHistoriesByType(t *string) ([]*ent.History, error) {
 	client := ext.EntClient()
 	ctx := context.Background()
 	q := client.History.Query()
-	if t != nil {
+	if t != nil && *t != "" {
 		q = q.Where(history.TypeEQ(*t))
 	}
+
 	q = q.Order(ent.Desc(history.FieldDate))
 	return q.All(ctx)
 }
@@ -124,4 +125,19 @@ func DeleteAllHistory() (int, error) {
 
 	n, err := client.History.Delete().Exec(ctx)
 	return n, err
+}
+
+// GetHistorysFiltered returns histories optionally filtered by type and date.
+func GetHistorysFiltered(t *string, beforeDate *time.Time) ([]*ent.History, error) {
+	client := ext.EntClient()
+	ctx := context.Background()
+	q := client.History.Query()
+	if t != nil && *t != "" {
+		q = q.Where(history.TypeEQ(*t))
+	}
+	if beforeDate != nil {
+		q = q.Where(history.DateLT(*beforeDate))
+	}
+
+	return q.Order(ent.Desc(history.FieldDate)).All(ctx)
 }

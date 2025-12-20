@@ -54,13 +54,13 @@ func (_c *HistoryCreate) SetType(v string) *HistoryCreate {
 	return _c
 }
 
-// SetEpisodeGroupID sets the "episode_group_id" field.
+// SetEpisodeGroupID sets the "episodeGroupID" field.
 func (_c *HistoryCreate) SetEpisodeGroupID(v int) *HistoryCreate {
 	_c.mutation.SetEpisodeGroupID(v)
 	return _c
 }
 
-// SetEpisodeID sets the "episode_id" field.
+// SetEpisodeID sets the "episodeID" field.
 func (_c *HistoryCreate) SetEpisodeID(v int) *HistoryCreate {
 	_c.mutation.SetEpisodeID(v)
 	return _c
@@ -72,20 +72,20 @@ func (_c *HistoryCreate) SetTitle(v string) *HistoryCreate {
 	return _c
 }
 
-// SetEpisodeTitle sets the "episode_title" field.
+// SetEpisodeTitle sets the "episodeTitle" field.
 func (_c *HistoryCreate) SetEpisodeTitle(v string) *HistoryCreate {
 	_c.mutation.SetEpisodeTitle(v)
 	return _c
 }
 
 // SetProgress sets the "progress" field.
-func (_c *HistoryCreate) SetProgress(v string) *HistoryCreate {
+func (_c *HistoryCreate) SetProgress(v int) *HistoryCreate {
 	_c.mutation.SetProgress(v)
 	return _c
 }
 
-// SetTotalProgress sets the "total_progress" field.
-func (_c *HistoryCreate) SetTotalProgress(v string) *HistoryCreate {
+// SetTotalProgress sets the "totalProgress" field.
+func (_c *HistoryCreate) SetTotalProgress(v int) *HistoryCreate {
 	_c.mutation.SetTotalProgress(v)
 	return _c
 }
@@ -178,10 +178,10 @@ func (_c *HistoryCreate) check() error {
 		}
 	}
 	if _, ok := _c.mutation.EpisodeGroupID(); !ok {
-		return &ValidationError{Name: "episode_group_id", err: errors.New(`ent: missing required field "History.episode_group_id"`)}
+		return &ValidationError{Name: "episodeGroupID", err: errors.New(`ent: missing required field "History.episodeGroupID"`)}
 	}
 	if _, ok := _c.mutation.EpisodeID(); !ok {
-		return &ValidationError{Name: "episode_id", err: errors.New(`ent: missing required field "History.episode_id"`)}
+		return &ValidationError{Name: "episodeID", err: errors.New(`ent: missing required field "History.episodeID"`)}
 	}
 	if _, ok := _c.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "History.title"`)}
@@ -192,28 +192,18 @@ func (_c *HistoryCreate) check() error {
 		}
 	}
 	if _, ok := _c.mutation.EpisodeTitle(); !ok {
-		return &ValidationError{Name: "episode_title", err: errors.New(`ent: missing required field "History.episode_title"`)}
+		return &ValidationError{Name: "episodeTitle", err: errors.New(`ent: missing required field "History.episodeTitle"`)}
 	}
 	if v, ok := _c.mutation.EpisodeTitle(); ok {
 		if err := history.EpisodeTitleValidator(v); err != nil {
-			return &ValidationError{Name: "episode_title", err: fmt.Errorf(`ent: validator failed for field "History.episode_title": %w`, err)}
+			return &ValidationError{Name: "episodeTitle", err: fmt.Errorf(`ent: validator failed for field "History.episodeTitle": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.Progress(); !ok {
 		return &ValidationError{Name: "progress", err: errors.New(`ent: missing required field "History.progress"`)}
 	}
-	if v, ok := _c.mutation.Progress(); ok {
-		if err := history.ProgressValidator(v); err != nil {
-			return &ValidationError{Name: "progress", err: fmt.Errorf(`ent: validator failed for field "History.progress": %w`, err)}
-		}
-	}
 	if _, ok := _c.mutation.TotalProgress(); !ok {
-		return &ValidationError{Name: "total_progress", err: errors.New(`ent: missing required field "History.total_progress"`)}
-	}
-	if v, ok := _c.mutation.TotalProgress(); ok {
-		if err := history.TotalProgressValidator(v); err != nil {
-			return &ValidationError{Name: "total_progress", err: fmt.Errorf(`ent: validator failed for field "History.total_progress": %w`, err)}
-		}
+		return &ValidationError{Name: "totalProgress", err: errors.New(`ent: missing required field "History.totalProgress"`)}
 	}
 	if _, ok := _c.mutation.Date(); !ok {
 		return &ValidationError{Name: "date", err: errors.New(`ent: missing required field "History.date"`)}
@@ -289,11 +279,11 @@ func (_c *HistoryCreate) createSpec() (*History, *sqlgraph.CreateSpec) {
 		_node.EpisodeTitle = value
 	}
 	if value, ok := _c.mutation.Progress(); ok {
-		_spec.SetField(history.FieldProgress, field.TypeString, value)
+		_spec.SetField(history.FieldProgress, field.TypeInt, value)
 		_node.Progress = value
 	}
 	if value, ok := _c.mutation.TotalProgress(); ok {
-		_spec.SetField(history.FieldTotalProgress, field.TypeString, value)
+		_spec.SetField(history.FieldTotalProgress, field.TypeInt, value)
 		_node.TotalProgress = value
 	}
 	if value, ok := _c.mutation.Date(); ok {
@@ -406,37 +396,37 @@ func (u *HistoryUpsert) UpdateType() *HistoryUpsert {
 	return u
 }
 
-// SetEpisodeGroupID sets the "episode_group_id" field.
+// SetEpisodeGroupID sets the "episodeGroupID" field.
 func (u *HistoryUpsert) SetEpisodeGroupID(v int) *HistoryUpsert {
 	u.Set(history.FieldEpisodeGroupID, v)
 	return u
 }
 
-// UpdateEpisodeGroupID sets the "episode_group_id" field to the value that was provided on create.
+// UpdateEpisodeGroupID sets the "episodeGroupID" field to the value that was provided on create.
 func (u *HistoryUpsert) UpdateEpisodeGroupID() *HistoryUpsert {
 	u.SetExcluded(history.FieldEpisodeGroupID)
 	return u
 }
 
-// AddEpisodeGroupID adds v to the "episode_group_id" field.
+// AddEpisodeGroupID adds v to the "episodeGroupID" field.
 func (u *HistoryUpsert) AddEpisodeGroupID(v int) *HistoryUpsert {
 	u.Add(history.FieldEpisodeGroupID, v)
 	return u
 }
 
-// SetEpisodeID sets the "episode_id" field.
+// SetEpisodeID sets the "episodeID" field.
 func (u *HistoryUpsert) SetEpisodeID(v int) *HistoryUpsert {
 	u.Set(history.FieldEpisodeID, v)
 	return u
 }
 
-// UpdateEpisodeID sets the "episode_id" field to the value that was provided on create.
+// UpdateEpisodeID sets the "episodeID" field to the value that was provided on create.
 func (u *HistoryUpsert) UpdateEpisodeID() *HistoryUpsert {
 	u.SetExcluded(history.FieldEpisodeID)
 	return u
 }
 
-// AddEpisodeID adds v to the "episode_id" field.
+// AddEpisodeID adds v to the "episodeID" field.
 func (u *HistoryUpsert) AddEpisodeID(v int) *HistoryUpsert {
 	u.Add(history.FieldEpisodeID, v)
 	return u
@@ -454,20 +444,20 @@ func (u *HistoryUpsert) UpdateTitle() *HistoryUpsert {
 	return u
 }
 
-// SetEpisodeTitle sets the "episode_title" field.
+// SetEpisodeTitle sets the "episodeTitle" field.
 func (u *HistoryUpsert) SetEpisodeTitle(v string) *HistoryUpsert {
 	u.Set(history.FieldEpisodeTitle, v)
 	return u
 }
 
-// UpdateEpisodeTitle sets the "episode_title" field to the value that was provided on create.
+// UpdateEpisodeTitle sets the "episodeTitle" field to the value that was provided on create.
 func (u *HistoryUpsert) UpdateEpisodeTitle() *HistoryUpsert {
 	u.SetExcluded(history.FieldEpisodeTitle)
 	return u
 }
 
 // SetProgress sets the "progress" field.
-func (u *HistoryUpsert) SetProgress(v string) *HistoryUpsert {
+func (u *HistoryUpsert) SetProgress(v int) *HistoryUpsert {
 	u.Set(history.FieldProgress, v)
 	return u
 }
@@ -478,15 +468,27 @@ func (u *HistoryUpsert) UpdateProgress() *HistoryUpsert {
 	return u
 }
 
-// SetTotalProgress sets the "total_progress" field.
-func (u *HistoryUpsert) SetTotalProgress(v string) *HistoryUpsert {
+// AddProgress adds v to the "progress" field.
+func (u *HistoryUpsert) AddProgress(v int) *HistoryUpsert {
+	u.Add(history.FieldProgress, v)
+	return u
+}
+
+// SetTotalProgress sets the "totalProgress" field.
+func (u *HistoryUpsert) SetTotalProgress(v int) *HistoryUpsert {
 	u.Set(history.FieldTotalProgress, v)
 	return u
 }
 
-// UpdateTotalProgress sets the "total_progress" field to the value that was provided on create.
+// UpdateTotalProgress sets the "totalProgress" field to the value that was provided on create.
 func (u *HistoryUpsert) UpdateTotalProgress() *HistoryUpsert {
 	u.SetExcluded(history.FieldTotalProgress)
+	return u
+}
+
+// AddTotalProgress adds v to the "totalProgress" field.
+func (u *HistoryUpsert) AddTotalProgress(v int) *HistoryUpsert {
+	u.Add(history.FieldTotalProgress, v)
 	return u
 }
 
@@ -613,42 +615,42 @@ func (u *HistoryUpsertOne) UpdateType() *HistoryUpsertOne {
 	})
 }
 
-// SetEpisodeGroupID sets the "episode_group_id" field.
+// SetEpisodeGroupID sets the "episodeGroupID" field.
 func (u *HistoryUpsertOne) SetEpisodeGroupID(v int) *HistoryUpsertOne {
 	return u.Update(func(s *HistoryUpsert) {
 		s.SetEpisodeGroupID(v)
 	})
 }
 
-// AddEpisodeGroupID adds v to the "episode_group_id" field.
+// AddEpisodeGroupID adds v to the "episodeGroupID" field.
 func (u *HistoryUpsertOne) AddEpisodeGroupID(v int) *HistoryUpsertOne {
 	return u.Update(func(s *HistoryUpsert) {
 		s.AddEpisodeGroupID(v)
 	})
 }
 
-// UpdateEpisodeGroupID sets the "episode_group_id" field to the value that was provided on create.
+// UpdateEpisodeGroupID sets the "episodeGroupID" field to the value that was provided on create.
 func (u *HistoryUpsertOne) UpdateEpisodeGroupID() *HistoryUpsertOne {
 	return u.Update(func(s *HistoryUpsert) {
 		s.UpdateEpisodeGroupID()
 	})
 }
 
-// SetEpisodeID sets the "episode_id" field.
+// SetEpisodeID sets the "episodeID" field.
 func (u *HistoryUpsertOne) SetEpisodeID(v int) *HistoryUpsertOne {
 	return u.Update(func(s *HistoryUpsert) {
 		s.SetEpisodeID(v)
 	})
 }
 
-// AddEpisodeID adds v to the "episode_id" field.
+// AddEpisodeID adds v to the "episodeID" field.
 func (u *HistoryUpsertOne) AddEpisodeID(v int) *HistoryUpsertOne {
 	return u.Update(func(s *HistoryUpsert) {
 		s.AddEpisodeID(v)
 	})
 }
 
-// UpdateEpisodeID sets the "episode_id" field to the value that was provided on create.
+// UpdateEpisodeID sets the "episodeID" field to the value that was provided on create.
 func (u *HistoryUpsertOne) UpdateEpisodeID() *HistoryUpsertOne {
 	return u.Update(func(s *HistoryUpsert) {
 		s.UpdateEpisodeID()
@@ -669,14 +671,14 @@ func (u *HistoryUpsertOne) UpdateTitle() *HistoryUpsertOne {
 	})
 }
 
-// SetEpisodeTitle sets the "episode_title" field.
+// SetEpisodeTitle sets the "episodeTitle" field.
 func (u *HistoryUpsertOne) SetEpisodeTitle(v string) *HistoryUpsertOne {
 	return u.Update(func(s *HistoryUpsert) {
 		s.SetEpisodeTitle(v)
 	})
 }
 
-// UpdateEpisodeTitle sets the "episode_title" field to the value that was provided on create.
+// UpdateEpisodeTitle sets the "episodeTitle" field to the value that was provided on create.
 func (u *HistoryUpsertOne) UpdateEpisodeTitle() *HistoryUpsertOne {
 	return u.Update(func(s *HistoryUpsert) {
 		s.UpdateEpisodeTitle()
@@ -684,9 +686,16 @@ func (u *HistoryUpsertOne) UpdateEpisodeTitle() *HistoryUpsertOne {
 }
 
 // SetProgress sets the "progress" field.
-func (u *HistoryUpsertOne) SetProgress(v string) *HistoryUpsertOne {
+func (u *HistoryUpsertOne) SetProgress(v int) *HistoryUpsertOne {
 	return u.Update(func(s *HistoryUpsert) {
 		s.SetProgress(v)
+	})
+}
+
+// AddProgress adds v to the "progress" field.
+func (u *HistoryUpsertOne) AddProgress(v int) *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.AddProgress(v)
 	})
 }
 
@@ -697,14 +706,21 @@ func (u *HistoryUpsertOne) UpdateProgress() *HistoryUpsertOne {
 	})
 }
 
-// SetTotalProgress sets the "total_progress" field.
-func (u *HistoryUpsertOne) SetTotalProgress(v string) *HistoryUpsertOne {
+// SetTotalProgress sets the "totalProgress" field.
+func (u *HistoryUpsertOne) SetTotalProgress(v int) *HistoryUpsertOne {
 	return u.Update(func(s *HistoryUpsert) {
 		s.SetTotalProgress(v)
 	})
 }
 
-// UpdateTotalProgress sets the "total_progress" field to the value that was provided on create.
+// AddTotalProgress adds v to the "totalProgress" field.
+func (u *HistoryUpsertOne) AddTotalProgress(v int) *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.AddTotalProgress(v)
+	})
+}
+
+// UpdateTotalProgress sets the "totalProgress" field to the value that was provided on create.
 func (u *HistoryUpsertOne) UpdateTotalProgress() *HistoryUpsertOne {
 	return u.Update(func(s *HistoryUpsert) {
 		s.UpdateTotalProgress()
@@ -1002,42 +1018,42 @@ func (u *HistoryUpsertBulk) UpdateType() *HistoryUpsertBulk {
 	})
 }
 
-// SetEpisodeGroupID sets the "episode_group_id" field.
+// SetEpisodeGroupID sets the "episodeGroupID" field.
 func (u *HistoryUpsertBulk) SetEpisodeGroupID(v int) *HistoryUpsertBulk {
 	return u.Update(func(s *HistoryUpsert) {
 		s.SetEpisodeGroupID(v)
 	})
 }
 
-// AddEpisodeGroupID adds v to the "episode_group_id" field.
+// AddEpisodeGroupID adds v to the "episodeGroupID" field.
 func (u *HistoryUpsertBulk) AddEpisodeGroupID(v int) *HistoryUpsertBulk {
 	return u.Update(func(s *HistoryUpsert) {
 		s.AddEpisodeGroupID(v)
 	})
 }
 
-// UpdateEpisodeGroupID sets the "episode_group_id" field to the value that was provided on create.
+// UpdateEpisodeGroupID sets the "episodeGroupID" field to the value that was provided on create.
 func (u *HistoryUpsertBulk) UpdateEpisodeGroupID() *HistoryUpsertBulk {
 	return u.Update(func(s *HistoryUpsert) {
 		s.UpdateEpisodeGroupID()
 	})
 }
 
-// SetEpisodeID sets the "episode_id" field.
+// SetEpisodeID sets the "episodeID" field.
 func (u *HistoryUpsertBulk) SetEpisodeID(v int) *HistoryUpsertBulk {
 	return u.Update(func(s *HistoryUpsert) {
 		s.SetEpisodeID(v)
 	})
 }
 
-// AddEpisodeID adds v to the "episode_id" field.
+// AddEpisodeID adds v to the "episodeID" field.
 func (u *HistoryUpsertBulk) AddEpisodeID(v int) *HistoryUpsertBulk {
 	return u.Update(func(s *HistoryUpsert) {
 		s.AddEpisodeID(v)
 	})
 }
 
-// UpdateEpisodeID sets the "episode_id" field to the value that was provided on create.
+// UpdateEpisodeID sets the "episodeID" field to the value that was provided on create.
 func (u *HistoryUpsertBulk) UpdateEpisodeID() *HistoryUpsertBulk {
 	return u.Update(func(s *HistoryUpsert) {
 		s.UpdateEpisodeID()
@@ -1058,14 +1074,14 @@ func (u *HistoryUpsertBulk) UpdateTitle() *HistoryUpsertBulk {
 	})
 }
 
-// SetEpisodeTitle sets the "episode_title" field.
+// SetEpisodeTitle sets the "episodeTitle" field.
 func (u *HistoryUpsertBulk) SetEpisodeTitle(v string) *HistoryUpsertBulk {
 	return u.Update(func(s *HistoryUpsert) {
 		s.SetEpisodeTitle(v)
 	})
 }
 
-// UpdateEpisodeTitle sets the "episode_title" field to the value that was provided on create.
+// UpdateEpisodeTitle sets the "episodeTitle" field to the value that was provided on create.
 func (u *HistoryUpsertBulk) UpdateEpisodeTitle() *HistoryUpsertBulk {
 	return u.Update(func(s *HistoryUpsert) {
 		s.UpdateEpisodeTitle()
@@ -1073,9 +1089,16 @@ func (u *HistoryUpsertBulk) UpdateEpisodeTitle() *HistoryUpsertBulk {
 }
 
 // SetProgress sets the "progress" field.
-func (u *HistoryUpsertBulk) SetProgress(v string) *HistoryUpsertBulk {
+func (u *HistoryUpsertBulk) SetProgress(v int) *HistoryUpsertBulk {
 	return u.Update(func(s *HistoryUpsert) {
 		s.SetProgress(v)
+	})
+}
+
+// AddProgress adds v to the "progress" field.
+func (u *HistoryUpsertBulk) AddProgress(v int) *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.AddProgress(v)
 	})
 }
 
@@ -1086,14 +1109,21 @@ func (u *HistoryUpsertBulk) UpdateProgress() *HistoryUpsertBulk {
 	})
 }
 
-// SetTotalProgress sets the "total_progress" field.
-func (u *HistoryUpsertBulk) SetTotalProgress(v string) *HistoryUpsertBulk {
+// SetTotalProgress sets the "totalProgress" field.
+func (u *HistoryUpsertBulk) SetTotalProgress(v int) *HistoryUpsertBulk {
 	return u.Update(func(s *HistoryUpsert) {
 		s.SetTotalProgress(v)
 	})
 }
 
-// UpdateTotalProgress sets the "total_progress" field to the value that was provided on create.
+// AddTotalProgress adds v to the "totalProgress" field.
+func (u *HistoryUpsertBulk) AddTotalProgress(v int) *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.AddTotalProgress(v)
+	})
+}
+
+// UpdateTotalProgress sets the "totalProgress" field to the value that was provided on create.
 func (u *HistoryUpsertBulk) UpdateTotalProgress() *HistoryUpsertBulk {
 	return u.Update(func(s *HistoryUpsert) {
 		s.UpdateTotalProgress()

@@ -116,18 +116,10 @@ func init() {
 	historyDescTitle := historyFields[7].Descriptor()
 	// history.TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	history.TitleValidator = historyDescTitle.Validators[0].(func(string) error)
-	// historyDescEpisodeTitle is the schema descriptor for episode_title field.
+	// historyDescEpisodeTitle is the schema descriptor for episodeTitle field.
 	historyDescEpisodeTitle := historyFields[8].Descriptor()
-	// history.EpisodeTitleValidator is a validator for the "episode_title" field. It is called by the builders before save.
+	// history.EpisodeTitleValidator is a validator for the "episodeTitle" field. It is called by the builders before save.
 	history.EpisodeTitleValidator = historyDescEpisodeTitle.Validators[0].(func(string) error)
-	// historyDescProgress is the schema descriptor for progress field.
-	historyDescProgress := historyFields[9].Descriptor()
-	// history.ProgressValidator is a validator for the "progress" field. It is called by the builders before save.
-	history.ProgressValidator = historyDescProgress.Validators[0].(func(string) error)
-	// historyDescTotalProgress is the schema descriptor for total_progress field.
-	historyDescTotalProgress := historyFields[10].Descriptor()
-	// history.TotalProgressValidator is a validator for the "total_progress" field. It is called by the builders before save.
-	history.TotalProgressValidator = historyDescTotalProgress.Validators[0].(func(string) error)
 	// historyDescDate is the schema descriptor for date field.
 	historyDescDate := historyFields[11].Descriptor()
 	// history.DefaultDate holds the default value on creation for the date field.

@@ -39,26 +39,24 @@ func (History) Fields() []ent.Field {
 			NotEmpty().
 			Comment("Type of content (stored as string representation of enum)"),
 
-		field.Int("episode_group_id").
+		field.Int("episodeGroupID").
 			Comment("ID of the episode group"),
 
-		field.Int("episode_id").
+		field.Int("episodeID").
 			Comment("ID of the episode"),
 
 		field.String("title").
 			NotEmpty().
 			Comment("Title of the content"),
 
-		field.String("episode_title").
+		field.String("episodeTitle").
 			NotEmpty().
 			Comment("Title of the episode"),
 
-		field.String("progress").
-			NotEmpty().
+		field.Int("progress").
 			Comment("Current progress in the content"),
 
-		field.String("total_progress").
-			NotEmpty().
+		field.Int("totalProgress").
 			Comment("Total progress available"),
 
 		field.Time("date").

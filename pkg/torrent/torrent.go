@@ -72,6 +72,20 @@ func AddMagnet(magnet string) (result.TorrentDetailResult, error) {
 	return addStream(t)
 }
 
+func AddTorrentBytes(body []byte) (result.TorrentDetailResult, error) {
+	mediaInfo, err := metainfo.Load(bytes.NewReader(body))
+	if err != nil {
+		return result.TorrentDetailResult{}, err
+	}
+
+	t, err := BTClient.AddTorrent(mediaInfo)
+	if err != nil {
+		return result.TorrentDetailResult{}, err
+	}
+
+	return addStream(t)
+}
+
 func AddTorrent(link string) (result.TorrentDetailResult, error) {
 	body, err := network.Request[[]byte](link, &network.RequestOptions{}, network.ReadAll)
 	if err != nil {

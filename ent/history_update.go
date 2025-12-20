@@ -90,14 +90,14 @@ func (_u *HistoryUpdate) SetNillableType(v *string) *HistoryUpdate {
 	return _u
 }
 
-// SetEpisodeGroupID sets the "episode_group_id" field.
+// SetEpisodeGroupID sets the "episodeGroupID" field.
 func (_u *HistoryUpdate) SetEpisodeGroupID(v int) *HistoryUpdate {
 	_u.mutation.ResetEpisodeGroupID()
 	_u.mutation.SetEpisodeGroupID(v)
 	return _u
 }
 
-// SetNillableEpisodeGroupID sets the "episode_group_id" field if the given value is not nil.
+// SetNillableEpisodeGroupID sets the "episodeGroupID" field if the given value is not nil.
 func (_u *HistoryUpdate) SetNillableEpisodeGroupID(v *int) *HistoryUpdate {
 	if v != nil {
 		_u.SetEpisodeGroupID(*v)
@@ -105,20 +105,20 @@ func (_u *HistoryUpdate) SetNillableEpisodeGroupID(v *int) *HistoryUpdate {
 	return _u
 }
 
-// AddEpisodeGroupID adds value to the "episode_group_id" field.
+// AddEpisodeGroupID adds value to the "episodeGroupID" field.
 func (_u *HistoryUpdate) AddEpisodeGroupID(v int) *HistoryUpdate {
 	_u.mutation.AddEpisodeGroupID(v)
 	return _u
 }
 
-// SetEpisodeID sets the "episode_id" field.
+// SetEpisodeID sets the "episodeID" field.
 func (_u *HistoryUpdate) SetEpisodeID(v int) *HistoryUpdate {
 	_u.mutation.ResetEpisodeID()
 	_u.mutation.SetEpisodeID(v)
 	return _u
 }
 
-// SetNillableEpisodeID sets the "episode_id" field if the given value is not nil.
+// SetNillableEpisodeID sets the "episodeID" field if the given value is not nil.
 func (_u *HistoryUpdate) SetNillableEpisodeID(v *int) *HistoryUpdate {
 	if v != nil {
 		_u.SetEpisodeID(*v)
@@ -126,7 +126,7 @@ func (_u *HistoryUpdate) SetNillableEpisodeID(v *int) *HistoryUpdate {
 	return _u
 }
 
-// AddEpisodeID adds value to the "episode_id" field.
+// AddEpisodeID adds value to the "episodeID" field.
 func (_u *HistoryUpdate) AddEpisodeID(v int) *HistoryUpdate {
 	_u.mutation.AddEpisodeID(v)
 	return _u
@@ -146,13 +146,13 @@ func (_u *HistoryUpdate) SetNillableTitle(v *string) *HistoryUpdate {
 	return _u
 }
 
-// SetEpisodeTitle sets the "episode_title" field.
+// SetEpisodeTitle sets the "episodeTitle" field.
 func (_u *HistoryUpdate) SetEpisodeTitle(v string) *HistoryUpdate {
 	_u.mutation.SetEpisodeTitle(v)
 	return _u
 }
 
-// SetNillableEpisodeTitle sets the "episode_title" field if the given value is not nil.
+// SetNillableEpisodeTitle sets the "episodeTitle" field if the given value is not nil.
 func (_u *HistoryUpdate) SetNillableEpisodeTitle(v *string) *HistoryUpdate {
 	if v != nil {
 		_u.SetEpisodeTitle(*v)
@@ -161,30 +161,44 @@ func (_u *HistoryUpdate) SetNillableEpisodeTitle(v *string) *HistoryUpdate {
 }
 
 // SetProgress sets the "progress" field.
-func (_u *HistoryUpdate) SetProgress(v string) *HistoryUpdate {
+func (_u *HistoryUpdate) SetProgress(v int) *HistoryUpdate {
+	_u.mutation.ResetProgress()
 	_u.mutation.SetProgress(v)
 	return _u
 }
 
 // SetNillableProgress sets the "progress" field if the given value is not nil.
-func (_u *HistoryUpdate) SetNillableProgress(v *string) *HistoryUpdate {
+func (_u *HistoryUpdate) SetNillableProgress(v *int) *HistoryUpdate {
 	if v != nil {
 		_u.SetProgress(*v)
 	}
 	return _u
 }
 
-// SetTotalProgress sets the "total_progress" field.
-func (_u *HistoryUpdate) SetTotalProgress(v string) *HistoryUpdate {
+// AddProgress adds value to the "progress" field.
+func (_u *HistoryUpdate) AddProgress(v int) *HistoryUpdate {
+	_u.mutation.AddProgress(v)
+	return _u
+}
+
+// SetTotalProgress sets the "totalProgress" field.
+func (_u *HistoryUpdate) SetTotalProgress(v int) *HistoryUpdate {
+	_u.mutation.ResetTotalProgress()
 	_u.mutation.SetTotalProgress(v)
 	return _u
 }
 
-// SetNillableTotalProgress sets the "total_progress" field if the given value is not nil.
-func (_u *HistoryUpdate) SetNillableTotalProgress(v *string) *HistoryUpdate {
+// SetNillableTotalProgress sets the "totalProgress" field if the given value is not nil.
+func (_u *HistoryUpdate) SetNillableTotalProgress(v *int) *HistoryUpdate {
 	if v != nil {
 		_u.SetTotalProgress(*v)
 	}
+	return _u
+}
+
+// AddTotalProgress adds value to the "totalProgress" field.
+func (_u *HistoryUpdate) AddTotalProgress(v int) *HistoryUpdate {
+	_u.mutation.AddTotalProgress(v)
 	return _u
 }
 
@@ -258,17 +272,7 @@ func (_u *HistoryUpdate) check() error {
 	}
 	if v, ok := _u.mutation.EpisodeTitle(); ok {
 		if err := history.EpisodeTitleValidator(v); err != nil {
-			return &ValidationError{Name: "episode_title", err: fmt.Errorf(`ent: validator failed for field "History.episode_title": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.Progress(); ok {
-		if err := history.ProgressValidator(v); err != nil {
-			return &ValidationError{Name: "progress", err: fmt.Errorf(`ent: validator failed for field "History.progress": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.TotalProgress(); ok {
-		if err := history.TotalProgressValidator(v); err != nil {
-			return &ValidationError{Name: "total_progress", err: fmt.Errorf(`ent: validator failed for field "History.total_progress": %w`, err)}
+			return &ValidationError{Name: "episodeTitle", err: fmt.Errorf(`ent: validator failed for field "History.episodeTitle": %w`, err)}
 		}
 	}
 	return nil
@@ -320,10 +324,16 @@ func (_u *HistoryUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.SetField(history.FieldEpisodeTitle, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Progress(); ok {
-		_spec.SetField(history.FieldProgress, field.TypeString, value)
+		_spec.SetField(history.FieldProgress, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedProgress(); ok {
+		_spec.AddField(history.FieldProgress, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.TotalProgress(); ok {
-		_spec.SetField(history.FieldTotalProgress, field.TypeString, value)
+		_spec.SetField(history.FieldTotalProgress, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedTotalProgress(); ok {
+		_spec.AddField(history.FieldTotalProgress, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.Date(); ok {
 		_spec.SetField(history.FieldDate, field.TypeTime, value)
@@ -410,14 +420,14 @@ func (_u *HistoryUpdateOne) SetNillableType(v *string) *HistoryUpdateOne {
 	return _u
 }
 
-// SetEpisodeGroupID sets the "episode_group_id" field.
+// SetEpisodeGroupID sets the "episodeGroupID" field.
 func (_u *HistoryUpdateOne) SetEpisodeGroupID(v int) *HistoryUpdateOne {
 	_u.mutation.ResetEpisodeGroupID()
 	_u.mutation.SetEpisodeGroupID(v)
 	return _u
 }
 
-// SetNillableEpisodeGroupID sets the "episode_group_id" field if the given value is not nil.
+// SetNillableEpisodeGroupID sets the "episodeGroupID" field if the given value is not nil.
 func (_u *HistoryUpdateOne) SetNillableEpisodeGroupID(v *int) *HistoryUpdateOne {
 	if v != nil {
 		_u.SetEpisodeGroupID(*v)
@@ -425,20 +435,20 @@ func (_u *HistoryUpdateOne) SetNillableEpisodeGroupID(v *int) *HistoryUpdateOne 
 	return _u
 }
 
-// AddEpisodeGroupID adds value to the "episode_group_id" field.
+// AddEpisodeGroupID adds value to the "episodeGroupID" field.
 func (_u *HistoryUpdateOne) AddEpisodeGroupID(v int) *HistoryUpdateOne {
 	_u.mutation.AddEpisodeGroupID(v)
 	return _u
 }
 
-// SetEpisodeID sets the "episode_id" field.
+// SetEpisodeID sets the "episodeID" field.
 func (_u *HistoryUpdateOne) SetEpisodeID(v int) *HistoryUpdateOne {
 	_u.mutation.ResetEpisodeID()
 	_u.mutation.SetEpisodeID(v)
 	return _u
 }
 
-// SetNillableEpisodeID sets the "episode_id" field if the given value is not nil.
+// SetNillableEpisodeID sets the "episodeID" field if the given value is not nil.
 func (_u *HistoryUpdateOne) SetNillableEpisodeID(v *int) *HistoryUpdateOne {
 	if v != nil {
 		_u.SetEpisodeID(*v)
@@ -446,7 +456,7 @@ func (_u *HistoryUpdateOne) SetNillableEpisodeID(v *int) *HistoryUpdateOne {
 	return _u
 }
 
-// AddEpisodeID adds value to the "episode_id" field.
+// AddEpisodeID adds value to the "episodeID" field.
 func (_u *HistoryUpdateOne) AddEpisodeID(v int) *HistoryUpdateOne {
 	_u.mutation.AddEpisodeID(v)
 	return _u
@@ -466,13 +476,13 @@ func (_u *HistoryUpdateOne) SetNillableTitle(v *string) *HistoryUpdateOne {
 	return _u
 }
 
-// SetEpisodeTitle sets the "episode_title" field.
+// SetEpisodeTitle sets the "episodeTitle" field.
 func (_u *HistoryUpdateOne) SetEpisodeTitle(v string) *HistoryUpdateOne {
 	_u.mutation.SetEpisodeTitle(v)
 	return _u
 }
 
-// SetNillableEpisodeTitle sets the "episode_title" field if the given value is not nil.
+// SetNillableEpisodeTitle sets the "episodeTitle" field if the given value is not nil.
 func (_u *HistoryUpdateOne) SetNillableEpisodeTitle(v *string) *HistoryUpdateOne {
 	if v != nil {
 		_u.SetEpisodeTitle(*v)
@@ -481,30 +491,44 @@ func (_u *HistoryUpdateOne) SetNillableEpisodeTitle(v *string) *HistoryUpdateOne
 }
 
 // SetProgress sets the "progress" field.
-func (_u *HistoryUpdateOne) SetProgress(v string) *HistoryUpdateOne {
+func (_u *HistoryUpdateOne) SetProgress(v int) *HistoryUpdateOne {
+	_u.mutation.ResetProgress()
 	_u.mutation.SetProgress(v)
 	return _u
 }
 
 // SetNillableProgress sets the "progress" field if the given value is not nil.
-func (_u *HistoryUpdateOne) SetNillableProgress(v *string) *HistoryUpdateOne {
+func (_u *HistoryUpdateOne) SetNillableProgress(v *int) *HistoryUpdateOne {
 	if v != nil {
 		_u.SetProgress(*v)
 	}
 	return _u
 }
 
-// SetTotalProgress sets the "total_progress" field.
-func (_u *HistoryUpdateOne) SetTotalProgress(v string) *HistoryUpdateOne {
+// AddProgress adds value to the "progress" field.
+func (_u *HistoryUpdateOne) AddProgress(v int) *HistoryUpdateOne {
+	_u.mutation.AddProgress(v)
+	return _u
+}
+
+// SetTotalProgress sets the "totalProgress" field.
+func (_u *HistoryUpdateOne) SetTotalProgress(v int) *HistoryUpdateOne {
+	_u.mutation.ResetTotalProgress()
 	_u.mutation.SetTotalProgress(v)
 	return _u
 }
 
-// SetNillableTotalProgress sets the "total_progress" field if the given value is not nil.
-func (_u *HistoryUpdateOne) SetNillableTotalProgress(v *string) *HistoryUpdateOne {
+// SetNillableTotalProgress sets the "totalProgress" field if the given value is not nil.
+func (_u *HistoryUpdateOne) SetNillableTotalProgress(v *int) *HistoryUpdateOne {
 	if v != nil {
 		_u.SetTotalProgress(*v)
 	}
+	return _u
+}
+
+// AddTotalProgress adds value to the "totalProgress" field.
+func (_u *HistoryUpdateOne) AddTotalProgress(v int) *HistoryUpdateOne {
+	_u.mutation.AddTotalProgress(v)
 	return _u
 }
 
@@ -591,17 +615,7 @@ func (_u *HistoryUpdateOne) check() error {
 	}
 	if v, ok := _u.mutation.EpisodeTitle(); ok {
 		if err := history.EpisodeTitleValidator(v); err != nil {
-			return &ValidationError{Name: "episode_title", err: fmt.Errorf(`ent: validator failed for field "History.episode_title": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.Progress(); ok {
-		if err := history.ProgressValidator(v); err != nil {
-			return &ValidationError{Name: "progress", err: fmt.Errorf(`ent: validator failed for field "History.progress": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.TotalProgress(); ok {
-		if err := history.TotalProgressValidator(v); err != nil {
-			return &ValidationError{Name: "total_progress", err: fmt.Errorf(`ent: validator failed for field "History.total_progress": %w`, err)}
+			return &ValidationError{Name: "episodeTitle", err: fmt.Errorf(`ent: validator failed for field "History.episodeTitle": %w`, err)}
 		}
 	}
 	return nil
@@ -670,10 +684,16 @@ func (_u *HistoryUpdateOne) sqlSave(ctx context.Context) (_node *History, err er
 		_spec.SetField(history.FieldEpisodeTitle, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Progress(); ok {
-		_spec.SetField(history.FieldProgress, field.TypeString, value)
+		_spec.SetField(history.FieldProgress, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedProgress(); ok {
+		_spec.AddField(history.FieldProgress, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.TotalProgress(); ok {
-		_spec.SetField(history.FieldTotalProgress, field.TypeString, value)
+		_spec.SetField(history.FieldTotalProgress, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedTotalProgress(); ok {
+		_spec.AddField(history.FieldTotalProgress, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.Date(); ok {
 		_spec.SetField(history.FieldDate, field.TypeTime, value)

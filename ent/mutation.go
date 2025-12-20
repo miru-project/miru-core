@@ -3025,26 +3025,28 @@ func (m *FavoriteGroupMutation) ResetEdge(name string) error {
 // HistoryMutation represents an operation that mutates the History nodes in the graph.
 type HistoryMutation struct {
 	config
-	op                  Op
-	typ                 string
-	id                  *int
-	_package            *string
-	url                 *string
-	cover               *string
-	_type               *string
-	episode_group_id    *int
-	addepisode_group_id *int
-	episode_id          *int
-	addepisode_id       *int
-	title               *string
-	episode_title       *string
-	progress            *string
-	total_progress      *string
-	date                *time.Time
-	clearedFields       map[string]struct{}
-	done                bool
-	oldValue            func(context.Context) (*History, error)
-	predicates          []predicate.History
+	op                Op
+	typ               string
+	id                *int
+	_package          *string
+	url               *string
+	cover             *string
+	_type             *string
+	episodeGroupID    *int
+	addepisodeGroupID *int
+	episodeID         *int
+	addepisodeID      *int
+	title             *string
+	episodeTitle      *string
+	progress          *int
+	addprogress       *int
+	totalProgress     *int
+	addtotalProgress  *int
+	date              *time.Time
+	clearedFields     map[string]struct{}
+	done              bool
+	oldValue          func(context.Context) (*History, error)
+	predicates        []predicate.History
 }
 
 var _ ent.Mutation = (*HistoryMutation)(nil)
@@ -3308,22 +3310,22 @@ func (m *HistoryMutation) ResetType() {
 	m._type = nil
 }
 
-// SetEpisodeGroupID sets the "episode_group_id" field.
+// SetEpisodeGroupID sets the "episodeGroupID" field.
 func (m *HistoryMutation) SetEpisodeGroupID(i int) {
-	m.episode_group_id = &i
-	m.addepisode_group_id = nil
+	m.episodeGroupID = &i
+	m.addepisodeGroupID = nil
 }
 
-// EpisodeGroupID returns the value of the "episode_group_id" field in the mutation.
+// EpisodeGroupID returns the value of the "episodeGroupID" field in the mutation.
 func (m *HistoryMutation) EpisodeGroupID() (r int, exists bool) {
-	v := m.episode_group_id
+	v := m.episodeGroupID
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldEpisodeGroupID returns the old "episode_group_id" field's value of the History entity.
+// OldEpisodeGroupID returns the old "episodeGroupID" field's value of the History entity.
 // If the History object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *HistoryMutation) OldEpisodeGroupID(ctx context.Context) (v int, err error) {
@@ -3340,46 +3342,46 @@ func (m *HistoryMutation) OldEpisodeGroupID(ctx context.Context) (v int, err err
 	return oldValue.EpisodeGroupID, nil
 }
 
-// AddEpisodeGroupID adds i to the "episode_group_id" field.
+// AddEpisodeGroupID adds i to the "episodeGroupID" field.
 func (m *HistoryMutation) AddEpisodeGroupID(i int) {
-	if m.addepisode_group_id != nil {
-		*m.addepisode_group_id += i
+	if m.addepisodeGroupID != nil {
+		*m.addepisodeGroupID += i
 	} else {
-		m.addepisode_group_id = &i
+		m.addepisodeGroupID = &i
 	}
 }
 
-// AddedEpisodeGroupID returns the value that was added to the "episode_group_id" field in this mutation.
+// AddedEpisodeGroupID returns the value that was added to the "episodeGroupID" field in this mutation.
 func (m *HistoryMutation) AddedEpisodeGroupID() (r int, exists bool) {
-	v := m.addepisode_group_id
+	v := m.addepisodeGroupID
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ResetEpisodeGroupID resets all changes to the "episode_group_id" field.
+// ResetEpisodeGroupID resets all changes to the "episodeGroupID" field.
 func (m *HistoryMutation) ResetEpisodeGroupID() {
-	m.episode_group_id = nil
-	m.addepisode_group_id = nil
+	m.episodeGroupID = nil
+	m.addepisodeGroupID = nil
 }
 
-// SetEpisodeID sets the "episode_id" field.
+// SetEpisodeID sets the "episodeID" field.
 func (m *HistoryMutation) SetEpisodeID(i int) {
-	m.episode_id = &i
-	m.addepisode_id = nil
+	m.episodeID = &i
+	m.addepisodeID = nil
 }
 
-// EpisodeID returns the value of the "episode_id" field in the mutation.
+// EpisodeID returns the value of the "episodeID" field in the mutation.
 func (m *HistoryMutation) EpisodeID() (r int, exists bool) {
-	v := m.episode_id
+	v := m.episodeID
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldEpisodeID returns the old "episode_id" field's value of the History entity.
+// OldEpisodeID returns the old "episodeID" field's value of the History entity.
 // If the History object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *HistoryMutation) OldEpisodeID(ctx context.Context) (v int, err error) {
@@ -3396,28 +3398,28 @@ func (m *HistoryMutation) OldEpisodeID(ctx context.Context) (v int, err error) {
 	return oldValue.EpisodeID, nil
 }
 
-// AddEpisodeID adds i to the "episode_id" field.
+// AddEpisodeID adds i to the "episodeID" field.
 func (m *HistoryMutation) AddEpisodeID(i int) {
-	if m.addepisode_id != nil {
-		*m.addepisode_id += i
+	if m.addepisodeID != nil {
+		*m.addepisodeID += i
 	} else {
-		m.addepisode_id = &i
+		m.addepisodeID = &i
 	}
 }
 
-// AddedEpisodeID returns the value that was added to the "episode_id" field in this mutation.
+// AddedEpisodeID returns the value that was added to the "episodeID" field in this mutation.
 func (m *HistoryMutation) AddedEpisodeID() (r int, exists bool) {
-	v := m.addepisode_id
+	v := m.addepisodeID
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ResetEpisodeID resets all changes to the "episode_id" field.
+// ResetEpisodeID resets all changes to the "episodeID" field.
 func (m *HistoryMutation) ResetEpisodeID() {
-	m.episode_id = nil
-	m.addepisode_id = nil
+	m.episodeID = nil
+	m.addepisodeID = nil
 }
 
 // SetTitle sets the "title" field.
@@ -3456,21 +3458,21 @@ func (m *HistoryMutation) ResetTitle() {
 	m.title = nil
 }
 
-// SetEpisodeTitle sets the "episode_title" field.
+// SetEpisodeTitle sets the "episodeTitle" field.
 func (m *HistoryMutation) SetEpisodeTitle(s string) {
-	m.episode_title = &s
+	m.episodeTitle = &s
 }
 
-// EpisodeTitle returns the value of the "episode_title" field in the mutation.
+// EpisodeTitle returns the value of the "episodeTitle" field in the mutation.
 func (m *HistoryMutation) EpisodeTitle() (r string, exists bool) {
-	v := m.episode_title
+	v := m.episodeTitle
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldEpisodeTitle returns the old "episode_title" field's value of the History entity.
+// OldEpisodeTitle returns the old "episodeTitle" field's value of the History entity.
 // If the History object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
 func (m *HistoryMutation) OldEpisodeTitle(ctx context.Context) (v string, err error) {
@@ -3487,18 +3489,19 @@ func (m *HistoryMutation) OldEpisodeTitle(ctx context.Context) (v string, err er
 	return oldValue.EpisodeTitle, nil
 }
 
-// ResetEpisodeTitle resets all changes to the "episode_title" field.
+// ResetEpisodeTitle resets all changes to the "episodeTitle" field.
 func (m *HistoryMutation) ResetEpisodeTitle() {
-	m.episode_title = nil
+	m.episodeTitle = nil
 }
 
 // SetProgress sets the "progress" field.
-func (m *HistoryMutation) SetProgress(s string) {
-	m.progress = &s
+func (m *HistoryMutation) SetProgress(i int) {
+	m.progress = &i
+	m.addprogress = nil
 }
 
 // Progress returns the value of the "progress" field in the mutation.
-func (m *HistoryMutation) Progress() (r string, exists bool) {
+func (m *HistoryMutation) Progress() (r int, exists bool) {
 	v := m.progress
 	if v == nil {
 		return
@@ -3509,7 +3512,7 @@ func (m *HistoryMutation) Progress() (r string, exists bool) {
 // OldProgress returns the old "progress" field's value of the History entity.
 // If the History object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HistoryMutation) OldProgress(ctx context.Context) (v string, err error) {
+func (m *HistoryMutation) OldProgress(ctx context.Context) (v int, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldProgress is only allowed on UpdateOne operations")
 	}
@@ -3523,29 +3526,49 @@ func (m *HistoryMutation) OldProgress(ctx context.Context) (v string, err error)
 	return oldValue.Progress, nil
 }
 
-// ResetProgress resets all changes to the "progress" field.
-func (m *HistoryMutation) ResetProgress() {
-	m.progress = nil
+// AddProgress adds i to the "progress" field.
+func (m *HistoryMutation) AddProgress(i int) {
+	if m.addprogress != nil {
+		*m.addprogress += i
+	} else {
+		m.addprogress = &i
+	}
 }
 
-// SetTotalProgress sets the "total_progress" field.
-func (m *HistoryMutation) SetTotalProgress(s string) {
-	m.total_progress = &s
-}
-
-// TotalProgress returns the value of the "total_progress" field in the mutation.
-func (m *HistoryMutation) TotalProgress() (r string, exists bool) {
-	v := m.total_progress
+// AddedProgress returns the value that was added to the "progress" field in this mutation.
+func (m *HistoryMutation) AddedProgress() (r int, exists bool) {
+	v := m.addprogress
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldTotalProgress returns the old "total_progress" field's value of the History entity.
+// ResetProgress resets all changes to the "progress" field.
+func (m *HistoryMutation) ResetProgress() {
+	m.progress = nil
+	m.addprogress = nil
+}
+
+// SetTotalProgress sets the "totalProgress" field.
+func (m *HistoryMutation) SetTotalProgress(i int) {
+	m.totalProgress = &i
+	m.addtotalProgress = nil
+}
+
+// TotalProgress returns the value of the "totalProgress" field in the mutation.
+func (m *HistoryMutation) TotalProgress() (r int, exists bool) {
+	v := m.totalProgress
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTotalProgress returns the old "totalProgress" field's value of the History entity.
 // If the History object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HistoryMutation) OldTotalProgress(ctx context.Context) (v string, err error) {
+func (m *HistoryMutation) OldTotalProgress(ctx context.Context) (v int, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldTotalProgress is only allowed on UpdateOne operations")
 	}
@@ -3559,9 +3582,28 @@ func (m *HistoryMutation) OldTotalProgress(ctx context.Context) (v string, err e
 	return oldValue.TotalProgress, nil
 }
 
-// ResetTotalProgress resets all changes to the "total_progress" field.
+// AddTotalProgress adds i to the "totalProgress" field.
+func (m *HistoryMutation) AddTotalProgress(i int) {
+	if m.addtotalProgress != nil {
+		*m.addtotalProgress += i
+	} else {
+		m.addtotalProgress = &i
+	}
+}
+
+// AddedTotalProgress returns the value that was added to the "totalProgress" field in this mutation.
+func (m *HistoryMutation) AddedTotalProgress() (r int, exists bool) {
+	v := m.addtotalProgress
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetTotalProgress resets all changes to the "totalProgress" field.
 func (m *HistoryMutation) ResetTotalProgress() {
-	m.total_progress = nil
+	m.totalProgress = nil
+	m.addtotalProgress = nil
 }
 
 // SetDate sets the "date" field.
@@ -3647,22 +3689,22 @@ func (m *HistoryMutation) Fields() []string {
 	if m._type != nil {
 		fields = append(fields, history.FieldType)
 	}
-	if m.episode_group_id != nil {
+	if m.episodeGroupID != nil {
 		fields = append(fields, history.FieldEpisodeGroupID)
 	}
-	if m.episode_id != nil {
+	if m.episodeID != nil {
 		fields = append(fields, history.FieldEpisodeID)
 	}
 	if m.title != nil {
 		fields = append(fields, history.FieldTitle)
 	}
-	if m.episode_title != nil {
+	if m.episodeTitle != nil {
 		fields = append(fields, history.FieldEpisodeTitle)
 	}
 	if m.progress != nil {
 		fields = append(fields, history.FieldProgress)
 	}
-	if m.total_progress != nil {
+	if m.totalProgress != nil {
 		fields = append(fields, history.FieldTotalProgress)
 	}
 	if m.date != nil {
@@ -3795,14 +3837,14 @@ func (m *HistoryMutation) SetField(name string, value ent.Value) error {
 		m.SetEpisodeTitle(v)
 		return nil
 	case history.FieldProgress:
-		v, ok := value.(string)
+		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProgress(v)
 		return nil
 	case history.FieldTotalProgress:
-		v, ok := value.(string)
+		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -3823,11 +3865,17 @@ func (m *HistoryMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *HistoryMutation) AddedFields() []string {
 	var fields []string
-	if m.addepisode_group_id != nil {
+	if m.addepisodeGroupID != nil {
 		fields = append(fields, history.FieldEpisodeGroupID)
 	}
-	if m.addepisode_id != nil {
+	if m.addepisodeID != nil {
 		fields = append(fields, history.FieldEpisodeID)
+	}
+	if m.addprogress != nil {
+		fields = append(fields, history.FieldProgress)
+	}
+	if m.addtotalProgress != nil {
+		fields = append(fields, history.FieldTotalProgress)
 	}
 	return fields
 }
@@ -3841,6 +3889,10 @@ func (m *HistoryMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedEpisodeGroupID()
 	case history.FieldEpisodeID:
 		return m.AddedEpisodeID()
+	case history.FieldProgress:
+		return m.AddedProgress()
+	case history.FieldTotalProgress:
+		return m.AddedTotalProgress()
 	}
 	return nil, false
 }
@@ -3863,6 +3915,20 @@ func (m *HistoryMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddEpisodeID(v)
+		return nil
+	case history.FieldProgress:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddProgress(v)
+		return nil
+	case history.FieldTotalProgress:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTotalProgress(v)
 		return nil
 	}
 	return fmt.Errorf("unknown History numeric field %s", name)
