@@ -4,6 +4,7 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -354,14 +355,14 @@ func Search(pkg string, page int, kw string, filter string) (any, error) {
 }
 
 // Extension watch should contain V1 and V2 api
-func Watch(pkg string, url string) (any, error) {
+func Watch(pkg string, link string) (any, error) {
 
 	api, e := getPkgFromCache(pkg)
 	if e != nil {
 		return nil, e
 	}
 
-	o, e := api.asyncCallBack(api, pkg, fmt.Sprintf(api.watchEval, url))
+	o, e := api.asyncCallBack(api, pkg, fmt.Sprintf(api.watchEval, link))
 	if e != nil {
 		return nil, e
 	}
@@ -373,7 +374,7 @@ func Watch(pkg string, url string) (any, error) {
 	switch vidType {
 
 	case "magnet":
-		t, e := torrent.AddMagnet(url)
+		t, e := torrent.AddMagnet(link)
 		if e != nil {
 			return nil, e
 		}
@@ -381,7 +382,12 @@ func Watch(pkg string, url string) (any, error) {
 		return obj, nil
 
 	case "torrent":
-		t, e := torrent.AddTorrent(url)
+		if o, _ := url.Parse(link); !o.IsAbs() {
+			web, _ := url.Parse(api.Ext.Website)
+			web.Path = filepath.Join(web.Path, link)
+			link = web.String()
+		}
+		t, e := torrent.AddTorrent(link)
 		if e != nil {
 			return nil, e
 		}

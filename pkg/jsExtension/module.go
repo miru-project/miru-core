@@ -62,17 +62,21 @@ func (ser *ExtBaseService) initModule(module *require.RequireModule, vm *goja.Ru
 
 	// init cryptoJs  and  linkedom
 	linkeDom := filepath.Join(jsRoot, "linkedom", "worker.js")
-	cryptoJs := filepath.Join(jsRoot, "crypto-js", "aes.js")
-
+	cryptoJs := filepath.Join(jsRoot, "crypto-js", "crypto-js.js")
+	md5 := filepath.Join(jsRoot, "md5", "md5.min.js")
 	if _, e := module.Require(linkeDom); e != nil {
 		log.Println("linkedom module not found")
 	}
 	if _, e := module.Require(cryptoJs); e != nil {
 		log.Println("crypto-js module not found")
 	}
+	if _, e := module.Require(md5); e != nil {
+		log.Println("md5 module not found")
+	}
 
 	vm.RunString(fmt.Sprintf(`var {parseHTML} = require('%s');`, linkeDom))
-	vm.RunString(fmt.Sprintf(`var {AES} = require('%s');`, cryptoJs))
+	vm.RunString(fmt.Sprintf(`var {CryptoJS} = require('%s');`, cryptoJs))
+	vm.RunString(fmt.Sprintf(`var {md5} = require('%s');`, md5))
 	ser.initFetch(vm, job)
 
 }

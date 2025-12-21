@@ -73,6 +73,10 @@ func (s *MiruCoreServer) HelloMiru(ctx context.Context, req *proto.HelloMiruRequ
 		},
 	}
 
+	if resp.Torrent == nil {
+		resp.Torrent = &proto.TorrentStats{}
+	}
+
 	return resp, nil
 }
 
@@ -122,10 +126,10 @@ func (s *MiruCoreServer) Search(ctx context.Context, req *proto.SearchRequest) (
 	for i, item := range items {
 		m := item.(map[string]any)
 		protoItems[i] = &proto.ExtensionListItem{
-			Title:  fmt.Sprint(m["title"]),
-			Url:    fmt.Sprint(m["url"]),
-			Cover:  fmt.Sprint(m["cover"]),
-			Update: fmt.Sprint(m["update"]),
+			Title:  safeSprint(m["title"]),
+			Url:    safeSprint(m["url"]),
+			Cover:  safeSprint(m["cover"]),
+			Update: safeSprint(m["update"]),
 		}
 	}
 
@@ -143,10 +147,10 @@ func (s *MiruCoreServer) Latest(ctx context.Context, req *proto.LatestRequest) (
 	for i, item := range items {
 		m := item.(map[string]any)
 		protoItems[i] = &proto.ExtensionListItem{
-			Title:  fmt.Sprint(m["title"]),
-			Url:    fmt.Sprint(m["url"]),
-			Cover:  fmt.Sprint(m["cover"]),
-			Update: fmt.Sprint(m["update"]),
+			Title:  safeSprint(m["title"]),
+			Url:    safeSprint(m["url"]),
+			Cover:  safeSprint(m["cover"]),
+			Update: safeSprint(m["update"]),
 		}
 	}
 
@@ -187,9 +191,11 @@ func (s *MiruCoreServer) GetAllFavorite(ctx context.Context, req *proto.GetAllFa
 	if err != nil {
 		return nil, err
 	}
-	protoFavs := make([]*proto.Favorite, len(favs))
-	for i, f := range favs {
-		protoFavs[i] = toProtoFavorite(f)
+	protoFavs := []*proto.Favorite{}
+	for _, f := range favs {
+		if f != nil {
+			protoFavs = append(protoFavs, toProtoFavorite(f))
+		}
 	}
 	return &proto.GetAllFavoriteResponse{Favorites: protoFavs}, nil
 }
@@ -240,9 +246,11 @@ func (s *MiruCoreServer) GetFavoriteGroupsById(ctx context.Context, req *proto.G
 	if err != nil {
 		return nil, err
 	}
-	protoGroups := make([]*proto.FavoriteGroup, len(groups))
-	for i, g := range groups {
-		protoGroups[i] = toProtoFavoriteGroup(g)
+	protoGroups := []*proto.FavoriteGroup{}
+	for _, g := range groups {
+		if g != nil {
+			protoGroups = append(protoGroups, toProtoFavoriteGroup(g))
+		}
 	}
 	return &proto.GetFavoriteGroupsByIdResponse{Groups: protoGroups}, nil
 }
@@ -252,9 +260,11 @@ func (s *MiruCoreServer) GetAllFavoriteGroup(ctx context.Context, req *proto.Get
 	if err != nil {
 		return nil, err
 	}
-	protoGroups := make([]*proto.FavoriteGroup, len(groups))
-	for i, g := range groups {
-		protoGroups[i] = toProtoFavoriteGroup(g)
+	protoGroups := []*proto.FavoriteGroup{}
+	for _, g := range groups {
+		if g != nil {
+			protoGroups = append(protoGroups, toProtoFavoriteGroup(g))
+		}
 	}
 	return &proto.GetAllFavoriteGroupResponse{Groups: protoGroups}, nil
 }
@@ -292,9 +302,11 @@ func (s *MiruCoreServer) GetFavoriteGroupsByFavorite(ctx context.Context, req *p
 	if err != nil {
 		return nil, err
 	}
-	protoGroups := make([]*proto.FavoriteGroup, len(groups))
-	for i, g := range groups {
-		protoGroups[i] = toProtoFavoriteGroup(g)
+	protoGroups := []*proto.FavoriteGroup{}
+	for _, g := range groups {
+		if g != nil {
+			protoGroups = append(protoGroups, toProtoFavoriteGroup(g))
+		}
 	}
 	return &proto.GetFavoriteGroupsByFavoriteResponse{Groups: protoGroups}, nil
 }
@@ -305,9 +317,11 @@ func (s *MiruCoreServer) GetHistoriesByType(ctx context.Context, req *proto.GetH
 	if err != nil {
 		return nil, err
 	}
-	protoHistories := make([]*proto.History, len(histories))
-	for i, h := range histories {
-		protoHistories[i] = toProtoHistory(h)
+	protoHistories := []*proto.History{}
+	for _, h := range histories {
+		if h != nil {
+			protoHistories = append(protoHistories, toProtoHistory(h))
+		}
 	}
 	return &proto.GetHistoriesByTypeResponse{Histories: protoHistories}, nil
 }
@@ -358,9 +372,11 @@ func (s *MiruCoreServer) GetHistorysFiltered(ctx context.Context, req *proto.Get
 	if err != nil {
 		return nil, err
 	}
-	protoHistories := make([]*proto.History, len(histories))
-	for i, h := range histories {
-		protoHistories[i] = toProtoHistory(h)
+	protoHistories := []*proto.History{}
+	for _, h := range histories {
+		if h != nil {
+			protoHistories = append(protoHistories, toProtoHistory(h))
+		}
 	}
 	return &proto.GetHistorysFilteredResponse{Histories: protoHistories}, nil
 }
@@ -472,6 +488,14 @@ func (s *MiruCoreServer) AddMagnet(ctx context.Context, req *proto.AddMagnetRequ
 	}, nil
 }
 
+func (s *MiruCoreServer) DeleteTorrent(ctx context.Context, req *proto.DeleteTorrentRequest) (*proto.DeleteTorrentResponse, error) {
+	err := torrent.DeleteTorrent(req.InfoHash)
+	if err != nil {
+		return nil, err
+	}
+	return &proto.DeleteTorrentResponse{Message: "Success"}, nil
+}
+
 // Repo
 func (s *MiruCoreServer) GetRepos(ctx context.Context, req *proto.GetReposRequest) (*proto.GetReposResponse, error) {
 	repos, err := jsExtension.LoadExtensionRepo()
@@ -534,6 +558,13 @@ func (s *MiruCoreServer) SetCookie(ctx context.Context, req *proto.SetCookieRequ
 }
 
 // Helpers
+func safeSprint(v any) string {
+	if v == nil {
+		return ""
+	}
+	return fmt.Sprint(v)
+}
+
 func toProtoDownloadProgress(p *download.Progress) *proto.DownloadProgress {
 	names := []string{}
 	if p.Names != nil {
@@ -552,7 +583,7 @@ func toProtoDownloadProgress(p *download.Progress) *proto.DownloadProgress {
 
 func toProtoFavorite(f *ent.Favorite) *proto.Favorite {
 	if f == nil {
-		return nil
+		return &proto.Favorite{}
 	}
 	return &proto.Favorite{
 		Id:      int32(f.ID),
@@ -572,12 +603,14 @@ func toProtoFavorite(f *ent.Favorite) *proto.Favorite {
 
 func toProtoFavoriteGroup(g *ent.FavoriteGroup) *proto.FavoriteGroup {
 	if g == nil {
-		return nil
+		return &proto.FavoriteGroup{}
 	}
 	favs := []*proto.Favorite{}
 	// Check if edges are loaded
 	for _, f := range g.Edges.Favorites {
-		favs = append(favs, toProtoFavorite(f))
+		if f != nil {
+			favs = append(favs, toProtoFavorite(f))
+		}
 	}
 
 	return &proto.FavoriteGroup{
@@ -590,7 +623,7 @@ func toProtoFavoriteGroup(g *ent.FavoriteGroup) *proto.FavoriteGroup {
 
 func toProtoHistory(h *ent.History) *proto.History {
 	if h == nil {
-		return nil
+		return &proto.History{}
 	}
 	return &proto.History{
 		Id:      int32(h.ID),

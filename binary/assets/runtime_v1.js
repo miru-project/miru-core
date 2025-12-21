@@ -1,31 +1,33 @@
 class Element {
-  constructor(content, selector) {
-    this.content = content;
-    this.selector = selector || "";
-
-    // Parse the HTML content and get the document
-    const { document } = parseHTML(content);
+  constructor(document) {
     this.document = document;
-    this.node = selector ? document.querySelector(selector) : document;
+    this.content = document.outerHTML;
   }
 
 
-  execute(fun) {
-    if (fun === "text") {
-      return this.node.textContent;
-    }
-    if (fun === "outerHTML") {
-      return this.node.outerHTML;
-    }
-    if (fun === "innerHTML") {
-      return this.node.innerHTML;
-    }
-    // Add more as needed
-    return null;
+  querySelector(selector) {
+    this.document= this.document.querySelector(selector);
+    // console.log(this.document)
+    this.content = this.document.outerHTML;
+    return this;
   }
+
+  // execute(fun) {
+  //   if (fun === "text") {
+  //     return this.document.textContent;
+  //   }
+  //   if (fun === "outerHTML") {
+  //     return this.document.outerHTML;
+  //   }
+  //   if (fun === "innerHTML") {
+  //     return this.document.innerHTML;
+  //   }
+  //   // Add more as needed
+  //   return null;
+  // }
 
   removeSelector(selector) {
-    const removeNode = this.node.querySelector(selector);
+    const removeNode = this.document.querySelector(selector);
     if (removeNode && removeNode.parentNode) {
       removeNode.parentNode.removeChild(removeNode);
     }
@@ -34,11 +36,11 @@ class Element {
   }
 
   getAttributeText(attr) {
-    return this.node.getAttribute(attr);
+    return this.document.getAttribute(attr);
   }
 
   querySelectorAll(selector) {
-    const nodes = this.node.querySelectorAll(selector);
+    const nodes = this.document.querySelectorAll(selector);
     return nodes.map(function (e) {
       const c = e
       c.content = e.outerHTML;
@@ -48,15 +50,15 @@ class Element {
 
 
   get text() {
-    return this.node.textContent;
+    return this.document.textContent;
   }
 
   get outerHTML() {
-    return this.node.outerHTML;
+    return this.document.outerHTML;
   }
 
   get innerHTML() {
-    return this.node.innerHTML;
+    return this.document.innerHTML;
   }
 }
 // class XPathNode {
@@ -124,20 +126,45 @@ class Extension {
       return res;
     }
   }
+
+  async rawRequest(url, options) {
+    options = options || {};
+    options.headers = options.headers || {};
+    options.method = options.method || "GET";
+    const message = await jsRequest(url,options)
+    try {
+      return JSON.parse(message);
+    } catch (e) {
+      return message;
+    }
+  }
+
   querySelector(content, selector) {
-    return new Element(content, selector, this.extension);
+    const { document } = parseHTML(content);
+    // console.log(document)
+    // console.log(selector)
+    // console.log(document.querySelector(selector)) 
+    const e = new Element(document).querySelector(selector)
+    return e;
   }
 
   queryXPath(content, selector) {
     return new XPathNode(content, selector, this.extension);
   }
   querySelectorAll(content, selector) {
-    return new Element(content, null, this.extension).querySelectorAll(selector);
+    const { document } = parseHTML(content);
+    const e = document.querySelectorAll(selector).map(function (e) {
+      const c = new Element(e)
+      return c;
+    })
+    return e;
   }
 
   async getAttributeText(content, selector, attr) {
+    // console.log(content)
     const { document } = parseHTML(content);
     const node = document.querySelector(selector);
+    // console.log(node)
     return node ? node.getAttribute(attr) : null;
   }
 

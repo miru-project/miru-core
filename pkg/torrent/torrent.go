@@ -20,7 +20,6 @@ import (
 )
 
 var (
-	App      *fiber.App
 	BTClient *torrent.Client
 	Torrents = make(map[string]*torrent.Torrent)
 	DataDir  string
@@ -49,17 +48,6 @@ func Init() {
 
 func TorrentStatus() torrent.ClientStats {
 	return BTClient.Stats()
-}
-
-func ListTorrent(c *fiber.Ctx) error {
-	var torResult []result.TorrentResult
-	for hash, t := range Torrents {
-		torResult = append(torResult, result.TorrentResult{
-			InfoHash: hash,
-			Name:     t.Name(),
-		})
-	}
-	return c.JSON(torResult)
 }
 
 func AddMagnet(magnet string) (result.TorrentDetailResult, error) {
@@ -126,21 +114,20 @@ func addStream(t *torrent.Torrent) (result.TorrentDetailResult, error) {
 	}, nil
 }
 
-func DeleteTorrent(c *fiber.Ctx) error {
-	infoHash := c.Params("infoHash")
+func DeleteTorrent(infoHash string) error {
 	t, ok := Torrents[infoHash]
 	if !ok {
-		return c.Status(http.StatusNotFound).SendString("torrent not found")
+		return fmt.Errorf("torrent not found")
 	}
 	t.Drop()
 
 	// Auto delete cache file
 	if err := os.RemoveAll(path.Join(DataDir, t.Name())); err != nil {
-		return c.Status(http.StatusInternalServerError).SendString("Internal server error")
+		return err
 	}
 
 	delete(Torrents, infoHash)
-	return c.SendStatus(http.StatusOK)
+	return nil
 }
 
 func GetTorrentData(c *fiber.Ctx) error {
