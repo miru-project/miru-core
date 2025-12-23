@@ -84,9 +84,9 @@ var (
 		PrimaryKey: []*schema.Column{FavoritesColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "favorite_package",
+				Name:    "favorite_package_url",
 				Unique:  true,
-				Columns: []*schema.Column{FavoritesColumns[1]},
+				Columns: []*schema.Column{FavoritesColumns[1], FavoritesColumns[2]},
 			},
 		},
 	}

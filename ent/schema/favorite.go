@@ -59,7 +59,7 @@ func (Favorite) Edges() []ent.Edge {
 // Indexes of the Favorite.
 func (Favorite) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("package").
+		index.Fields("package", "url").
 			Unique(),
 	}
 }

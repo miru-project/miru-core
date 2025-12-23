@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	sql "entgo.io/ent/dialect/sql"
 	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/ent/favorite"
 	"github.com/miru-project/miru-core/ent/favoritegroup"
@@ -23,7 +24,7 @@ func GetFavoriteGroupsById(id int) ([]*ent.FavoriteGroup, error) {
 func GetAllFavoriteGroup() ([]*ent.FavoriteGroup, error) {
 	client := ext.EntClient()
 	ctx := context.Background()
-	return client.FavoriteGroup.Query().All(ctx)
+	return client.FavoriteGroup.Query().WithFavorites().All(ctx)
 }
 
 // DeleteFavoriteGroup deletes favorite groups with any of the provided names.
@@ -85,29 +86,53 @@ func GetAllFavorite() ([]*ent.Favorite, error) {
 func PutFavoriteByIndex(groups []*ent.FavoriteGroup) error {
 	client := ext.EntClient()
 	ctx := context.Background()
-	// Build create builders
-	builders := make([]*ent.FavoriteGroupCreate, 0, len(groups))
+
 	for _, g := range groups {
-		c := client.FavoriteGroup.Create().SetName(g.Name).SetDate(g.Date)
-		builders = append(builders, c)
+		// 1. Get or Create Group by Name
+		id, err := client.FavoriteGroup.Create().
+			SetName(g.Name).
+			SetDate(g.Date).
+			OnConflict(
+				sql.ConflictColumns(favoritegroup.FieldName),
+			).
+			UpdateNewValues().
+			ID(ctx)
+		if err != nil {
+			return err
+		}
+
+		// 2. Get IDs
+		ids := make([]int, len(g.Edges.Favorites))
+		for i, f := range g.Edges.Favorites {
+			ids[i] = f.ID
+		}
+
+		// 3. Update Favorites (Sync)
+		_, err = client.FavoriteGroup.UpdateOneID(id).
+			ClearFavorites().
+			AddFavoriteIDs(ids...).
+			Save(ctx)
+		if err != nil {
+			return err
+		}
 	}
-	// CreateBulk(...).OnConflict().UpdateNewValues().Exec(ctx) returns error.
-	err := client.FavoriteGroup.CreateBulk(builders...).OnConflict().UpdateNewValues().Exec(ctx)
-	return err
+	return nil
 }
 
 // PutFavorite creates or upserts a favorite. Returns the created Favorite entity.
-func PutFavorite(detailUrl string, cover *string, pkg string, t string) (*ent.Favorite, error) {
+func PutFavorite(detailUrl string, cover *string, pkg string, t string, title string) (*ent.Favorite, error) {
 	client := ext.EntClient()
 	ctx := context.Background()
 
 	// Use OnConflict to update new values (upsert)
-	create := client.Favorite.Create().SetURL(detailUrl).SetPackage(pkg).SetType(t).SetTitle("").SetDate(time.Now())
+	create := client.Favorite.Create().SetURL(detailUrl).SetPackage(pkg).SetType(t).SetTitle(title).SetDate(time.Now())
 	if cover != nil {
 		create = create.SetCover(*cover)
 	}
 	// UpdateNewValues will update mutable fields if conflict
-	favID, err := create.OnConflict().UpdateNewValues().ID(ctx)
+	favID, err := create.OnConflict(
+		sql.ConflictColumns(favorite.FieldPackage, favorite.FieldURL),
+	).UpdateNewValues().ID(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -212,9 +212,16 @@ func (s *MiruCoreServer) PutFavoriteByIndex(ctx context.Context, req *proto.PutF
 	groups := make([]*ent.FavoriteGroup, len(req.Groups))
 	for i, g := range req.Groups {
 		date, _ := time.Parse(time.RFC3339, g.Date)
+		favorites := make([]*ent.Favorite, len(g.Favorites))
+		for j, f := range g.Favorites {
+			favorites[j] = &ent.Favorite{ID: int(f.Id)}
+		}
 		groups[i] = &ent.FavoriteGroup{
 			Name: g.Name,
 			Date: date,
+			Edges: ent.FavoriteGroupEdges{
+				Favorites: favorites,
+			},
 		}
 	}
 	err := db.PutFavoriteByIndex(groups)
@@ -225,7 +232,7 @@ func (s *MiruCoreServer) PutFavoriteByIndex(ctx context.Context, req *proto.PutF
 }
 
 func (s *MiruCoreServer) PutFavorite(ctx context.Context, req *proto.PutFavoriteRequest) (*proto.PutFavoriteResponse, error) {
-	f, err := db.PutFavorite(req.Url, &req.Cover, req.Package, req.Type)
+	f, err := db.PutFavorite(req.Url, &req.Cover, req.Package, req.Type, req.Title)
 	if err != nil {
 		return nil, err
 	}

@@ -10,10 +10,14 @@ import (
 	"os"
 	"path/filepath"
 
+	"time"
+
 	"github.com/Danny-Dasilva/CycleTLS/cycletls"
 	logger "github.com/gofiber/fiber/v2/log"
 	log "github.com/miru-project/miru-core/pkg/logger"
 )
+
+var defaultClient *http.Client
 
 // Request makes an HTTP request and returns the response as type T.
 //
@@ -102,8 +106,14 @@ func request[T StringOrBytes](url string, option *RequestOptions, readPreference
 		req.AddCookie(value)
 	}
 
-	client := &http.Client{}
-	client.Transport = setupProxy(option)
+	var client *http.Client
+
+	if option.ProxyHost != "" {
+		client = &http.Client{}
+		client.Transport = setupProxy(option)
+	} else {
+		client = defaultClient
+	}
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -237,4 +247,13 @@ func dnsResolve() {
 func Init() {
 	go dnsResolve()
 	initCookieJar()
+
+	defaultClient = &http.Client{
+		Transport: &http.Transport{
+			Proxy:               http.ProxyFromEnvironment,
+			MaxIdleConns:        100,
+			MaxIdleConnsPerHost: 100,
+			IdleConnTimeout:     90 * time.Second,
+		},
+	}
 }
