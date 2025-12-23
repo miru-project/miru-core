@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/miru-project/miru-core/ext"
+	"github.com/miru-project/miru-core/pkg/db"
 	"github.com/miru-project/miru-core/pkg/download"
 	"github.com/miru-project/miru-core/pkg/jsExtension"
 	"github.com/miru-project/miru-core/pkg/result"
@@ -28,7 +28,7 @@ func HelloMiru() (*result.Result[any], error) {
 
 func GetAppSetting() (*result.Result[any], error) {
 	// Get all settings
-	settings, err := ext.GetAllSettings()
+	settings, err := db.GetAllAPPSettings()
 	if err != nil {
 		return result.NewErrorResult("Failed to get settings", 500, nil), err
 	}
@@ -36,9 +36,9 @@ func GetAppSetting() (*result.Result[any], error) {
 	return result.NewSuccessResult(settings), nil
 }
 
-func SetAppSetting(settings *[]ext.AppSettingJson) []error {
+func SetAppSetting(settings *[]db.AppSettingJson) []error {
 
-	if e := ext.SetAppSettings(settings); len(e) != 0 {
+	if e := db.SetAppSettings(settings); len(e) != 0 {
 		return e
 	}
 	return nil

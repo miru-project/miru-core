@@ -17,9 +17,8 @@ import (
 
 func LoadApiV1(ext *Ext, baseScript string) {
 
-	scriptV1 := fmt.Sprintf(baseScript, ext.Pkg, ext.Name, ext.Website)
 	*ext.Context = ReplaceClassExtendsDeclaration(*ext.Context)
-	runtimeV1 := errorhandle.HandleFatal(goja.Compile("runtime_v1.js", scriptV1, true))
+	runtimeV1 := errorhandle.HandleFatal(goja.Compile("runtime_v1.js", baseScript, true))
 	compiledExt, e := compileExtension(ext)
 	if e != nil {
 		log.Println("Error compiling extension:", e)

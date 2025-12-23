@@ -2293,6 +2293,7 @@ type History struct {
 	Progress       int32                  `protobuf:"varint,10,opt,name=progress,proto3" json:"progress,omitempty"`
 	TotalProgress  int32                  `protobuf:"varint,11,opt,name=total_progress,json=totalProgress,proto3" json:"total_progress,omitempty"`
 	Date           string                 `protobuf:"bytes,12,opt,name=date,proto3" json:"date,omitempty"` // ISO8601
+	DetailUrl      string                 `protobuf:"bytes,13,opt,name=detail_url,json=detailUrl,proto3" json:"detail_url,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -2407,6 +2408,13 @@ func (x *History) GetTotalProgress() int32 {
 func (x *History) GetDate() string {
 	if x != nil {
 		return x.Date
+	}
+	return ""
+}
+
+func (x *History) GetDetailUrl() string {
+	if x != nil {
+		return x.DetailUrl
 	}
 	return ""
 }
@@ -4694,7 +4702,7 @@ const file_proto_miru_core_service_proto_rawDesc = "" +
 	"\apackage\x18\x01 \x01(\tR\apackage\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\"R\n" +
 	"#GetFavoriteGroupsByFavoriteResponse\x12+\n" +
-	"\x06groups\x18\x01 \x03(\v2\x13.miru.FavoriteGroupR\x06groups\"\xca\x02\n" +
+	"\x06groups\x18\x01 \x03(\v2\x13.miru.FavoriteGroupR\x06groups\"\xe9\x02\n" +
 	"\aHistory\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x18\n" +
 	"\apackage\x18\x02 \x01(\tR\apackage\x12\x10\n" +
@@ -4709,7 +4717,9 @@ const file_proto_miru_core_service_proto_rawDesc = "" +
 	"\bprogress\x18\n" +
 	" \x01(\x05R\bprogress\x12%\n" +
 	"\x0etotal_progress\x18\v \x01(\x05R\rtotalProgress\x12\x12\n" +
-	"\x04date\x18\f \x01(\tR\x04date\"/\n" +
+	"\x04date\x18\f \x01(\tR\x04date\x12\x1d\n" +
+	"\n" +
+	"detail_url\x18\r \x01(\tR\tdetailUrl\"/\n" +
 	"\x19GetHistoriesByTypeRequest\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\"I\n" +
 	"\x1aGetHistoriesByTypeResponse\x12+\n" +

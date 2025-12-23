@@ -11,7 +11,6 @@ import (
 
 	"github.com/miru-project/miru-core/config"
 	"github.com/miru-project/miru-core/ent"
-	"github.com/miru-project/miru-core/ext"
 	"github.com/miru-project/miru-core/pkg/db"
 	"github.com/miru-project/miru-core/pkg/download"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
@@ -99,9 +98,9 @@ func (s *MiruCoreServer) GetAppSetting(ctx context.Context, req *proto.GetAppSet
 }
 
 func (s *MiruCoreServer) SetAppSetting(ctx context.Context, req *proto.SetAppSettingRequest) (*proto.SetAppSettingResponse, error) {
-	settings := make([]ext.AppSettingJson, len(req.Settings))
+	settings := make([]db.AppSettingJson, len(req.Settings))
 	for i, s := range req.Settings {
-		settings[i] = ext.AppSettingJson{
+		settings[i] = db.AppSettingJson{
 			Key:   s.Key,
 			Value: s.Value,
 		}
@@ -633,9 +632,10 @@ func toProtoHistory(h *ent.History) *proto.History {
 		return &proto.History{}
 	}
 	return &proto.History{
-		Id:      int32(h.ID),
-		Package: h.Package,
-		Url:     h.URL,
+		Id:        int32(h.ID),
+		Package:   h.Package,
+		Url:       h.URL,
+		DetailUrl: h.DetailUrl,
 		Cover: func() string {
 			if h.Cover != nil {
 				return *h.Cover
@@ -665,6 +665,7 @@ func fromProtoHistory(h *proto.History) *ent.History {
 		ID:             int(h.Id),
 		Package:        h.Package,
 		URL:            h.Url,
+		DetailUrl:      h.DetailUrl,
 		Cover:          &h.Cover,
 		Type:           h.Type,
 		EpisodeGroupID: int(h.EpisodeGroupId),

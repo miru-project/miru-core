@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/miru-project/miru-core/ext"
-	"github.com/miru-project/miru-core/router/handler"
 	"github.com/miru-project/miru-core/pkg/anilist"
+	"github.com/miru-project/miru-core/pkg/db"
 	"github.com/miru-project/miru-core/pkg/result"
+	"github.com/miru-project/miru-core/router/handler"
 )
 
 // initAnilistRouter handles all Anilist related routes
@@ -70,11 +70,11 @@ func ProcessAnilistToken(app *fiber.App) fiber.Router {
 		}
 
 		// Parse the cookie to get the token
-		setting := make([]ext.AppSettingJson, 0)
+		setting := make([]db.AppSettingJson, 0)
 		metaData := strings.Split(cookie, "&")
 		token := strings.Split(metaData[0], "=")[1]
 
-		setting = append(setting, ext.AppSettingJson{
+		setting = append(setting, db.AppSettingJson{
 			Key:   "anilist_token",
 			Value: token,
 		})

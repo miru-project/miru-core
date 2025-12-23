@@ -28,7 +28,12 @@ func (History) Fields() []ent.Field {
 
 		field.String("url").
 			NotEmpty().
-			Comment("The URL of the content"),
+			Comment("The Watch URL of the content"),
+
+		field.String("detailUrl").
+			Optional().
+			Default("").
+			Comment("The Detail URL of the content"),
 
 		field.String("cover").
 			Optional().
@@ -73,8 +78,8 @@ func (History) Edges() []ent.Edge {
 // Indexes of the History.
 func (History) Indexes() []ent.Index {
 	return []ent.Index{
-		// Create a unique index on the package field with replace on conflict strategy
-		index.Fields("package").
+		// Create a unique index on the package and url field with replace on conflict strategy
+		index.Fields("package", "url").
 			Unique(),
 	}
 }

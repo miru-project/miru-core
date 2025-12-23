@@ -56,6 +56,26 @@ func (_u *HistoryUpdate) SetNillableURL(v *string) *HistoryUpdate {
 	return _u
 }
 
+// SetDetailUrl sets the "detailUrl" field.
+func (_u *HistoryUpdate) SetDetailUrl(v string) *HistoryUpdate {
+	_u.mutation.SetDetailUrl(v)
+	return _u
+}
+
+// SetNillableDetailUrl sets the "detailUrl" field if the given value is not nil.
+func (_u *HistoryUpdate) SetNillableDetailUrl(v *string) *HistoryUpdate {
+	if v != nil {
+		_u.SetDetailUrl(*v)
+	}
+	return _u
+}
+
+// ClearDetailUrl clears the value of the "detailUrl" field.
+func (_u *HistoryUpdate) ClearDetailUrl() *HistoryUpdate {
+	_u.mutation.ClearDetailUrl()
+	return _u
+}
+
 // SetCover sets the "cover" field.
 func (_u *HistoryUpdate) SetCover(v string) *HistoryUpdate {
 	_u.mutation.SetCover(v)
@@ -296,6 +316,12 @@ func (_u *HistoryUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.URL(); ok {
 		_spec.SetField(history.FieldURL, field.TypeString, value)
 	}
+	if value, ok := _u.mutation.DetailUrl(); ok {
+		_spec.SetField(history.FieldDetailUrl, field.TypeString, value)
+	}
+	if _u.mutation.DetailUrlCleared() {
+		_spec.ClearField(history.FieldDetailUrl, field.TypeString)
+	}
 	if value, ok := _u.mutation.Cover(); ok {
 		_spec.SetField(history.FieldCover, field.TypeString, value)
 	}
@@ -383,6 +409,26 @@ func (_u *HistoryUpdateOne) SetNillableURL(v *string) *HistoryUpdateOne {
 	if v != nil {
 		_u.SetURL(*v)
 	}
+	return _u
+}
+
+// SetDetailUrl sets the "detailUrl" field.
+func (_u *HistoryUpdateOne) SetDetailUrl(v string) *HistoryUpdateOne {
+	_u.mutation.SetDetailUrl(v)
+	return _u
+}
+
+// SetNillableDetailUrl sets the "detailUrl" field if the given value is not nil.
+func (_u *HistoryUpdateOne) SetNillableDetailUrl(v *string) *HistoryUpdateOne {
+	if v != nil {
+		_u.SetDetailUrl(*v)
+	}
+	return _u
+}
+
+// ClearDetailUrl clears the value of the "detailUrl" field.
+func (_u *HistoryUpdateOne) ClearDetailUrl() *HistoryUpdateOne {
+	_u.mutation.ClearDetailUrl()
 	return _u
 }
 
@@ -655,6 +701,12 @@ func (_u *HistoryUpdateOne) sqlSave(ctx context.Context) (_node *History, err er
 	}
 	if value, ok := _u.mutation.URL(); ok {
 		_spec.SetField(history.FieldURL, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.DetailUrl(); ok {
+		_spec.SetField(history.FieldDetailUrl, field.TypeString, value)
+	}
+	if _u.mutation.DetailUrlCleared() {
+		_spec.ClearField(history.FieldDetailUrl, field.TypeString)
 	}
 	if value, ok := _u.mutation.Cover(); ok {
 		_spec.SetField(history.FieldCover, field.TypeString, value)

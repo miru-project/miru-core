@@ -7,10 +7,10 @@ import (
 	"path"
 	"path/filepath"
 
+	"github.com/miru-project/miru-core/pkg/db"
 	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/miru-project/miru-core/ent"
-	"github.com/miru-project/miru-core/ext"
 	"github.com/miru-project/miru-core/pkg/network"
 )
 
@@ -31,14 +31,14 @@ type GithubExtension struct {
 var fetchedExtensionRepo map[string][]GithubExtension
 
 func LoadExtensionRepo() ([]*ent.ExtensionRepoSetting, error) {
-	repo, e := ext.GetAllRepositories()
+	repo, e := db.GetAllRepositories()
 	if e != nil {
 		return nil, e
 	}
 	if len(repo) == 0 {
 		// Create a default repository if none exists
-		ext.SetDefaultRepository()
-		repo, _ = ext.GetAllRepositories()
+		db.SetDefaultRepository()
+		repo, _ = db.GetAllRepositories()
 	}
 	return repo, nil
 }
@@ -47,7 +47,7 @@ func SaveExtensionRepo(repoUrl string, name string) error {
 	if _, err := url.Parse(repoUrl); err != nil {
 		return fmt.Errorf("invalid repository URL: %s", repoUrl)
 	}
-	return ext.SetRepository(name, repoUrl)
+	return db.SetRepository(name, repoUrl)
 }
 
 func FetchExtensionRepo() (map[string][]GithubExtension, map[string]error, error) {
@@ -114,7 +114,7 @@ func DownloadExtension(repoUrl string, pkg string) error {
 }
 
 func RemoveExtensionRepo(id string) error {
-	return ext.RemoveExtensionRepo(id)
+	return db.RemoveExtensionRepo(id)
 
 }
 

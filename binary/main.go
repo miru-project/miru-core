@@ -8,6 +8,7 @@ import (
 	"github.com/miru-project/miru-core/config"
 	"github.com/miru-project/miru-core/ext"
 	"github.com/miru-project/miru-core/pkg/anilist"
+	"github.com/miru-project/miru-core/pkg/db"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 	jsext "github.com/miru-project/miru-core/pkg/jsExtension"
 	log "github.com/miru-project/miru-core/pkg/logger"
@@ -54,6 +55,7 @@ func Init() {
 	}
 
 	ext.EntClient()
+	db.Initialize()
 	anilist.InitToken()
 	network.Init()
 	torrent.Init()

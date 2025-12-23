@@ -108,20 +108,24 @@ func init() {
 	historyDescURL := historyFields[2].Descriptor()
 	// history.URLValidator is a validator for the "url" field. It is called by the builders before save.
 	history.URLValidator = historyDescURL.Validators[0].(func(string) error)
+	// historyDescDetailUrl is the schema descriptor for detailUrl field.
+	historyDescDetailUrl := historyFields[3].Descriptor()
+	// history.DefaultDetailUrl holds the default value on creation for the detailUrl field.
+	history.DefaultDetailUrl = historyDescDetailUrl.Default.(string)
 	// historyDescType is the schema descriptor for type field.
-	historyDescType := historyFields[4].Descriptor()
+	historyDescType := historyFields[5].Descriptor()
 	// history.TypeValidator is a validator for the "type" field. It is called by the builders before save.
 	history.TypeValidator = historyDescType.Validators[0].(func(string) error)
 	// historyDescTitle is the schema descriptor for title field.
-	historyDescTitle := historyFields[7].Descriptor()
+	historyDescTitle := historyFields[8].Descriptor()
 	// history.TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	history.TitleValidator = historyDescTitle.Validators[0].(func(string) error)
 	// historyDescEpisodeTitle is the schema descriptor for episodeTitle field.
-	historyDescEpisodeTitle := historyFields[8].Descriptor()
+	historyDescEpisodeTitle := historyFields[9].Descriptor()
 	// history.EpisodeTitleValidator is a validator for the "episodeTitle" field. It is called by the builders before save.
 	history.EpisodeTitleValidator = historyDescEpisodeTitle.Validators[0].(func(string) error)
 	// historyDescDate is the schema descriptor for date field.
-	historyDescDate := historyFields[11].Descriptor()
+	historyDescDate := historyFields[12].Descriptor()
 	// history.DefaultDate holds the default value on creation for the date field.
 	history.DefaultDate = historyDescDate.Default.(func() time.Time)
 	// historyDescID is the schema descriptor for id field.

@@ -9,18 +9,19 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/gofiber/fiber/v2 v2.52.10
 	github.com/grafov/m3u8 v0.12.1
-	github.com/mattn/go-sqlite3 v1.14.32 // indirect
 	go.nhat.io/cookiejar v0.3.0
 	golang.org/x/mobile v0.0.0-20251113184115-a159579294ab
 )
 
 require (
 	github.com/sqlite3ent/sqlite3 v1.40.0
+	github.com/stretchr/testify v1.11.1
 	google.golang.org/grpc v1.77.0
 	google.golang.org/protobuf v1.36.10
 )
 
 require (
+	github.com/mattn/go-sqlite3 v1.14.32 // indirect
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/RoaringBitmap/roaring v1.2.3 // indirect
 	github.com/ajwerner/btree v0.0.0-20211221152037-f427b3e689c0 // indirect
@@ -86,6 +87,7 @@ require (
 	github.com/pion/turn/v4 v4.0.0 // indirect
 	github.com/pion/webrtc/v4 v4.0.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/protolambda/ctxlock v0.1.0 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/quic-go/quic-go v0.56.0 // indirect

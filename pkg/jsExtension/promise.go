@@ -12,6 +12,11 @@ import (
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 )
 
+type PromiseResult struct {
+	promise *goja.Promise
+	err     error
+}
+
 // Create a go routine that check Promise is fulfilled or rejected
 // and return the result
 func await(promise *goja.Promise) (any, error) {

@@ -3030,6 +3030,7 @@ type HistoryMutation struct {
 	id                *int
 	_package          *string
 	url               *string
+	detailUrl         *string
 	cover             *string
 	_type             *string
 	episodeGroupID    *int
@@ -3223,6 +3224,55 @@ func (m *HistoryMutation) OldURL(ctx context.Context) (v string, err error) {
 // ResetURL resets all changes to the "url" field.
 func (m *HistoryMutation) ResetURL() {
 	m.url = nil
+}
+
+// SetDetailUrl sets the "detailUrl" field.
+func (m *HistoryMutation) SetDetailUrl(s string) {
+	m.detailUrl = &s
+}
+
+// DetailUrl returns the value of the "detailUrl" field in the mutation.
+func (m *HistoryMutation) DetailUrl() (r string, exists bool) {
+	v := m.detailUrl
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDetailUrl returns the old "detailUrl" field's value of the History entity.
+// If the History object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HistoryMutation) OldDetailUrl(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDetailUrl is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDetailUrl requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDetailUrl: %w", err)
+	}
+	return oldValue.DetailUrl, nil
+}
+
+// ClearDetailUrl clears the value of the "detailUrl" field.
+func (m *HistoryMutation) ClearDetailUrl() {
+	m.detailUrl = nil
+	m.clearedFields[history.FieldDetailUrl] = struct{}{}
+}
+
+// DetailUrlCleared returns if the "detailUrl" field was cleared in this mutation.
+func (m *HistoryMutation) DetailUrlCleared() bool {
+	_, ok := m.clearedFields[history.FieldDetailUrl]
+	return ok
+}
+
+// ResetDetailUrl resets all changes to the "detailUrl" field.
+func (m *HistoryMutation) ResetDetailUrl() {
+	m.detailUrl = nil
+	delete(m.clearedFields, history.FieldDetailUrl)
 }
 
 // SetCover sets the "cover" field.
@@ -3676,12 +3726,15 @@ func (m *HistoryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *HistoryMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m._package != nil {
 		fields = append(fields, history.FieldPackage)
 	}
 	if m.url != nil {
 		fields = append(fields, history.FieldURL)
+	}
+	if m.detailUrl != nil {
+		fields = append(fields, history.FieldDetailUrl)
 	}
 	if m.cover != nil {
 		fields = append(fields, history.FieldCover)
@@ -3722,6 +3775,8 @@ func (m *HistoryMutation) Field(name string) (ent.Value, bool) {
 		return m.Package()
 	case history.FieldURL:
 		return m.URL()
+	case history.FieldDetailUrl:
+		return m.DetailUrl()
 	case history.FieldCover:
 		return m.Cover()
 	case history.FieldType:
@@ -3753,6 +3808,8 @@ func (m *HistoryMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldPackage(ctx)
 	case history.FieldURL:
 		return m.OldURL(ctx)
+	case history.FieldDetailUrl:
+		return m.OldDetailUrl(ctx)
 	case history.FieldCover:
 		return m.OldCover(ctx)
 	case history.FieldType:
@@ -3793,6 +3850,13 @@ func (m *HistoryMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetURL(v)
+		return nil
+	case history.FieldDetailUrl:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDetailUrl(v)
 		return nil
 	case history.FieldCover:
 		v, ok := value.(string)
@@ -3938,6 +4002,9 @@ func (m *HistoryMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *HistoryMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(history.FieldDetailUrl) {
+		fields = append(fields, history.FieldDetailUrl)
+	}
 	if m.FieldCleared(history.FieldCover) {
 		fields = append(fields, history.FieldCover)
 	}
@@ -3955,6 +4022,9 @@ func (m *HistoryMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *HistoryMutation) ClearField(name string) error {
 	switch name {
+	case history.FieldDetailUrl:
+		m.ClearDetailUrl()
+		return nil
 	case history.FieldCover:
 		m.ClearCover()
 		return nil
@@ -3971,6 +4041,9 @@ func (m *HistoryMutation) ResetField(name string) error {
 		return nil
 	case history.FieldURL:
 		m.ResetURL()
+		return nil
+	case history.FieldDetailUrl:
+		m.ResetDetailUrl()
 		return nil
 	case history.FieldCover:
 		m.ResetCover()

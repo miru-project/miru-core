@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/miru-project/miru-core/ext"
+	"github.com/miru-project/miru-core/pkg/db"
 	"github.com/miru-project/miru-core/pkg/network"
 )
 
@@ -209,7 +209,7 @@ func request(query string) (string, error) {
 
 func InitToken() error {
 
-	tok, e := ext.GetSetting("anilist_token")
+	tok, e := db.GetAPPSetting("anilist_token")
 
 	if e != nil {
 		return e

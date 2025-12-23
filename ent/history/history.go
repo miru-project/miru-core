@@ -17,6 +17,8 @@ const (
 	FieldPackage = "package"
 	// FieldURL holds the string denoting the url field in the database.
 	FieldURL = "url"
+	// FieldDetailUrl holds the string denoting the detailurl field in the database.
+	FieldDetailUrl = "detail_url"
 	// FieldCover holds the string denoting the cover field in the database.
 	FieldCover = "cover"
 	// FieldType holds the string denoting the type field in the database.
@@ -44,6 +46,7 @@ var Columns = []string{
 	FieldID,
 	FieldPackage,
 	FieldURL,
+	FieldDetailUrl,
 	FieldCover,
 	FieldType,
 	FieldEpisodeGroupID,
@@ -70,6 +73,8 @@ var (
 	PackageValidator func(string) error
 	// URLValidator is a validator for the "url" field. It is called by the builders before save.
 	URLValidator func(string) error
+	// DefaultDetailUrl holds the default value on creation for the "detailUrl" field.
+	DefaultDetailUrl string
 	// TypeValidator is a validator for the "type" field. It is called by the builders before save.
 	TypeValidator func(string) error
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
@@ -98,6 +103,11 @@ func ByPackage(opts ...sql.OrderTermOption) OrderOption {
 // ByURL orders the results by the url field.
 func ByURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldURL, opts...).ToFunc()
+}
+
+// ByDetailUrl orders the results by the detailUrl field.
+func ByDetailUrl(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDetailUrl, opts...).ToFunc()
 }
 
 // ByCover orders the results by the cover field.

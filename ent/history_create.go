@@ -34,6 +34,20 @@ func (_c *HistoryCreate) SetURL(v string) *HistoryCreate {
 	return _c
 }
 
+// SetDetailUrl sets the "detailUrl" field.
+func (_c *HistoryCreate) SetDetailUrl(v string) *HistoryCreate {
+	_c.mutation.SetDetailUrl(v)
+	return _c
+}
+
+// SetNillableDetailUrl sets the "detailUrl" field if the given value is not nil.
+func (_c *HistoryCreate) SetNillableDetailUrl(v *string) *HistoryCreate {
+	if v != nil {
+		_c.SetDetailUrl(*v)
+	}
+	return _c
+}
+
 // SetCover sets the "cover" field.
 func (_c *HistoryCreate) SetCover(v string) *HistoryCreate {
 	_c.mutation.SetCover(v)
@@ -145,6 +159,10 @@ func (_c *HistoryCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *HistoryCreate) defaults() {
+	if _, ok := _c.mutation.DetailUrl(); !ok {
+		v := history.DefaultDetailUrl
+		_c.mutation.SetDetailUrl(v)
+	}
 	if _, ok := _c.mutation.Date(); !ok {
 		v := history.DefaultDate()
 		_c.mutation.SetDate(v)
@@ -253,6 +271,10 @@ func (_c *HistoryCreate) createSpec() (*History, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.URL(); ok {
 		_spec.SetField(history.FieldURL, field.TypeString, value)
 		_node.URL = value
+	}
+	if value, ok := _c.mutation.DetailUrl(); ok {
+		_spec.SetField(history.FieldDetailUrl, field.TypeString, value)
+		_node.DetailUrl = value
 	}
 	if value, ok := _c.mutation.Cover(); ok {
 		_spec.SetField(history.FieldCover, field.TypeString, value)
@@ -363,6 +385,24 @@ func (u *HistoryUpsert) SetURL(v string) *HistoryUpsert {
 // UpdateURL sets the "url" field to the value that was provided on create.
 func (u *HistoryUpsert) UpdateURL() *HistoryUpsert {
 	u.SetExcluded(history.FieldURL)
+	return u
+}
+
+// SetDetailUrl sets the "detailUrl" field.
+func (u *HistoryUpsert) SetDetailUrl(v string) *HistoryUpsert {
+	u.Set(history.FieldDetailUrl, v)
+	return u
+}
+
+// UpdateDetailUrl sets the "detailUrl" field to the value that was provided on create.
+func (u *HistoryUpsert) UpdateDetailUrl() *HistoryUpsert {
+	u.SetExcluded(history.FieldDetailUrl)
+	return u
+}
+
+// ClearDetailUrl clears the value of the "detailUrl" field.
+func (u *HistoryUpsert) ClearDetailUrl() *HistoryUpsert {
+	u.SetNull(history.FieldDetailUrl)
 	return u
 }
 
@@ -577,6 +617,27 @@ func (u *HistoryUpsertOne) SetURL(v string) *HistoryUpsertOne {
 func (u *HistoryUpsertOne) UpdateURL() *HistoryUpsertOne {
 	return u.Update(func(s *HistoryUpsert) {
 		s.UpdateURL()
+	})
+}
+
+// SetDetailUrl sets the "detailUrl" field.
+func (u *HistoryUpsertOne) SetDetailUrl(v string) *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetDetailUrl(v)
+	})
+}
+
+// UpdateDetailUrl sets the "detailUrl" field to the value that was provided on create.
+func (u *HistoryUpsertOne) UpdateDetailUrl() *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateDetailUrl()
+	})
+}
+
+// ClearDetailUrl clears the value of the "detailUrl" field.
+func (u *HistoryUpsertOne) ClearDetailUrl() *HistoryUpsertOne {
+	return u.Update(func(s *HistoryUpsert) {
+		s.ClearDetailUrl()
 	})
 }
 
@@ -980,6 +1041,27 @@ func (u *HistoryUpsertBulk) SetURL(v string) *HistoryUpsertBulk {
 func (u *HistoryUpsertBulk) UpdateURL() *HistoryUpsertBulk {
 	return u.Update(func(s *HistoryUpsert) {
 		s.UpdateURL()
+	})
+}
+
+// SetDetailUrl sets the "detailUrl" field.
+func (u *HistoryUpsertBulk) SetDetailUrl(v string) *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.SetDetailUrl(v)
+	})
+}
+
+// UpdateDetailUrl sets the "detailUrl" field to the value that was provided on create.
+func (u *HistoryUpsertBulk) UpdateDetailUrl() *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.UpdateDetailUrl()
+	})
+}
+
+// ClearDetailUrl clears the value of the "detailUrl" field.
+func (u *HistoryUpsertBulk) ClearDetailUrl() *HistoryUpsertBulk {
+	return u.Update(func(s *HistoryUpsert) {
+		s.ClearDetailUrl()
 	})
 }
 

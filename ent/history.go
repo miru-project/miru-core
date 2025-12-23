@@ -20,8 +20,10 @@ type History struct {
 	ID int `json:"id,omitempty"`
 	// The package identifier
 	Package string `json:"package,omitempty"`
-	// The URL of the content
+	// The Watch URL of the content
 	URL string `json:"url,omitempty"`
+	// The Detail URL of the content
+	DetailUrl string `json:"detailUrl,omitempty"`
 	// Cover image URL
 	Cover *string `json:"cover,omitempty"`
 	// Type of content (stored as string representation of enum)
@@ -50,7 +52,7 @@ func (*History) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case history.FieldID, history.FieldEpisodeGroupID, history.FieldEpisodeID, history.FieldProgress, history.FieldTotalProgress:
 			values[i] = new(sql.NullInt64)
-		case history.FieldPackage, history.FieldURL, history.FieldCover, history.FieldType, history.FieldTitle, history.FieldEpisodeTitle:
+		case history.FieldPackage, history.FieldURL, history.FieldDetailUrl, history.FieldCover, history.FieldType, history.FieldTitle, history.FieldEpisodeTitle:
 			values[i] = new(sql.NullString)
 		case history.FieldDate:
 			values[i] = new(sql.NullTime)
@@ -86,6 +88,12 @@ func (_m *History) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field url", values[i])
 			} else if value.Valid {
 				_m.URL = value.String
+			}
+		case history.FieldDetailUrl:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field detailUrl", values[i])
+			} else if value.Valid {
+				_m.DetailUrl = value.String
 			}
 		case history.FieldCover:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -183,6 +191,9 @@ func (_m *History) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("url=")
 	builder.WriteString(_m.URL)
+	builder.WriteString(", ")
+	builder.WriteString("detailUrl=")
+	builder.WriteString(_m.DetailUrl)
 	builder.WriteString(", ")
 	if v := _m.Cover; v != nil {
 		builder.WriteString("cover=")

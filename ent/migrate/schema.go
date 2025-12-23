@@ -114,6 +114,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "package", Type: field.TypeString},
 		{Name: "url", Type: field.TypeString},
+		{Name: "detail_url", Type: field.TypeString, Nullable: true, Default: ""},
 		{Name: "cover", Type: field.TypeString, Nullable: true},
 		{Name: "type", Type: field.TypeString},
 		{Name: "episode_group_id", Type: field.TypeInt},
@@ -131,9 +132,9 @@ var (
 		PrimaryKey: []*schema.Column{HistoriesColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "history_package",
+				Name:    "history_package_url",
 				Unique:  true,
-				Columns: []*schema.Column{HistoriesColumns[1]},
+				Columns: []*schema.Column{HistoriesColumns[1], HistoriesColumns[2]},
 			},
 		},
 	}

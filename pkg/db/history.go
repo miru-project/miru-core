@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/ent/favorite"
 	"github.com/miru-project/miru-core/ent/history"
@@ -73,6 +74,7 @@ func PutHistory(h *ent.History) (int, error) {
 			u = u.ClearCover()
 		}
 		u = u.SetType(h.Type)
+		u = u.SetDetailUrl(h.DetailUrl)
 		u = u.SetEpisodeGroupID(h.EpisodeGroupID)
 		u = u.SetEpisodeID(h.EpisodeID)
 		u = u.SetTitle(h.Title)
@@ -90,10 +92,12 @@ func PutHistory(h *ent.History) (int, error) {
 
 	// create
 	c := client.History.Create().SetPackage(h.Package).SetURL(h.URL)
+	c.OnConflict(sql.ConflictColumns(history.FieldPackage, history.FieldURL), sql.ResolveWithNewValues())
 	if h.Cover != nil {
 		c = c.SetCover(*h.Cover)
 	}
 	c = c.SetType(h.Type).
+		SetDetailUrl(h.DetailUrl).
 		SetEpisodeGroupID(h.EpisodeGroupID).
 		SetEpisodeID(h.EpisodeID).
 		SetTitle(h.Title).

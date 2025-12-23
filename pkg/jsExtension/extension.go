@@ -3,8 +3,6 @@ package jsExtension
 import (
 	"embed"
 	"errors"
-	"fmt"
-	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -13,7 +11,6 @@ import (
 	"time"
 
 	log "github.com/miru-project/miru-core/pkg/logger"
-	"github.com/miru-project/miru-core/pkg/torrent"
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"
@@ -22,50 +19,12 @@ import (
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 )
 
-var extMemMap = sync.Map{}
-
-type ExtMapCache struct {
-	sync.Map
-}
-
-var ApiPkgCache = &ExtMapCache{sync.Map{}}
-
-func (m *ExtMapCache) Load(key string) *ExtApi {
-	val, _ := m.Map.Load(key)
-	return val.(*ExtApi)
-}
-func (m *ExtMapCache) Store(key string, value *ExtApi) {
-	m.Map.Store(key, value)
-}
-func (m *ExtMapCache) Modify(key string, f func(*ExtApi) *ExtApi) {
-	val, _ := m.Map.Load(key)
-	m.Map.Store(key, f(val.(*ExtApi)))
-}
-func (m *ExtMapCache) SetError(key string, errString string) {
-	m.Modify(key, func(ea *ExtApi) *ExtApi {
-		ea.Ext.Error = errString
-		return ea
-	})
-}
-
-func (m *ExtMapCache) Remove(key string) {
-	m.Map.Delete(key)
-}
-
-func (m *ExtMapCache) GetAll() []*ExtApi {
-	var exts []*ExtApi
-	ApiPkgCache.Map.Range(func(key, value any) bool {
-		exts = append(exts, value.(*ExtApi))
-		return true
-	})
-	return exts
-}
-
+// To complete an extension runtime, first it must compile base runtime then compile extension runtime
 type ExtBaseService struct {
-	// User extension compile into goja program
-	program *goja.Program
 	// Base runtime (v1 or v2) compiles into goja program
 	base *goja.Program
+	// Extension program compiles into goja program
+	program *goja.Program
 }
 
 var SharedRegistry *require.Registry = require.NewRegistry()
@@ -94,11 +53,6 @@ type Job struct {
 	loop  *eventloop.EventLoop
 	flag  *eventloop.Interval
 	count uint64
-}
-
-type PromiseResult struct {
-	promise *goja.Promise
-	err     error
 }
 
 func (j *Job) Add() {
@@ -333,79 +287,6 @@ func (ext *Ext) ParseExtMetadata(content string, fileName string) error {
 
 	ext.Context = &content
 	return err
-}
-
-// Extension latest should contain V1 and V2 api
-func Latest(pkg string, page int) (any, error) {
-	api, e := getPkgFromCache(pkg)
-	if e != nil {
-		return nil, e
-	}
-	return api.asyncCallBack(api, pkg, fmt.Sprintf(api.latestEval, page))
-}
-
-// Extension search should contain V1 and V2 api
-func Search(pkg string, page int, kw string, filter string) (any, error) {
-	api, e := getPkgFromCache(pkg)
-	if e != nil {
-		return nil, e
-	}
-	return api.asyncCallBack(api, pkg, fmt.Sprintf(api.searchEval, kw, page, filter))
-
-}
-
-// Extension watch should contain V1 and V2 api
-func Watch(pkg string, link string) (any, error) {
-
-	api, e := getPkgFromCache(pkg)
-	if e != nil {
-		return nil, e
-	}
-
-	o, e := api.asyncCallBack(api, pkg, fmt.Sprintf(api.watchEval, link))
-	if e != nil {
-		return nil, e
-	}
-	if api.Ext.WatchType != "bangumi" {
-		return o, nil
-	}
-	obj := o.(map[string]any)
-	vidType := obj["type"].(string)
-	switch vidType {
-
-	case "magnet":
-		t, e := torrent.AddMagnet(link)
-		if e != nil {
-			return nil, e
-		}
-		obj["torrent"] = t
-		return obj, nil
-
-	case "torrent":
-		if o, _ := url.Parse(link); !o.IsAbs() {
-			web, _ := url.Parse(api.Ext.Website)
-			web.Path = filepath.Join(web.Path, link)
-			link = web.String()
-		}
-		t, e := torrent.AddTorrent(link)
-		if e != nil {
-			return nil, e
-		}
-		obj["torrent"] = t
-		return obj, nil
-
-	default:
-		return obj, nil
-	}
-
-}
-
-func Detail(pkg string, url string) (any, error) {
-	api, e := getPkgFromCache(pkg)
-	if e != nil {
-		return nil, e
-	}
-	return api.asyncCallBack(api, pkg, fmt.Sprintf(api.detailEval, url))
 }
 
 func getPkgFromCache(pkg string) (*ExtApi, error) {

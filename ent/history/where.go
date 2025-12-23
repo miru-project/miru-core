@@ -64,6 +64,11 @@ func URL(v string) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldURL, v))
 }
 
+// DetailUrl applies equality check predicate on the "detailUrl" field. It's identical to DetailUrlEQ.
+func DetailUrl(v string) predicate.History {
+	return predicate.History(sql.FieldEQ(FieldDetailUrl, v))
+}
+
 // Cover applies equality check predicate on the "cover" field. It's identical to CoverEQ.
 func Cover(v string) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldCover, v))
@@ -237,6 +242,81 @@ func URLEqualFold(v string) predicate.History {
 // URLContainsFold applies the ContainsFold predicate on the "url" field.
 func URLContainsFold(v string) predicate.History {
 	return predicate.History(sql.FieldContainsFold(FieldURL, v))
+}
+
+// DetailUrlEQ applies the EQ predicate on the "detailUrl" field.
+func DetailUrlEQ(v string) predicate.History {
+	return predicate.History(sql.FieldEQ(FieldDetailUrl, v))
+}
+
+// DetailUrlNEQ applies the NEQ predicate on the "detailUrl" field.
+func DetailUrlNEQ(v string) predicate.History {
+	return predicate.History(sql.FieldNEQ(FieldDetailUrl, v))
+}
+
+// DetailUrlIn applies the In predicate on the "detailUrl" field.
+func DetailUrlIn(vs ...string) predicate.History {
+	return predicate.History(sql.FieldIn(FieldDetailUrl, vs...))
+}
+
+// DetailUrlNotIn applies the NotIn predicate on the "detailUrl" field.
+func DetailUrlNotIn(vs ...string) predicate.History {
+	return predicate.History(sql.FieldNotIn(FieldDetailUrl, vs...))
+}
+
+// DetailUrlGT applies the GT predicate on the "detailUrl" field.
+func DetailUrlGT(v string) predicate.History {
+	return predicate.History(sql.FieldGT(FieldDetailUrl, v))
+}
+
+// DetailUrlGTE applies the GTE predicate on the "detailUrl" field.
+func DetailUrlGTE(v string) predicate.History {
+	return predicate.History(sql.FieldGTE(FieldDetailUrl, v))
+}
+
+// DetailUrlLT applies the LT predicate on the "detailUrl" field.
+func DetailUrlLT(v string) predicate.History {
+	return predicate.History(sql.FieldLT(FieldDetailUrl, v))
+}
+
+// DetailUrlLTE applies the LTE predicate on the "detailUrl" field.
+func DetailUrlLTE(v string) predicate.History {
+	return predicate.History(sql.FieldLTE(FieldDetailUrl, v))
+}
+
+// DetailUrlContains applies the Contains predicate on the "detailUrl" field.
+func DetailUrlContains(v string) predicate.History {
+	return predicate.History(sql.FieldContains(FieldDetailUrl, v))
+}
+
+// DetailUrlHasPrefix applies the HasPrefix predicate on the "detailUrl" field.
+func DetailUrlHasPrefix(v string) predicate.History {
+	return predicate.History(sql.FieldHasPrefix(FieldDetailUrl, v))
+}
+
+// DetailUrlHasSuffix applies the HasSuffix predicate on the "detailUrl" field.
+func DetailUrlHasSuffix(v string) predicate.History {
+	return predicate.History(sql.FieldHasSuffix(FieldDetailUrl, v))
+}
+
+// DetailUrlIsNil applies the IsNil predicate on the "detailUrl" field.
+func DetailUrlIsNil() predicate.History {
+	return predicate.History(sql.FieldIsNull(FieldDetailUrl))
+}
+
+// DetailUrlNotNil applies the NotNil predicate on the "detailUrl" field.
+func DetailUrlNotNil() predicate.History {
+	return predicate.History(sql.FieldNotNull(FieldDetailUrl))
+}
+
+// DetailUrlEqualFold applies the EqualFold predicate on the "detailUrl" field.
+func DetailUrlEqualFold(v string) predicate.History {
+	return predicate.History(sql.FieldEqualFold(FieldDetailUrl, v))
+}
+
+// DetailUrlContainsFold applies the ContainsFold predicate on the "detailUrl" field.
+func DetailUrlContainsFold(v string) predicate.History {
+	return predicate.History(sql.FieldContainsFold(FieldDetailUrl, v))
 }
 
 // CoverEQ applies the EQ predicate on the "cover" field.

@@ -263,6 +263,7 @@ message History {
   int32 progress = 10;
   int32 total_progress = 11;
   string date = 12; // ISO8601
+  string detail_url = 13;
 }
 
 message GetHistoriesByTypeRequest { string type = 1; }
