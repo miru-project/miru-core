@@ -13,6 +13,10 @@ service MiruCoreService {
   rpc Detail(DetailRequest) returns (DetailResponse);
   rpc Watch(WatchRequest) returns (WatchResponse);
 
+  // DB - Detail
+  rpc GetDetail(GetDetailRequest) returns (GetDetailResponse);
+  rpc UpsertDetail(UpsertDetailRequest) returns (UpsertDetailResponse);
+
   // DB - Favorite
   rpc GetAllFavorite(GetAllFavoriteRequest) returns (GetAllFavoriteResponse);
   rpc GetFavoriteByPackageAndUrl(GetFavoriteByPackageAndUrlRequest)
@@ -389,3 +393,37 @@ message SetCookieRequest {
   string url = 2;
 }
 message SetCookieResponse { string message = 1; }
+
+// DB - Detail
+message Detail {
+  int32 id = 1;
+  optional string title = 2;
+  optional string cover = 3;
+  optional string desc = 4;
+  string detail_url = 5; // The key used in extension
+  string package = 6;
+  repeated string downloaded = 7;
+  // JSON encoded strings for complex types to mirror frontend ExtensionDetail
+  optional string episodes = 8;
+  optional string headers = 9;
+}
+
+message GetDetailRequest {
+  string package = 1;
+  string detail_url = 2;
+}
+
+message GetDetailResponse { Detail detail = 1; }
+
+message UpsertDetailRequest {
+  optional string title = 1;
+  optional string cover = 2;
+  optional string desc = 3;
+  string detail_url = 4;
+  string package = 5;
+  repeated string downloaded = 6;
+  optional string episodes = 7; // JSON
+  optional string headers = 8;  // JSON
+}
+
+message UpsertDetailResponse { Detail detail = 1; }

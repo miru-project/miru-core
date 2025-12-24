@@ -16,6 +16,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/miru-project/miru-core/ent/appsetting"
+	"github.com/miru-project/miru-core/ent/detail"
 	"github.com/miru-project/miru-core/ent/extension"
 	"github.com/miru-project/miru-core/ent/extensionreposetting"
 	"github.com/miru-project/miru-core/ent/extensionsetting"
@@ -31,6 +32,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// AppSetting is the client for interacting with the AppSetting builders.
 	AppSetting *AppSettingClient
+	// Detail is the client for interacting with the Detail builders.
+	Detail *DetailClient
 	// Extension is the client for interacting with the Extension builders.
 	Extension *ExtensionClient
 	// ExtensionRepoSetting is the client for interacting with the ExtensionRepoSetting builders.
@@ -55,6 +58,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.AppSetting = NewAppSettingClient(c.config)
+	c.Detail = NewDetailClient(c.config)
 	c.Extension = NewExtensionClient(c.config)
 	c.ExtensionRepoSetting = NewExtensionRepoSettingClient(c.config)
 	c.ExtensionSetting = NewExtensionSettingClient(c.config)
@@ -154,6 +158,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:                  ctx,
 		config:               cfg,
 		AppSetting:           NewAppSettingClient(cfg),
+		Detail:               NewDetailClient(cfg),
 		Extension:            NewExtensionClient(cfg),
 		ExtensionRepoSetting: NewExtensionRepoSettingClient(cfg),
 		ExtensionSetting:     NewExtensionSettingClient(cfg),
@@ -180,6 +185,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:                  ctx,
 		config:               cfg,
 		AppSetting:           NewAppSettingClient(cfg),
+		Detail:               NewDetailClient(cfg),
 		Extension:            NewExtensionClient(cfg),
 		ExtensionRepoSetting: NewExtensionRepoSettingClient(cfg),
 		ExtensionSetting:     NewExtensionSettingClient(cfg),
@@ -215,7 +221,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.AppSetting, c.Extension, c.ExtensionRepoSetting, c.ExtensionSetting,
+		c.AppSetting, c.Detail, c.Extension, c.ExtensionRepoSetting, c.ExtensionSetting,
 		c.Favorite, c.FavoriteGroup, c.History,
 	} {
 		n.Use(hooks...)
@@ -226,7 +232,7 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.AppSetting, c.Extension, c.ExtensionRepoSetting, c.ExtensionSetting,
+		c.AppSetting, c.Detail, c.Extension, c.ExtensionRepoSetting, c.ExtensionSetting,
 		c.Favorite, c.FavoriteGroup, c.History,
 	} {
 		n.Intercept(interceptors...)
@@ -238,6 +244,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *AppSettingMutation:
 		return c.AppSetting.mutate(ctx, m)
+	case *DetailMutation:
+		return c.Detail.mutate(ctx, m)
 	case *ExtensionMutation:
 		return c.Extension.mutate(ctx, m)
 	case *ExtensionRepoSettingMutation:
@@ -385,6 +393,139 @@ func (c *AppSettingClient) mutate(ctx context.Context, m *AppSettingMutation) (V
 		return (&AppSettingDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown AppSetting mutation op: %q", m.Op())
+	}
+}
+
+// DetailClient is a client for the Detail schema.
+type DetailClient struct {
+	config
+}
+
+// NewDetailClient returns a client for the Detail from the given config.
+func NewDetailClient(c config) *DetailClient {
+	return &DetailClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `detail.Hooks(f(g(h())))`.
+func (c *DetailClient) Use(hooks ...Hook) {
+	c.hooks.Detail = append(c.hooks.Detail, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `detail.Intercept(f(g(h())))`.
+func (c *DetailClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Detail = append(c.inters.Detail, interceptors...)
+}
+
+// Create returns a builder for creating a Detail entity.
+func (c *DetailClient) Create() *DetailCreate {
+	mutation := newDetailMutation(c.config, OpCreate)
+	return &DetailCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Detail entities.
+func (c *DetailClient) CreateBulk(builders ...*DetailCreate) *DetailCreateBulk {
+	return &DetailCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DetailClient) MapCreateBulk(slice any, setFunc func(*DetailCreate, int)) *DetailCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DetailCreateBulk{err: fmt.Errorf("calling to DetailClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DetailCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DetailCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Detail.
+func (c *DetailClient) Update() *DetailUpdate {
+	mutation := newDetailMutation(c.config, OpUpdate)
+	return &DetailUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DetailClient) UpdateOne(_m *Detail) *DetailUpdateOne {
+	mutation := newDetailMutation(c.config, OpUpdateOne, withDetail(_m))
+	return &DetailUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DetailClient) UpdateOneID(id int) *DetailUpdateOne {
+	mutation := newDetailMutation(c.config, OpUpdateOne, withDetailID(id))
+	return &DetailUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Detail.
+func (c *DetailClient) Delete() *DetailDelete {
+	mutation := newDetailMutation(c.config, OpDelete)
+	return &DetailDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DetailClient) DeleteOne(_m *Detail) *DetailDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DetailClient) DeleteOneID(id int) *DetailDeleteOne {
+	builder := c.Delete().Where(detail.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DetailDeleteOne{builder}
+}
+
+// Query returns a query builder for Detail.
+func (c *DetailClient) Query() *DetailQuery {
+	return &DetailQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDetail},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Detail entity by its id.
+func (c *DetailClient) Get(ctx context.Context, id int) (*Detail, error) {
+	return c.Query().Where(detail.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DetailClient) GetX(ctx context.Context, id int) *Detail {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *DetailClient) Hooks() []Hook {
+	return c.hooks.Detail
+}
+
+// Interceptors returns the client interceptors.
+func (c *DetailClient) Interceptors() []Interceptor {
+	return c.inters.Detail
+}
+
+func (c *DetailClient) mutate(ctx context.Context, m *DetailMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DetailCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DetailUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DetailUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DetailDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Detail mutation op: %q", m.Op())
 	}
 }
 
@@ -1223,11 +1364,11 @@ func (c *HistoryClient) mutate(ctx context.Context, m *HistoryMutation) (Value, 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AppSetting, Extension, ExtensionRepoSetting, ExtensionSetting, Favorite,
+		AppSetting, Detail, Extension, ExtensionRepoSetting, ExtensionSetting, Favorite,
 		FavoriteGroup, History []ent.Hook
 	}
 	inters struct {
-		AppSetting, Extension, ExtensionRepoSetting, ExtensionSetting, Favorite,
+		AppSetting, Detail, Extension, ExtensionRepoSetting, ExtensionSetting, Favorite,
 		FavoriteGroup, History []ent.Interceptor
 	}
 )

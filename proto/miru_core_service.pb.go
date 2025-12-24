@@ -4560,6 +4560,356 @@ func (x *SetCookieResponse) GetMessage() string {
 	return ""
 }
 
+// DB - Detail
+type Detail struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Id         int32                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Title      *string                `protobuf:"bytes,2,opt,name=title,proto3,oneof" json:"title,omitempty"`
+	Cover      *string                `protobuf:"bytes,3,opt,name=cover,proto3,oneof" json:"cover,omitempty"`
+	Desc       *string                `protobuf:"bytes,4,opt,name=desc,proto3,oneof" json:"desc,omitempty"`
+	DetailUrl  string                 `protobuf:"bytes,5,opt,name=detail_url,json=detailUrl,proto3" json:"detail_url,omitempty"` // The key used in extension
+	Package    string                 `protobuf:"bytes,6,opt,name=package,proto3" json:"package,omitempty"`
+	Downloaded []string               `protobuf:"bytes,7,rep,name=downloaded,proto3" json:"downloaded,omitempty"`
+	// JSON encoded strings for complex types to mirror frontend ExtensionDetail
+	Episodes      *string `protobuf:"bytes,8,opt,name=episodes,proto3,oneof" json:"episodes,omitempty"`
+	Headers       *string `protobuf:"bytes,9,opt,name=headers,proto3,oneof" json:"headers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Detail) Reset() {
+	*x = Detail{}
+	mi := &file_proto_miru_core_service_proto_msgTypes[90]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Detail) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Detail) ProtoMessage() {}
+
+func (x *Detail) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_miru_core_service_proto_msgTypes[90]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Detail.ProtoReflect.Descriptor instead.
+func (*Detail) Descriptor() ([]byte, []int) {
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{90}
+}
+
+func (x *Detail) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Detail) GetTitle() string {
+	if x != nil && x.Title != nil {
+		return *x.Title
+	}
+	return ""
+}
+
+func (x *Detail) GetCover() string {
+	if x != nil && x.Cover != nil {
+		return *x.Cover
+	}
+	return ""
+}
+
+func (x *Detail) GetDesc() string {
+	if x != nil && x.Desc != nil {
+		return *x.Desc
+	}
+	return ""
+}
+
+func (x *Detail) GetDetailUrl() string {
+	if x != nil {
+		return x.DetailUrl
+	}
+	return ""
+}
+
+func (x *Detail) GetPackage() string {
+	if x != nil {
+		return x.Package
+	}
+	return ""
+}
+
+func (x *Detail) GetDownloaded() []string {
+	if x != nil {
+		return x.Downloaded
+	}
+	return nil
+}
+
+func (x *Detail) GetEpisodes() string {
+	if x != nil && x.Episodes != nil {
+		return *x.Episodes
+	}
+	return ""
+}
+
+func (x *Detail) GetHeaders() string {
+	if x != nil && x.Headers != nil {
+		return *x.Headers
+	}
+	return ""
+}
+
+type GetDetailRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Package       string                 `protobuf:"bytes,1,opt,name=package,proto3" json:"package,omitempty"`
+	DetailUrl     string                 `protobuf:"bytes,2,opt,name=detail_url,json=detailUrl,proto3" json:"detail_url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetDetailRequest) Reset() {
+	*x = GetDetailRequest{}
+	mi := &file_proto_miru_core_service_proto_msgTypes[91]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetDetailRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDetailRequest) ProtoMessage() {}
+
+func (x *GetDetailRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_miru_core_service_proto_msgTypes[91]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDetailRequest.ProtoReflect.Descriptor instead.
+func (*GetDetailRequest) Descriptor() ([]byte, []int) {
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{91}
+}
+
+func (x *GetDetailRequest) GetPackage() string {
+	if x != nil {
+		return x.Package
+	}
+	return ""
+}
+
+func (x *GetDetailRequest) GetDetailUrl() string {
+	if x != nil {
+		return x.DetailUrl
+	}
+	return ""
+}
+
+type GetDetailResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Detail        *Detail                `protobuf:"bytes,1,opt,name=detail,proto3" json:"detail,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetDetailResponse) Reset() {
+	*x = GetDetailResponse{}
+	mi := &file_proto_miru_core_service_proto_msgTypes[92]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetDetailResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetDetailResponse) ProtoMessage() {}
+
+func (x *GetDetailResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_miru_core_service_proto_msgTypes[92]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetDetailResponse.ProtoReflect.Descriptor instead.
+func (*GetDetailResponse) Descriptor() ([]byte, []int) {
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{92}
+}
+
+func (x *GetDetailResponse) GetDetail() *Detail {
+	if x != nil {
+		return x.Detail
+	}
+	return nil
+}
+
+type UpsertDetailRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Title         *string                `protobuf:"bytes,1,opt,name=title,proto3,oneof" json:"title,omitempty"`
+	Cover         *string                `protobuf:"bytes,2,opt,name=cover,proto3,oneof" json:"cover,omitempty"`
+	Desc          *string                `protobuf:"bytes,3,opt,name=desc,proto3,oneof" json:"desc,omitempty"`
+	DetailUrl     string                 `protobuf:"bytes,4,opt,name=detail_url,json=detailUrl,proto3" json:"detail_url,omitempty"`
+	Package       string                 `protobuf:"bytes,5,opt,name=package,proto3" json:"package,omitempty"`
+	Downloaded    []string               `protobuf:"bytes,6,rep,name=downloaded,proto3" json:"downloaded,omitempty"`
+	Episodes      *string                `protobuf:"bytes,7,opt,name=episodes,proto3,oneof" json:"episodes,omitempty"` // JSON
+	Headers       *string                `protobuf:"bytes,8,opt,name=headers,proto3,oneof" json:"headers,omitempty"`   // JSON
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpsertDetailRequest) Reset() {
+	*x = UpsertDetailRequest{}
+	mi := &file_proto_miru_core_service_proto_msgTypes[93]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpsertDetailRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpsertDetailRequest) ProtoMessage() {}
+
+func (x *UpsertDetailRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_miru_core_service_proto_msgTypes[93]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpsertDetailRequest.ProtoReflect.Descriptor instead.
+func (*UpsertDetailRequest) Descriptor() ([]byte, []int) {
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{93}
+}
+
+func (x *UpsertDetailRequest) GetTitle() string {
+	if x != nil && x.Title != nil {
+		return *x.Title
+	}
+	return ""
+}
+
+func (x *UpsertDetailRequest) GetCover() string {
+	if x != nil && x.Cover != nil {
+		return *x.Cover
+	}
+	return ""
+}
+
+func (x *UpsertDetailRequest) GetDesc() string {
+	if x != nil && x.Desc != nil {
+		return *x.Desc
+	}
+	return ""
+}
+
+func (x *UpsertDetailRequest) GetDetailUrl() string {
+	if x != nil {
+		return x.DetailUrl
+	}
+	return ""
+}
+
+func (x *UpsertDetailRequest) GetPackage() string {
+	if x != nil {
+		return x.Package
+	}
+	return ""
+}
+
+func (x *UpsertDetailRequest) GetDownloaded() []string {
+	if x != nil {
+		return x.Downloaded
+	}
+	return nil
+}
+
+func (x *UpsertDetailRequest) GetEpisodes() string {
+	if x != nil && x.Episodes != nil {
+		return *x.Episodes
+	}
+	return ""
+}
+
+func (x *UpsertDetailRequest) GetHeaders() string {
+	if x != nil && x.Headers != nil {
+		return *x.Headers
+	}
+	return ""
+}
+
+type UpsertDetailResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Detail        *Detail                `protobuf:"bytes,1,opt,name=detail,proto3" json:"detail,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpsertDetailResponse) Reset() {
+	*x = UpsertDetailResponse{}
+	mi := &file_proto_miru_core_service_proto_msgTypes[94]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpsertDetailResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpsertDetailResponse) ProtoMessage() {}
+
+func (x *UpsertDetailResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_miru_core_service_proto_msgTypes[94]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpsertDetailResponse.ProtoReflect.Descriptor instead.
+func (*UpsertDetailResponse) Descriptor() ([]byte, []int) {
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{94}
+}
+
+func (x *UpsertDetailResponse) GetDetail() *Detail {
+	if x != nil {
+		return x.Detail
+	}
+	return nil
+}
+
 var File_proto_miru_core_service_proto protoreflect.FileDescriptor
 
 const file_proto_miru_core_service_proto_rawDesc = "" +
@@ -4836,7 +5186,52 @@ const file_proto_miru_core_service_proto_rawDesc = "" +
 	"\x06cookie\x18\x01 \x01(\tR\x06cookie\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\"-\n" +
 	"\x11SetCookieResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage2\xc0\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"\xb6\x02\n" +
+	"\x06Detail\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x19\n" +
+	"\x05title\x18\x02 \x01(\tH\x00R\x05title\x88\x01\x01\x12\x19\n" +
+	"\x05cover\x18\x03 \x01(\tH\x01R\x05cover\x88\x01\x01\x12\x17\n" +
+	"\x04desc\x18\x04 \x01(\tH\x02R\x04desc\x88\x01\x01\x12\x1d\n" +
+	"\n" +
+	"detail_url\x18\x05 \x01(\tR\tdetailUrl\x12\x18\n" +
+	"\apackage\x18\x06 \x01(\tR\apackage\x12\x1e\n" +
+	"\n" +
+	"downloaded\x18\a \x03(\tR\n" +
+	"downloaded\x12\x1f\n" +
+	"\bepisodes\x18\b \x01(\tH\x03R\bepisodes\x88\x01\x01\x12\x1d\n" +
+	"\aheaders\x18\t \x01(\tH\x04R\aheaders\x88\x01\x01B\b\n" +
+	"\x06_titleB\b\n" +
+	"\x06_coverB\a\n" +
+	"\x05_descB\v\n" +
+	"\t_episodesB\n" +
+	"\n" +
+	"\b_headers\"K\n" +
+	"\x10GetDetailRequest\x12\x18\n" +
+	"\apackage\x18\x01 \x01(\tR\apackage\x12\x1d\n" +
+	"\n" +
+	"detail_url\x18\x02 \x01(\tR\tdetailUrl\"9\n" +
+	"\x11GetDetailResponse\x12$\n" +
+	"\x06detail\x18\x01 \x01(\v2\f.miru.DetailR\x06detail\"\xb3\x02\n" +
+	"\x13UpsertDetailRequest\x12\x19\n" +
+	"\x05title\x18\x01 \x01(\tH\x00R\x05title\x88\x01\x01\x12\x19\n" +
+	"\x05cover\x18\x02 \x01(\tH\x01R\x05cover\x88\x01\x01\x12\x17\n" +
+	"\x04desc\x18\x03 \x01(\tH\x02R\x04desc\x88\x01\x01\x12\x1d\n" +
+	"\n" +
+	"detail_url\x18\x04 \x01(\tR\tdetailUrl\x12\x18\n" +
+	"\apackage\x18\x05 \x01(\tR\apackage\x12\x1e\n" +
+	"\n" +
+	"downloaded\x18\x06 \x03(\tR\n" +
+	"downloaded\x12\x1f\n" +
+	"\bepisodes\x18\a \x01(\tH\x03R\bepisodes\x88\x01\x01\x12\x1d\n" +
+	"\aheaders\x18\b \x01(\tH\x04R\aheaders\x88\x01\x01B\b\n" +
+	"\x06_titleB\b\n" +
+	"\x06_coverB\a\n" +
+	"\x05_descB\v\n" +
+	"\t_episodesB\n" +
+	"\n" +
+	"\b_headers\"<\n" +
+	"\x14UpsertDetailResponse\x12$\n" +
+	"\x06detail\x18\x01 \x01(\v2\f.miru.DetailR\x06detail2\xc5\x19\n" +
 	"\x0fMiruCoreService\x12<\n" +
 	"\tHelloMiru\x12\x16.miru.HelloMiruRequest\x1a\x17.miru.HelloMiruResponse\x12H\n" +
 	"\rGetAppSetting\x12\x1a.miru.GetAppSettingRequest\x1a\x1b.miru.GetAppSettingResponse\x12H\n" +
@@ -4844,7 +5239,9 @@ const file_proto_miru_core_service_proto_rawDesc = "" +
 	"\x06Search\x12\x13.miru.SearchRequest\x1a\x14.miru.SearchResponse\x123\n" +
 	"\x06Latest\x12\x13.miru.LatestRequest\x1a\x14.miru.LatestResponse\x123\n" +
 	"\x06Detail\x12\x13.miru.DetailRequest\x1a\x14.miru.DetailResponse\x120\n" +
-	"\x05Watch\x12\x12.miru.WatchRequest\x1a\x13.miru.WatchResponse\x12K\n" +
+	"\x05Watch\x12\x12.miru.WatchRequest\x1a\x13.miru.WatchResponse\x12<\n" +
+	"\tGetDetail\x12\x16.miru.GetDetailRequest\x1a\x17.miru.GetDetailResponse\x12E\n" +
+	"\fUpsertDetail\x12\x19.miru.UpsertDetailRequest\x1a\x1a.miru.UpsertDetailResponse\x12K\n" +
 	"\x0eGetAllFavorite\x12\x1b.miru.GetAllFavoriteRequest\x1a\x1c.miru.GetAllFavoriteResponse\x12o\n" +
 	"\x1aGetFavoriteByPackageAndUrl\x12'.miru.GetFavoriteByPackageAndUrlRequest\x1a(.miru.GetFavoriteByPackageAndUrlResponse\x12W\n" +
 	"\x12PutFavoriteByIndex\x12\x1f.miru.PutFavoriteByIndexRequest\x1a .miru.PutFavoriteByIndexResponse\x12B\n" +
@@ -4894,7 +5291,7 @@ func file_proto_miru_core_service_proto_rawDescGZIP() []byte {
 	return file_proto_miru_core_service_proto_rawDescData
 }
 
-var file_proto_miru_core_service_proto_msgTypes = make([]protoimpl.MessageInfo, 93)
+var file_proto_miru_core_service_proto_msgTypes = make([]protoimpl.MessageInfo, 98)
 var file_proto_miru_core_service_proto_goTypes = []any{
 	(*SearchRequest)(nil),                        // 0: miru.SearchRequest
 	(*SearchResponse)(nil),                       // 1: miru.SearchResponse
@@ -4986,15 +5383,20 @@ var file_proto_miru_core_service_proto_goTypes = []any{
 	(*RemoveExtensionResponse)(nil),              // 87: miru.RemoveExtensionResponse
 	(*SetCookieRequest)(nil),                     // 88: miru.SetCookieRequest
 	(*SetCookieResponse)(nil),                    // 89: miru.SetCookieResponse
-	nil,                                          // 90: miru.HelloMiruResponse.DownloadStatusEntry
-	nil,                                          // 91: miru.GetDownloadStatusResponse.DownloadStatusEntry
-	nil,                                          // 92: miru.DownloadBangumiRequest.HeaderEntry
+	(*Detail)(nil),                               // 90: miru.Detail
+	(*GetDetailRequest)(nil),                     // 91: miru.GetDetailRequest
+	(*GetDetailResponse)(nil),                    // 92: miru.GetDetailResponse
+	(*UpsertDetailRequest)(nil),                  // 93: miru.UpsertDetailRequest
+	(*UpsertDetailResponse)(nil),                 // 94: miru.UpsertDetailResponse
+	nil,                                          // 95: miru.HelloMiruResponse.DownloadStatusEntry
+	nil,                                          // 96: miru.GetDownloadStatusResponse.DownloadStatusEntry
+	nil,                                          // 97: miru.DownloadBangumiRequest.HeaderEntry
 }
 var file_proto_miru_core_service_proto_depIdxs = []int32{
 	8,  // 0: miru.SearchResponse.items:type_name -> miru.ExtensionListItem
 	8,  // 1: miru.LatestResponse.items:type_name -> miru.ExtensionListItem
 	11, // 2: miru.HelloMiruResponse.extensionMeta:type_name -> miru.ExtensionMeta
-	90, // 3: miru.HelloMiruResponse.downloadStatus:type_name -> miru.HelloMiruResponse.DownloadStatusEntry
+	95, // 3: miru.HelloMiruResponse.downloadStatus:type_name -> miru.HelloMiruResponse.DownloadStatusEntry
 	13, // 4: miru.HelloMiruResponse.torrent:type_name -> miru.TorrentStats
 	18, // 5: miru.GetAppSettingResponse.settings:type_name -> miru.AppSetting
 	18, // 6: miru.SetAppSettingRequest.settings:type_name -> miru.AppSetting
@@ -5012,97 +5414,103 @@ var file_proto_miru_core_service_proto_depIdxs = []int32{
 	43, // 18: miru.PutHistoryRequest.history:type_name -> miru.History
 	43, // 19: miru.PutHistoryResponse.history:type_name -> miru.History
 	43, // 20: miru.GetHistorysFilteredResponse.histories:type_name -> miru.History
-	91, // 21: miru.GetDownloadStatusResponse.download_status:type_name -> miru.GetDownloadStatusResponse.DownloadStatusEntry
-	92, // 22: miru.DownloadBangumiRequest.header:type_name -> miru.DownloadBangumiRequest.HeaderEntry
+	96, // 21: miru.GetDownloadStatusResponse.download_status:type_name -> miru.GetDownloadStatusResponse.DownloadStatusEntry
+	97, // 22: miru.DownloadBangumiRequest.header:type_name -> miru.DownloadBangumiRequest.HeaderEntry
 	66, // 23: miru.DownloadBangumiResponse.variant_summary:type_name -> miru.AvailableHlsVariant
 	67, // 24: miru.ListTorrentResponse.torrents:type_name -> miru.TorrentResult
-	12, // 25: miru.HelloMiruResponse.DownloadStatusEntry.value:type_name -> miru.DownloadProgress
-	12, // 26: miru.GetDownloadStatusResponse.DownloadStatusEntry.value:type_name -> miru.DownloadProgress
-	9,  // 27: miru.MiruCoreService.HelloMiru:input_type -> miru.HelloMiruRequest
-	14, // 28: miru.MiruCoreService.GetAppSetting:input_type -> miru.GetAppSettingRequest
-	16, // 29: miru.MiruCoreService.SetAppSetting:input_type -> miru.SetAppSettingRequest
-	0,  // 30: miru.MiruCoreService.Search:input_type -> miru.SearchRequest
-	2,  // 31: miru.MiruCoreService.Latest:input_type -> miru.LatestRequest
-	4,  // 32: miru.MiruCoreService.Detail:input_type -> miru.DetailRequest
-	6,  // 33: miru.MiruCoreService.Watch:input_type -> miru.WatchRequest
-	21, // 34: miru.MiruCoreService.GetAllFavorite:input_type -> miru.GetAllFavoriteRequest
-	23, // 35: miru.MiruCoreService.GetFavoriteByPackageAndUrl:input_type -> miru.GetFavoriteByPackageAndUrlRequest
-	25, // 36: miru.MiruCoreService.PutFavoriteByIndex:input_type -> miru.PutFavoriteByIndexRequest
-	27, // 37: miru.MiruCoreService.PutFavorite:input_type -> miru.PutFavoriteRequest
-	29, // 38: miru.MiruCoreService.DeleteFavorite:input_type -> miru.DeleteFavoriteRequest
-	31, // 39: miru.MiruCoreService.GetFavoriteGroupsById:input_type -> miru.GetFavoriteGroupsByIdRequest
-	33, // 40: miru.MiruCoreService.GetAllFavoriteGroup:input_type -> miru.GetAllFavoriteGroupRequest
-	35, // 41: miru.MiruCoreService.PutFavoriteGroup:input_type -> miru.PutFavoriteGroupRequest
-	37, // 42: miru.MiruCoreService.RenameFavoriteGroup:input_type -> miru.RenameFavoriteGroupRequest
-	39, // 43: miru.MiruCoreService.DeleteFavoriteGroup:input_type -> miru.DeleteFavoriteGroupRequest
-	41, // 44: miru.MiruCoreService.GetFavoriteGroupsByFavorite:input_type -> miru.GetFavoriteGroupsByFavoriteRequest
-	44, // 45: miru.MiruCoreService.GetHistoriesByType:input_type -> miru.GetHistoriesByTypeRequest
-	46, // 46: miru.MiruCoreService.GetHistoryByPackageAndUrl:input_type -> miru.GetHistoryByPackageAndUrlRequest
-	48, // 47: miru.MiruCoreService.PutHistory:input_type -> miru.PutHistoryRequest
-	50, // 48: miru.MiruCoreService.DeleteHistoryByPackageAndUrl:input_type -> miru.DeleteHistoryByPackageAndUrlRequest
-	52, // 49: miru.MiruCoreService.DeleteAllHistory:input_type -> miru.DeleteAllHistoryRequest
-	54, // 50: miru.MiruCoreService.GetHistorysFiltered:input_type -> miru.GetHistorysFilteredRequest
-	56, // 51: miru.MiruCoreService.GetDownloadStatus:input_type -> miru.GetDownloadStatusRequest
-	58, // 52: miru.MiruCoreService.CancelDownload:input_type -> miru.CancelDownloadRequest
-	60, // 53: miru.MiruCoreService.ResumeDownload:input_type -> miru.ResumeDownloadRequest
-	62, // 54: miru.MiruCoreService.PauseDownload:input_type -> miru.PauseDownloadRequest
-	64, // 55: miru.MiruCoreService.DownloadBangumi:input_type -> miru.DownloadBangumiRequest
-	68, // 56: miru.MiruCoreService.ListTorrent:input_type -> miru.ListTorrentRequest
-	70, // 57: miru.MiruCoreService.AddTorrent:input_type -> miru.AddTorrentRequest
-	72, // 58: miru.MiruCoreService.DeleteTorrent:input_type -> miru.DeleteTorrentRequest
-	74, // 59: miru.MiruCoreService.AddMagnet:input_type -> miru.AddMagnetRequest
-	76, // 60: miru.MiruCoreService.GetRepos:input_type -> miru.GetReposRequest
-	78, // 61: miru.MiruCoreService.SetRepo:input_type -> miru.SetRepoRequest
-	80, // 62: miru.MiruCoreService.DeleteRepo:input_type -> miru.DeleteRepoRequest
-	82, // 63: miru.MiruCoreService.FetchRepoList:input_type -> miru.FetchRepoListRequest
-	84, // 64: miru.MiruCoreService.DownloadExtension:input_type -> miru.DownloadExtensionRequest
-	86, // 65: miru.MiruCoreService.RemoveExtension:input_type -> miru.RemoveExtensionRequest
-	88, // 66: miru.MiruCoreService.SetCookie:input_type -> miru.SetCookieRequest
-	10, // 67: miru.MiruCoreService.HelloMiru:output_type -> miru.HelloMiruResponse
-	15, // 68: miru.MiruCoreService.GetAppSetting:output_type -> miru.GetAppSettingResponse
-	17, // 69: miru.MiruCoreService.SetAppSetting:output_type -> miru.SetAppSettingResponse
-	1,  // 70: miru.MiruCoreService.Search:output_type -> miru.SearchResponse
-	3,  // 71: miru.MiruCoreService.Latest:output_type -> miru.LatestResponse
-	5,  // 72: miru.MiruCoreService.Detail:output_type -> miru.DetailResponse
-	7,  // 73: miru.MiruCoreService.Watch:output_type -> miru.WatchResponse
-	22, // 74: miru.MiruCoreService.GetAllFavorite:output_type -> miru.GetAllFavoriteResponse
-	24, // 75: miru.MiruCoreService.GetFavoriteByPackageAndUrl:output_type -> miru.GetFavoriteByPackageAndUrlResponse
-	26, // 76: miru.MiruCoreService.PutFavoriteByIndex:output_type -> miru.PutFavoriteByIndexResponse
-	28, // 77: miru.MiruCoreService.PutFavorite:output_type -> miru.PutFavoriteResponse
-	30, // 78: miru.MiruCoreService.DeleteFavorite:output_type -> miru.DeleteFavoriteResponse
-	32, // 79: miru.MiruCoreService.GetFavoriteGroupsById:output_type -> miru.GetFavoriteGroupsByIdResponse
-	34, // 80: miru.MiruCoreService.GetAllFavoriteGroup:output_type -> miru.GetAllFavoriteGroupResponse
-	36, // 81: miru.MiruCoreService.PutFavoriteGroup:output_type -> miru.PutFavoriteGroupResponse
-	38, // 82: miru.MiruCoreService.RenameFavoriteGroup:output_type -> miru.RenameFavoriteGroupResponse
-	40, // 83: miru.MiruCoreService.DeleteFavoriteGroup:output_type -> miru.DeleteFavoriteGroupResponse
-	42, // 84: miru.MiruCoreService.GetFavoriteGroupsByFavorite:output_type -> miru.GetFavoriteGroupsByFavoriteResponse
-	45, // 85: miru.MiruCoreService.GetHistoriesByType:output_type -> miru.GetHistoriesByTypeResponse
-	47, // 86: miru.MiruCoreService.GetHistoryByPackageAndUrl:output_type -> miru.GetHistoryByPackageAndUrlResponse
-	49, // 87: miru.MiruCoreService.PutHistory:output_type -> miru.PutHistoryResponse
-	51, // 88: miru.MiruCoreService.DeleteHistoryByPackageAndUrl:output_type -> miru.DeleteHistoryByPackageAndUrlResponse
-	53, // 89: miru.MiruCoreService.DeleteAllHistory:output_type -> miru.DeleteAllHistoryResponse
-	55, // 90: miru.MiruCoreService.GetHistorysFiltered:output_type -> miru.GetHistorysFilteredResponse
-	57, // 91: miru.MiruCoreService.GetDownloadStatus:output_type -> miru.GetDownloadStatusResponse
-	59, // 92: miru.MiruCoreService.CancelDownload:output_type -> miru.CancelDownloadResponse
-	61, // 93: miru.MiruCoreService.ResumeDownload:output_type -> miru.ResumeDownloadResponse
-	63, // 94: miru.MiruCoreService.PauseDownload:output_type -> miru.PauseDownloadResponse
-	65, // 95: miru.MiruCoreService.DownloadBangumi:output_type -> miru.DownloadBangumiResponse
-	69, // 96: miru.MiruCoreService.ListTorrent:output_type -> miru.ListTorrentResponse
-	71, // 97: miru.MiruCoreService.AddTorrent:output_type -> miru.AddTorrentResponse
-	73, // 98: miru.MiruCoreService.DeleteTorrent:output_type -> miru.DeleteTorrentResponse
-	75, // 99: miru.MiruCoreService.AddMagnet:output_type -> miru.AddMagnetResponse
-	77, // 100: miru.MiruCoreService.GetRepos:output_type -> miru.GetReposResponse
-	79, // 101: miru.MiruCoreService.SetRepo:output_type -> miru.SetRepoResponse
-	81, // 102: miru.MiruCoreService.DeleteRepo:output_type -> miru.DeleteRepoResponse
-	83, // 103: miru.MiruCoreService.FetchRepoList:output_type -> miru.FetchRepoListResponse
-	85, // 104: miru.MiruCoreService.DownloadExtension:output_type -> miru.DownloadExtensionResponse
-	87, // 105: miru.MiruCoreService.RemoveExtension:output_type -> miru.RemoveExtensionResponse
-	89, // 106: miru.MiruCoreService.SetCookie:output_type -> miru.SetCookieResponse
-	67, // [67:107] is the sub-list for method output_type
-	27, // [27:67] is the sub-list for method input_type
-	27, // [27:27] is the sub-list for extension type_name
-	27, // [27:27] is the sub-list for extension extendee
-	0,  // [0:27] is the sub-list for field type_name
+	90, // 25: miru.GetDetailResponse.detail:type_name -> miru.Detail
+	90, // 26: miru.UpsertDetailResponse.detail:type_name -> miru.Detail
+	12, // 27: miru.HelloMiruResponse.DownloadStatusEntry.value:type_name -> miru.DownloadProgress
+	12, // 28: miru.GetDownloadStatusResponse.DownloadStatusEntry.value:type_name -> miru.DownloadProgress
+	9,  // 29: miru.MiruCoreService.HelloMiru:input_type -> miru.HelloMiruRequest
+	14, // 30: miru.MiruCoreService.GetAppSetting:input_type -> miru.GetAppSettingRequest
+	16, // 31: miru.MiruCoreService.SetAppSetting:input_type -> miru.SetAppSettingRequest
+	0,  // 32: miru.MiruCoreService.Search:input_type -> miru.SearchRequest
+	2,  // 33: miru.MiruCoreService.Latest:input_type -> miru.LatestRequest
+	4,  // 34: miru.MiruCoreService.Detail:input_type -> miru.DetailRequest
+	6,  // 35: miru.MiruCoreService.Watch:input_type -> miru.WatchRequest
+	91, // 36: miru.MiruCoreService.GetDetail:input_type -> miru.GetDetailRequest
+	93, // 37: miru.MiruCoreService.UpsertDetail:input_type -> miru.UpsertDetailRequest
+	21, // 38: miru.MiruCoreService.GetAllFavorite:input_type -> miru.GetAllFavoriteRequest
+	23, // 39: miru.MiruCoreService.GetFavoriteByPackageAndUrl:input_type -> miru.GetFavoriteByPackageAndUrlRequest
+	25, // 40: miru.MiruCoreService.PutFavoriteByIndex:input_type -> miru.PutFavoriteByIndexRequest
+	27, // 41: miru.MiruCoreService.PutFavorite:input_type -> miru.PutFavoriteRequest
+	29, // 42: miru.MiruCoreService.DeleteFavorite:input_type -> miru.DeleteFavoriteRequest
+	31, // 43: miru.MiruCoreService.GetFavoriteGroupsById:input_type -> miru.GetFavoriteGroupsByIdRequest
+	33, // 44: miru.MiruCoreService.GetAllFavoriteGroup:input_type -> miru.GetAllFavoriteGroupRequest
+	35, // 45: miru.MiruCoreService.PutFavoriteGroup:input_type -> miru.PutFavoriteGroupRequest
+	37, // 46: miru.MiruCoreService.RenameFavoriteGroup:input_type -> miru.RenameFavoriteGroupRequest
+	39, // 47: miru.MiruCoreService.DeleteFavoriteGroup:input_type -> miru.DeleteFavoriteGroupRequest
+	41, // 48: miru.MiruCoreService.GetFavoriteGroupsByFavorite:input_type -> miru.GetFavoriteGroupsByFavoriteRequest
+	44, // 49: miru.MiruCoreService.GetHistoriesByType:input_type -> miru.GetHistoriesByTypeRequest
+	46, // 50: miru.MiruCoreService.GetHistoryByPackageAndUrl:input_type -> miru.GetHistoryByPackageAndUrlRequest
+	48, // 51: miru.MiruCoreService.PutHistory:input_type -> miru.PutHistoryRequest
+	50, // 52: miru.MiruCoreService.DeleteHistoryByPackageAndUrl:input_type -> miru.DeleteHistoryByPackageAndUrlRequest
+	52, // 53: miru.MiruCoreService.DeleteAllHistory:input_type -> miru.DeleteAllHistoryRequest
+	54, // 54: miru.MiruCoreService.GetHistorysFiltered:input_type -> miru.GetHistorysFilteredRequest
+	56, // 55: miru.MiruCoreService.GetDownloadStatus:input_type -> miru.GetDownloadStatusRequest
+	58, // 56: miru.MiruCoreService.CancelDownload:input_type -> miru.CancelDownloadRequest
+	60, // 57: miru.MiruCoreService.ResumeDownload:input_type -> miru.ResumeDownloadRequest
+	62, // 58: miru.MiruCoreService.PauseDownload:input_type -> miru.PauseDownloadRequest
+	64, // 59: miru.MiruCoreService.DownloadBangumi:input_type -> miru.DownloadBangumiRequest
+	68, // 60: miru.MiruCoreService.ListTorrent:input_type -> miru.ListTorrentRequest
+	70, // 61: miru.MiruCoreService.AddTorrent:input_type -> miru.AddTorrentRequest
+	72, // 62: miru.MiruCoreService.DeleteTorrent:input_type -> miru.DeleteTorrentRequest
+	74, // 63: miru.MiruCoreService.AddMagnet:input_type -> miru.AddMagnetRequest
+	76, // 64: miru.MiruCoreService.GetRepos:input_type -> miru.GetReposRequest
+	78, // 65: miru.MiruCoreService.SetRepo:input_type -> miru.SetRepoRequest
+	80, // 66: miru.MiruCoreService.DeleteRepo:input_type -> miru.DeleteRepoRequest
+	82, // 67: miru.MiruCoreService.FetchRepoList:input_type -> miru.FetchRepoListRequest
+	84, // 68: miru.MiruCoreService.DownloadExtension:input_type -> miru.DownloadExtensionRequest
+	86, // 69: miru.MiruCoreService.RemoveExtension:input_type -> miru.RemoveExtensionRequest
+	88, // 70: miru.MiruCoreService.SetCookie:input_type -> miru.SetCookieRequest
+	10, // 71: miru.MiruCoreService.HelloMiru:output_type -> miru.HelloMiruResponse
+	15, // 72: miru.MiruCoreService.GetAppSetting:output_type -> miru.GetAppSettingResponse
+	17, // 73: miru.MiruCoreService.SetAppSetting:output_type -> miru.SetAppSettingResponse
+	1,  // 74: miru.MiruCoreService.Search:output_type -> miru.SearchResponse
+	3,  // 75: miru.MiruCoreService.Latest:output_type -> miru.LatestResponse
+	5,  // 76: miru.MiruCoreService.Detail:output_type -> miru.DetailResponse
+	7,  // 77: miru.MiruCoreService.Watch:output_type -> miru.WatchResponse
+	92, // 78: miru.MiruCoreService.GetDetail:output_type -> miru.GetDetailResponse
+	94, // 79: miru.MiruCoreService.UpsertDetail:output_type -> miru.UpsertDetailResponse
+	22, // 80: miru.MiruCoreService.GetAllFavorite:output_type -> miru.GetAllFavoriteResponse
+	24, // 81: miru.MiruCoreService.GetFavoriteByPackageAndUrl:output_type -> miru.GetFavoriteByPackageAndUrlResponse
+	26, // 82: miru.MiruCoreService.PutFavoriteByIndex:output_type -> miru.PutFavoriteByIndexResponse
+	28, // 83: miru.MiruCoreService.PutFavorite:output_type -> miru.PutFavoriteResponse
+	30, // 84: miru.MiruCoreService.DeleteFavorite:output_type -> miru.DeleteFavoriteResponse
+	32, // 85: miru.MiruCoreService.GetFavoriteGroupsById:output_type -> miru.GetFavoriteGroupsByIdResponse
+	34, // 86: miru.MiruCoreService.GetAllFavoriteGroup:output_type -> miru.GetAllFavoriteGroupResponse
+	36, // 87: miru.MiruCoreService.PutFavoriteGroup:output_type -> miru.PutFavoriteGroupResponse
+	38, // 88: miru.MiruCoreService.RenameFavoriteGroup:output_type -> miru.RenameFavoriteGroupResponse
+	40, // 89: miru.MiruCoreService.DeleteFavoriteGroup:output_type -> miru.DeleteFavoriteGroupResponse
+	42, // 90: miru.MiruCoreService.GetFavoriteGroupsByFavorite:output_type -> miru.GetFavoriteGroupsByFavoriteResponse
+	45, // 91: miru.MiruCoreService.GetHistoriesByType:output_type -> miru.GetHistoriesByTypeResponse
+	47, // 92: miru.MiruCoreService.GetHistoryByPackageAndUrl:output_type -> miru.GetHistoryByPackageAndUrlResponse
+	49, // 93: miru.MiruCoreService.PutHistory:output_type -> miru.PutHistoryResponse
+	51, // 94: miru.MiruCoreService.DeleteHistoryByPackageAndUrl:output_type -> miru.DeleteHistoryByPackageAndUrlResponse
+	53, // 95: miru.MiruCoreService.DeleteAllHistory:output_type -> miru.DeleteAllHistoryResponse
+	55, // 96: miru.MiruCoreService.GetHistorysFiltered:output_type -> miru.GetHistorysFilteredResponse
+	57, // 97: miru.MiruCoreService.GetDownloadStatus:output_type -> miru.GetDownloadStatusResponse
+	59, // 98: miru.MiruCoreService.CancelDownload:output_type -> miru.CancelDownloadResponse
+	61, // 99: miru.MiruCoreService.ResumeDownload:output_type -> miru.ResumeDownloadResponse
+	63, // 100: miru.MiruCoreService.PauseDownload:output_type -> miru.PauseDownloadResponse
+	65, // 101: miru.MiruCoreService.DownloadBangumi:output_type -> miru.DownloadBangumiResponse
+	69, // 102: miru.MiruCoreService.ListTorrent:output_type -> miru.ListTorrentResponse
+	71, // 103: miru.MiruCoreService.AddTorrent:output_type -> miru.AddTorrentResponse
+	73, // 104: miru.MiruCoreService.DeleteTorrent:output_type -> miru.DeleteTorrentResponse
+	75, // 105: miru.MiruCoreService.AddMagnet:output_type -> miru.AddMagnetResponse
+	77, // 106: miru.MiruCoreService.GetRepos:output_type -> miru.GetReposResponse
+	79, // 107: miru.MiruCoreService.SetRepo:output_type -> miru.SetRepoResponse
+	81, // 108: miru.MiruCoreService.DeleteRepo:output_type -> miru.DeleteRepoResponse
+	83, // 109: miru.MiruCoreService.FetchRepoList:output_type -> miru.FetchRepoListResponse
+	85, // 110: miru.MiruCoreService.DownloadExtension:output_type -> miru.DownloadExtensionResponse
+	87, // 111: miru.MiruCoreService.RemoveExtension:output_type -> miru.RemoveExtensionResponse
+	89, // 112: miru.MiruCoreService.SetCookie:output_type -> miru.SetCookieResponse
+	71, // [71:113] is the sub-list for method output_type
+	29, // [29:71] is the sub-list for method input_type
+	29, // [29:29] is the sub-list for extension type_name
+	29, // [29:29] is the sub-list for extension extendee
+	0,  // [0:29] is the sub-list for field type_name
 }
 
 func init() { file_proto_miru_core_service_proto_init() }
@@ -5110,13 +5518,15 @@ func file_proto_miru_core_service_proto_init() {
 	if File_proto_miru_core_service_proto != nil {
 		return
 	}
+	file_proto_miru_core_service_proto_msgTypes[90].OneofWrappers = []any{}
+	file_proto_miru_core_service_proto_msgTypes[93].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_miru_core_service_proto_rawDesc), len(file_proto_miru_core_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   93,
+			NumMessages:   98,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

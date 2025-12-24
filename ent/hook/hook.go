@@ -21,6 +21,18 @@ func (f AppSettingFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, 
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AppSettingMutation", m)
 }
 
+// The DetailFunc type is an adapter to allow the use of ordinary
+// function as Detail mutator.
+type DetailFunc func(context.Context, *ent.DetailMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DetailFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DetailMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DetailMutation", m)
+}
+
 // The ExtensionFunc type is an adapter to allow the use of ordinary
 // function as Extension mutator.
 type ExtensionFunc func(context.Context, *ent.ExtensionMutation) (ent.Value, error)

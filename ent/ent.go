@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/miru-project/miru-core/ent/appsetting"
+	"github.com/miru-project/miru-core/ent/detail"
 	"github.com/miru-project/miru-core/ent/extension"
 	"github.com/miru-project/miru-core/ent/extensionreposetting"
 	"github.com/miru-project/miru-core/ent/extensionsetting"
@@ -80,6 +81,7 @@ func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			appsetting.Table:           appsetting.ValidColumn,
+			detail.Table:               detail.ValidColumn,
 			extension.Table:            extension.ValidColumn,
 			extensionreposetting.Table: extensionreposetting.ValidColumn,
 			extensionsetting.Table:     extensionsetting.ValidColumn,

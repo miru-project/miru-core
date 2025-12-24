@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/miru-project/miru-core/ent/appsetting"
+	"github.com/miru-project/miru-core/ent/detail"
 	"github.com/miru-project/miru-core/ent/extensionreposetting"
 	"github.com/miru-project/miru-core/ent/extensionsetting"
 	"github.com/miru-project/miru-core/ent/favorite"
@@ -24,6 +25,24 @@ func init() {
 	appsettingDescKey := appsettingFields[0].Descriptor()
 	// appsetting.KeyValidator is a validator for the "key" field. It is called by the builders before save.
 	appsetting.KeyValidator = appsettingDescKey.Validators[0].(func(string) error)
+	detailFields := schema.Detail{}.Fields()
+	_ = detailFields
+	// detailDescTitle is the schema descriptor for title field.
+	detailDescTitle := detailFields[1].Descriptor()
+	// detail.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	detail.TitleValidator = detailDescTitle.Validators[0].(func(string) error)
+	// detailDescDetailUrl is the schema descriptor for detailUrl field.
+	detailDescDetailUrl := detailFields[4].Descriptor()
+	// detail.DetailUrlValidator is a validator for the "detailUrl" field. It is called by the builders before save.
+	detail.DetailUrlValidator = detailDescDetailUrl.Validators[0].(func(string) error)
+	// detailDescPackage is the schema descriptor for package field.
+	detailDescPackage := detailFields[5].Descriptor()
+	// detail.PackageValidator is a validator for the "package" field. It is called by the builders before save.
+	detail.PackageValidator = detailDescPackage.Validators[0].(func(string) error)
+	// detailDescID is the schema descriptor for id field.
+	detailDescID := detailFields[0].Descriptor()
+	// detail.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	detail.IDValidator = detailDescID.Validators[0].(func(int) error)
 	extensionreposettingHooks := schema.ExtensionRepoSetting{}.Hooks()
 	extensionreposetting.Hooks[0] = extensionreposettingHooks[0]
 	extensionreposettingFields := schema.ExtensionRepoSetting{}.Fields()

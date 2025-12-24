@@ -184,6 +184,37 @@ func (s *MiruCoreServer) Watch(ctx context.Context, req *proto.WatchRequest) (*p
 	return &proto.WatchResponse{Data: string(jsonData)}, nil
 }
 
+// DB - Detail
+func (s *MiruCoreServer) GetDetail(ctx context.Context, req *proto.GetDetailRequest) (*proto.GetDetailResponse, error) {
+	d, err := db.GetDetailByPackageAndUrl(req.Package, req.DetailUrl)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return &proto.GetDetailResponse{}, nil
+		}
+		return nil, err
+	}
+	return &proto.GetDetailResponse{Detail: toProtoDetail(d)}, nil
+}
+
+func (s *MiruCoreServer) UpsertDetail(ctx context.Context, req *proto.UpsertDetailRequest) (*proto.UpsertDetailResponse, error) {
+	d := &ent.Detail{
+		Title:      req.Title,
+		Cover:      req.Cover,
+		Desc:       req.Desc,
+		DetailUrl:  req.DetailUrl,
+		Package:    req.Package,
+		Downloaded: req.Downloaded,
+		Episodes:   req.Episodes,
+		Headers:    req.Headers,
+	}
+
+	saved, err := db.UpsertDetail(d)
+	if err != nil {
+		return nil, err
+	}
+	return &proto.UpsertDetailResponse{Detail: toProtoDetail(saved)}, nil
+}
+
 // DB - Favorite
 func (s *MiruCoreServer) GetAllFavorite(ctx context.Context, req *proto.GetAllFavoriteRequest) (*proto.GetAllFavoriteResponse, error) {
 	favs, err := db.GetAllFavorite()
@@ -650,6 +681,23 @@ func toProtoHistory(h *ent.History) *proto.History {
 		Progress:       int32(h.Progress),
 		TotalProgress:  int32(h.TotalProgress),
 		Date:           h.Date.Format(time.RFC3339),
+	}
+}
+
+func toProtoDetail(d *ent.Detail) *proto.Detail {
+	if d == nil {
+		return &proto.Detail{}
+	}
+	return &proto.Detail{
+		Id:         int32(d.ID),
+		Title:      d.Title,
+		Cover:      d.Cover,
+		Desc:       d.Desc,
+		DetailUrl:  d.DetailUrl,
+		Package:    d.Package,
+		Downloaded: d.Downloaded,
+		Episodes:   d.Episodes,
+		Headers:    d.Headers,
 	}
 }
 

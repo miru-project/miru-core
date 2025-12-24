@@ -9,6 +9,9 @@ import (
 // AppSetting is the predicate function for appsetting builders.
 type AppSetting func(*sql.Selector)
 
+// Detail is the predicate function for detail builders.
+type Detail func(*sql.Selector)
+
 // Extension is the predicate function for extension builders.
 type Extension func(*sql.Selector)
 

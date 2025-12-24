@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/miru-project/miru-core/ent/appsetting"
+	"github.com/miru-project/miru-core/ent/detail"
 	"github.com/miru-project/miru-core/ent/extensionreposetting"
 	"github.com/miru-project/miru-core/ent/extensionsetting"
 	"github.com/miru-project/miru-core/ent/favorite"
@@ -30,6 +31,7 @@ const (
 
 	// Node types.
 	TypeAppSetting           = "AppSetting"
+	TypeDetail               = "Detail"
 	TypeExtension            = "Extension"
 	TypeExtensionRepoSetting = "ExtensionRepoSetting"
 	TypeExtensionSetting     = "ExtensionSetting"
@@ -416,6 +418,850 @@ func (m *AppSettingMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *AppSettingMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown AppSetting edge %s", name)
+}
+
+// DetailMutation represents an operation that mutates the Detail nodes in the graph.
+type DetailMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *int
+	title            *string
+	cover            *string
+	desc             *string
+	detailUrl        *string
+	_package         *string
+	downloaded       *[]string
+	appenddownloaded []string
+	episodes         *string
+	headers          *string
+	clearedFields    map[string]struct{}
+	done             bool
+	oldValue         func(context.Context) (*Detail, error)
+	predicates       []predicate.Detail
+}
+
+var _ ent.Mutation = (*DetailMutation)(nil)
+
+// detailOption allows management of the mutation configuration using functional options.
+type detailOption func(*DetailMutation)
+
+// newDetailMutation creates new mutation for the Detail entity.
+func newDetailMutation(c config, op Op, opts ...detailOption) *DetailMutation {
+	m := &DetailMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeDetail,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withDetailID sets the ID field of the mutation.
+func withDetailID(id int) detailOption {
+	return func(m *DetailMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Detail
+		)
+		m.oldValue = func(ctx context.Context) (*Detail, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Detail.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withDetail sets the old Detail of the mutation.
+func withDetail(node *Detail) detailOption {
+	return func(m *DetailMutation) {
+		m.oldValue = func(context.Context) (*Detail, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m DetailMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m DetailMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Detail entities.
+func (m *DetailMutation) SetID(id int) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *DetailMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *DetailMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Detail.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTitle sets the "title" field.
+func (m *DetailMutation) SetTitle(s string) {
+	m.title = &s
+}
+
+// Title returns the value of the "title" field in the mutation.
+func (m *DetailMutation) Title() (r string, exists bool) {
+	v := m.title
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTitle returns the old "title" field's value of the Detail entity.
+// If the Detail object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DetailMutation) OldTitle(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTitle is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTitle requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
+	}
+	return oldValue.Title, nil
+}
+
+// ClearTitle clears the value of the "title" field.
+func (m *DetailMutation) ClearTitle() {
+	m.title = nil
+	m.clearedFields[detail.FieldTitle] = struct{}{}
+}
+
+// TitleCleared returns if the "title" field was cleared in this mutation.
+func (m *DetailMutation) TitleCleared() bool {
+	_, ok := m.clearedFields[detail.FieldTitle]
+	return ok
+}
+
+// ResetTitle resets all changes to the "title" field.
+func (m *DetailMutation) ResetTitle() {
+	m.title = nil
+	delete(m.clearedFields, detail.FieldTitle)
+}
+
+// SetCover sets the "cover" field.
+func (m *DetailMutation) SetCover(s string) {
+	m.cover = &s
+}
+
+// Cover returns the value of the "cover" field in the mutation.
+func (m *DetailMutation) Cover() (r string, exists bool) {
+	v := m.cover
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCover returns the old "cover" field's value of the Detail entity.
+// If the Detail object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DetailMutation) OldCover(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCover is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCover requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCover: %w", err)
+	}
+	return oldValue.Cover, nil
+}
+
+// ClearCover clears the value of the "cover" field.
+func (m *DetailMutation) ClearCover() {
+	m.cover = nil
+	m.clearedFields[detail.FieldCover] = struct{}{}
+}
+
+// CoverCleared returns if the "cover" field was cleared in this mutation.
+func (m *DetailMutation) CoverCleared() bool {
+	_, ok := m.clearedFields[detail.FieldCover]
+	return ok
+}
+
+// ResetCover resets all changes to the "cover" field.
+func (m *DetailMutation) ResetCover() {
+	m.cover = nil
+	delete(m.clearedFields, detail.FieldCover)
+}
+
+// SetDesc sets the "desc" field.
+func (m *DetailMutation) SetDesc(s string) {
+	m.desc = &s
+}
+
+// Desc returns the value of the "desc" field in the mutation.
+func (m *DetailMutation) Desc() (r string, exists bool) {
+	v := m.desc
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDesc returns the old "desc" field's value of the Detail entity.
+// If the Detail object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DetailMutation) OldDesc(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDesc is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDesc requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDesc: %w", err)
+	}
+	return oldValue.Desc, nil
+}
+
+// ClearDesc clears the value of the "desc" field.
+func (m *DetailMutation) ClearDesc() {
+	m.desc = nil
+	m.clearedFields[detail.FieldDesc] = struct{}{}
+}
+
+// DescCleared returns if the "desc" field was cleared in this mutation.
+func (m *DetailMutation) DescCleared() bool {
+	_, ok := m.clearedFields[detail.FieldDesc]
+	return ok
+}
+
+// ResetDesc resets all changes to the "desc" field.
+func (m *DetailMutation) ResetDesc() {
+	m.desc = nil
+	delete(m.clearedFields, detail.FieldDesc)
+}
+
+// SetDetailUrl sets the "detailUrl" field.
+func (m *DetailMutation) SetDetailUrl(s string) {
+	m.detailUrl = &s
+}
+
+// DetailUrl returns the value of the "detailUrl" field in the mutation.
+func (m *DetailMutation) DetailUrl() (r string, exists bool) {
+	v := m.detailUrl
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDetailUrl returns the old "detailUrl" field's value of the Detail entity.
+// If the Detail object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DetailMutation) OldDetailUrl(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDetailUrl is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDetailUrl requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDetailUrl: %w", err)
+	}
+	return oldValue.DetailUrl, nil
+}
+
+// ResetDetailUrl resets all changes to the "detailUrl" field.
+func (m *DetailMutation) ResetDetailUrl() {
+	m.detailUrl = nil
+}
+
+// SetPackage sets the "package" field.
+func (m *DetailMutation) SetPackage(s string) {
+	m._package = &s
+}
+
+// Package returns the value of the "package" field in the mutation.
+func (m *DetailMutation) Package() (r string, exists bool) {
+	v := m._package
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPackage returns the old "package" field's value of the Detail entity.
+// If the Detail object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DetailMutation) OldPackage(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPackage is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPackage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPackage: %w", err)
+	}
+	return oldValue.Package, nil
+}
+
+// ResetPackage resets all changes to the "package" field.
+func (m *DetailMutation) ResetPackage() {
+	m._package = nil
+}
+
+// SetDownloaded sets the "downloaded" field.
+func (m *DetailMutation) SetDownloaded(s []string) {
+	m.downloaded = &s
+	m.appenddownloaded = nil
+}
+
+// Downloaded returns the value of the "downloaded" field in the mutation.
+func (m *DetailMutation) Downloaded() (r []string, exists bool) {
+	v := m.downloaded
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDownloaded returns the old "downloaded" field's value of the Detail entity.
+// If the Detail object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DetailMutation) OldDownloaded(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDownloaded is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDownloaded requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDownloaded: %w", err)
+	}
+	return oldValue.Downloaded, nil
+}
+
+// AppendDownloaded adds s to the "downloaded" field.
+func (m *DetailMutation) AppendDownloaded(s []string) {
+	m.appenddownloaded = append(m.appenddownloaded, s...)
+}
+
+// AppendedDownloaded returns the list of values that were appended to the "downloaded" field in this mutation.
+func (m *DetailMutation) AppendedDownloaded() ([]string, bool) {
+	if len(m.appenddownloaded) == 0 {
+		return nil, false
+	}
+	return m.appenddownloaded, true
+}
+
+// ClearDownloaded clears the value of the "downloaded" field.
+func (m *DetailMutation) ClearDownloaded() {
+	m.downloaded = nil
+	m.appenddownloaded = nil
+	m.clearedFields[detail.FieldDownloaded] = struct{}{}
+}
+
+// DownloadedCleared returns if the "downloaded" field was cleared in this mutation.
+func (m *DetailMutation) DownloadedCleared() bool {
+	_, ok := m.clearedFields[detail.FieldDownloaded]
+	return ok
+}
+
+// ResetDownloaded resets all changes to the "downloaded" field.
+func (m *DetailMutation) ResetDownloaded() {
+	m.downloaded = nil
+	m.appenddownloaded = nil
+	delete(m.clearedFields, detail.FieldDownloaded)
+}
+
+// SetEpisodes sets the "episodes" field.
+func (m *DetailMutation) SetEpisodes(s string) {
+	m.episodes = &s
+}
+
+// Episodes returns the value of the "episodes" field in the mutation.
+func (m *DetailMutation) Episodes() (r string, exists bool) {
+	v := m.episodes
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEpisodes returns the old "episodes" field's value of the Detail entity.
+// If the Detail object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DetailMutation) OldEpisodes(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEpisodes is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEpisodes requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEpisodes: %w", err)
+	}
+	return oldValue.Episodes, nil
+}
+
+// ClearEpisodes clears the value of the "episodes" field.
+func (m *DetailMutation) ClearEpisodes() {
+	m.episodes = nil
+	m.clearedFields[detail.FieldEpisodes] = struct{}{}
+}
+
+// EpisodesCleared returns if the "episodes" field was cleared in this mutation.
+func (m *DetailMutation) EpisodesCleared() bool {
+	_, ok := m.clearedFields[detail.FieldEpisodes]
+	return ok
+}
+
+// ResetEpisodes resets all changes to the "episodes" field.
+func (m *DetailMutation) ResetEpisodes() {
+	m.episodes = nil
+	delete(m.clearedFields, detail.FieldEpisodes)
+}
+
+// SetHeaders sets the "headers" field.
+func (m *DetailMutation) SetHeaders(s string) {
+	m.headers = &s
+}
+
+// Headers returns the value of the "headers" field in the mutation.
+func (m *DetailMutation) Headers() (r string, exists bool) {
+	v := m.headers
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHeaders returns the old "headers" field's value of the Detail entity.
+// If the Detail object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DetailMutation) OldHeaders(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHeaders is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHeaders requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHeaders: %w", err)
+	}
+	return oldValue.Headers, nil
+}
+
+// ClearHeaders clears the value of the "headers" field.
+func (m *DetailMutation) ClearHeaders() {
+	m.headers = nil
+	m.clearedFields[detail.FieldHeaders] = struct{}{}
+}
+
+// HeadersCleared returns if the "headers" field was cleared in this mutation.
+func (m *DetailMutation) HeadersCleared() bool {
+	_, ok := m.clearedFields[detail.FieldHeaders]
+	return ok
+}
+
+// ResetHeaders resets all changes to the "headers" field.
+func (m *DetailMutation) ResetHeaders() {
+	m.headers = nil
+	delete(m.clearedFields, detail.FieldHeaders)
+}
+
+// Where appends a list predicates to the DetailMutation builder.
+func (m *DetailMutation) Where(ps ...predicate.Detail) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the DetailMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *DetailMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Detail, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *DetailMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *DetailMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Detail).
+func (m *DetailMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *DetailMutation) Fields() []string {
+	fields := make([]string, 0, 8)
+	if m.title != nil {
+		fields = append(fields, detail.FieldTitle)
+	}
+	if m.cover != nil {
+		fields = append(fields, detail.FieldCover)
+	}
+	if m.desc != nil {
+		fields = append(fields, detail.FieldDesc)
+	}
+	if m.detailUrl != nil {
+		fields = append(fields, detail.FieldDetailUrl)
+	}
+	if m._package != nil {
+		fields = append(fields, detail.FieldPackage)
+	}
+	if m.downloaded != nil {
+		fields = append(fields, detail.FieldDownloaded)
+	}
+	if m.episodes != nil {
+		fields = append(fields, detail.FieldEpisodes)
+	}
+	if m.headers != nil {
+		fields = append(fields, detail.FieldHeaders)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *DetailMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case detail.FieldTitle:
+		return m.Title()
+	case detail.FieldCover:
+		return m.Cover()
+	case detail.FieldDesc:
+		return m.Desc()
+	case detail.FieldDetailUrl:
+		return m.DetailUrl()
+	case detail.FieldPackage:
+		return m.Package()
+	case detail.FieldDownloaded:
+		return m.Downloaded()
+	case detail.FieldEpisodes:
+		return m.Episodes()
+	case detail.FieldHeaders:
+		return m.Headers()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *DetailMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case detail.FieldTitle:
+		return m.OldTitle(ctx)
+	case detail.FieldCover:
+		return m.OldCover(ctx)
+	case detail.FieldDesc:
+		return m.OldDesc(ctx)
+	case detail.FieldDetailUrl:
+		return m.OldDetailUrl(ctx)
+	case detail.FieldPackage:
+		return m.OldPackage(ctx)
+	case detail.FieldDownloaded:
+		return m.OldDownloaded(ctx)
+	case detail.FieldEpisodes:
+		return m.OldEpisodes(ctx)
+	case detail.FieldHeaders:
+		return m.OldHeaders(ctx)
+	}
+	return nil, fmt.Errorf("unknown Detail field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DetailMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case detail.FieldTitle:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTitle(v)
+		return nil
+	case detail.FieldCover:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCover(v)
+		return nil
+	case detail.FieldDesc:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDesc(v)
+		return nil
+	case detail.FieldDetailUrl:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDetailUrl(v)
+		return nil
+	case detail.FieldPackage:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPackage(v)
+		return nil
+	case detail.FieldDownloaded:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDownloaded(v)
+		return nil
+	case detail.FieldEpisodes:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEpisodes(v)
+		return nil
+	case detail.FieldHeaders:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHeaders(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Detail field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *DetailMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *DetailMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DetailMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Detail numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *DetailMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(detail.FieldTitle) {
+		fields = append(fields, detail.FieldTitle)
+	}
+	if m.FieldCleared(detail.FieldCover) {
+		fields = append(fields, detail.FieldCover)
+	}
+	if m.FieldCleared(detail.FieldDesc) {
+		fields = append(fields, detail.FieldDesc)
+	}
+	if m.FieldCleared(detail.FieldDownloaded) {
+		fields = append(fields, detail.FieldDownloaded)
+	}
+	if m.FieldCleared(detail.FieldEpisodes) {
+		fields = append(fields, detail.FieldEpisodes)
+	}
+	if m.FieldCleared(detail.FieldHeaders) {
+		fields = append(fields, detail.FieldHeaders)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *DetailMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *DetailMutation) ClearField(name string) error {
+	switch name {
+	case detail.FieldTitle:
+		m.ClearTitle()
+		return nil
+	case detail.FieldCover:
+		m.ClearCover()
+		return nil
+	case detail.FieldDesc:
+		m.ClearDesc()
+		return nil
+	case detail.FieldDownloaded:
+		m.ClearDownloaded()
+		return nil
+	case detail.FieldEpisodes:
+		m.ClearEpisodes()
+		return nil
+	case detail.FieldHeaders:
+		m.ClearHeaders()
+		return nil
+	}
+	return fmt.Errorf("unknown Detail nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *DetailMutation) ResetField(name string) error {
+	switch name {
+	case detail.FieldTitle:
+		m.ResetTitle()
+		return nil
+	case detail.FieldCover:
+		m.ResetCover()
+		return nil
+	case detail.FieldDesc:
+		m.ResetDesc()
+		return nil
+	case detail.FieldDetailUrl:
+		m.ResetDetailUrl()
+		return nil
+	case detail.FieldPackage:
+		m.ResetPackage()
+		return nil
+	case detail.FieldDownloaded:
+		m.ResetDownloaded()
+		return nil
+	case detail.FieldEpisodes:
+		m.ResetEpisodes()
+		return nil
+	case detail.FieldHeaders:
+		m.ResetHeaders()
+		return nil
+	}
+	return fmt.Errorf("unknown Detail field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *DetailMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *DetailMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *DetailMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *DetailMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *DetailMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *DetailMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *DetailMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown Detail unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *DetailMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown Detail edge %s", name)
 }
 
 // ExtensionMutation represents an operation that mutates the Extension nodes in the graph.

@@ -20,6 +20,31 @@ var (
 		Columns:    AppSettingsColumns,
 		PrimaryKey: []*schema.Column{AppSettingsColumns[0]},
 	}
+	// DetailsColumns holds the columns for the "details" table.
+	DetailsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "title", Type: field.TypeString, Nullable: true},
+		{Name: "cover", Type: field.TypeString, Nullable: true},
+		{Name: "desc", Type: field.TypeString, Nullable: true},
+		{Name: "detail_url", Type: field.TypeString},
+		{Name: "package", Type: field.TypeString},
+		{Name: "downloaded", Type: field.TypeJSON, Nullable: true},
+		{Name: "episodes", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "headers", Type: field.TypeString, Nullable: true, Size: 2147483647},
+	}
+	// DetailsTable holds the schema information for the "details" table.
+	DetailsTable = &schema.Table{
+		Name:       "details",
+		Columns:    DetailsColumns,
+		PrimaryKey: []*schema.Column{DetailsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "detail_package_detail_url",
+				Unique:  true,
+				Columns: []*schema.Column{DetailsColumns[5], DetailsColumns[4]},
+			},
+		},
+	}
 	// ExtensionsColumns holds the columns for the "extensions" table.
 	ExtensionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -166,6 +191,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AppSettingsTable,
+		DetailsTable,
 		ExtensionsTable,
 		ExtensionRepoSettingsTable,
 		ExtensionSettingsTable,

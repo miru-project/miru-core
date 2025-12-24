@@ -26,6 +26,8 @@ const (
 	MiruCoreService_Latest_FullMethodName                       = "/miru.MiruCoreService/Latest"
 	MiruCoreService_Detail_FullMethodName                       = "/miru.MiruCoreService/Detail"
 	MiruCoreService_Watch_FullMethodName                        = "/miru.MiruCoreService/Watch"
+	MiruCoreService_GetDetail_FullMethodName                    = "/miru.MiruCoreService/GetDetail"
+	MiruCoreService_UpsertDetail_FullMethodName                 = "/miru.MiruCoreService/UpsertDetail"
 	MiruCoreService_GetAllFavorite_FullMethodName               = "/miru.MiruCoreService/GetAllFavorite"
 	MiruCoreService_GetFavoriteByPackageAndUrl_FullMethodName   = "/miru.MiruCoreService/GetFavoriteByPackageAndUrl"
 	MiruCoreService_PutFavoriteByIndex_FullMethodName           = "/miru.MiruCoreService/PutFavoriteByIndex"
@@ -72,6 +74,9 @@ type MiruCoreServiceClient interface {
 	Latest(ctx context.Context, in *LatestRequest, opts ...grpc.CallOption) (*LatestResponse, error)
 	Detail(ctx context.Context, in *DetailRequest, opts ...grpc.CallOption) (*DetailResponse, error)
 	Watch(ctx context.Context, in *WatchRequest, opts ...grpc.CallOption) (*WatchResponse, error)
+	// DB - Detail
+	GetDetail(ctx context.Context, in *GetDetailRequest, opts ...grpc.CallOption) (*GetDetailResponse, error)
+	UpsertDetail(ctx context.Context, in *UpsertDetailRequest, opts ...grpc.CallOption) (*UpsertDetailResponse, error)
 	// DB - Favorite
 	GetAllFavorite(ctx context.Context, in *GetAllFavoriteRequest, opts ...grpc.CallOption) (*GetAllFavoriteResponse, error)
 	GetFavoriteByPackageAndUrl(ctx context.Context, in *GetFavoriteByPackageAndUrlRequest, opts ...grpc.CallOption) (*GetFavoriteByPackageAndUrlResponse, error)
@@ -187,6 +192,26 @@ func (c *miruCoreServiceClient) Watch(ctx context.Context, in *WatchRequest, opt
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(WatchResponse)
 	err := c.cc.Invoke(ctx, MiruCoreService_Watch_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *miruCoreServiceClient) GetDetail(ctx context.Context, in *GetDetailRequest, opts ...grpc.CallOption) (*GetDetailResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetDetailResponse)
+	err := c.cc.Invoke(ctx, MiruCoreService_GetDetail_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *miruCoreServiceClient) UpsertDetail(ctx context.Context, in *UpsertDetailRequest, opts ...grpc.CallOption) (*UpsertDetailResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpsertDetailResponse)
+	err := c.cc.Invoke(ctx, MiruCoreService_UpsertDetail_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -534,6 +559,9 @@ type MiruCoreServiceServer interface {
 	Latest(context.Context, *LatestRequest) (*LatestResponse, error)
 	Detail(context.Context, *DetailRequest) (*DetailResponse, error)
 	Watch(context.Context, *WatchRequest) (*WatchResponse, error)
+	// DB - Detail
+	GetDetail(context.Context, *GetDetailRequest) (*GetDetailResponse, error)
+	UpsertDetail(context.Context, *UpsertDetailRequest) (*UpsertDetailResponse, error)
 	// DB - Favorite
 	GetAllFavorite(context.Context, *GetAllFavoriteRequest) (*GetAllFavoriteResponse, error)
 	GetFavoriteByPackageAndUrl(context.Context, *GetFavoriteByPackageAndUrlRequest) (*GetFavoriteByPackageAndUrlResponse, error)
@@ -605,6 +633,12 @@ func (UnimplementedMiruCoreServiceServer) Detail(context.Context, *DetailRequest
 }
 func (UnimplementedMiruCoreServiceServer) Watch(context.Context, *WatchRequest) (*WatchResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Watch not implemented")
+}
+func (UnimplementedMiruCoreServiceServer) GetDetail(context.Context, *GetDetailRequest) (*GetDetailResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetDetail not implemented")
+}
+func (UnimplementedMiruCoreServiceServer) UpsertDetail(context.Context, *UpsertDetailRequest) (*UpsertDetailResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpsertDetail not implemented")
 }
 func (UnimplementedMiruCoreServiceServer) GetAllFavorite(context.Context, *GetAllFavoriteRequest) (*GetAllFavoriteResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAllFavorite not implemented")
@@ -848,6 +882,42 @@ func _MiruCoreService_Watch_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MiruCoreServiceServer).Watch(ctx, req.(*WatchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MiruCoreService_GetDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDetailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MiruCoreServiceServer).GetDetail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MiruCoreService_GetDetail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MiruCoreServiceServer).GetDetail(ctx, req.(*GetDetailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MiruCoreService_UpsertDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpsertDetailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MiruCoreServiceServer).UpsertDetail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MiruCoreService_UpsertDetail_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MiruCoreServiceServer).UpsertDetail(ctx, req.(*UpsertDetailRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1480,6 +1550,14 @@ var MiruCoreService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Watch",
 			Handler:    _MiruCoreService_Watch_Handler,
+		},
+		{
+			MethodName: "GetDetail",
+			Handler:    _MiruCoreService_GetDetail_Handler,
+		},
+		{
+			MethodName: "UpsertDetail",
+			Handler:    _MiruCoreService_UpsertDetail_Handler,
 		},
 		{
 			MethodName: "GetAllFavorite",
