@@ -18,6 +18,7 @@ import (
 )
 
 var defaultClient *http.Client
+var defaultTransport *http.Transport
 
 // Request makes an HTTP request and returns the response as type T.
 //
@@ -155,7 +156,7 @@ func checkRequestMethod(method string) string {
 // setup proxy for http client
 func setupProxy(option *RequestOptions) *http.Transport {
 
-	transport := &http.Transport{}
+	transport := defaultTransport.Clone()
 
 	if option.ProxyHost != "" {
 		transport.Proxy = http.ProxyURL(&url.URL{
@@ -247,13 +248,14 @@ func dnsResolve() {
 func Init() {
 	go dnsResolve()
 	initCookieJar()
-
+	defaultTransport = &http.Transport{
+		Proxy:               http.ProxyFromEnvironment,
+		MaxIdleConns:        100,
+		MaxIdleConnsPerHost: 100,
+		IdleConnTimeout:     90 * time.Second,
+	}
 	defaultClient = &http.Client{
-		Transport: &http.Transport{
-			Proxy:               http.ProxyFromEnvironment,
-			MaxIdleConns:        100,
-			MaxIdleConnsPerHost: 100,
-			IdleConnTimeout:     90 * time.Second,
-		},
+		Transport: defaultTransport,
+		Timeout:   10 * time.Second,
 	}
 }
