@@ -16,6 +16,8 @@ type Tx struct {
 	AppSetting *AppSettingClient
 	// Detail is the client for interacting with the Detail builders.
 	Detail *DetailClient
+	// Download is the client for interacting with the Download builders.
+	Download *DownloadClient
 	// Extension is the client for interacting with the Extension builders.
 	Extension *ExtensionClient
 	// ExtensionRepoSetting is the client for interacting with the ExtensionRepoSetting builders.
@@ -161,6 +163,7 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.AppSetting = NewAppSettingClient(tx.config)
 	tx.Detail = NewDetailClient(tx.config)
+	tx.Download = NewDownloadClient(tx.config)
 	tx.Extension = NewExtensionClient(tx.config)
 	tx.ExtensionRepoSetting = NewExtensionRepoSettingClient(tx.config)
 	tx.ExtensionSetting = NewExtensionSettingClient(tx.config)

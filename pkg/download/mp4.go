@@ -14,7 +14,7 @@ import (
 	"github.com/miru-project/miru-core/pkg/network"
 )
 
-func downloadMp4(filePath string, url string, header map[string]string) (MultipleLinkJson, error) {
+func downloadMp4(filePath string, url string, header map[string]string, title string, pkg string, key string) (MultipleLinkJson, error) {
 
 	// Create the file path
 	fileName := filepath.Join(filePath, path.Base(url))
@@ -27,6 +27,9 @@ func downloadMp4(filePath string, url string, header map[string]string) (Multipl
 		header:        header,
 		url:           url,
 		startingPoint: 0,
+		title:         title,
+		pkg:           pkg,
+		key:           key,
 	}
 	startDownloadTask(taskParamMap[taskId].(*Mp4TaskParam), downloadMp4Task)
 
@@ -63,13 +66,19 @@ func (t *Mp4TaskParam) readAndSavePartial(res *http.Response) ([]byte, error) {
 
 	// Initialize the status
 	status[taskId] = &Progress{
-		Progrss:   0,
+		Progrss:   int(t.startingPoint),
 		Names:     &[]string{},
 		Total:     int(totalBytes),
 		Status:    Downloading,
 		MediaType: Mp4,
 		TaskID:    taskId,
+		Title:     t.title,
+		Package:   t.pkg,
+		Key:       t.key,
+		URL:       []string{t.url},
+		SavePath:  t.filePath,
 	}
+	status[taskId].syncDB()
 
 	status[taskId].CurrentDownloading = t.filePath
 
@@ -103,16 +112,19 @@ func (t *Mp4TaskParam) readAndSavePartial(res *http.Response) ([]byte, error) {
 				}
 				downloadedBytes += int64(n)
 				status[taskId].Progrss = int(downloadedBytes)
+				status[taskId].syncDB()
 				// log.Printf("\rDownloading... %d%% complete", 100*downloadedBytes/totalBytes)
 			}
 
 			if err == io.EOF {
 				status[taskId].Status = Completed
+				status[taskId].syncDB()
 				return nil, nil
 			}
 
 			if err != nil {
 				status[taskId].Status = Failed
+				status[taskId].syncDB()
 				return nil, err
 			}
 
@@ -157,4 +169,7 @@ type Mp4TaskParam struct {
 	startingPoint int64
 	ctx           context.Context
 	isResuming    bool
+	title         string
+	pkg           string
+	key           string
 }

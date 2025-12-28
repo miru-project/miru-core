@@ -8,11 +8,16 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
+
+	"github.com/miru-project/miru-core/ent"
+	"github.com/miru-project/miru-core/pkg/db"
 )
 
 var tasks = sync.Map{}
 var status = make(map[int]*Progress)
 var taskParamMap = make(map[int]TaskParamInterface)
+
+var OnStatusUpdate func(map[int]*Progress)
 
 type Progress struct {
 	Progrss            int       `json:"progress"`
@@ -22,6 +27,12 @@ type Progress struct {
 	MediaType          MediaType `json:"media_type"`
 	CurrentDownloading string    `json:"current_downloading"`
 	TaskID             int       `json:"task_id"`
+	Title              string    `json:"title"`
+	Package            string    `json:"package"`
+	Key                string    `json:"key"`
+	URL                []string  `json:"url"`
+	Headers            string    `json:"headers"`
+	SavePath           string    `json:"save_path"`
 }
 
 type TaskParam struct {
@@ -166,4 +177,49 @@ func parsePath(basePath string, fileName string) string {
 	link.Path = filepath.Join(dir, fileName)
 	return link.String()
 
+}
+func (p *Progress) syncDB() {
+	db.UpsertDownload(&ent.Download{
+		URL:       p.URL,
+		Headers:   p.Headers,
+		Package:   p.Package,
+		Progress:  []int{p.Progrss}, // Use list of ints as requested
+		Key:       p.Key,
+		Title:     p.Title,
+		MediaType: string(p.MediaType),
+		Status:    string(p.Status),
+		SavePath:  p.SavePath,
+	})
+	if OnStatusUpdate != nil {
+		OnStatusUpdate(status)
+	}
+}
+
+func Init() {
+	downloads, err := db.GetAllDownloads()
+	if err != nil {
+		return
+	}
+	for _, d := range downloads {
+		id := genTaskID()
+		p := 0
+		if len(d.Progress) > 0 {
+			p = d.Progress[0]
+		}
+		status[id] = &Progress{
+			Progrss:   p,
+			Status:    Status(d.Status),
+			MediaType: MediaType(d.MediaType),
+			TaskID:    id,
+			Title:     d.Title,
+			Package:   d.Package,
+			Key:       d.Key,
+			URL:       d.URL,
+			Headers:   d.Headers,
+			SavePath:  d.SavePath,
+		}
+		if status[id].Status == Downloading {
+			status[id].Status = Paused
+		}
+	}
 }

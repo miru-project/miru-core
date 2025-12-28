@@ -9,11 +9,14 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/metainfo"
 	"github.com/gofiber/fiber/v2"
 	"github.com/miru-project/miru-core/config"
+	"github.com/miru-project/miru-core/ent"
+	"github.com/miru-project/miru-core/pkg/db"
 	"github.com/miru-project/miru-core/pkg/logger"
 	"github.com/miru-project/miru-core/pkg/network"
 	"github.com/miru-project/miru-core/pkg/result"
@@ -25,24 +28,38 @@ var (
 	DataDir  string
 )
 
-//	type TorrentDB struct {
-//		storageDir string
-//	}
-//
-//	func (db TorrentDB) OpenTorrent(ctx context.Context, info *metainfo.Info, infoHash metainfo.Hash) (storage.TorrentImpl, error) {
-//		return nil, nil
-//	}
 func Init() {
 	DataDir = config.Global.BTDataDir
 
 	cc := torrent.NewDefaultClientConfig()
 	cc.DataDir = DataDir
 	cc.NoUpload = false
-	// cc.DefaultStorage = TorrentDB{storageDir: DataDir}
 	client, e := torrent.NewClient(cc)
 	BTClient = client
 	if e != nil {
 		logger.Fatal(e)
+	}
+
+	go syncProgress()
+}
+
+func syncProgress() {
+	ticker := time.NewTicker(5 * time.Second)
+	for range ticker.C {
+		for hex, t := range Torrents {
+			if t.Info() == nil {
+				continue
+			}
+			kbReceived := t.BytesCompleted() / 1024
+			totalKb := t.Length() / 1024
+			progress := int(kbReceived * 100 / totalKb)
+
+			db.UpsertDownload(&ent.Download{
+				Key:      hex,
+				Progress: []int{progress},
+				Status:   "Downloading",
+			})
+		}
 	}
 }
 
@@ -50,17 +67,17 @@ func TorrentStatus() torrent.ClientStats {
 	return BTClient.Stats()
 }
 
-func AddMagnet(magnet string) (result.TorrentDetailResult, error) {
+func AddMagnet(magnet string, title string, pkg string) (result.TorrentDetailResult, error) {
 	t, err := BTClient.AddMagnet(magnet)
 	if err != nil {
 		return result.TorrentDetailResult{}, err
 	}
 
 	<-t.GotInfo()
-	return addStream(t)
+	return addStream(t, title, pkg, magnet)
 }
 
-func AddTorrentBytes(body []byte) (result.TorrentDetailResult, error) {
+func AddTorrentBytes(body []byte, title string, pkg string) (result.TorrentDetailResult, error) {
 	mediaInfo, err := metainfo.Load(bytes.NewReader(body))
 	if err != nil {
 		return result.TorrentDetailResult{}, err
@@ -71,10 +88,10 @@ func AddTorrentBytes(body []byte) (result.TorrentDetailResult, error) {
 		return result.TorrentDetailResult{}, err
 	}
 
-	return addStream(t)
+	return addStream(t, title, pkg, "")
 }
 
-func AddTorrent(link string) (result.TorrentDetailResult, error) {
+func AddTorrent(link string, title string, pkg string) (result.TorrentDetailResult, error) {
 	body, err := network.Request[[]byte](link, &network.RequestOptions{}, network.ReadAll)
 	if err != nil {
 		return result.TorrentDetailResult{}, err
@@ -90,10 +107,10 @@ func AddTorrent(link string) (result.TorrentDetailResult, error) {
 		return result.TorrentDetailResult{}, err
 	}
 
-	return addStream(t)
+	return addStream(t, title, pkg, link)
 }
 
-func addStream(t *torrent.Torrent) (result.TorrentDetailResult, error) {
+func addStream(t *torrent.Torrent, title string, pkg string, url string) (result.TorrentDetailResult, error) {
 	hex := t.InfoHash().HexString()
 
 	Torrents[hex] = t
@@ -107,6 +124,15 @@ func addStream(t *torrent.Torrent) (result.TorrentDetailResult, error) {
 		}
 	}
 
+	db.UpsertDownload(&ent.Download{
+		URL:       []string{url},
+		Package:   pkg,
+		Key:       hex,
+		Title:     title,
+		MediaType: "torrent",
+		Status:    "Downloading",
+	})
+
 	return result.TorrentDetailResult{
 		InfoHash: hex,
 		Detail:   t.Info(),
@@ -114,19 +140,32 @@ func addStream(t *torrent.Torrent) (result.TorrentDetailResult, error) {
 	}, nil
 }
 
-func DeleteTorrent(infoHash string) error {
+func DeleteTorrent(infoHash string, forceDeleteFiles bool) error {
 	t, ok := Torrents[infoHash]
 	if !ok {
 		return fmt.Errorf("torrent not found")
 	}
 	t.Drop()
 
-	// Auto delete cache file
-	if err := os.RemoveAll(path.Join(DataDir, t.Name())); err != nil {
-		return err
+	deleteFiles := forceDeleteFiles
+	if !deleteFiles {
+		// Check if it's in the download library
+		_, err := db.GetDownloadByKey(infoHash)
+		if err != nil {
+			// Not in library, safe to delete cache
+			deleteFiles = true
+		}
+	}
+
+	if deleteFiles {
+		// Auto delete cache file
+		if err := os.RemoveAll(path.Join(DataDir, t.Name()+".part")); err != nil {
+			return err
+		}
 	}
 
 	delete(Torrents, infoHash)
+	logger.Println("Torrent deleted: " + infoHash)
 	return nil
 }
 

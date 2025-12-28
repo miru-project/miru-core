@@ -14,6 +14,7 @@ import (
 	"github.com/miru-project/miru-core/pkg/db"
 	"github.com/miru-project/miru-core/pkg/download"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
+	"github.com/miru-project/miru-core/pkg/event"
 	"github.com/miru-project/miru-core/pkg/jsExtension"
 	"github.com/miru-project/miru-core/pkg/logger"
 	"github.com/miru-project/miru-core/pkg/network"
@@ -453,7 +454,7 @@ func (s *MiruCoreServer) PauseDownload(ctx context.Context, req *proto.PauseDown
 }
 
 func (s *MiruCoreServer) DownloadBangumi(ctx context.Context, req *proto.DownloadBangumiRequest) (*proto.DownloadBangumiResponse, error) {
-	res, err := download.DownloadBangumi(req.DownloadPath, req.Url, req.Header, req.IsHls)
+	res, err := download.DownloadBangumi(req.DownloadPath, req.Url, req.Header, req.IsHls, req.Title, req.Package, req.Key)
 	if err != nil {
 		return nil, err
 	}
@@ -472,6 +473,48 @@ func (s *MiruCoreServer) DownloadBangumi(ctx context.Context, req *proto.Downloa
 		VariantSummary: protoVariants,
 		IsDownloading:  res.IsDownloading,
 	}, nil
+}
+
+func (s *MiruCoreServer) GetAllDownloads(ctx context.Context, req *proto.GetAllDownloadsRequest) (*proto.GetAllDownloadsResponse, error) {
+	downloads, err := db.GetAllDownloads()
+	if err != nil {
+		return nil, err
+	}
+	protoDownloads := make([]*proto.Download, len(downloads))
+	for i, d := range downloads {
+		protoDownloads[i] = &proto.Download{
+			Id:      int32(d.ID),
+			Url:     d.URL,
+			Headers: d.Headers,
+			Package: d.Package,
+			Progress: func() []int32 {
+				res := make([]int32, len(d.Progress))
+				for i, v := range d.Progress {
+					res[i] = int32(v)
+				}
+				return res
+			}(),
+			Key:       d.Key,
+			Title:     d.Title,
+			MediaType: d.MediaType,
+			Status:    d.Status,
+			SavePath:  d.SavePath,
+			Date:      d.Date.Format(time.RFC3339),
+		}
+	}
+	return &proto.GetAllDownloadsResponse{Downloads: protoDownloads}, nil
+}
+
+func (s *MiruCoreServer) DeleteDownload(ctx context.Context, req *proto.DeleteDownloadRequest) (*proto.DeleteDownloadResponse, error) {
+	d, err := db.GetDownloadByID(int(req.Id))
+	if err == nil && d.MediaType == "torrent" {
+		torrent.DeleteTorrent(d.Key, true)
+	}
+	err = db.DeleteDownloadByID(int(req.Id))
+	if err != nil {
+		return nil, err
+	}
+	return &proto.DeleteDownloadResponse{Message: "Success"}, nil
 }
 
 // Torrent
@@ -496,7 +539,7 @@ func (s *MiruCoreServer) ListTorrent(ctx context.Context, req *proto.ListTorrent
 }
 
 func (s *MiruCoreServer) AddTorrent(ctx context.Context, req *proto.AddTorrentRequest) (*proto.AddTorrentResponse, error) {
-	res, err := torrent.AddTorrentBytes(req.Torrent)
+	res, err := torrent.AddTorrentBytes(req.Torrent, req.Title, req.Package)
 	if err != nil {
 		return nil, err
 	}
@@ -511,7 +554,7 @@ func (s *MiruCoreServer) AddTorrent(ctx context.Context, req *proto.AddTorrentRe
 }
 
 func (s *MiruCoreServer) AddMagnet(ctx context.Context, req *proto.AddMagnetRequest) (*proto.AddMagnetResponse, error) {
-	res, err := torrent.AddMagnet(req.Url)
+	res, err := torrent.AddMagnet(req.Url, req.Title, req.Package)
 	if err != nil {
 		return nil, err
 	}
@@ -526,7 +569,7 @@ func (s *MiruCoreServer) AddMagnet(ctx context.Context, req *proto.AddMagnetRequ
 }
 
 func (s *MiruCoreServer) DeleteTorrent(ctx context.Context, req *proto.DeleteTorrentRequest) (*proto.DeleteTorrentResponse, error) {
-	err := torrent.DeleteTorrent(req.InfoHash)
+	err := torrent.DeleteTorrent(req.InfoHash, false)
 	if err != nil {
 		return nil, err
 	}
@@ -594,6 +637,69 @@ func (s *MiruCoreServer) SetCookie(ctx context.Context, req *proto.SetCookieRequ
 	return &proto.SetCookieResponse{Message: "Success"}, nil
 }
 
+func (s *MiruCoreServer) WatchEvents(req *proto.WatchEventsRequest, stream proto.MiruCoreService_WatchEventsServer) error {
+	ch := event.GlobalBus.Subscribe()
+	defer event.GlobalBus.Unsubscribe(ch)
+
+	for {
+		select {
+		case <-stream.Context().Done():
+			return nil
+		case e := <-ch:
+			var resp *proto.WatchEventsResponse
+			switch e.Type {
+			case event.DownloadStatusUpdate:
+				status := e.Data.(map[int]*download.Progress)
+				protoStatus := make(map[int32]*proto.DownloadProgress)
+				for id, p := range status {
+					protoStatus[int32(id)] = toProtoDownloadProgress(p)
+				}
+				resp = &proto.WatchEventsResponse{
+					Event: &proto.WatchEventsResponse_DownloadEvent{
+						DownloadEvent: &proto.DownloadEvent{
+							DownloadStatus: protoStatus,
+						},
+					},
+				}
+			case event.ExtensionUpdate:
+				exts := e.Data.([]*jsExtension.ExtApi)
+				protoExtMeta := make([]*proto.ExtensionMeta, len(exts))
+				for i, ea := range exts {
+					e := ea.Ext
+					protoExtMeta[i] = &proto.ExtensionMeta{
+						Name:        e.Name,
+						Version:     e.Version,
+						Author:      e.Author,
+						License:     e.License,
+						Lang:        e.Lang,
+						Icon:        e.Icon,
+						Package:     e.Pkg,
+						WebSite:     e.Website,
+						Description: e.Description,
+						Tags:        e.Tags,
+						Api:         e.Api,
+						Error:       e.Error,
+						Type:        e.WatchType,
+					}
+				}
+				resp = &proto.WatchEventsResponse{
+					Event: &proto.WatchEventsResponse_ExtensionEvent{
+						ExtensionEvent: &proto.ExtensionEvent{
+							ExtensionMeta: protoExtMeta,
+						},
+					},
+				}
+			}
+
+			if resp != nil {
+				if err := stream.Send(resp); err != nil {
+					return err
+				}
+			}
+		}
+	}
+}
+
 // Helpers
 func safeSprint(v any) string {
 	if v == nil {
@@ -615,6 +721,9 @@ func toProtoDownloadProgress(p *download.Progress) *proto.DownloadProgress {
 		MediaType:          string(p.MediaType),
 		CurrentDownloading: p.CurrentDownloading,
 		TaskId:             int32(p.TaskID),
+		Title:              p.Title,
+		Package:            p.Package,
+		Key:                p.Key,
 	}
 }
 
@@ -738,6 +847,14 @@ func StartGRPCServer() {
 	s := grpc.NewServer()
 	proto.RegisterMiruCoreServiceServer(s, &MiruCoreServer{})
 	reflection.Register(s)
+
+	// Initialize callbacks for real-time events
+	download.OnStatusUpdate = func(status map[int]*download.Progress) {
+		event.SendDownloadUpdate(status)
+	}
+	jsExtension.OnExtensionUpdate = func(exts []*jsExtension.ExtApi) {
+		event.SendExtensionUpdate(exts)
+	}
 
 	logger.Printf("gRPC server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {

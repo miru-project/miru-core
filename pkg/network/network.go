@@ -250,12 +250,12 @@ func Init() {
 	initCookieJar()
 	defaultTransport = &http.Transport{
 		Proxy:               http.ProxyFromEnvironment,
-		MaxIdleConns:        100,
+		MaxIdleConns:        1024,
 		MaxIdleConnsPerHost: 100,
 		IdleConnTimeout:     90 * time.Second,
 	}
 	defaultClient = &http.Client{
 		Transport: defaultTransport,
-		Timeout:   10 * time.Second,
+		Timeout:   15 * time.Second,
 	}
 }

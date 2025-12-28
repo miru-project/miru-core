@@ -10,16 +10,20 @@ type ExtMapCache struct {
 
 var ApiPkgCache = &ExtMapCache{sync.Map{}}
 
+var OnExtensionUpdate func([]*ExtApi)
+
 func (m *ExtMapCache) Load(key string) *ExtApi {
 	val, _ := m.Map.Load(key)
 	return val.(*ExtApi)
 }
 func (m *ExtMapCache) Store(key string, value *ExtApi) {
 	m.Map.Store(key, value)
+	m.notify()
 }
 func (m *ExtMapCache) Modify(key string, f func(*ExtApi) *ExtApi) {
 	val, _ := m.Map.Load(key)
 	m.Map.Store(key, f(val.(*ExtApi)))
+	m.notify()
 }
 func (m *ExtMapCache) SetError(key string, errString string) {
 	m.Modify(key, func(ea *ExtApi) *ExtApi {
@@ -30,6 +34,13 @@ func (m *ExtMapCache) SetError(key string, errString string) {
 
 func (m *ExtMapCache) Remove(key string) {
 	m.Map.Delete(key)
+	m.notify()
+}
+
+func (m *ExtMapCache) notify() {
+	if OnExtensionUpdate != nil {
+		OnExtensionUpdate(m.GetAll())
+	}
 }
 
 func (m *ExtMapCache) GetAll() []*ExtApi {

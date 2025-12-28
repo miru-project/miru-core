@@ -21,6 +21,212 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type WatchEventsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WatchEventsRequest) Reset() {
+	*x = WatchEventsRequest{}
+	mi := &file_proto_miru_core_service_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WatchEventsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WatchEventsRequest) ProtoMessage() {}
+
+func (x *WatchEventsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_miru_core_service_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WatchEventsRequest.ProtoReflect.Descriptor instead.
+func (*WatchEventsRequest) Descriptor() ([]byte, []int) {
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{0}
+}
+
+type WatchEventsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Event:
+	//
+	//	*WatchEventsResponse_DownloadEvent
+	//	*WatchEventsResponse_ExtensionEvent
+	Event         isWatchEventsResponse_Event `protobuf_oneof:"event"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *WatchEventsResponse) Reset() {
+	*x = WatchEventsResponse{}
+	mi := &file_proto_miru_core_service_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *WatchEventsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*WatchEventsResponse) ProtoMessage() {}
+
+func (x *WatchEventsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_miru_core_service_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use WatchEventsResponse.ProtoReflect.Descriptor instead.
+func (*WatchEventsResponse) Descriptor() ([]byte, []int) {
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *WatchEventsResponse) GetEvent() isWatchEventsResponse_Event {
+	if x != nil {
+		return x.Event
+	}
+	return nil
+}
+
+func (x *WatchEventsResponse) GetDownloadEvent() *DownloadEvent {
+	if x != nil {
+		if x, ok := x.Event.(*WatchEventsResponse_DownloadEvent); ok {
+			return x.DownloadEvent
+		}
+	}
+	return nil
+}
+
+func (x *WatchEventsResponse) GetExtensionEvent() *ExtensionEvent {
+	if x != nil {
+		if x, ok := x.Event.(*WatchEventsResponse_ExtensionEvent); ok {
+			return x.ExtensionEvent
+		}
+	}
+	return nil
+}
+
+type isWatchEventsResponse_Event interface {
+	isWatchEventsResponse_Event()
+}
+
+type WatchEventsResponse_DownloadEvent struct {
+	DownloadEvent *DownloadEvent `protobuf:"bytes,1,opt,name=download_event,json=downloadEvent,proto3,oneof"`
+}
+
+type WatchEventsResponse_ExtensionEvent struct {
+	ExtensionEvent *ExtensionEvent `protobuf:"bytes,2,opt,name=extension_event,json=extensionEvent,proto3,oneof"`
+}
+
+func (*WatchEventsResponse_DownloadEvent) isWatchEventsResponse_Event() {}
+
+func (*WatchEventsResponse_ExtensionEvent) isWatchEventsResponse_Event() {}
+
+type DownloadEvent struct {
+	state          protoimpl.MessageState      `protogen:"open.v1"`
+	DownloadStatus map[int32]*DownloadProgress `protobuf:"bytes,1,rep,name=download_status,json=downloadStatus,proto3" json:"download_status,omitempty" protobuf_key:"varint,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *DownloadEvent) Reset() {
+	*x = DownloadEvent{}
+	mi := &file_proto_miru_core_service_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DownloadEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DownloadEvent) ProtoMessage() {}
+
+func (x *DownloadEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_miru_core_service_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DownloadEvent.ProtoReflect.Descriptor instead.
+func (*DownloadEvent) Descriptor() ([]byte, []int) {
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *DownloadEvent) GetDownloadStatus() map[int32]*DownloadProgress {
+	if x != nil {
+		return x.DownloadStatus
+	}
+	return nil
+}
+
+type ExtensionEvent struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ExtensionMeta []*ExtensionMeta       `protobuf:"bytes,1,rep,name=extension_meta,json=extensionMeta,proto3" json:"extension_meta,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExtensionEvent) Reset() {
+	*x = ExtensionEvent{}
+	mi := &file_proto_miru_core_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExtensionEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExtensionEvent) ProtoMessage() {}
+
+func (x *ExtensionEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_miru_core_service_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExtensionEvent.ProtoReflect.Descriptor instead.
+func (*ExtensionEvent) Descriptor() ([]byte, []int) {
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ExtensionEvent) GetExtensionMeta() []*ExtensionMeta {
+	if x != nil {
+		return x.ExtensionMeta
+	}
+	return nil
+}
+
 type SearchRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Pkg           string                 `protobuf:"bytes,1,opt,name=pkg,proto3" json:"pkg,omitempty"`
@@ -33,7 +239,7 @@ type SearchRequest struct {
 
 func (x *SearchRequest) Reset() {
 	*x = SearchRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[0]
+	mi := &file_proto_miru_core_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -45,7 +251,7 @@ func (x *SearchRequest) String() string {
 func (*SearchRequest) ProtoMessage() {}
 
 func (x *SearchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[0]
+	mi := &file_proto_miru_core_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -58,7 +264,7 @@ func (x *SearchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchRequest.ProtoReflect.Descriptor instead.
 func (*SearchRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{0}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *SearchRequest) GetPkg() string {
@@ -98,7 +304,7 @@ type SearchResponse struct {
 
 func (x *SearchResponse) Reset() {
 	*x = SearchResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[1]
+	mi := &file_proto_miru_core_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -110,7 +316,7 @@ func (x *SearchResponse) String() string {
 func (*SearchResponse) ProtoMessage() {}
 
 func (x *SearchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[1]
+	mi := &file_proto_miru_core_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -123,7 +329,7 @@ func (x *SearchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchResponse.ProtoReflect.Descriptor instead.
 func (*SearchResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{1}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *SearchResponse) GetItems() []*ExtensionListItem {
@@ -143,7 +349,7 @@ type LatestRequest struct {
 
 func (x *LatestRequest) Reset() {
 	*x = LatestRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[2]
+	mi := &file_proto_miru_core_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -155,7 +361,7 @@ func (x *LatestRequest) String() string {
 func (*LatestRequest) ProtoMessage() {}
 
 func (x *LatestRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[2]
+	mi := &file_proto_miru_core_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -168,7 +374,7 @@ func (x *LatestRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LatestRequest.ProtoReflect.Descriptor instead.
 func (*LatestRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{2}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *LatestRequest) GetPkg() string {
@@ -194,7 +400,7 @@ type LatestResponse struct {
 
 func (x *LatestResponse) Reset() {
 	*x = LatestResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[3]
+	mi := &file_proto_miru_core_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -206,7 +412,7 @@ func (x *LatestResponse) String() string {
 func (*LatestResponse) ProtoMessage() {}
 
 func (x *LatestResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[3]
+	mi := &file_proto_miru_core_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -219,7 +425,7 @@ func (x *LatestResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LatestResponse.ProtoReflect.Descriptor instead.
 func (*LatestResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{3}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *LatestResponse) GetItems() []*ExtensionListItem {
@@ -239,7 +445,7 @@ type DetailRequest struct {
 
 func (x *DetailRequest) Reset() {
 	*x = DetailRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[4]
+	mi := &file_proto_miru_core_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -251,7 +457,7 @@ func (x *DetailRequest) String() string {
 func (*DetailRequest) ProtoMessage() {}
 
 func (x *DetailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[4]
+	mi := &file_proto_miru_core_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -264,7 +470,7 @@ func (x *DetailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DetailRequest.ProtoReflect.Descriptor instead.
 func (*DetailRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{4}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DetailRequest) GetPkg() string {
@@ -290,7 +496,7 @@ type DetailResponse struct {
 
 func (x *DetailResponse) Reset() {
 	*x = DetailResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[5]
+	mi := &file_proto_miru_core_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -302,7 +508,7 @@ func (x *DetailResponse) String() string {
 func (*DetailResponse) ProtoMessage() {}
 
 func (x *DetailResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[5]
+	mi := &file_proto_miru_core_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -315,7 +521,7 @@ func (x *DetailResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DetailResponse.ProtoReflect.Descriptor instead.
 func (*DetailResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{5}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *DetailResponse) GetData() string {
@@ -335,7 +541,7 @@ type WatchRequest struct {
 
 func (x *WatchRequest) Reset() {
 	*x = WatchRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[6]
+	mi := &file_proto_miru_core_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -347,7 +553,7 @@ func (x *WatchRequest) String() string {
 func (*WatchRequest) ProtoMessage() {}
 
 func (x *WatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[6]
+	mi := &file_proto_miru_core_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -360,7 +566,7 @@ func (x *WatchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WatchRequest.ProtoReflect.Descriptor instead.
 func (*WatchRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{6}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *WatchRequest) GetPkg() string {
@@ -386,7 +592,7 @@ type WatchResponse struct {
 
 func (x *WatchResponse) Reset() {
 	*x = WatchResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[7]
+	mi := &file_proto_miru_core_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -398,7 +604,7 @@ func (x *WatchResponse) String() string {
 func (*WatchResponse) ProtoMessage() {}
 
 func (x *WatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[7]
+	mi := &file_proto_miru_core_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -411,7 +617,7 @@ func (x *WatchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WatchResponse.ProtoReflect.Descriptor instead.
 func (*WatchResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{7}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *WatchResponse) GetData() string {
@@ -433,7 +639,7 @@ type ExtensionListItem struct {
 
 func (x *ExtensionListItem) Reset() {
 	*x = ExtensionListItem{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[8]
+	mi := &file_proto_miru_core_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -445,7 +651,7 @@ func (x *ExtensionListItem) String() string {
 func (*ExtensionListItem) ProtoMessage() {}
 
 func (x *ExtensionListItem) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[8]
+	mi := &file_proto_miru_core_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -458,7 +664,7 @@ func (x *ExtensionListItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExtensionListItem.ProtoReflect.Descriptor instead.
 func (*ExtensionListItem) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{8}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ExtensionListItem) GetTitle() string {
@@ -497,7 +703,7 @@ type HelloMiruRequest struct {
 
 func (x *HelloMiruRequest) Reset() {
 	*x = HelloMiruRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[9]
+	mi := &file_proto_miru_core_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -509,7 +715,7 @@ func (x *HelloMiruRequest) String() string {
 func (*HelloMiruRequest) ProtoMessage() {}
 
 func (x *HelloMiruRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[9]
+	mi := &file_proto_miru_core_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -522,7 +728,7 @@ func (x *HelloMiruRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HelloMiruRequest.ProtoReflect.Descriptor instead.
 func (*HelloMiruRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{9}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{13}
 }
 
 type HelloMiruResponse struct {
@@ -536,7 +742,7 @@ type HelloMiruResponse struct {
 
 func (x *HelloMiruResponse) Reset() {
 	*x = HelloMiruResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[10]
+	mi := &file_proto_miru_core_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -548,7 +754,7 @@ func (x *HelloMiruResponse) String() string {
 func (*HelloMiruResponse) ProtoMessage() {}
 
 func (x *HelloMiruResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[10]
+	mi := &file_proto_miru_core_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -561,7 +767,7 @@ func (x *HelloMiruResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HelloMiruResponse.ProtoReflect.Descriptor instead.
 func (*HelloMiruResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{10}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *HelloMiruResponse) GetExtensionMeta() []*ExtensionMeta {
@@ -606,7 +812,7 @@ type ExtensionMeta struct {
 
 func (x *ExtensionMeta) Reset() {
 	*x = ExtensionMeta{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[11]
+	mi := &file_proto_miru_core_service_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -618,7 +824,7 @@ func (x *ExtensionMeta) String() string {
 func (*ExtensionMeta) ProtoMessage() {}
 
 func (x *ExtensionMeta) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[11]
+	mi := &file_proto_miru_core_service_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -631,7 +837,7 @@ func (x *ExtensionMeta) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExtensionMeta.ProtoReflect.Descriptor instead.
 func (*ExtensionMeta) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{11}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ExtensionMeta) GetName() string {
@@ -734,13 +940,16 @@ type DownloadProgress struct {
 	MediaType          string                 `protobuf:"bytes,5,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
 	CurrentDownloading string                 `protobuf:"bytes,6,opt,name=current_downloading,json=currentDownloading,proto3" json:"current_downloading,omitempty"`
 	TaskId             int32                  `protobuf:"varint,7,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
+	Title              string                 `protobuf:"bytes,8,opt,name=title,proto3" json:"title,omitempty"`
+	Package            string                 `protobuf:"bytes,9,opt,name=package,proto3" json:"package,omitempty"`
+	Key                string                 `protobuf:"bytes,10,opt,name=key,proto3" json:"key,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
 
 func (x *DownloadProgress) Reset() {
 	*x = DownloadProgress{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[12]
+	mi := &file_proto_miru_core_service_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -752,7 +961,7 @@ func (x *DownloadProgress) String() string {
 func (*DownloadProgress) ProtoMessage() {}
 
 func (x *DownloadProgress) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[12]
+	mi := &file_proto_miru_core_service_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -765,7 +974,7 @@ func (x *DownloadProgress) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DownloadProgress.ProtoReflect.Descriptor instead.
 func (*DownloadProgress) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{12}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *DownloadProgress) GetProgress() int32 {
@@ -817,6 +1026,27 @@ func (x *DownloadProgress) GetTaskId() int32 {
 	return 0
 }
 
+func (x *DownloadProgress) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *DownloadProgress) GetPackage() string {
+	if x != nil {
+		return x.Package
+	}
+	return ""
+}
+
+func (x *DownloadProgress) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
 type TorrentStats struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Add detailed stats later if needed, starting with basic counts or empty for
@@ -830,7 +1060,7 @@ type TorrentStats struct {
 
 func (x *TorrentStats) Reset() {
 	*x = TorrentStats{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[13]
+	mi := &file_proto_miru_core_service_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -842,7 +1072,7 @@ func (x *TorrentStats) String() string {
 func (*TorrentStats) ProtoMessage() {}
 
 func (x *TorrentStats) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[13]
+	mi := &file_proto_miru_core_service_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -855,7 +1085,7 @@ func (x *TorrentStats) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TorrentStats.ProtoReflect.Descriptor instead.
 func (*TorrentStats) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{13}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *TorrentStats) GetTotalDown() int64 {
@@ -880,7 +1110,7 @@ type GetAppSettingRequest struct {
 
 func (x *GetAppSettingRequest) Reset() {
 	*x = GetAppSettingRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[14]
+	mi := &file_proto_miru_core_service_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -892,7 +1122,7 @@ func (x *GetAppSettingRequest) String() string {
 func (*GetAppSettingRequest) ProtoMessage() {}
 
 func (x *GetAppSettingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[14]
+	mi := &file_proto_miru_core_service_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -905,7 +1135,7 @@ func (x *GetAppSettingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAppSettingRequest.ProtoReflect.Descriptor instead.
 func (*GetAppSettingRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{14}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{18}
 }
 
 type GetAppSettingResponse struct {
@@ -917,7 +1147,7 @@ type GetAppSettingResponse struct {
 
 func (x *GetAppSettingResponse) Reset() {
 	*x = GetAppSettingResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[15]
+	mi := &file_proto_miru_core_service_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -929,7 +1159,7 @@ func (x *GetAppSettingResponse) String() string {
 func (*GetAppSettingResponse) ProtoMessage() {}
 
 func (x *GetAppSettingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[15]
+	mi := &file_proto_miru_core_service_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -942,7 +1172,7 @@ func (x *GetAppSettingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAppSettingResponse.ProtoReflect.Descriptor instead.
 func (*GetAppSettingResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{15}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetAppSettingResponse) GetSettings() []*AppSetting {
@@ -961,7 +1191,7 @@ type SetAppSettingRequest struct {
 
 func (x *SetAppSettingRequest) Reset() {
 	*x = SetAppSettingRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[16]
+	mi := &file_proto_miru_core_service_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -973,7 +1203,7 @@ func (x *SetAppSettingRequest) String() string {
 func (*SetAppSettingRequest) ProtoMessage() {}
 
 func (x *SetAppSettingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[16]
+	mi := &file_proto_miru_core_service_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -986,7 +1216,7 @@ func (x *SetAppSettingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAppSettingRequest.ProtoReflect.Descriptor instead.
 func (*SetAppSettingRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{16}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *SetAppSettingRequest) GetSettings() []*AppSetting {
@@ -1005,7 +1235,7 @@ type SetAppSettingResponse struct {
 
 func (x *SetAppSettingResponse) Reset() {
 	*x = SetAppSettingResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[17]
+	mi := &file_proto_miru_core_service_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1017,7 +1247,7 @@ func (x *SetAppSettingResponse) String() string {
 func (*SetAppSettingResponse) ProtoMessage() {}
 
 func (x *SetAppSettingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[17]
+	mi := &file_proto_miru_core_service_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1030,7 +1260,7 @@ func (x *SetAppSettingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetAppSettingResponse.ProtoReflect.Descriptor instead.
 func (*SetAppSettingResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{17}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *SetAppSettingResponse) GetMessage() string {
@@ -1050,7 +1280,7 @@ type AppSetting struct {
 
 func (x *AppSetting) Reset() {
 	*x = AppSetting{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[18]
+	mi := &file_proto_miru_core_service_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1062,7 +1292,7 @@ func (x *AppSetting) String() string {
 func (*AppSetting) ProtoMessage() {}
 
 func (x *AppSetting) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[18]
+	mi := &file_proto_miru_core_service_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1075,7 +1305,7 @@ func (x *AppSetting) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppSetting.ProtoReflect.Descriptor instead.
 func (*AppSetting) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{18}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *AppSetting) GetKey() string {
@@ -1108,7 +1338,7 @@ type Favorite struct {
 
 func (x *Favorite) Reset() {
 	*x = Favorite{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[19]
+	mi := &file_proto_miru_core_service_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1120,7 +1350,7 @@ func (x *Favorite) String() string {
 func (*Favorite) ProtoMessage() {}
 
 func (x *Favorite) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[19]
+	mi := &file_proto_miru_core_service_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1133,7 +1363,7 @@ func (x *Favorite) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Favorite.ProtoReflect.Descriptor instead.
 func (*Favorite) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{19}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *Favorite) GetId() int32 {
@@ -1197,7 +1427,7 @@ type FavoriteGroup struct {
 
 func (x *FavoriteGroup) Reset() {
 	*x = FavoriteGroup{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[20]
+	mi := &file_proto_miru_core_service_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1209,7 +1439,7 @@ func (x *FavoriteGroup) String() string {
 func (*FavoriteGroup) ProtoMessage() {}
 
 func (x *FavoriteGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[20]
+	mi := &file_proto_miru_core_service_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1222,7 +1452,7 @@ func (x *FavoriteGroup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FavoriteGroup.ProtoReflect.Descriptor instead.
 func (*FavoriteGroup) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{20}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *FavoriteGroup) GetId() int32 {
@@ -1261,7 +1491,7 @@ type GetAllFavoriteRequest struct {
 
 func (x *GetAllFavoriteRequest) Reset() {
 	*x = GetAllFavoriteRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[21]
+	mi := &file_proto_miru_core_service_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1273,7 +1503,7 @@ func (x *GetAllFavoriteRequest) String() string {
 func (*GetAllFavoriteRequest) ProtoMessage() {}
 
 func (x *GetAllFavoriteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[21]
+	mi := &file_proto_miru_core_service_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1286,7 +1516,7 @@ func (x *GetAllFavoriteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAllFavoriteRequest.ProtoReflect.Descriptor instead.
 func (*GetAllFavoriteRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{21}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{25}
 }
 
 type GetAllFavoriteResponse struct {
@@ -1298,7 +1528,7 @@ type GetAllFavoriteResponse struct {
 
 func (x *GetAllFavoriteResponse) Reset() {
 	*x = GetAllFavoriteResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[22]
+	mi := &file_proto_miru_core_service_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1310,7 +1540,7 @@ func (x *GetAllFavoriteResponse) String() string {
 func (*GetAllFavoriteResponse) ProtoMessage() {}
 
 func (x *GetAllFavoriteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[22]
+	mi := &file_proto_miru_core_service_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1323,7 +1553,7 @@ func (x *GetAllFavoriteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAllFavoriteResponse.ProtoReflect.Descriptor instead.
 func (*GetAllFavoriteResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{22}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *GetAllFavoriteResponse) GetFavorites() []*Favorite {
@@ -1343,7 +1573,7 @@ type GetFavoriteByPackageAndUrlRequest struct {
 
 func (x *GetFavoriteByPackageAndUrlRequest) Reset() {
 	*x = GetFavoriteByPackageAndUrlRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[23]
+	mi := &file_proto_miru_core_service_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1355,7 +1585,7 @@ func (x *GetFavoriteByPackageAndUrlRequest) String() string {
 func (*GetFavoriteByPackageAndUrlRequest) ProtoMessage() {}
 
 func (x *GetFavoriteByPackageAndUrlRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[23]
+	mi := &file_proto_miru_core_service_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1368,7 +1598,7 @@ func (x *GetFavoriteByPackageAndUrlRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GetFavoriteByPackageAndUrlRequest.ProtoReflect.Descriptor instead.
 func (*GetFavoriteByPackageAndUrlRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{23}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *GetFavoriteByPackageAndUrlRequest) GetPackage() string {
@@ -1394,7 +1624,7 @@ type GetFavoriteByPackageAndUrlResponse struct {
 
 func (x *GetFavoriteByPackageAndUrlResponse) Reset() {
 	*x = GetFavoriteByPackageAndUrlResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[24]
+	mi := &file_proto_miru_core_service_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1406,7 +1636,7 @@ func (x *GetFavoriteByPackageAndUrlResponse) String() string {
 func (*GetFavoriteByPackageAndUrlResponse) ProtoMessage() {}
 
 func (x *GetFavoriteByPackageAndUrlResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[24]
+	mi := &file_proto_miru_core_service_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1419,7 +1649,7 @@ func (x *GetFavoriteByPackageAndUrlResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use GetFavoriteByPackageAndUrlResponse.ProtoReflect.Descriptor instead.
 func (*GetFavoriteByPackageAndUrlResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{24}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *GetFavoriteByPackageAndUrlResponse) GetFavorite() *Favorite {
@@ -1438,7 +1668,7 @@ type PutFavoriteByIndexRequest struct {
 
 func (x *PutFavoriteByIndexRequest) Reset() {
 	*x = PutFavoriteByIndexRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[25]
+	mi := &file_proto_miru_core_service_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1450,7 +1680,7 @@ func (x *PutFavoriteByIndexRequest) String() string {
 func (*PutFavoriteByIndexRequest) ProtoMessage() {}
 
 func (x *PutFavoriteByIndexRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[25]
+	mi := &file_proto_miru_core_service_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1463,7 +1693,7 @@ func (x *PutFavoriteByIndexRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutFavoriteByIndexRequest.ProtoReflect.Descriptor instead.
 func (*PutFavoriteByIndexRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{25}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *PutFavoriteByIndexRequest) GetGroups() []*FavoriteGroup {
@@ -1482,7 +1712,7 @@ type PutFavoriteByIndexResponse struct {
 
 func (x *PutFavoriteByIndexResponse) Reset() {
 	*x = PutFavoriteByIndexResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[26]
+	mi := &file_proto_miru_core_service_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1494,7 +1724,7 @@ func (x *PutFavoriteByIndexResponse) String() string {
 func (*PutFavoriteByIndexResponse) ProtoMessage() {}
 
 func (x *PutFavoriteByIndexResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[26]
+	mi := &file_proto_miru_core_service_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1507,7 +1737,7 @@ func (x *PutFavoriteByIndexResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutFavoriteByIndexResponse.ProtoReflect.Descriptor instead.
 func (*PutFavoriteByIndexResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{26}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *PutFavoriteByIndexResponse) GetMessage() string {
@@ -1530,7 +1760,7 @@ type PutFavoriteRequest struct {
 
 func (x *PutFavoriteRequest) Reset() {
 	*x = PutFavoriteRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[27]
+	mi := &file_proto_miru_core_service_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1542,7 +1772,7 @@ func (x *PutFavoriteRequest) String() string {
 func (*PutFavoriteRequest) ProtoMessage() {}
 
 func (x *PutFavoriteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[27]
+	mi := &file_proto_miru_core_service_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1555,7 +1785,7 @@ func (x *PutFavoriteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutFavoriteRequest.ProtoReflect.Descriptor instead.
 func (*PutFavoriteRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{27}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *PutFavoriteRequest) GetPackage() string {
@@ -1602,7 +1832,7 @@ type PutFavoriteResponse struct {
 
 func (x *PutFavoriteResponse) Reset() {
 	*x = PutFavoriteResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[28]
+	mi := &file_proto_miru_core_service_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1614,7 +1844,7 @@ func (x *PutFavoriteResponse) String() string {
 func (*PutFavoriteResponse) ProtoMessage() {}
 
 func (x *PutFavoriteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[28]
+	mi := &file_proto_miru_core_service_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1627,7 +1857,7 @@ func (x *PutFavoriteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutFavoriteResponse.ProtoReflect.Descriptor instead.
 func (*PutFavoriteResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{28}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *PutFavoriteResponse) GetFavorite() *Favorite {
@@ -1647,7 +1877,7 @@ type DeleteFavoriteRequest struct {
 
 func (x *DeleteFavoriteRequest) Reset() {
 	*x = DeleteFavoriteRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[29]
+	mi := &file_proto_miru_core_service_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1659,7 +1889,7 @@ func (x *DeleteFavoriteRequest) String() string {
 func (*DeleteFavoriteRequest) ProtoMessage() {}
 
 func (x *DeleteFavoriteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[29]
+	mi := &file_proto_miru_core_service_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1672,7 +1902,7 @@ func (x *DeleteFavoriteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteFavoriteRequest.ProtoReflect.Descriptor instead.
 func (*DeleteFavoriteRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{29}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *DeleteFavoriteRequest) GetUrl() string {
@@ -1698,7 +1928,7 @@ type DeleteFavoriteResponse struct {
 
 func (x *DeleteFavoriteResponse) Reset() {
 	*x = DeleteFavoriteResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[30]
+	mi := &file_proto_miru_core_service_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1710,7 +1940,7 @@ func (x *DeleteFavoriteResponse) String() string {
 func (*DeleteFavoriteResponse) ProtoMessage() {}
 
 func (x *DeleteFavoriteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[30]
+	mi := &file_proto_miru_core_service_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1723,7 +1953,7 @@ func (x *DeleteFavoriteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteFavoriteResponse.ProtoReflect.Descriptor instead.
 func (*DeleteFavoriteResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{30}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *DeleteFavoriteResponse) GetMessage() string {
@@ -1743,7 +1973,7 @@ type GetFavoriteGroupsByIdRequest struct {
 
 func (x *GetFavoriteGroupsByIdRequest) Reset() {
 	*x = GetFavoriteGroupsByIdRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[31]
+	mi := &file_proto_miru_core_service_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1755,7 +1985,7 @@ func (x *GetFavoriteGroupsByIdRequest) String() string {
 func (*GetFavoriteGroupsByIdRequest) ProtoMessage() {}
 
 func (x *GetFavoriteGroupsByIdRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[31]
+	mi := &file_proto_miru_core_service_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1768,7 +1998,7 @@ func (x *GetFavoriteGroupsByIdRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFavoriteGroupsByIdRequest.ProtoReflect.Descriptor instead.
 func (*GetFavoriteGroupsByIdRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{31}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *GetFavoriteGroupsByIdRequest) GetId() int32 {
@@ -1787,7 +2017,7 @@ type GetFavoriteGroupsByIdResponse struct {
 
 func (x *GetFavoriteGroupsByIdResponse) Reset() {
 	*x = GetFavoriteGroupsByIdResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[32]
+	mi := &file_proto_miru_core_service_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1799,7 +2029,7 @@ func (x *GetFavoriteGroupsByIdResponse) String() string {
 func (*GetFavoriteGroupsByIdResponse) ProtoMessage() {}
 
 func (x *GetFavoriteGroupsByIdResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[32]
+	mi := &file_proto_miru_core_service_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1812,7 +2042,7 @@ func (x *GetFavoriteGroupsByIdResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetFavoriteGroupsByIdResponse.ProtoReflect.Descriptor instead.
 func (*GetFavoriteGroupsByIdResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{32}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *GetFavoriteGroupsByIdResponse) GetGroups() []*FavoriteGroup {
@@ -1830,7 +2060,7 @@ type GetAllFavoriteGroupRequest struct {
 
 func (x *GetAllFavoriteGroupRequest) Reset() {
 	*x = GetAllFavoriteGroupRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[33]
+	mi := &file_proto_miru_core_service_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1842,7 +2072,7 @@ func (x *GetAllFavoriteGroupRequest) String() string {
 func (*GetAllFavoriteGroupRequest) ProtoMessage() {}
 
 func (x *GetAllFavoriteGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[33]
+	mi := &file_proto_miru_core_service_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1855,7 +2085,7 @@ func (x *GetAllFavoriteGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAllFavoriteGroupRequest.ProtoReflect.Descriptor instead.
 func (*GetAllFavoriteGroupRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{33}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{37}
 }
 
 type GetAllFavoriteGroupResponse struct {
@@ -1867,7 +2097,7 @@ type GetAllFavoriteGroupResponse struct {
 
 func (x *GetAllFavoriteGroupResponse) Reset() {
 	*x = GetAllFavoriteGroupResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[34]
+	mi := &file_proto_miru_core_service_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1879,7 +2109,7 @@ func (x *GetAllFavoriteGroupResponse) String() string {
 func (*GetAllFavoriteGroupResponse) ProtoMessage() {}
 
 func (x *GetAllFavoriteGroupResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[34]
+	mi := &file_proto_miru_core_service_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1892,7 +2122,7 @@ func (x *GetAllFavoriteGroupResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAllFavoriteGroupResponse.ProtoReflect.Descriptor instead.
 func (*GetAllFavoriteGroupResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{34}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *GetAllFavoriteGroupResponse) GetGroups() []*FavoriteGroup {
@@ -1912,7 +2142,7 @@ type PutFavoriteGroupRequest struct {
 
 func (x *PutFavoriteGroupRequest) Reset() {
 	*x = PutFavoriteGroupRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[35]
+	mi := &file_proto_miru_core_service_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1924,7 +2154,7 @@ func (x *PutFavoriteGroupRequest) String() string {
 func (*PutFavoriteGroupRequest) ProtoMessage() {}
 
 func (x *PutFavoriteGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[35]
+	mi := &file_proto_miru_core_service_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1937,7 +2167,7 @@ func (x *PutFavoriteGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutFavoriteGroupRequest.ProtoReflect.Descriptor instead.
 func (*PutFavoriteGroupRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{35}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *PutFavoriteGroupRequest) GetName() string {
@@ -1963,7 +2193,7 @@ type PutFavoriteGroupResponse struct {
 
 func (x *PutFavoriteGroupResponse) Reset() {
 	*x = PutFavoriteGroupResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[36]
+	mi := &file_proto_miru_core_service_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1975,7 +2205,7 @@ func (x *PutFavoriteGroupResponse) String() string {
 func (*PutFavoriteGroupResponse) ProtoMessage() {}
 
 func (x *PutFavoriteGroupResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[36]
+	mi := &file_proto_miru_core_service_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1988,7 +2218,7 @@ func (x *PutFavoriteGroupResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutFavoriteGroupResponse.ProtoReflect.Descriptor instead.
 func (*PutFavoriteGroupResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{36}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *PutFavoriteGroupResponse) GetGroup() *FavoriteGroup {
@@ -2008,7 +2238,7 @@ type RenameFavoriteGroupRequest struct {
 
 func (x *RenameFavoriteGroupRequest) Reset() {
 	*x = RenameFavoriteGroupRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[37]
+	mi := &file_proto_miru_core_service_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2020,7 +2250,7 @@ func (x *RenameFavoriteGroupRequest) String() string {
 func (*RenameFavoriteGroupRequest) ProtoMessage() {}
 
 func (x *RenameFavoriteGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[37]
+	mi := &file_proto_miru_core_service_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2033,7 +2263,7 @@ func (x *RenameFavoriteGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RenameFavoriteGroupRequest.ProtoReflect.Descriptor instead.
 func (*RenameFavoriteGroupRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{37}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *RenameFavoriteGroupRequest) GetOldName() string {
@@ -2059,7 +2289,7 @@ type RenameFavoriteGroupResponse struct {
 
 func (x *RenameFavoriteGroupResponse) Reset() {
 	*x = RenameFavoriteGroupResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[38]
+	mi := &file_proto_miru_core_service_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2071,7 +2301,7 @@ func (x *RenameFavoriteGroupResponse) String() string {
 func (*RenameFavoriteGroupResponse) ProtoMessage() {}
 
 func (x *RenameFavoriteGroupResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[38]
+	mi := &file_proto_miru_core_service_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2084,7 +2314,7 @@ func (x *RenameFavoriteGroupResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RenameFavoriteGroupResponse.ProtoReflect.Descriptor instead.
 func (*RenameFavoriteGroupResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{38}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *RenameFavoriteGroupResponse) GetMessage() string {
@@ -2103,7 +2333,7 @@ type DeleteFavoriteGroupRequest struct {
 
 func (x *DeleteFavoriteGroupRequest) Reset() {
 	*x = DeleteFavoriteGroupRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[39]
+	mi := &file_proto_miru_core_service_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2115,7 +2345,7 @@ func (x *DeleteFavoriteGroupRequest) String() string {
 func (*DeleteFavoriteGroupRequest) ProtoMessage() {}
 
 func (x *DeleteFavoriteGroupRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[39]
+	mi := &file_proto_miru_core_service_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2128,7 +2358,7 @@ func (x *DeleteFavoriteGroupRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteFavoriteGroupRequest.ProtoReflect.Descriptor instead.
 func (*DeleteFavoriteGroupRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{39}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *DeleteFavoriteGroupRequest) GetNames() []string {
@@ -2147,7 +2377,7 @@ type DeleteFavoriteGroupResponse struct {
 
 func (x *DeleteFavoriteGroupResponse) Reset() {
 	*x = DeleteFavoriteGroupResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[40]
+	mi := &file_proto_miru_core_service_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2159,7 +2389,7 @@ func (x *DeleteFavoriteGroupResponse) String() string {
 func (*DeleteFavoriteGroupResponse) ProtoMessage() {}
 
 func (x *DeleteFavoriteGroupResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[40]
+	mi := &file_proto_miru_core_service_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2172,7 +2402,7 @@ func (x *DeleteFavoriteGroupResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteFavoriteGroupResponse.ProtoReflect.Descriptor instead.
 func (*DeleteFavoriteGroupResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{40}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *DeleteFavoriteGroupResponse) GetMessage() string {
@@ -2192,7 +2422,7 @@ type GetFavoriteGroupsByFavoriteRequest struct {
 
 func (x *GetFavoriteGroupsByFavoriteRequest) Reset() {
 	*x = GetFavoriteGroupsByFavoriteRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[41]
+	mi := &file_proto_miru_core_service_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2204,7 +2434,7 @@ func (x *GetFavoriteGroupsByFavoriteRequest) String() string {
 func (*GetFavoriteGroupsByFavoriteRequest) ProtoMessage() {}
 
 func (x *GetFavoriteGroupsByFavoriteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[41]
+	mi := &file_proto_miru_core_service_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2217,7 +2447,7 @@ func (x *GetFavoriteGroupsByFavoriteRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use GetFavoriteGroupsByFavoriteRequest.ProtoReflect.Descriptor instead.
 func (*GetFavoriteGroupsByFavoriteRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{41}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *GetFavoriteGroupsByFavoriteRequest) GetPackage() string {
@@ -2243,7 +2473,7 @@ type GetFavoriteGroupsByFavoriteResponse struct {
 
 func (x *GetFavoriteGroupsByFavoriteResponse) Reset() {
 	*x = GetFavoriteGroupsByFavoriteResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[42]
+	mi := &file_proto_miru_core_service_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2255,7 +2485,7 @@ func (x *GetFavoriteGroupsByFavoriteResponse) String() string {
 func (*GetFavoriteGroupsByFavoriteResponse) ProtoMessage() {}
 
 func (x *GetFavoriteGroupsByFavoriteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[42]
+	mi := &file_proto_miru_core_service_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2268,7 +2498,7 @@ func (x *GetFavoriteGroupsByFavoriteResponse) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use GetFavoriteGroupsByFavoriteResponse.ProtoReflect.Descriptor instead.
 func (*GetFavoriteGroupsByFavoriteResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{42}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *GetFavoriteGroupsByFavoriteResponse) GetGroups() []*FavoriteGroup {
@@ -2300,7 +2530,7 @@ type History struct {
 
 func (x *History) Reset() {
 	*x = History{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[43]
+	mi := &file_proto_miru_core_service_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2312,7 +2542,7 @@ func (x *History) String() string {
 func (*History) ProtoMessage() {}
 
 func (x *History) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[43]
+	mi := &file_proto_miru_core_service_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2325,7 +2555,7 @@ func (x *History) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use History.ProtoReflect.Descriptor instead.
 func (*History) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{43}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *History) GetId() int32 {
@@ -2428,7 +2658,7 @@ type GetHistoriesByTypeRequest struct {
 
 func (x *GetHistoriesByTypeRequest) Reset() {
 	*x = GetHistoriesByTypeRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[44]
+	mi := &file_proto_miru_core_service_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2440,7 +2670,7 @@ func (x *GetHistoriesByTypeRequest) String() string {
 func (*GetHistoriesByTypeRequest) ProtoMessage() {}
 
 func (x *GetHistoriesByTypeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[44]
+	mi := &file_proto_miru_core_service_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2453,7 +2683,7 @@ func (x *GetHistoriesByTypeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHistoriesByTypeRequest.ProtoReflect.Descriptor instead.
 func (*GetHistoriesByTypeRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{44}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *GetHistoriesByTypeRequest) GetType() string {
@@ -2472,7 +2702,7 @@ type GetHistoriesByTypeResponse struct {
 
 func (x *GetHistoriesByTypeResponse) Reset() {
 	*x = GetHistoriesByTypeResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[45]
+	mi := &file_proto_miru_core_service_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2484,7 +2714,7 @@ func (x *GetHistoriesByTypeResponse) String() string {
 func (*GetHistoriesByTypeResponse) ProtoMessage() {}
 
 func (x *GetHistoriesByTypeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[45]
+	mi := &file_proto_miru_core_service_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2497,7 +2727,7 @@ func (x *GetHistoriesByTypeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHistoriesByTypeResponse.ProtoReflect.Descriptor instead.
 func (*GetHistoriesByTypeResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{45}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *GetHistoriesByTypeResponse) GetHistories() []*History {
@@ -2517,7 +2747,7 @@ type GetHistoryByPackageAndUrlRequest struct {
 
 func (x *GetHistoryByPackageAndUrlRequest) Reset() {
 	*x = GetHistoryByPackageAndUrlRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[46]
+	mi := &file_proto_miru_core_service_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2529,7 +2759,7 @@ func (x *GetHistoryByPackageAndUrlRequest) String() string {
 func (*GetHistoryByPackageAndUrlRequest) ProtoMessage() {}
 
 func (x *GetHistoryByPackageAndUrlRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[46]
+	mi := &file_proto_miru_core_service_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2542,7 +2772,7 @@ func (x *GetHistoryByPackageAndUrlRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHistoryByPackageAndUrlRequest.ProtoReflect.Descriptor instead.
 func (*GetHistoryByPackageAndUrlRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{46}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *GetHistoryByPackageAndUrlRequest) GetPackage() string {
@@ -2568,7 +2798,7 @@ type GetHistoryByPackageAndUrlResponse struct {
 
 func (x *GetHistoryByPackageAndUrlResponse) Reset() {
 	*x = GetHistoryByPackageAndUrlResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[47]
+	mi := &file_proto_miru_core_service_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2580,7 +2810,7 @@ func (x *GetHistoryByPackageAndUrlResponse) String() string {
 func (*GetHistoryByPackageAndUrlResponse) ProtoMessage() {}
 
 func (x *GetHistoryByPackageAndUrlResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[47]
+	mi := &file_proto_miru_core_service_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2593,7 +2823,7 @@ func (x *GetHistoryByPackageAndUrlResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use GetHistoryByPackageAndUrlResponse.ProtoReflect.Descriptor instead.
 func (*GetHistoryByPackageAndUrlResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{47}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *GetHistoryByPackageAndUrlResponse) GetHistory() *History {
@@ -2612,7 +2842,7 @@ type PutHistoryRequest struct {
 
 func (x *PutHistoryRequest) Reset() {
 	*x = PutHistoryRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[48]
+	mi := &file_proto_miru_core_service_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2624,7 +2854,7 @@ func (x *PutHistoryRequest) String() string {
 func (*PutHistoryRequest) ProtoMessage() {}
 
 func (x *PutHistoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[48]
+	mi := &file_proto_miru_core_service_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2637,7 +2867,7 @@ func (x *PutHistoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutHistoryRequest.ProtoReflect.Descriptor instead.
 func (*PutHistoryRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{48}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *PutHistoryRequest) GetHistory() *History {
@@ -2656,7 +2886,7 @@ type PutHistoryResponse struct {
 
 func (x *PutHistoryResponse) Reset() {
 	*x = PutHistoryResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[49]
+	mi := &file_proto_miru_core_service_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2668,7 +2898,7 @@ func (x *PutHistoryResponse) String() string {
 func (*PutHistoryResponse) ProtoMessage() {}
 
 func (x *PutHistoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[49]
+	mi := &file_proto_miru_core_service_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2681,7 +2911,7 @@ func (x *PutHistoryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutHistoryResponse.ProtoReflect.Descriptor instead.
 func (*PutHistoryResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{49}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *PutHistoryResponse) GetHistory() *History {
@@ -2701,7 +2931,7 @@ type DeleteHistoryByPackageAndUrlRequest struct {
 
 func (x *DeleteHistoryByPackageAndUrlRequest) Reset() {
 	*x = DeleteHistoryByPackageAndUrlRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[50]
+	mi := &file_proto_miru_core_service_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2713,7 +2943,7 @@ func (x *DeleteHistoryByPackageAndUrlRequest) String() string {
 func (*DeleteHistoryByPackageAndUrlRequest) ProtoMessage() {}
 
 func (x *DeleteHistoryByPackageAndUrlRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[50]
+	mi := &file_proto_miru_core_service_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2726,7 +2956,7 @@ func (x *DeleteHistoryByPackageAndUrlRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use DeleteHistoryByPackageAndUrlRequest.ProtoReflect.Descriptor instead.
 func (*DeleteHistoryByPackageAndUrlRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{50}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *DeleteHistoryByPackageAndUrlRequest) GetPackage() string {
@@ -2752,7 +2982,7 @@ type DeleteHistoryByPackageAndUrlResponse struct {
 
 func (x *DeleteHistoryByPackageAndUrlResponse) Reset() {
 	*x = DeleteHistoryByPackageAndUrlResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[51]
+	mi := &file_proto_miru_core_service_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2764,7 +2994,7 @@ func (x *DeleteHistoryByPackageAndUrlResponse) String() string {
 func (*DeleteHistoryByPackageAndUrlResponse) ProtoMessage() {}
 
 func (x *DeleteHistoryByPackageAndUrlResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[51]
+	mi := &file_proto_miru_core_service_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2777,7 +3007,7 @@ func (x *DeleteHistoryByPackageAndUrlResponse) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use DeleteHistoryByPackageAndUrlResponse.ProtoReflect.Descriptor instead.
 func (*DeleteHistoryByPackageAndUrlResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{51}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *DeleteHistoryByPackageAndUrlResponse) GetMessage() string {
@@ -2795,7 +3025,7 @@ type DeleteAllHistoryRequest struct {
 
 func (x *DeleteAllHistoryRequest) Reset() {
 	*x = DeleteAllHistoryRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[52]
+	mi := &file_proto_miru_core_service_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2807,7 +3037,7 @@ func (x *DeleteAllHistoryRequest) String() string {
 func (*DeleteAllHistoryRequest) ProtoMessage() {}
 
 func (x *DeleteAllHistoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[52]
+	mi := &file_proto_miru_core_service_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2820,7 +3050,7 @@ func (x *DeleteAllHistoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAllHistoryRequest.ProtoReflect.Descriptor instead.
 func (*DeleteAllHistoryRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{52}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{56}
 }
 
 type DeleteAllHistoryResponse struct {
@@ -2832,7 +3062,7 @@ type DeleteAllHistoryResponse struct {
 
 func (x *DeleteAllHistoryResponse) Reset() {
 	*x = DeleteAllHistoryResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[53]
+	mi := &file_proto_miru_core_service_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2844,7 +3074,7 @@ func (x *DeleteAllHistoryResponse) String() string {
 func (*DeleteAllHistoryResponse) ProtoMessage() {}
 
 func (x *DeleteAllHistoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[53]
+	mi := &file_proto_miru_core_service_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2857,7 +3087,7 @@ func (x *DeleteAllHistoryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAllHistoryResponse.ProtoReflect.Descriptor instead.
 func (*DeleteAllHistoryResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{53}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *DeleteAllHistoryResponse) GetMessage() string {
@@ -2877,7 +3107,7 @@ type GetHistorysFilteredRequest struct {
 
 func (x *GetHistorysFilteredRequest) Reset() {
 	*x = GetHistorysFilteredRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[54]
+	mi := &file_proto_miru_core_service_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2889,7 +3119,7 @@ func (x *GetHistorysFilteredRequest) String() string {
 func (*GetHistorysFilteredRequest) ProtoMessage() {}
 
 func (x *GetHistorysFilteredRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[54]
+	mi := &file_proto_miru_core_service_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2902,7 +3132,7 @@ func (x *GetHistorysFilteredRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHistorysFilteredRequest.ProtoReflect.Descriptor instead.
 func (*GetHistorysFilteredRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{54}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *GetHistorysFilteredRequest) GetType() string {
@@ -2928,7 +3158,7 @@ type GetHistorysFilteredResponse struct {
 
 func (x *GetHistorysFilteredResponse) Reset() {
 	*x = GetHistorysFilteredResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[55]
+	mi := &file_proto_miru_core_service_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2940,7 +3170,7 @@ func (x *GetHistorysFilteredResponse) String() string {
 func (*GetHistorysFilteredResponse) ProtoMessage() {}
 
 func (x *GetHistorysFilteredResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[55]
+	mi := &file_proto_miru_core_service_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2953,7 +3183,7 @@ func (x *GetHistorysFilteredResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetHistorysFilteredResponse.ProtoReflect.Descriptor instead.
 func (*GetHistorysFilteredResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{55}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *GetHistorysFilteredResponse) GetHistories() []*History {
@@ -2972,7 +3202,7 @@ type GetDownloadStatusRequest struct {
 
 func (x *GetDownloadStatusRequest) Reset() {
 	*x = GetDownloadStatusRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[56]
+	mi := &file_proto_miru_core_service_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2984,7 +3214,7 @@ func (x *GetDownloadStatusRequest) String() string {
 func (*GetDownloadStatusRequest) ProtoMessage() {}
 
 func (x *GetDownloadStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[56]
+	mi := &file_proto_miru_core_service_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2997,7 +3227,7 @@ func (x *GetDownloadStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDownloadStatusRequest.ProtoReflect.Descriptor instead.
 func (*GetDownloadStatusRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{56}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{60}
 }
 
 type GetDownloadStatusResponse struct {
@@ -3009,7 +3239,7 @@ type GetDownloadStatusResponse struct {
 
 func (x *GetDownloadStatusResponse) Reset() {
 	*x = GetDownloadStatusResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[57]
+	mi := &file_proto_miru_core_service_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3021,7 +3251,7 @@ func (x *GetDownloadStatusResponse) String() string {
 func (*GetDownloadStatusResponse) ProtoMessage() {}
 
 func (x *GetDownloadStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[57]
+	mi := &file_proto_miru_core_service_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3034,7 +3264,7 @@ func (x *GetDownloadStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDownloadStatusResponse.ProtoReflect.Descriptor instead.
 func (*GetDownloadStatusResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{57}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *GetDownloadStatusResponse) GetDownloadStatus() map[int32]*DownloadProgress {
@@ -3053,7 +3283,7 @@ type CancelDownloadRequest struct {
 
 func (x *CancelDownloadRequest) Reset() {
 	*x = CancelDownloadRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[58]
+	mi := &file_proto_miru_core_service_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3065,7 +3295,7 @@ func (x *CancelDownloadRequest) String() string {
 func (*CancelDownloadRequest) ProtoMessage() {}
 
 func (x *CancelDownloadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[58]
+	mi := &file_proto_miru_core_service_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3078,7 +3308,7 @@ func (x *CancelDownloadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelDownloadRequest.ProtoReflect.Descriptor instead.
 func (*CancelDownloadRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{58}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{62}
 }
 
 func (x *CancelDownloadRequest) GetTaskId() int32 {
@@ -3097,7 +3327,7 @@ type CancelDownloadResponse struct {
 
 func (x *CancelDownloadResponse) Reset() {
 	*x = CancelDownloadResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[59]
+	mi := &file_proto_miru_core_service_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3109,7 +3339,7 @@ func (x *CancelDownloadResponse) String() string {
 func (*CancelDownloadResponse) ProtoMessage() {}
 
 func (x *CancelDownloadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[59]
+	mi := &file_proto_miru_core_service_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3122,7 +3352,7 @@ func (x *CancelDownloadResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelDownloadResponse.ProtoReflect.Descriptor instead.
 func (*CancelDownloadResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{59}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{63}
 }
 
 func (x *CancelDownloadResponse) GetMessage() string {
@@ -3141,7 +3371,7 @@ type ResumeDownloadRequest struct {
 
 func (x *ResumeDownloadRequest) Reset() {
 	*x = ResumeDownloadRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[60]
+	mi := &file_proto_miru_core_service_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3153,7 +3383,7 @@ func (x *ResumeDownloadRequest) String() string {
 func (*ResumeDownloadRequest) ProtoMessage() {}
 
 func (x *ResumeDownloadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[60]
+	mi := &file_proto_miru_core_service_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3166,7 +3396,7 @@ func (x *ResumeDownloadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResumeDownloadRequest.ProtoReflect.Descriptor instead.
 func (*ResumeDownloadRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{60}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{64}
 }
 
 func (x *ResumeDownloadRequest) GetTaskId() int32 {
@@ -3185,7 +3415,7 @@ type ResumeDownloadResponse struct {
 
 func (x *ResumeDownloadResponse) Reset() {
 	*x = ResumeDownloadResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[61]
+	mi := &file_proto_miru_core_service_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3197,7 +3427,7 @@ func (x *ResumeDownloadResponse) String() string {
 func (*ResumeDownloadResponse) ProtoMessage() {}
 
 func (x *ResumeDownloadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[61]
+	mi := &file_proto_miru_core_service_proto_msgTypes[65]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3210,7 +3440,7 @@ func (x *ResumeDownloadResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResumeDownloadResponse.ProtoReflect.Descriptor instead.
 func (*ResumeDownloadResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{61}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{65}
 }
 
 func (x *ResumeDownloadResponse) GetMessage() string {
@@ -3229,7 +3459,7 @@ type PauseDownloadRequest struct {
 
 func (x *PauseDownloadRequest) Reset() {
 	*x = PauseDownloadRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[62]
+	mi := &file_proto_miru_core_service_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3241,7 +3471,7 @@ func (x *PauseDownloadRequest) String() string {
 func (*PauseDownloadRequest) ProtoMessage() {}
 
 func (x *PauseDownloadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[62]
+	mi := &file_proto_miru_core_service_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3254,7 +3484,7 @@ func (x *PauseDownloadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PauseDownloadRequest.ProtoReflect.Descriptor instead.
 func (*PauseDownloadRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{62}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{66}
 }
 
 func (x *PauseDownloadRequest) GetTaskId() int32 {
@@ -3273,7 +3503,7 @@ type PauseDownloadResponse struct {
 
 func (x *PauseDownloadResponse) Reset() {
 	*x = PauseDownloadResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[63]
+	mi := &file_proto_miru_core_service_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3285,7 +3515,7 @@ func (x *PauseDownloadResponse) String() string {
 func (*PauseDownloadResponse) ProtoMessage() {}
 
 func (x *PauseDownloadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[63]
+	mi := &file_proto_miru_core_service_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3298,7 +3528,7 @@ func (x *PauseDownloadResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PauseDownloadResponse.ProtoReflect.Descriptor instead.
 func (*PauseDownloadResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{63}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{67}
 }
 
 func (x *PauseDownloadResponse) GetMessage() string {
@@ -3314,13 +3544,16 @@ type DownloadBangumiRequest struct {
 	DownloadPath  string                 `protobuf:"bytes,2,opt,name=download_path,json=downloadPath,proto3" json:"download_path,omitempty"`
 	Header        map[string]string      `protobuf:"bytes,3,rep,name=header,proto3" json:"header,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	IsHls         bool                   `protobuf:"varint,4,opt,name=is_hls,json=isHls,proto3" json:"is_hls,omitempty"`
+	Package       string                 `protobuf:"bytes,5,opt,name=package,proto3" json:"package,omitempty"`
+	Key           string                 `protobuf:"bytes,6,opt,name=key,proto3" json:"key,omitempty"`
+	Title         string                 `protobuf:"bytes,7,opt,name=title,proto3" json:"title,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DownloadBangumiRequest) Reset() {
 	*x = DownloadBangumiRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[64]
+	mi := &file_proto_miru_core_service_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3332,7 +3565,7 @@ func (x *DownloadBangumiRequest) String() string {
 func (*DownloadBangumiRequest) ProtoMessage() {}
 
 func (x *DownloadBangumiRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[64]
+	mi := &file_proto_miru_core_service_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3345,7 +3578,7 @@ func (x *DownloadBangumiRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DownloadBangumiRequest.ProtoReflect.Descriptor instead.
 func (*DownloadBangumiRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{64}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{68}
 }
 
 func (x *DownloadBangumiRequest) GetUrl() string {
@@ -3376,6 +3609,27 @@ func (x *DownloadBangumiRequest) GetIsHls() bool {
 	return false
 }
 
+func (x *DownloadBangumiRequest) GetPackage() string {
+	if x != nil {
+		return x.Package
+	}
+	return ""
+}
+
+func (x *DownloadBangumiRequest) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *DownloadBangumiRequest) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
 type DownloadBangumiResponse struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	TaskId         int32                  `protobuf:"varint,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
@@ -3387,7 +3641,7 @@ type DownloadBangumiResponse struct {
 
 func (x *DownloadBangumiResponse) Reset() {
 	*x = DownloadBangumiResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[65]
+	mi := &file_proto_miru_core_service_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3399,7 +3653,7 @@ func (x *DownloadBangumiResponse) String() string {
 func (*DownloadBangumiResponse) ProtoMessage() {}
 
 func (x *DownloadBangumiResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[65]
+	mi := &file_proto_miru_core_service_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3412,7 +3666,7 @@ func (x *DownloadBangumiResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DownloadBangumiResponse.ProtoReflect.Descriptor instead.
 func (*DownloadBangumiResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{65}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{69}
 }
 
 func (x *DownloadBangumiResponse) GetTaskId() int32 {
@@ -3436,6 +3690,298 @@ func (x *DownloadBangumiResponse) GetIsDownloading() bool {
 	return false
 }
 
+type Download struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int32                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Url           []string               `protobuf:"bytes,2,rep,name=url,proto3" json:"url,omitempty"`
+	Headers       string                 `protobuf:"bytes,3,opt,name=headers,proto3" json:"headers,omitempty"`
+	Package       string                 `protobuf:"bytes,4,opt,name=package,proto3" json:"package,omitempty"`
+	Progress      []int32                `protobuf:"varint,5,rep,packed,name=progress,proto3" json:"progress,omitempty"`
+	Key           string                 `protobuf:"bytes,6,opt,name=key,proto3" json:"key,omitempty"`
+	Title         string                 `protobuf:"bytes,7,opt,name=title,proto3" json:"title,omitempty"`
+	MediaType     string                 `protobuf:"bytes,8,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
+	Status        string                 `protobuf:"bytes,9,opt,name=status,proto3" json:"status,omitempty"`
+	SavePath      string                 `protobuf:"bytes,10,opt,name=save_path,json=savePath,proto3" json:"save_path,omitempty"`
+	Date          string                 `protobuf:"bytes,11,opt,name=date,proto3" json:"date,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Download) Reset() {
+	*x = Download{}
+	mi := &file_proto_miru_core_service_proto_msgTypes[70]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Download) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Download) ProtoMessage() {}
+
+func (x *Download) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_miru_core_service_proto_msgTypes[70]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Download.ProtoReflect.Descriptor instead.
+func (*Download) Descriptor() ([]byte, []int) {
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{70}
+}
+
+func (x *Download) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Download) GetUrl() []string {
+	if x != nil {
+		return x.Url
+	}
+	return nil
+}
+
+func (x *Download) GetHeaders() string {
+	if x != nil {
+		return x.Headers
+	}
+	return ""
+}
+
+func (x *Download) GetPackage() string {
+	if x != nil {
+		return x.Package
+	}
+	return ""
+}
+
+func (x *Download) GetProgress() []int32 {
+	if x != nil {
+		return x.Progress
+	}
+	return nil
+}
+
+func (x *Download) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *Download) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *Download) GetMediaType() string {
+	if x != nil {
+		return x.MediaType
+	}
+	return ""
+}
+
+func (x *Download) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *Download) GetSavePath() string {
+	if x != nil {
+		return x.SavePath
+	}
+	return ""
+}
+
+func (x *Download) GetDate() string {
+	if x != nil {
+		return x.Date
+	}
+	return ""
+}
+
+type GetAllDownloadsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAllDownloadsRequest) Reset() {
+	*x = GetAllDownloadsRequest{}
+	mi := &file_proto_miru_core_service_proto_msgTypes[71]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAllDownloadsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAllDownloadsRequest) ProtoMessage() {}
+
+func (x *GetAllDownloadsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_miru_core_service_proto_msgTypes[71]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAllDownloadsRequest.ProtoReflect.Descriptor instead.
+func (*GetAllDownloadsRequest) Descriptor() ([]byte, []int) {
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{71}
+}
+
+type GetAllDownloadsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Downloads     []*Download            `protobuf:"bytes,1,rep,name=downloads,proto3" json:"downloads,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetAllDownloadsResponse) Reset() {
+	*x = GetAllDownloadsResponse{}
+	mi := &file_proto_miru_core_service_proto_msgTypes[72]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetAllDownloadsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetAllDownloadsResponse) ProtoMessage() {}
+
+func (x *GetAllDownloadsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_miru_core_service_proto_msgTypes[72]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetAllDownloadsResponse.ProtoReflect.Descriptor instead.
+func (*GetAllDownloadsResponse) Descriptor() ([]byte, []int) {
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{72}
+}
+
+func (x *GetAllDownloadsResponse) GetDownloads() []*Download {
+	if x != nil {
+		return x.Downloads
+	}
+	return nil
+}
+
+type DeleteDownloadRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int32                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteDownloadRequest) Reset() {
+	*x = DeleteDownloadRequest{}
+	mi := &file_proto_miru_core_service_proto_msgTypes[73]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteDownloadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteDownloadRequest) ProtoMessage() {}
+
+func (x *DeleteDownloadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_miru_core_service_proto_msgTypes[73]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteDownloadRequest.ProtoReflect.Descriptor instead.
+func (*DeleteDownloadRequest) Descriptor() ([]byte, []int) {
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{73}
+}
+
+func (x *DeleteDownloadRequest) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+type DeleteDownloadResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteDownloadResponse) Reset() {
+	*x = DeleteDownloadResponse{}
+	mi := &file_proto_miru_core_service_proto_msgTypes[74]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteDownloadResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteDownloadResponse) ProtoMessage() {}
+
+func (x *DeleteDownloadResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_miru_core_service_proto_msgTypes[74]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteDownloadResponse.ProtoReflect.Descriptor instead.
+func (*DeleteDownloadResponse) Descriptor() ([]byte, []int) {
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{74}
+}
+
+func (x *DeleteDownloadResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 type AvailableHlsVariant struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Resolution    string                 `protobuf:"bytes,1,opt,name=resolution,proto3" json:"resolution,omitempty"`
@@ -3447,7 +3993,7 @@ type AvailableHlsVariant struct {
 
 func (x *AvailableHlsVariant) Reset() {
 	*x = AvailableHlsVariant{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[66]
+	mi := &file_proto_miru_core_service_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3459,7 +4005,7 @@ func (x *AvailableHlsVariant) String() string {
 func (*AvailableHlsVariant) ProtoMessage() {}
 
 func (x *AvailableHlsVariant) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[66]
+	mi := &file_proto_miru_core_service_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3472,7 +4018,7 @@ func (x *AvailableHlsVariant) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AvailableHlsVariant.ProtoReflect.Descriptor instead.
 func (*AvailableHlsVariant) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{66}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{75}
 }
 
 func (x *AvailableHlsVariant) GetResolution() string {
@@ -3508,7 +4054,7 @@ type TorrentResult struct {
 
 func (x *TorrentResult) Reset() {
 	*x = TorrentResult{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[67]
+	mi := &file_proto_miru_core_service_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3520,7 +4066,7 @@ func (x *TorrentResult) String() string {
 func (*TorrentResult) ProtoMessage() {}
 
 func (x *TorrentResult) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[67]
+	mi := &file_proto_miru_core_service_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3533,7 +4079,7 @@ func (x *TorrentResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TorrentResult.ProtoReflect.Descriptor instead.
 func (*TorrentResult) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{67}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{76}
 }
 
 func (x *TorrentResult) GetInfoHash() string {
@@ -3565,7 +4111,7 @@ type ListTorrentRequest struct {
 
 func (x *ListTorrentRequest) Reset() {
 	*x = ListTorrentRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[68]
+	mi := &file_proto_miru_core_service_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3577,7 +4123,7 @@ func (x *ListTorrentRequest) String() string {
 func (*ListTorrentRequest) ProtoMessage() {}
 
 func (x *ListTorrentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[68]
+	mi := &file_proto_miru_core_service_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3590,7 +4136,7 @@ func (x *ListTorrentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTorrentRequest.ProtoReflect.Descriptor instead.
 func (*ListTorrentRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{68}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{77}
 }
 
 type ListTorrentResponse struct {
@@ -3602,7 +4148,7 @@ type ListTorrentResponse struct {
 
 func (x *ListTorrentResponse) Reset() {
 	*x = ListTorrentResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[69]
+	mi := &file_proto_miru_core_service_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3614,7 +4160,7 @@ func (x *ListTorrentResponse) String() string {
 func (*ListTorrentResponse) ProtoMessage() {}
 
 func (x *ListTorrentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[69]
+	mi := &file_proto_miru_core_service_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3627,7 +4173,7 @@ func (x *ListTorrentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTorrentResponse.ProtoReflect.Descriptor instead.
 func (*ListTorrentResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{69}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{78}
 }
 
 func (x *ListTorrentResponse) GetTorrents() []*TorrentResult {
@@ -3640,13 +4186,15 @@ func (x *ListTorrentResponse) GetTorrents() []*TorrentResult {
 type AddTorrentRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Torrent       []byte                 `protobuf:"bytes,1,opt,name=torrent,proto3" json:"torrent,omitempty"`
+	Package       string                 `protobuf:"bytes,2,opt,name=package,proto3" json:"package,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddTorrentRequest) Reset() {
 	*x = AddTorrentRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[70]
+	mi := &file_proto_miru_core_service_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3658,7 +4206,7 @@ func (x *AddTorrentRequest) String() string {
 func (*AddTorrentRequest) ProtoMessage() {}
 
 func (x *AddTorrentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[70]
+	mi := &file_proto_miru_core_service_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3671,7 +4219,7 @@ func (x *AddTorrentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddTorrentRequest.ProtoReflect.Descriptor instead.
 func (*AddTorrentRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{70}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{79}
 }
 
 func (x *AddTorrentRequest) GetTorrent() []byte {
@@ -3679,6 +4227,20 @@ func (x *AddTorrentRequest) GetTorrent() []byte {
 		return x.Torrent
 	}
 	return nil
+}
+
+func (x *AddTorrentRequest) GetPackage() string {
+	if x != nil {
+		return x.Package
+	}
+	return ""
+}
+
+func (x *AddTorrentRequest) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
 }
 
 type AddTorrentResponse struct {
@@ -3692,7 +4254,7 @@ type AddTorrentResponse struct {
 
 func (x *AddTorrentResponse) Reset() {
 	*x = AddTorrentResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[71]
+	mi := &file_proto_miru_core_service_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3704,7 +4266,7 @@ func (x *AddTorrentResponse) String() string {
 func (*AddTorrentResponse) ProtoMessage() {}
 
 func (x *AddTorrentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[71]
+	mi := &file_proto_miru_core_service_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3717,7 +4279,7 @@ func (x *AddTorrentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddTorrentResponse.ProtoReflect.Descriptor instead.
 func (*AddTorrentResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{71}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{80}
 }
 
 func (x *AddTorrentResponse) GetInfoHash() string {
@@ -3750,7 +4312,7 @@ type DeleteTorrentRequest struct {
 
 func (x *DeleteTorrentRequest) Reset() {
 	*x = DeleteTorrentRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[72]
+	mi := &file_proto_miru_core_service_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3762,7 +4324,7 @@ func (x *DeleteTorrentRequest) String() string {
 func (*DeleteTorrentRequest) ProtoMessage() {}
 
 func (x *DeleteTorrentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[72]
+	mi := &file_proto_miru_core_service_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3775,7 +4337,7 @@ func (x *DeleteTorrentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteTorrentRequest.ProtoReflect.Descriptor instead.
 func (*DeleteTorrentRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{72}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{81}
 }
 
 func (x *DeleteTorrentRequest) GetInfoHash() string {
@@ -3794,7 +4356,7 @@ type DeleteTorrentResponse struct {
 
 func (x *DeleteTorrentResponse) Reset() {
 	*x = DeleteTorrentResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[73]
+	mi := &file_proto_miru_core_service_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3806,7 +4368,7 @@ func (x *DeleteTorrentResponse) String() string {
 func (*DeleteTorrentResponse) ProtoMessage() {}
 
 func (x *DeleteTorrentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[73]
+	mi := &file_proto_miru_core_service_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3819,7 +4381,7 @@ func (x *DeleteTorrentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteTorrentResponse.ProtoReflect.Descriptor instead.
 func (*DeleteTorrentResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{73}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{82}
 }
 
 func (x *DeleteTorrentResponse) GetMessage() string {
@@ -3832,13 +4394,15 @@ func (x *DeleteTorrentResponse) GetMessage() string {
 type AddMagnetRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
+	Package       string                 `protobuf:"bytes,2,opt,name=package,proto3" json:"package,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddMagnetRequest) Reset() {
 	*x = AddMagnetRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[74]
+	mi := &file_proto_miru_core_service_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3850,7 +4414,7 @@ func (x *AddMagnetRequest) String() string {
 func (*AddMagnetRequest) ProtoMessage() {}
 
 func (x *AddMagnetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[74]
+	mi := &file_proto_miru_core_service_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3863,12 +4427,26 @@ func (x *AddMagnetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddMagnetRequest.ProtoReflect.Descriptor instead.
 func (*AddMagnetRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{74}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{83}
 }
 
 func (x *AddMagnetRequest) GetUrl() string {
 	if x != nil {
 		return x.Url
+	}
+	return ""
+}
+
+func (x *AddMagnetRequest) GetPackage() string {
+	if x != nil {
+		return x.Package
+	}
+	return ""
+}
+
+func (x *AddMagnetRequest) GetTitle() string {
+	if x != nil {
+		return x.Title
 	}
 	return ""
 }
@@ -3884,7 +4462,7 @@ type AddMagnetResponse struct {
 
 func (x *AddMagnetResponse) Reset() {
 	*x = AddMagnetResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[75]
+	mi := &file_proto_miru_core_service_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3896,7 +4474,7 @@ func (x *AddMagnetResponse) String() string {
 func (*AddMagnetResponse) ProtoMessage() {}
 
 func (x *AddMagnetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[75]
+	mi := &file_proto_miru_core_service_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3909,7 +4487,7 @@ func (x *AddMagnetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddMagnetResponse.ProtoReflect.Descriptor instead.
 func (*AddMagnetResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{75}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{84}
 }
 
 func (x *AddMagnetResponse) GetInfoHash() string {
@@ -3942,7 +4520,7 @@ type GetReposRequest struct {
 
 func (x *GetReposRequest) Reset() {
 	*x = GetReposRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[76]
+	mi := &file_proto_miru_core_service_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3954,7 +4532,7 @@ func (x *GetReposRequest) String() string {
 func (*GetReposRequest) ProtoMessage() {}
 
 func (x *GetReposRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[76]
+	mi := &file_proto_miru_core_service_proto_msgTypes[85]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3967,7 +4545,7 @@ func (x *GetReposRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReposRequest.ProtoReflect.Descriptor instead.
 func (*GetReposRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{76}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{85}
 }
 
 type GetReposResponse struct {
@@ -3979,7 +4557,7 @@ type GetReposResponse struct {
 
 func (x *GetReposResponse) Reset() {
 	*x = GetReposResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[77]
+	mi := &file_proto_miru_core_service_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3991,7 +4569,7 @@ func (x *GetReposResponse) String() string {
 func (*GetReposResponse) ProtoMessage() {}
 
 func (x *GetReposResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[77]
+	mi := &file_proto_miru_core_service_proto_msgTypes[86]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4004,7 +4582,7 @@ func (x *GetReposResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReposResponse.ProtoReflect.Descriptor instead.
 func (*GetReposResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{77}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{86}
 }
 
 func (x *GetReposResponse) GetData() string {
@@ -4024,7 +4602,7 @@ type SetRepoRequest struct {
 
 func (x *SetRepoRequest) Reset() {
 	*x = SetRepoRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[78]
+	mi := &file_proto_miru_core_service_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4036,7 +4614,7 @@ func (x *SetRepoRequest) String() string {
 func (*SetRepoRequest) ProtoMessage() {}
 
 func (x *SetRepoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[78]
+	mi := &file_proto_miru_core_service_proto_msgTypes[87]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4049,7 +4627,7 @@ func (x *SetRepoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetRepoRequest.ProtoReflect.Descriptor instead.
 func (*SetRepoRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{78}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{87}
 }
 
 func (x *SetRepoRequest) GetRepoUrl() string {
@@ -4075,7 +4653,7 @@ type SetRepoResponse struct {
 
 func (x *SetRepoResponse) Reset() {
 	*x = SetRepoResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[79]
+	mi := &file_proto_miru_core_service_proto_msgTypes[88]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4087,7 +4665,7 @@ func (x *SetRepoResponse) String() string {
 func (*SetRepoResponse) ProtoMessage() {}
 
 func (x *SetRepoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[79]
+	mi := &file_proto_miru_core_service_proto_msgTypes[88]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4100,7 +4678,7 @@ func (x *SetRepoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetRepoResponse.ProtoReflect.Descriptor instead.
 func (*SetRepoResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{79}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{88}
 }
 
 func (x *SetRepoResponse) GetMessage() string {
@@ -4119,7 +4697,7 @@ type DeleteRepoRequest struct {
 
 func (x *DeleteRepoRequest) Reset() {
 	*x = DeleteRepoRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[80]
+	mi := &file_proto_miru_core_service_proto_msgTypes[89]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4131,7 +4709,7 @@ func (x *DeleteRepoRequest) String() string {
 func (*DeleteRepoRequest) ProtoMessage() {}
 
 func (x *DeleteRepoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[80]
+	mi := &file_proto_miru_core_service_proto_msgTypes[89]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4144,7 +4722,7 @@ func (x *DeleteRepoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRepoRequest.ProtoReflect.Descriptor instead.
 func (*DeleteRepoRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{80}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{89}
 }
 
 func (x *DeleteRepoRequest) GetRepoUrl() string {
@@ -4163,7 +4741,7 @@ type DeleteRepoResponse struct {
 
 func (x *DeleteRepoResponse) Reset() {
 	*x = DeleteRepoResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[81]
+	mi := &file_proto_miru_core_service_proto_msgTypes[90]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4175,7 +4753,7 @@ func (x *DeleteRepoResponse) String() string {
 func (*DeleteRepoResponse) ProtoMessage() {}
 
 func (x *DeleteRepoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[81]
+	mi := &file_proto_miru_core_service_proto_msgTypes[90]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4188,7 +4766,7 @@ func (x *DeleteRepoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRepoResponse.ProtoReflect.Descriptor instead.
 func (*DeleteRepoResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{81}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{90}
 }
 
 func (x *DeleteRepoResponse) GetMessage() string {
@@ -4206,7 +4784,7 @@ type FetchRepoListRequest struct {
 
 func (x *FetchRepoListRequest) Reset() {
 	*x = FetchRepoListRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[82]
+	mi := &file_proto_miru_core_service_proto_msgTypes[91]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4218,7 +4796,7 @@ func (x *FetchRepoListRequest) String() string {
 func (*FetchRepoListRequest) ProtoMessage() {}
 
 func (x *FetchRepoListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[82]
+	mi := &file_proto_miru_core_service_proto_msgTypes[91]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4231,7 +4809,7 @@ func (x *FetchRepoListRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FetchRepoListRequest.ProtoReflect.Descriptor instead.
 func (*FetchRepoListRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{82}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{91}
 }
 
 type FetchRepoListResponse struct {
@@ -4243,7 +4821,7 @@ type FetchRepoListResponse struct {
 
 func (x *FetchRepoListResponse) Reset() {
 	*x = FetchRepoListResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[83]
+	mi := &file_proto_miru_core_service_proto_msgTypes[92]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4255,7 +4833,7 @@ func (x *FetchRepoListResponse) String() string {
 func (*FetchRepoListResponse) ProtoMessage() {}
 
 func (x *FetchRepoListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[83]
+	mi := &file_proto_miru_core_service_proto_msgTypes[92]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4268,7 +4846,7 @@ func (x *FetchRepoListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FetchRepoListResponse.ProtoReflect.Descriptor instead.
 func (*FetchRepoListResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{83}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{92}
 }
 
 func (x *FetchRepoListResponse) GetData() string {
@@ -4289,7 +4867,7 @@ type DownloadExtensionRequest struct {
 
 func (x *DownloadExtensionRequest) Reset() {
 	*x = DownloadExtensionRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[84]
+	mi := &file_proto_miru_core_service_proto_msgTypes[93]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4301,7 +4879,7 @@ func (x *DownloadExtensionRequest) String() string {
 func (*DownloadExtensionRequest) ProtoMessage() {}
 
 func (x *DownloadExtensionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[84]
+	mi := &file_proto_miru_core_service_proto_msgTypes[93]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4314,7 +4892,7 @@ func (x *DownloadExtensionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DownloadExtensionRequest.ProtoReflect.Descriptor instead.
 func (*DownloadExtensionRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{84}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{93}
 }
 
 func (x *DownloadExtensionRequest) GetRepoUrl() string {
@@ -4340,7 +4918,7 @@ type DownloadExtensionResponse struct {
 
 func (x *DownloadExtensionResponse) Reset() {
 	*x = DownloadExtensionResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[85]
+	mi := &file_proto_miru_core_service_proto_msgTypes[94]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4352,7 +4930,7 @@ func (x *DownloadExtensionResponse) String() string {
 func (*DownloadExtensionResponse) ProtoMessage() {}
 
 func (x *DownloadExtensionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[85]
+	mi := &file_proto_miru_core_service_proto_msgTypes[94]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4365,7 +4943,7 @@ func (x *DownloadExtensionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DownloadExtensionResponse.ProtoReflect.Descriptor instead.
 func (*DownloadExtensionResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{85}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{94}
 }
 
 func (x *DownloadExtensionResponse) GetMessage() string {
@@ -4384,7 +4962,7 @@ type RemoveExtensionRequest struct {
 
 func (x *RemoveExtensionRequest) Reset() {
 	*x = RemoveExtensionRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[86]
+	mi := &file_proto_miru_core_service_proto_msgTypes[95]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4396,7 +4974,7 @@ func (x *RemoveExtensionRequest) String() string {
 func (*RemoveExtensionRequest) ProtoMessage() {}
 
 func (x *RemoveExtensionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[86]
+	mi := &file_proto_miru_core_service_proto_msgTypes[95]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4409,7 +4987,7 @@ func (x *RemoveExtensionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveExtensionRequest.ProtoReflect.Descriptor instead.
 func (*RemoveExtensionRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{86}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{95}
 }
 
 func (x *RemoveExtensionRequest) GetPkg() string {
@@ -4428,7 +5006,7 @@ type RemoveExtensionResponse struct {
 
 func (x *RemoveExtensionResponse) Reset() {
 	*x = RemoveExtensionResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[87]
+	mi := &file_proto_miru_core_service_proto_msgTypes[96]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4440,7 +5018,7 @@ func (x *RemoveExtensionResponse) String() string {
 func (*RemoveExtensionResponse) ProtoMessage() {}
 
 func (x *RemoveExtensionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[87]
+	mi := &file_proto_miru_core_service_proto_msgTypes[96]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4453,7 +5031,7 @@ func (x *RemoveExtensionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveExtensionResponse.ProtoReflect.Descriptor instead.
 func (*RemoveExtensionResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{87}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{96}
 }
 
 func (x *RemoveExtensionResponse) GetMessage() string {
@@ -4474,7 +5052,7 @@ type SetCookieRequest struct {
 
 func (x *SetCookieRequest) Reset() {
 	*x = SetCookieRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[88]
+	mi := &file_proto_miru_core_service_proto_msgTypes[97]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4486,7 +5064,7 @@ func (x *SetCookieRequest) String() string {
 func (*SetCookieRequest) ProtoMessage() {}
 
 func (x *SetCookieRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[88]
+	mi := &file_proto_miru_core_service_proto_msgTypes[97]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4499,7 +5077,7 @@ func (x *SetCookieRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetCookieRequest.ProtoReflect.Descriptor instead.
 func (*SetCookieRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{88}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{97}
 }
 
 func (x *SetCookieRequest) GetCookie() string {
@@ -4525,7 +5103,7 @@ type SetCookieResponse struct {
 
 func (x *SetCookieResponse) Reset() {
 	*x = SetCookieResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[89]
+	mi := &file_proto_miru_core_service_proto_msgTypes[98]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4537,7 +5115,7 @@ func (x *SetCookieResponse) String() string {
 func (*SetCookieResponse) ProtoMessage() {}
 
 func (x *SetCookieResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[89]
+	mi := &file_proto_miru_core_service_proto_msgTypes[98]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4550,7 +5128,7 @@ func (x *SetCookieResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetCookieResponse.ProtoReflect.Descriptor instead.
 func (*SetCookieResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{89}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{98}
 }
 
 func (x *SetCookieResponse) GetMessage() string {
@@ -4579,7 +5157,7 @@ type Detail struct {
 
 func (x *Detail) Reset() {
 	*x = Detail{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[90]
+	mi := &file_proto_miru_core_service_proto_msgTypes[99]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4591,7 +5169,7 @@ func (x *Detail) String() string {
 func (*Detail) ProtoMessage() {}
 
 func (x *Detail) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[90]
+	mi := &file_proto_miru_core_service_proto_msgTypes[99]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4604,7 +5182,7 @@ func (x *Detail) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Detail.ProtoReflect.Descriptor instead.
 func (*Detail) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{90}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{99}
 }
 
 func (x *Detail) GetId() int32 {
@@ -4680,7 +5258,7 @@ type GetDetailRequest struct {
 
 func (x *GetDetailRequest) Reset() {
 	*x = GetDetailRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[91]
+	mi := &file_proto_miru_core_service_proto_msgTypes[100]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4692,7 +5270,7 @@ func (x *GetDetailRequest) String() string {
 func (*GetDetailRequest) ProtoMessage() {}
 
 func (x *GetDetailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[91]
+	mi := &file_proto_miru_core_service_proto_msgTypes[100]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4705,7 +5283,7 @@ func (x *GetDetailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDetailRequest.ProtoReflect.Descriptor instead.
 func (*GetDetailRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{91}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{100}
 }
 
 func (x *GetDetailRequest) GetPackage() string {
@@ -4731,7 +5309,7 @@ type GetDetailResponse struct {
 
 func (x *GetDetailResponse) Reset() {
 	*x = GetDetailResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[92]
+	mi := &file_proto_miru_core_service_proto_msgTypes[101]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4743,7 +5321,7 @@ func (x *GetDetailResponse) String() string {
 func (*GetDetailResponse) ProtoMessage() {}
 
 func (x *GetDetailResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[92]
+	mi := &file_proto_miru_core_service_proto_msgTypes[101]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4756,7 +5334,7 @@ func (x *GetDetailResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDetailResponse.ProtoReflect.Descriptor instead.
 func (*GetDetailResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{92}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{101}
 }
 
 func (x *GetDetailResponse) GetDetail() *Detail {
@@ -4782,7 +5360,7 @@ type UpsertDetailRequest struct {
 
 func (x *UpsertDetailRequest) Reset() {
 	*x = UpsertDetailRequest{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[93]
+	mi := &file_proto_miru_core_service_proto_msgTypes[102]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4794,7 +5372,7 @@ func (x *UpsertDetailRequest) String() string {
 func (*UpsertDetailRequest) ProtoMessage() {}
 
 func (x *UpsertDetailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[93]
+	mi := &file_proto_miru_core_service_proto_msgTypes[102]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4807,7 +5385,7 @@ func (x *UpsertDetailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertDetailRequest.ProtoReflect.Descriptor instead.
 func (*UpsertDetailRequest) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{93}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{102}
 }
 
 func (x *UpsertDetailRequest) GetTitle() string {
@@ -4875,7 +5453,7 @@ type UpsertDetailResponse struct {
 
 func (x *UpsertDetailResponse) Reset() {
 	*x = UpsertDetailResponse{}
-	mi := &file_proto_miru_core_service_proto_msgTypes[94]
+	mi := &file_proto_miru_core_service_proto_msgTypes[103]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4887,7 +5465,7 @@ func (x *UpsertDetailResponse) String() string {
 func (*UpsertDetailResponse) ProtoMessage() {}
 
 func (x *UpsertDetailResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_miru_core_service_proto_msgTypes[94]
+	mi := &file_proto_miru_core_service_proto_msgTypes[103]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4900,7 +5478,7 @@ func (x *UpsertDetailResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertDetailResponse.ProtoReflect.Descriptor instead.
 func (*UpsertDetailResponse) Descriptor() ([]byte, []int) {
-	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{94}
+	return file_proto_miru_core_service_proto_rawDescGZIP(), []int{103}
 }
 
 func (x *UpsertDetailResponse) GetDetail() *Detail {
@@ -4914,7 +5492,19 @@ var File_proto_miru_core_service_proto protoreflect.FileDescriptor
 
 const file_proto_miru_core_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1dproto/miru_core_service.proto\x12\x04miru\"]\n" +
+	"\x1dproto/miru_core_service.proto\x12\x04miru\"\x14\n" +
+	"\x12WatchEventsRequest\"\x9d\x01\n" +
+	"\x13WatchEventsResponse\x12<\n" +
+	"\x0edownload_event\x18\x01 \x01(\v2\x13.miru.DownloadEventH\x00R\rdownloadEvent\x12?\n" +
+	"\x0fextension_event\x18\x02 \x01(\v2\x14.miru.ExtensionEventH\x00R\x0eextensionEventB\a\n" +
+	"\x05event\"\xbc\x01\n" +
+	"\rDownloadEvent\x12P\n" +
+	"\x0fdownload_status\x18\x01 \x03(\v2'.miru.DownloadEvent.DownloadStatusEntryR\x0edownloadStatus\x1aY\n" +
+	"\x13DownloadStatusEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\x05R\x03key\x12,\n" +
+	"\x05value\x18\x02 \x01(\v2\x16.miru.DownloadProgressR\x05value:\x028\x01\"L\n" +
+	"\x0eExtensionEvent\x12:\n" +
+	"\x0eextension_meta\x18\x01 \x03(\v2\x13.miru.ExtensionMetaR\rextensionMeta\"]\n" +
 	"\rSearchRequest\x12\x10\n" +
 	"\x03pkg\x18\x01 \x01(\tR\x03pkg\x12\x0e\n" +
 	"\x02kw\x18\x02 \x01(\tR\x02kw\x12\x12\n" +
@@ -4964,7 +5554,7 @@ const file_proto_miru_core_service_proto_rawDesc = "" +
 	" \x03(\tR\x04tags\x12\x10\n" +
 	"\x03api\x18\v \x01(\tR\x03api\x12\x14\n" +
 	"\x05error\x18\f \x01(\tR\x05error\x12\x12\n" +
-	"\x04type\x18\r \x01(\tR\x04type\"\xdb\x01\n" +
+	"\x04type\x18\r \x01(\tR\x04type\"\x9d\x02\n" +
 	"\x10DownloadProgress\x12\x1a\n" +
 	"\bprogress\x18\x01 \x01(\x05R\bprogress\x12\x14\n" +
 	"\x05names\x18\x02 \x03(\tR\x05names\x12\x14\n" +
@@ -4973,7 +5563,11 @@ const file_proto_miru_core_service_proto_rawDesc = "" +
 	"\n" +
 	"media_type\x18\x05 \x01(\tR\tmediaType\x12/\n" +
 	"\x13current_downloading\x18\x06 \x01(\tR\x12currentDownloading\x12\x17\n" +
-	"\atask_id\x18\a \x01(\x05R\x06taskId\"H\n" +
+	"\atask_id\x18\a \x01(\x05R\x06taskId\x12\x14\n" +
+	"\x05title\x18\b \x01(\tR\x05title\x12\x18\n" +
+	"\apackage\x18\t \x01(\tR\apackage\x12\x10\n" +
+	"\x03key\x18\n" +
+	" \x01(\tR\x03key\"H\n" +
 	"\fTorrentStats\x12\x1d\n" +
 	"\n" +
 	"total_down\x18\x01 \x01(\x03R\ttotalDown\x12\x19\n" +
@@ -5114,19 +5708,43 @@ const file_proto_miru_core_service_proto_rawDesc = "" +
 	"\x14PauseDownloadRequest\x12\x17\n" +
 	"\atask_id\x18\x01 \x01(\x05R\x06taskId\"1\n" +
 	"\x15PauseDownloadResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"\xe3\x01\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"\xa5\x02\n" +
 	"\x16DownloadBangumiRequest\x12\x10\n" +
 	"\x03url\x18\x01 \x01(\tR\x03url\x12#\n" +
 	"\rdownload_path\x18\x02 \x01(\tR\fdownloadPath\x12@\n" +
 	"\x06header\x18\x03 \x03(\v2(.miru.DownloadBangumiRequest.HeaderEntryR\x06header\x12\x15\n" +
-	"\x06is_hls\x18\x04 \x01(\bR\x05isHls\x1a9\n" +
+	"\x06is_hls\x18\x04 \x01(\bR\x05isHls\x12\x18\n" +
+	"\apackage\x18\x05 \x01(\tR\apackage\x12\x10\n" +
+	"\x03key\x18\x06 \x01(\tR\x03key\x12\x14\n" +
+	"\x05title\x18\a \x01(\tR\x05title\x1a9\n" +
 	"\vHeaderEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9d\x01\n" +
 	"\x17DownloadBangumiResponse\x12\x17\n" +
 	"\atask_id\x18\x01 \x01(\x05R\x06taskId\x12B\n" +
 	"\x0fvariant_summary\x18\x02 \x03(\v2\x19.miru.AvailableHlsVariantR\x0evariantSummary\x12%\n" +
-	"\x0eis_downloading\x18\x03 \x01(\bR\risDownloading\"]\n" +
+	"\x0eis_downloading\x18\x03 \x01(\bR\risDownloading\"\x8c\x02\n" +
+	"\bDownload\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x10\n" +
+	"\x03url\x18\x02 \x03(\tR\x03url\x12\x18\n" +
+	"\aheaders\x18\x03 \x01(\tR\aheaders\x12\x18\n" +
+	"\apackage\x18\x04 \x01(\tR\apackage\x12\x1a\n" +
+	"\bprogress\x18\x05 \x03(\x05R\bprogress\x12\x10\n" +
+	"\x03key\x18\x06 \x01(\tR\x03key\x12\x14\n" +
+	"\x05title\x18\a \x01(\tR\x05title\x12\x1d\n" +
+	"\n" +
+	"media_type\x18\b \x01(\tR\tmediaType\x12\x16\n" +
+	"\x06status\x18\t \x01(\tR\x06status\x12\x1b\n" +
+	"\tsave_path\x18\n" +
+	" \x01(\tR\bsavePath\x12\x12\n" +
+	"\x04date\x18\v \x01(\tR\x04date\"\x18\n" +
+	"\x16GetAllDownloadsRequest\"G\n" +
+	"\x17GetAllDownloadsResponse\x12,\n" +
+	"\tdownloads\x18\x01 \x03(\v2\x0e.miru.DownloadR\tdownloads\"'\n" +
+	"\x15DeleteDownloadRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x05R\x02id\"2\n" +
+	"\x16DeleteDownloadResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"]\n" +
 	"\x13AvailableHlsVariant\x12\x1e\n" +
 	"\n" +
 	"resolution\x18\x01 \x01(\tR\n" +
@@ -5139,9 +5757,11 @@ const file_proto_miru_core_service_proto_rawDesc = "" +
 	"\x05files\x18\x03 \x03(\tR\x05files\"\x14\n" +
 	"\x12ListTorrentRequest\"F\n" +
 	"\x13ListTorrentResponse\x12/\n" +
-	"\btorrents\x18\x01 \x03(\v2\x13.miru.TorrentResultR\btorrents\"-\n" +
+	"\btorrents\x18\x01 \x03(\v2\x13.miru.TorrentResultR\btorrents\"]\n" +
 	"\x11AddTorrentRequest\x12\x18\n" +
-	"\atorrent\x18\x01 \x01(\fR\atorrent\"h\n" +
+	"\atorrent\x18\x01 \x01(\fR\atorrent\x12\x18\n" +
+	"\apackage\x18\x02 \x01(\tR\apackage\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\"h\n" +
 	"\x12AddTorrentResponse\x12\x1b\n" +
 	"\tinfo_hash\x18\x01 \x01(\tR\binfoHash\x12\x1f\n" +
 	"\vdetail_json\x18\x02 \x01(\tR\n" +
@@ -5150,9 +5770,11 @@ const file_proto_miru_core_service_proto_rawDesc = "" +
 	"\x14DeleteTorrentRequest\x12\x1b\n" +
 	"\tinfo_hash\x18\x01 \x01(\tR\binfoHash\"1\n" +
 	"\x15DeleteTorrentResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"$\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"T\n" +
 	"\x10AddMagnetRequest\x12\x10\n" +
-	"\x03url\x18\x01 \x01(\tR\x03url\"g\n" +
+	"\x03url\x18\x01 \x01(\tR\x03url\x12\x18\n" +
+	"\apackage\x18\x02 \x01(\tR\apackage\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\"g\n" +
 	"\x11AddMagnetResponse\x12\x1b\n" +
 	"\tinfo_hash\x18\x01 \x01(\tR\binfoHash\x12\x1f\n" +
 	"\vdetail_json\x18\x02 \x01(\tR\n" +
@@ -5231,7 +5853,7 @@ const file_proto_miru_core_service_proto_rawDesc = "" +
 	"\n" +
 	"\b_headers\"<\n" +
 	"\x14UpsertDetailResponse\x12$\n" +
-	"\x06detail\x18\x01 \x01(\v2\f.miru.DetailR\x06detail2\xc5\x19\n" +
+	"\x06detail\x18\x01 \x01(\v2\f.miru.DetailR\x06detail2\xa8\x1b\n" +
 	"\x0fMiruCoreService\x12<\n" +
 	"\tHelloMiru\x12\x16.miru.HelloMiruRequest\x1a\x17.miru.HelloMiruResponse\x12H\n" +
 	"\rGetAppSetting\x12\x1a.miru.GetAppSettingRequest\x1a\x1b.miru.GetAppSettingResponse\x12H\n" +
@@ -5264,7 +5886,9 @@ const file_proto_miru_core_service_proto_rawDesc = "" +
 	"\x0eCancelDownload\x12\x1b.miru.CancelDownloadRequest\x1a\x1c.miru.CancelDownloadResponse\x12K\n" +
 	"\x0eResumeDownload\x12\x1b.miru.ResumeDownloadRequest\x1a\x1c.miru.ResumeDownloadResponse\x12H\n" +
 	"\rPauseDownload\x12\x1a.miru.PauseDownloadRequest\x1a\x1b.miru.PauseDownloadResponse\x12N\n" +
-	"\x0fDownloadBangumi\x12\x1c.miru.DownloadBangumiRequest\x1a\x1d.miru.DownloadBangumiResponse\x12B\n" +
+	"\x0fDownloadBangumi\x12\x1c.miru.DownloadBangumiRequest\x1a\x1d.miru.DownloadBangumiResponse\x12N\n" +
+	"\x0fGetAllDownloads\x12\x1c.miru.GetAllDownloadsRequest\x1a\x1d.miru.GetAllDownloadsResponse\x12K\n" +
+	"\x0eDeleteDownload\x12\x1b.miru.DeleteDownloadRequest\x1a\x1c.miru.DeleteDownloadResponse\x12B\n" +
 	"\vListTorrent\x12\x18.miru.ListTorrentRequest\x1a\x19.miru.ListTorrentResponse\x12?\n" +
 	"\n" +
 	"AddTorrent\x12\x17.miru.AddTorrentRequest\x1a\x18.miru.AddTorrentResponse\x12H\n" +
@@ -5277,7 +5901,8 @@ const file_proto_miru_core_service_proto_rawDesc = "" +
 	"\rFetchRepoList\x12\x1a.miru.FetchRepoListRequest\x1a\x1b.miru.FetchRepoListResponse\x12T\n" +
 	"\x11DownloadExtension\x12\x1e.miru.DownloadExtensionRequest\x1a\x1f.miru.DownloadExtensionResponse\x12N\n" +
 	"\x0fRemoveExtension\x12\x1c.miru.RemoveExtensionRequest\x1a\x1d.miru.RemoveExtensionResponse\x12<\n" +
-	"\tSetCookie\x12\x16.miru.SetCookieRequest\x1a\x17.miru.SetCookieResponseB)Z'github.com/miru-project/miru-core/protob\x06proto3"
+	"\tSetCookie\x12\x16.miru.SetCookieRequest\x1a\x17.miru.SetCookieResponse\x12D\n" +
+	"\vWatchEvents\x12\x18.miru.WatchEventsRequest\x1a\x19.miru.WatchEventsResponse0\x01B)Z'github.com/miru-project/miru-core/protob\x06proto3"
 
 var (
 	file_proto_miru_core_service_proto_rawDescOnce sync.Once
@@ -5291,226 +5916,248 @@ func file_proto_miru_core_service_proto_rawDescGZIP() []byte {
 	return file_proto_miru_core_service_proto_rawDescData
 }
 
-var file_proto_miru_core_service_proto_msgTypes = make([]protoimpl.MessageInfo, 98)
+var file_proto_miru_core_service_proto_msgTypes = make([]protoimpl.MessageInfo, 108)
 var file_proto_miru_core_service_proto_goTypes = []any{
-	(*SearchRequest)(nil),                        // 0: miru.SearchRequest
-	(*SearchResponse)(nil),                       // 1: miru.SearchResponse
-	(*LatestRequest)(nil),                        // 2: miru.LatestRequest
-	(*LatestResponse)(nil),                       // 3: miru.LatestResponse
-	(*DetailRequest)(nil),                        // 4: miru.DetailRequest
-	(*DetailResponse)(nil),                       // 5: miru.DetailResponse
-	(*WatchRequest)(nil),                         // 6: miru.WatchRequest
-	(*WatchResponse)(nil),                        // 7: miru.WatchResponse
-	(*ExtensionListItem)(nil),                    // 8: miru.ExtensionListItem
-	(*HelloMiruRequest)(nil),                     // 9: miru.HelloMiruRequest
-	(*HelloMiruResponse)(nil),                    // 10: miru.HelloMiruResponse
-	(*ExtensionMeta)(nil),                        // 11: miru.ExtensionMeta
-	(*DownloadProgress)(nil),                     // 12: miru.DownloadProgress
-	(*TorrentStats)(nil),                         // 13: miru.TorrentStats
-	(*GetAppSettingRequest)(nil),                 // 14: miru.GetAppSettingRequest
-	(*GetAppSettingResponse)(nil),                // 15: miru.GetAppSettingResponse
-	(*SetAppSettingRequest)(nil),                 // 16: miru.SetAppSettingRequest
-	(*SetAppSettingResponse)(nil),                // 17: miru.SetAppSettingResponse
-	(*AppSetting)(nil),                           // 18: miru.AppSetting
-	(*Favorite)(nil),                             // 19: miru.Favorite
-	(*FavoriteGroup)(nil),                        // 20: miru.FavoriteGroup
-	(*GetAllFavoriteRequest)(nil),                // 21: miru.GetAllFavoriteRequest
-	(*GetAllFavoriteResponse)(nil),               // 22: miru.GetAllFavoriteResponse
-	(*GetFavoriteByPackageAndUrlRequest)(nil),    // 23: miru.GetFavoriteByPackageAndUrlRequest
-	(*GetFavoriteByPackageAndUrlResponse)(nil),   // 24: miru.GetFavoriteByPackageAndUrlResponse
-	(*PutFavoriteByIndexRequest)(nil),            // 25: miru.PutFavoriteByIndexRequest
-	(*PutFavoriteByIndexResponse)(nil),           // 26: miru.PutFavoriteByIndexResponse
-	(*PutFavoriteRequest)(nil),                   // 27: miru.PutFavoriteRequest
-	(*PutFavoriteResponse)(nil),                  // 28: miru.PutFavoriteResponse
-	(*DeleteFavoriteRequest)(nil),                // 29: miru.DeleteFavoriteRequest
-	(*DeleteFavoriteResponse)(nil),               // 30: miru.DeleteFavoriteResponse
-	(*GetFavoriteGroupsByIdRequest)(nil),         // 31: miru.GetFavoriteGroupsByIdRequest
-	(*GetFavoriteGroupsByIdResponse)(nil),        // 32: miru.GetFavoriteGroupsByIdResponse
-	(*GetAllFavoriteGroupRequest)(nil),           // 33: miru.GetAllFavoriteGroupRequest
-	(*GetAllFavoriteGroupResponse)(nil),          // 34: miru.GetAllFavoriteGroupResponse
-	(*PutFavoriteGroupRequest)(nil),              // 35: miru.PutFavoriteGroupRequest
-	(*PutFavoriteGroupResponse)(nil),             // 36: miru.PutFavoriteGroupResponse
-	(*RenameFavoriteGroupRequest)(nil),           // 37: miru.RenameFavoriteGroupRequest
-	(*RenameFavoriteGroupResponse)(nil),          // 38: miru.RenameFavoriteGroupResponse
-	(*DeleteFavoriteGroupRequest)(nil),           // 39: miru.DeleteFavoriteGroupRequest
-	(*DeleteFavoriteGroupResponse)(nil),          // 40: miru.DeleteFavoriteGroupResponse
-	(*GetFavoriteGroupsByFavoriteRequest)(nil),   // 41: miru.GetFavoriteGroupsByFavoriteRequest
-	(*GetFavoriteGroupsByFavoriteResponse)(nil),  // 42: miru.GetFavoriteGroupsByFavoriteResponse
-	(*History)(nil),                              // 43: miru.History
-	(*GetHistoriesByTypeRequest)(nil),            // 44: miru.GetHistoriesByTypeRequest
-	(*GetHistoriesByTypeResponse)(nil),           // 45: miru.GetHistoriesByTypeResponse
-	(*GetHistoryByPackageAndUrlRequest)(nil),     // 46: miru.GetHistoryByPackageAndUrlRequest
-	(*GetHistoryByPackageAndUrlResponse)(nil),    // 47: miru.GetHistoryByPackageAndUrlResponse
-	(*PutHistoryRequest)(nil),                    // 48: miru.PutHistoryRequest
-	(*PutHistoryResponse)(nil),                   // 49: miru.PutHistoryResponse
-	(*DeleteHistoryByPackageAndUrlRequest)(nil),  // 50: miru.DeleteHistoryByPackageAndUrlRequest
-	(*DeleteHistoryByPackageAndUrlResponse)(nil), // 51: miru.DeleteHistoryByPackageAndUrlResponse
-	(*DeleteAllHistoryRequest)(nil),              // 52: miru.DeleteAllHistoryRequest
-	(*DeleteAllHistoryResponse)(nil),             // 53: miru.DeleteAllHistoryResponse
-	(*GetHistorysFilteredRequest)(nil),           // 54: miru.GetHistorysFilteredRequest
-	(*GetHistorysFilteredResponse)(nil),          // 55: miru.GetHistorysFilteredResponse
-	(*GetDownloadStatusRequest)(nil),             // 56: miru.GetDownloadStatusRequest
-	(*GetDownloadStatusResponse)(nil),            // 57: miru.GetDownloadStatusResponse
-	(*CancelDownloadRequest)(nil),                // 58: miru.CancelDownloadRequest
-	(*CancelDownloadResponse)(nil),               // 59: miru.CancelDownloadResponse
-	(*ResumeDownloadRequest)(nil),                // 60: miru.ResumeDownloadRequest
-	(*ResumeDownloadResponse)(nil),               // 61: miru.ResumeDownloadResponse
-	(*PauseDownloadRequest)(nil),                 // 62: miru.PauseDownloadRequest
-	(*PauseDownloadResponse)(nil),                // 63: miru.PauseDownloadResponse
-	(*DownloadBangumiRequest)(nil),               // 64: miru.DownloadBangumiRequest
-	(*DownloadBangumiResponse)(nil),              // 65: miru.DownloadBangumiResponse
-	(*AvailableHlsVariant)(nil),                  // 66: miru.AvailableHlsVariant
-	(*TorrentResult)(nil),                        // 67: miru.TorrentResult
-	(*ListTorrentRequest)(nil),                   // 68: miru.ListTorrentRequest
-	(*ListTorrentResponse)(nil),                  // 69: miru.ListTorrentResponse
-	(*AddTorrentRequest)(nil),                    // 70: miru.AddTorrentRequest
-	(*AddTorrentResponse)(nil),                   // 71: miru.AddTorrentResponse
-	(*DeleteTorrentRequest)(nil),                 // 72: miru.DeleteTorrentRequest
-	(*DeleteTorrentResponse)(nil),                // 73: miru.DeleteTorrentResponse
-	(*AddMagnetRequest)(nil),                     // 74: miru.AddMagnetRequest
-	(*AddMagnetResponse)(nil),                    // 75: miru.AddMagnetResponse
-	(*GetReposRequest)(nil),                      // 76: miru.GetReposRequest
-	(*GetReposResponse)(nil),                     // 77: miru.GetReposResponse
-	(*SetRepoRequest)(nil),                       // 78: miru.SetRepoRequest
-	(*SetRepoResponse)(nil),                      // 79: miru.SetRepoResponse
-	(*DeleteRepoRequest)(nil),                    // 80: miru.DeleteRepoRequest
-	(*DeleteRepoResponse)(nil),                   // 81: miru.DeleteRepoResponse
-	(*FetchRepoListRequest)(nil),                 // 82: miru.FetchRepoListRequest
-	(*FetchRepoListResponse)(nil),                // 83: miru.FetchRepoListResponse
-	(*DownloadExtensionRequest)(nil),             // 84: miru.DownloadExtensionRequest
-	(*DownloadExtensionResponse)(nil),            // 85: miru.DownloadExtensionResponse
-	(*RemoveExtensionRequest)(nil),               // 86: miru.RemoveExtensionRequest
-	(*RemoveExtensionResponse)(nil),              // 87: miru.RemoveExtensionResponse
-	(*SetCookieRequest)(nil),                     // 88: miru.SetCookieRequest
-	(*SetCookieResponse)(nil),                    // 89: miru.SetCookieResponse
-	(*Detail)(nil),                               // 90: miru.Detail
-	(*GetDetailRequest)(nil),                     // 91: miru.GetDetailRequest
-	(*GetDetailResponse)(nil),                    // 92: miru.GetDetailResponse
-	(*UpsertDetailRequest)(nil),                  // 93: miru.UpsertDetailRequest
-	(*UpsertDetailResponse)(nil),                 // 94: miru.UpsertDetailResponse
-	nil,                                          // 95: miru.HelloMiruResponse.DownloadStatusEntry
-	nil,                                          // 96: miru.GetDownloadStatusResponse.DownloadStatusEntry
-	nil,                                          // 97: miru.DownloadBangumiRequest.HeaderEntry
+	(*WatchEventsRequest)(nil),                   // 0: miru.WatchEventsRequest
+	(*WatchEventsResponse)(nil),                  // 1: miru.WatchEventsResponse
+	(*DownloadEvent)(nil),                        // 2: miru.DownloadEvent
+	(*ExtensionEvent)(nil),                       // 3: miru.ExtensionEvent
+	(*SearchRequest)(nil),                        // 4: miru.SearchRequest
+	(*SearchResponse)(nil),                       // 5: miru.SearchResponse
+	(*LatestRequest)(nil),                        // 6: miru.LatestRequest
+	(*LatestResponse)(nil),                       // 7: miru.LatestResponse
+	(*DetailRequest)(nil),                        // 8: miru.DetailRequest
+	(*DetailResponse)(nil),                       // 9: miru.DetailResponse
+	(*WatchRequest)(nil),                         // 10: miru.WatchRequest
+	(*WatchResponse)(nil),                        // 11: miru.WatchResponse
+	(*ExtensionListItem)(nil),                    // 12: miru.ExtensionListItem
+	(*HelloMiruRequest)(nil),                     // 13: miru.HelloMiruRequest
+	(*HelloMiruResponse)(nil),                    // 14: miru.HelloMiruResponse
+	(*ExtensionMeta)(nil),                        // 15: miru.ExtensionMeta
+	(*DownloadProgress)(nil),                     // 16: miru.DownloadProgress
+	(*TorrentStats)(nil),                         // 17: miru.TorrentStats
+	(*GetAppSettingRequest)(nil),                 // 18: miru.GetAppSettingRequest
+	(*GetAppSettingResponse)(nil),                // 19: miru.GetAppSettingResponse
+	(*SetAppSettingRequest)(nil),                 // 20: miru.SetAppSettingRequest
+	(*SetAppSettingResponse)(nil),                // 21: miru.SetAppSettingResponse
+	(*AppSetting)(nil),                           // 22: miru.AppSetting
+	(*Favorite)(nil),                             // 23: miru.Favorite
+	(*FavoriteGroup)(nil),                        // 24: miru.FavoriteGroup
+	(*GetAllFavoriteRequest)(nil),                // 25: miru.GetAllFavoriteRequest
+	(*GetAllFavoriteResponse)(nil),               // 26: miru.GetAllFavoriteResponse
+	(*GetFavoriteByPackageAndUrlRequest)(nil),    // 27: miru.GetFavoriteByPackageAndUrlRequest
+	(*GetFavoriteByPackageAndUrlResponse)(nil),   // 28: miru.GetFavoriteByPackageAndUrlResponse
+	(*PutFavoriteByIndexRequest)(nil),            // 29: miru.PutFavoriteByIndexRequest
+	(*PutFavoriteByIndexResponse)(nil),           // 30: miru.PutFavoriteByIndexResponse
+	(*PutFavoriteRequest)(nil),                   // 31: miru.PutFavoriteRequest
+	(*PutFavoriteResponse)(nil),                  // 32: miru.PutFavoriteResponse
+	(*DeleteFavoriteRequest)(nil),                // 33: miru.DeleteFavoriteRequest
+	(*DeleteFavoriteResponse)(nil),               // 34: miru.DeleteFavoriteResponse
+	(*GetFavoriteGroupsByIdRequest)(nil),         // 35: miru.GetFavoriteGroupsByIdRequest
+	(*GetFavoriteGroupsByIdResponse)(nil),        // 36: miru.GetFavoriteGroupsByIdResponse
+	(*GetAllFavoriteGroupRequest)(nil),           // 37: miru.GetAllFavoriteGroupRequest
+	(*GetAllFavoriteGroupResponse)(nil),          // 38: miru.GetAllFavoriteGroupResponse
+	(*PutFavoriteGroupRequest)(nil),              // 39: miru.PutFavoriteGroupRequest
+	(*PutFavoriteGroupResponse)(nil),             // 40: miru.PutFavoriteGroupResponse
+	(*RenameFavoriteGroupRequest)(nil),           // 41: miru.RenameFavoriteGroupRequest
+	(*RenameFavoriteGroupResponse)(nil),          // 42: miru.RenameFavoriteGroupResponse
+	(*DeleteFavoriteGroupRequest)(nil),           // 43: miru.DeleteFavoriteGroupRequest
+	(*DeleteFavoriteGroupResponse)(nil),          // 44: miru.DeleteFavoriteGroupResponse
+	(*GetFavoriteGroupsByFavoriteRequest)(nil),   // 45: miru.GetFavoriteGroupsByFavoriteRequest
+	(*GetFavoriteGroupsByFavoriteResponse)(nil),  // 46: miru.GetFavoriteGroupsByFavoriteResponse
+	(*History)(nil),                              // 47: miru.History
+	(*GetHistoriesByTypeRequest)(nil),            // 48: miru.GetHistoriesByTypeRequest
+	(*GetHistoriesByTypeResponse)(nil),           // 49: miru.GetHistoriesByTypeResponse
+	(*GetHistoryByPackageAndUrlRequest)(nil),     // 50: miru.GetHistoryByPackageAndUrlRequest
+	(*GetHistoryByPackageAndUrlResponse)(nil),    // 51: miru.GetHistoryByPackageAndUrlResponse
+	(*PutHistoryRequest)(nil),                    // 52: miru.PutHistoryRequest
+	(*PutHistoryResponse)(nil),                   // 53: miru.PutHistoryResponse
+	(*DeleteHistoryByPackageAndUrlRequest)(nil),  // 54: miru.DeleteHistoryByPackageAndUrlRequest
+	(*DeleteHistoryByPackageAndUrlResponse)(nil), // 55: miru.DeleteHistoryByPackageAndUrlResponse
+	(*DeleteAllHistoryRequest)(nil),              // 56: miru.DeleteAllHistoryRequest
+	(*DeleteAllHistoryResponse)(nil),             // 57: miru.DeleteAllHistoryResponse
+	(*GetHistorysFilteredRequest)(nil),           // 58: miru.GetHistorysFilteredRequest
+	(*GetHistorysFilteredResponse)(nil),          // 59: miru.GetHistorysFilteredResponse
+	(*GetDownloadStatusRequest)(nil),             // 60: miru.GetDownloadStatusRequest
+	(*GetDownloadStatusResponse)(nil),            // 61: miru.GetDownloadStatusResponse
+	(*CancelDownloadRequest)(nil),                // 62: miru.CancelDownloadRequest
+	(*CancelDownloadResponse)(nil),               // 63: miru.CancelDownloadResponse
+	(*ResumeDownloadRequest)(nil),                // 64: miru.ResumeDownloadRequest
+	(*ResumeDownloadResponse)(nil),               // 65: miru.ResumeDownloadResponse
+	(*PauseDownloadRequest)(nil),                 // 66: miru.PauseDownloadRequest
+	(*PauseDownloadResponse)(nil),                // 67: miru.PauseDownloadResponse
+	(*DownloadBangumiRequest)(nil),               // 68: miru.DownloadBangumiRequest
+	(*DownloadBangumiResponse)(nil),              // 69: miru.DownloadBangumiResponse
+	(*Download)(nil),                             // 70: miru.Download
+	(*GetAllDownloadsRequest)(nil),               // 71: miru.GetAllDownloadsRequest
+	(*GetAllDownloadsResponse)(nil),              // 72: miru.GetAllDownloadsResponse
+	(*DeleteDownloadRequest)(nil),                // 73: miru.DeleteDownloadRequest
+	(*DeleteDownloadResponse)(nil),               // 74: miru.DeleteDownloadResponse
+	(*AvailableHlsVariant)(nil),                  // 75: miru.AvailableHlsVariant
+	(*TorrentResult)(nil),                        // 76: miru.TorrentResult
+	(*ListTorrentRequest)(nil),                   // 77: miru.ListTorrentRequest
+	(*ListTorrentResponse)(nil),                  // 78: miru.ListTorrentResponse
+	(*AddTorrentRequest)(nil),                    // 79: miru.AddTorrentRequest
+	(*AddTorrentResponse)(nil),                   // 80: miru.AddTorrentResponse
+	(*DeleteTorrentRequest)(nil),                 // 81: miru.DeleteTorrentRequest
+	(*DeleteTorrentResponse)(nil),                // 82: miru.DeleteTorrentResponse
+	(*AddMagnetRequest)(nil),                     // 83: miru.AddMagnetRequest
+	(*AddMagnetResponse)(nil),                    // 84: miru.AddMagnetResponse
+	(*GetReposRequest)(nil),                      // 85: miru.GetReposRequest
+	(*GetReposResponse)(nil),                     // 86: miru.GetReposResponse
+	(*SetRepoRequest)(nil),                       // 87: miru.SetRepoRequest
+	(*SetRepoResponse)(nil),                      // 88: miru.SetRepoResponse
+	(*DeleteRepoRequest)(nil),                    // 89: miru.DeleteRepoRequest
+	(*DeleteRepoResponse)(nil),                   // 90: miru.DeleteRepoResponse
+	(*FetchRepoListRequest)(nil),                 // 91: miru.FetchRepoListRequest
+	(*FetchRepoListResponse)(nil),                // 92: miru.FetchRepoListResponse
+	(*DownloadExtensionRequest)(nil),             // 93: miru.DownloadExtensionRequest
+	(*DownloadExtensionResponse)(nil),            // 94: miru.DownloadExtensionResponse
+	(*RemoveExtensionRequest)(nil),               // 95: miru.RemoveExtensionRequest
+	(*RemoveExtensionResponse)(nil),              // 96: miru.RemoveExtensionResponse
+	(*SetCookieRequest)(nil),                     // 97: miru.SetCookieRequest
+	(*SetCookieResponse)(nil),                    // 98: miru.SetCookieResponse
+	(*Detail)(nil),                               // 99: miru.Detail
+	(*GetDetailRequest)(nil),                     // 100: miru.GetDetailRequest
+	(*GetDetailResponse)(nil),                    // 101: miru.GetDetailResponse
+	(*UpsertDetailRequest)(nil),                  // 102: miru.UpsertDetailRequest
+	(*UpsertDetailResponse)(nil),                 // 103: miru.UpsertDetailResponse
+	nil,                                          // 104: miru.DownloadEvent.DownloadStatusEntry
+	nil,                                          // 105: miru.HelloMiruResponse.DownloadStatusEntry
+	nil,                                          // 106: miru.GetDownloadStatusResponse.DownloadStatusEntry
+	nil,                                          // 107: miru.DownloadBangumiRequest.HeaderEntry
 }
 var file_proto_miru_core_service_proto_depIdxs = []int32{
-	8,  // 0: miru.SearchResponse.items:type_name -> miru.ExtensionListItem
-	8,  // 1: miru.LatestResponse.items:type_name -> miru.ExtensionListItem
-	11, // 2: miru.HelloMiruResponse.extensionMeta:type_name -> miru.ExtensionMeta
-	95, // 3: miru.HelloMiruResponse.downloadStatus:type_name -> miru.HelloMiruResponse.DownloadStatusEntry
-	13, // 4: miru.HelloMiruResponse.torrent:type_name -> miru.TorrentStats
-	18, // 5: miru.GetAppSettingResponse.settings:type_name -> miru.AppSetting
-	18, // 6: miru.SetAppSettingRequest.settings:type_name -> miru.AppSetting
-	19, // 7: miru.FavoriteGroup.favorites:type_name -> miru.Favorite
-	19, // 8: miru.GetAllFavoriteResponse.favorites:type_name -> miru.Favorite
-	19, // 9: miru.GetFavoriteByPackageAndUrlResponse.favorite:type_name -> miru.Favorite
-	20, // 10: miru.PutFavoriteByIndexRequest.groups:type_name -> miru.FavoriteGroup
-	19, // 11: miru.PutFavoriteResponse.favorite:type_name -> miru.Favorite
-	20, // 12: miru.GetFavoriteGroupsByIdResponse.groups:type_name -> miru.FavoriteGroup
-	20, // 13: miru.GetAllFavoriteGroupResponse.groups:type_name -> miru.FavoriteGroup
-	20, // 14: miru.PutFavoriteGroupResponse.group:type_name -> miru.FavoriteGroup
-	20, // 15: miru.GetFavoriteGroupsByFavoriteResponse.groups:type_name -> miru.FavoriteGroup
-	43, // 16: miru.GetHistoriesByTypeResponse.histories:type_name -> miru.History
-	43, // 17: miru.GetHistoryByPackageAndUrlResponse.history:type_name -> miru.History
-	43, // 18: miru.PutHistoryRequest.history:type_name -> miru.History
-	43, // 19: miru.PutHistoryResponse.history:type_name -> miru.History
-	43, // 20: miru.GetHistorysFilteredResponse.histories:type_name -> miru.History
-	96, // 21: miru.GetDownloadStatusResponse.download_status:type_name -> miru.GetDownloadStatusResponse.DownloadStatusEntry
-	97, // 22: miru.DownloadBangumiRequest.header:type_name -> miru.DownloadBangumiRequest.HeaderEntry
-	66, // 23: miru.DownloadBangumiResponse.variant_summary:type_name -> miru.AvailableHlsVariant
-	67, // 24: miru.ListTorrentResponse.torrents:type_name -> miru.TorrentResult
-	90, // 25: miru.GetDetailResponse.detail:type_name -> miru.Detail
-	90, // 26: miru.UpsertDetailResponse.detail:type_name -> miru.Detail
-	12, // 27: miru.HelloMiruResponse.DownloadStatusEntry.value:type_name -> miru.DownloadProgress
-	12, // 28: miru.GetDownloadStatusResponse.DownloadStatusEntry.value:type_name -> miru.DownloadProgress
-	9,  // 29: miru.MiruCoreService.HelloMiru:input_type -> miru.HelloMiruRequest
-	14, // 30: miru.MiruCoreService.GetAppSetting:input_type -> miru.GetAppSettingRequest
-	16, // 31: miru.MiruCoreService.SetAppSetting:input_type -> miru.SetAppSettingRequest
-	0,  // 32: miru.MiruCoreService.Search:input_type -> miru.SearchRequest
-	2,  // 33: miru.MiruCoreService.Latest:input_type -> miru.LatestRequest
-	4,  // 34: miru.MiruCoreService.Detail:input_type -> miru.DetailRequest
-	6,  // 35: miru.MiruCoreService.Watch:input_type -> miru.WatchRequest
-	91, // 36: miru.MiruCoreService.GetDetail:input_type -> miru.GetDetailRequest
-	93, // 37: miru.MiruCoreService.UpsertDetail:input_type -> miru.UpsertDetailRequest
-	21, // 38: miru.MiruCoreService.GetAllFavorite:input_type -> miru.GetAllFavoriteRequest
-	23, // 39: miru.MiruCoreService.GetFavoriteByPackageAndUrl:input_type -> miru.GetFavoriteByPackageAndUrlRequest
-	25, // 40: miru.MiruCoreService.PutFavoriteByIndex:input_type -> miru.PutFavoriteByIndexRequest
-	27, // 41: miru.MiruCoreService.PutFavorite:input_type -> miru.PutFavoriteRequest
-	29, // 42: miru.MiruCoreService.DeleteFavorite:input_type -> miru.DeleteFavoriteRequest
-	31, // 43: miru.MiruCoreService.GetFavoriteGroupsById:input_type -> miru.GetFavoriteGroupsByIdRequest
-	33, // 44: miru.MiruCoreService.GetAllFavoriteGroup:input_type -> miru.GetAllFavoriteGroupRequest
-	35, // 45: miru.MiruCoreService.PutFavoriteGroup:input_type -> miru.PutFavoriteGroupRequest
-	37, // 46: miru.MiruCoreService.RenameFavoriteGroup:input_type -> miru.RenameFavoriteGroupRequest
-	39, // 47: miru.MiruCoreService.DeleteFavoriteGroup:input_type -> miru.DeleteFavoriteGroupRequest
-	41, // 48: miru.MiruCoreService.GetFavoriteGroupsByFavorite:input_type -> miru.GetFavoriteGroupsByFavoriteRequest
-	44, // 49: miru.MiruCoreService.GetHistoriesByType:input_type -> miru.GetHistoriesByTypeRequest
-	46, // 50: miru.MiruCoreService.GetHistoryByPackageAndUrl:input_type -> miru.GetHistoryByPackageAndUrlRequest
-	48, // 51: miru.MiruCoreService.PutHistory:input_type -> miru.PutHistoryRequest
-	50, // 52: miru.MiruCoreService.DeleteHistoryByPackageAndUrl:input_type -> miru.DeleteHistoryByPackageAndUrlRequest
-	52, // 53: miru.MiruCoreService.DeleteAllHistory:input_type -> miru.DeleteAllHistoryRequest
-	54, // 54: miru.MiruCoreService.GetHistorysFiltered:input_type -> miru.GetHistorysFilteredRequest
-	56, // 55: miru.MiruCoreService.GetDownloadStatus:input_type -> miru.GetDownloadStatusRequest
-	58, // 56: miru.MiruCoreService.CancelDownload:input_type -> miru.CancelDownloadRequest
-	60, // 57: miru.MiruCoreService.ResumeDownload:input_type -> miru.ResumeDownloadRequest
-	62, // 58: miru.MiruCoreService.PauseDownload:input_type -> miru.PauseDownloadRequest
-	64, // 59: miru.MiruCoreService.DownloadBangumi:input_type -> miru.DownloadBangumiRequest
-	68, // 60: miru.MiruCoreService.ListTorrent:input_type -> miru.ListTorrentRequest
-	70, // 61: miru.MiruCoreService.AddTorrent:input_type -> miru.AddTorrentRequest
-	72, // 62: miru.MiruCoreService.DeleteTorrent:input_type -> miru.DeleteTorrentRequest
-	74, // 63: miru.MiruCoreService.AddMagnet:input_type -> miru.AddMagnetRequest
-	76, // 64: miru.MiruCoreService.GetRepos:input_type -> miru.GetReposRequest
-	78, // 65: miru.MiruCoreService.SetRepo:input_type -> miru.SetRepoRequest
-	80, // 66: miru.MiruCoreService.DeleteRepo:input_type -> miru.DeleteRepoRequest
-	82, // 67: miru.MiruCoreService.FetchRepoList:input_type -> miru.FetchRepoListRequest
-	84, // 68: miru.MiruCoreService.DownloadExtension:input_type -> miru.DownloadExtensionRequest
-	86, // 69: miru.MiruCoreService.RemoveExtension:input_type -> miru.RemoveExtensionRequest
-	88, // 70: miru.MiruCoreService.SetCookie:input_type -> miru.SetCookieRequest
-	10, // 71: miru.MiruCoreService.HelloMiru:output_type -> miru.HelloMiruResponse
-	15, // 72: miru.MiruCoreService.GetAppSetting:output_type -> miru.GetAppSettingResponse
-	17, // 73: miru.MiruCoreService.SetAppSetting:output_type -> miru.SetAppSettingResponse
-	1,  // 74: miru.MiruCoreService.Search:output_type -> miru.SearchResponse
-	3,  // 75: miru.MiruCoreService.Latest:output_type -> miru.LatestResponse
-	5,  // 76: miru.MiruCoreService.Detail:output_type -> miru.DetailResponse
-	7,  // 77: miru.MiruCoreService.Watch:output_type -> miru.WatchResponse
-	92, // 78: miru.MiruCoreService.GetDetail:output_type -> miru.GetDetailResponse
-	94, // 79: miru.MiruCoreService.UpsertDetail:output_type -> miru.UpsertDetailResponse
-	22, // 80: miru.MiruCoreService.GetAllFavorite:output_type -> miru.GetAllFavoriteResponse
-	24, // 81: miru.MiruCoreService.GetFavoriteByPackageAndUrl:output_type -> miru.GetFavoriteByPackageAndUrlResponse
-	26, // 82: miru.MiruCoreService.PutFavoriteByIndex:output_type -> miru.PutFavoriteByIndexResponse
-	28, // 83: miru.MiruCoreService.PutFavorite:output_type -> miru.PutFavoriteResponse
-	30, // 84: miru.MiruCoreService.DeleteFavorite:output_type -> miru.DeleteFavoriteResponse
-	32, // 85: miru.MiruCoreService.GetFavoriteGroupsById:output_type -> miru.GetFavoriteGroupsByIdResponse
-	34, // 86: miru.MiruCoreService.GetAllFavoriteGroup:output_type -> miru.GetAllFavoriteGroupResponse
-	36, // 87: miru.MiruCoreService.PutFavoriteGroup:output_type -> miru.PutFavoriteGroupResponse
-	38, // 88: miru.MiruCoreService.RenameFavoriteGroup:output_type -> miru.RenameFavoriteGroupResponse
-	40, // 89: miru.MiruCoreService.DeleteFavoriteGroup:output_type -> miru.DeleteFavoriteGroupResponse
-	42, // 90: miru.MiruCoreService.GetFavoriteGroupsByFavorite:output_type -> miru.GetFavoriteGroupsByFavoriteResponse
-	45, // 91: miru.MiruCoreService.GetHistoriesByType:output_type -> miru.GetHistoriesByTypeResponse
-	47, // 92: miru.MiruCoreService.GetHistoryByPackageAndUrl:output_type -> miru.GetHistoryByPackageAndUrlResponse
-	49, // 93: miru.MiruCoreService.PutHistory:output_type -> miru.PutHistoryResponse
-	51, // 94: miru.MiruCoreService.DeleteHistoryByPackageAndUrl:output_type -> miru.DeleteHistoryByPackageAndUrlResponse
-	53, // 95: miru.MiruCoreService.DeleteAllHistory:output_type -> miru.DeleteAllHistoryResponse
-	55, // 96: miru.MiruCoreService.GetHistorysFiltered:output_type -> miru.GetHistorysFilteredResponse
-	57, // 97: miru.MiruCoreService.GetDownloadStatus:output_type -> miru.GetDownloadStatusResponse
-	59, // 98: miru.MiruCoreService.CancelDownload:output_type -> miru.CancelDownloadResponse
-	61, // 99: miru.MiruCoreService.ResumeDownload:output_type -> miru.ResumeDownloadResponse
-	63, // 100: miru.MiruCoreService.PauseDownload:output_type -> miru.PauseDownloadResponse
-	65, // 101: miru.MiruCoreService.DownloadBangumi:output_type -> miru.DownloadBangumiResponse
-	69, // 102: miru.MiruCoreService.ListTorrent:output_type -> miru.ListTorrentResponse
-	71, // 103: miru.MiruCoreService.AddTorrent:output_type -> miru.AddTorrentResponse
-	73, // 104: miru.MiruCoreService.DeleteTorrent:output_type -> miru.DeleteTorrentResponse
-	75, // 105: miru.MiruCoreService.AddMagnet:output_type -> miru.AddMagnetResponse
-	77, // 106: miru.MiruCoreService.GetRepos:output_type -> miru.GetReposResponse
-	79, // 107: miru.MiruCoreService.SetRepo:output_type -> miru.SetRepoResponse
-	81, // 108: miru.MiruCoreService.DeleteRepo:output_type -> miru.DeleteRepoResponse
-	83, // 109: miru.MiruCoreService.FetchRepoList:output_type -> miru.FetchRepoListResponse
-	85, // 110: miru.MiruCoreService.DownloadExtension:output_type -> miru.DownloadExtensionResponse
-	87, // 111: miru.MiruCoreService.RemoveExtension:output_type -> miru.RemoveExtensionResponse
-	89, // 112: miru.MiruCoreService.SetCookie:output_type -> miru.SetCookieResponse
-	71, // [71:113] is the sub-list for method output_type
-	29, // [29:71] is the sub-list for method input_type
-	29, // [29:29] is the sub-list for extension type_name
-	29, // [29:29] is the sub-list for extension extendee
-	0,  // [0:29] is the sub-list for field type_name
+	2,   // 0: miru.WatchEventsResponse.download_event:type_name -> miru.DownloadEvent
+	3,   // 1: miru.WatchEventsResponse.extension_event:type_name -> miru.ExtensionEvent
+	104, // 2: miru.DownloadEvent.download_status:type_name -> miru.DownloadEvent.DownloadStatusEntry
+	15,  // 3: miru.ExtensionEvent.extension_meta:type_name -> miru.ExtensionMeta
+	12,  // 4: miru.SearchResponse.items:type_name -> miru.ExtensionListItem
+	12,  // 5: miru.LatestResponse.items:type_name -> miru.ExtensionListItem
+	15,  // 6: miru.HelloMiruResponse.extensionMeta:type_name -> miru.ExtensionMeta
+	105, // 7: miru.HelloMiruResponse.downloadStatus:type_name -> miru.HelloMiruResponse.DownloadStatusEntry
+	17,  // 8: miru.HelloMiruResponse.torrent:type_name -> miru.TorrentStats
+	22,  // 9: miru.GetAppSettingResponse.settings:type_name -> miru.AppSetting
+	22,  // 10: miru.SetAppSettingRequest.settings:type_name -> miru.AppSetting
+	23,  // 11: miru.FavoriteGroup.favorites:type_name -> miru.Favorite
+	23,  // 12: miru.GetAllFavoriteResponse.favorites:type_name -> miru.Favorite
+	23,  // 13: miru.GetFavoriteByPackageAndUrlResponse.favorite:type_name -> miru.Favorite
+	24,  // 14: miru.PutFavoriteByIndexRequest.groups:type_name -> miru.FavoriteGroup
+	23,  // 15: miru.PutFavoriteResponse.favorite:type_name -> miru.Favorite
+	24,  // 16: miru.GetFavoriteGroupsByIdResponse.groups:type_name -> miru.FavoriteGroup
+	24,  // 17: miru.GetAllFavoriteGroupResponse.groups:type_name -> miru.FavoriteGroup
+	24,  // 18: miru.PutFavoriteGroupResponse.group:type_name -> miru.FavoriteGroup
+	24,  // 19: miru.GetFavoriteGroupsByFavoriteResponse.groups:type_name -> miru.FavoriteGroup
+	47,  // 20: miru.GetHistoriesByTypeResponse.histories:type_name -> miru.History
+	47,  // 21: miru.GetHistoryByPackageAndUrlResponse.history:type_name -> miru.History
+	47,  // 22: miru.PutHistoryRequest.history:type_name -> miru.History
+	47,  // 23: miru.PutHistoryResponse.history:type_name -> miru.History
+	47,  // 24: miru.GetHistorysFilteredResponse.histories:type_name -> miru.History
+	106, // 25: miru.GetDownloadStatusResponse.download_status:type_name -> miru.GetDownloadStatusResponse.DownloadStatusEntry
+	107, // 26: miru.DownloadBangumiRequest.header:type_name -> miru.DownloadBangumiRequest.HeaderEntry
+	75,  // 27: miru.DownloadBangumiResponse.variant_summary:type_name -> miru.AvailableHlsVariant
+	70,  // 28: miru.GetAllDownloadsResponse.downloads:type_name -> miru.Download
+	76,  // 29: miru.ListTorrentResponse.torrents:type_name -> miru.TorrentResult
+	99,  // 30: miru.GetDetailResponse.detail:type_name -> miru.Detail
+	99,  // 31: miru.UpsertDetailResponse.detail:type_name -> miru.Detail
+	16,  // 32: miru.DownloadEvent.DownloadStatusEntry.value:type_name -> miru.DownloadProgress
+	16,  // 33: miru.HelloMiruResponse.DownloadStatusEntry.value:type_name -> miru.DownloadProgress
+	16,  // 34: miru.GetDownloadStatusResponse.DownloadStatusEntry.value:type_name -> miru.DownloadProgress
+	13,  // 35: miru.MiruCoreService.HelloMiru:input_type -> miru.HelloMiruRequest
+	18,  // 36: miru.MiruCoreService.GetAppSetting:input_type -> miru.GetAppSettingRequest
+	20,  // 37: miru.MiruCoreService.SetAppSetting:input_type -> miru.SetAppSettingRequest
+	4,   // 38: miru.MiruCoreService.Search:input_type -> miru.SearchRequest
+	6,   // 39: miru.MiruCoreService.Latest:input_type -> miru.LatestRequest
+	8,   // 40: miru.MiruCoreService.Detail:input_type -> miru.DetailRequest
+	10,  // 41: miru.MiruCoreService.Watch:input_type -> miru.WatchRequest
+	100, // 42: miru.MiruCoreService.GetDetail:input_type -> miru.GetDetailRequest
+	102, // 43: miru.MiruCoreService.UpsertDetail:input_type -> miru.UpsertDetailRequest
+	25,  // 44: miru.MiruCoreService.GetAllFavorite:input_type -> miru.GetAllFavoriteRequest
+	27,  // 45: miru.MiruCoreService.GetFavoriteByPackageAndUrl:input_type -> miru.GetFavoriteByPackageAndUrlRequest
+	29,  // 46: miru.MiruCoreService.PutFavoriteByIndex:input_type -> miru.PutFavoriteByIndexRequest
+	31,  // 47: miru.MiruCoreService.PutFavorite:input_type -> miru.PutFavoriteRequest
+	33,  // 48: miru.MiruCoreService.DeleteFavorite:input_type -> miru.DeleteFavoriteRequest
+	35,  // 49: miru.MiruCoreService.GetFavoriteGroupsById:input_type -> miru.GetFavoriteGroupsByIdRequest
+	37,  // 50: miru.MiruCoreService.GetAllFavoriteGroup:input_type -> miru.GetAllFavoriteGroupRequest
+	39,  // 51: miru.MiruCoreService.PutFavoriteGroup:input_type -> miru.PutFavoriteGroupRequest
+	41,  // 52: miru.MiruCoreService.RenameFavoriteGroup:input_type -> miru.RenameFavoriteGroupRequest
+	43,  // 53: miru.MiruCoreService.DeleteFavoriteGroup:input_type -> miru.DeleteFavoriteGroupRequest
+	45,  // 54: miru.MiruCoreService.GetFavoriteGroupsByFavorite:input_type -> miru.GetFavoriteGroupsByFavoriteRequest
+	48,  // 55: miru.MiruCoreService.GetHistoriesByType:input_type -> miru.GetHistoriesByTypeRequest
+	50,  // 56: miru.MiruCoreService.GetHistoryByPackageAndUrl:input_type -> miru.GetHistoryByPackageAndUrlRequest
+	52,  // 57: miru.MiruCoreService.PutHistory:input_type -> miru.PutHistoryRequest
+	54,  // 58: miru.MiruCoreService.DeleteHistoryByPackageAndUrl:input_type -> miru.DeleteHistoryByPackageAndUrlRequest
+	56,  // 59: miru.MiruCoreService.DeleteAllHistory:input_type -> miru.DeleteAllHistoryRequest
+	58,  // 60: miru.MiruCoreService.GetHistorysFiltered:input_type -> miru.GetHistorysFilteredRequest
+	60,  // 61: miru.MiruCoreService.GetDownloadStatus:input_type -> miru.GetDownloadStatusRequest
+	62,  // 62: miru.MiruCoreService.CancelDownload:input_type -> miru.CancelDownloadRequest
+	64,  // 63: miru.MiruCoreService.ResumeDownload:input_type -> miru.ResumeDownloadRequest
+	66,  // 64: miru.MiruCoreService.PauseDownload:input_type -> miru.PauseDownloadRequest
+	68,  // 65: miru.MiruCoreService.DownloadBangumi:input_type -> miru.DownloadBangumiRequest
+	71,  // 66: miru.MiruCoreService.GetAllDownloads:input_type -> miru.GetAllDownloadsRequest
+	73,  // 67: miru.MiruCoreService.DeleteDownload:input_type -> miru.DeleteDownloadRequest
+	77,  // 68: miru.MiruCoreService.ListTorrent:input_type -> miru.ListTorrentRequest
+	79,  // 69: miru.MiruCoreService.AddTorrent:input_type -> miru.AddTorrentRequest
+	81,  // 70: miru.MiruCoreService.DeleteTorrent:input_type -> miru.DeleteTorrentRequest
+	83,  // 71: miru.MiruCoreService.AddMagnet:input_type -> miru.AddMagnetRequest
+	85,  // 72: miru.MiruCoreService.GetRepos:input_type -> miru.GetReposRequest
+	87,  // 73: miru.MiruCoreService.SetRepo:input_type -> miru.SetRepoRequest
+	89,  // 74: miru.MiruCoreService.DeleteRepo:input_type -> miru.DeleteRepoRequest
+	91,  // 75: miru.MiruCoreService.FetchRepoList:input_type -> miru.FetchRepoListRequest
+	93,  // 76: miru.MiruCoreService.DownloadExtension:input_type -> miru.DownloadExtensionRequest
+	95,  // 77: miru.MiruCoreService.RemoveExtension:input_type -> miru.RemoveExtensionRequest
+	97,  // 78: miru.MiruCoreService.SetCookie:input_type -> miru.SetCookieRequest
+	0,   // 79: miru.MiruCoreService.WatchEvents:input_type -> miru.WatchEventsRequest
+	14,  // 80: miru.MiruCoreService.HelloMiru:output_type -> miru.HelloMiruResponse
+	19,  // 81: miru.MiruCoreService.GetAppSetting:output_type -> miru.GetAppSettingResponse
+	21,  // 82: miru.MiruCoreService.SetAppSetting:output_type -> miru.SetAppSettingResponse
+	5,   // 83: miru.MiruCoreService.Search:output_type -> miru.SearchResponse
+	7,   // 84: miru.MiruCoreService.Latest:output_type -> miru.LatestResponse
+	9,   // 85: miru.MiruCoreService.Detail:output_type -> miru.DetailResponse
+	11,  // 86: miru.MiruCoreService.Watch:output_type -> miru.WatchResponse
+	101, // 87: miru.MiruCoreService.GetDetail:output_type -> miru.GetDetailResponse
+	103, // 88: miru.MiruCoreService.UpsertDetail:output_type -> miru.UpsertDetailResponse
+	26,  // 89: miru.MiruCoreService.GetAllFavorite:output_type -> miru.GetAllFavoriteResponse
+	28,  // 90: miru.MiruCoreService.GetFavoriteByPackageAndUrl:output_type -> miru.GetFavoriteByPackageAndUrlResponse
+	30,  // 91: miru.MiruCoreService.PutFavoriteByIndex:output_type -> miru.PutFavoriteByIndexResponse
+	32,  // 92: miru.MiruCoreService.PutFavorite:output_type -> miru.PutFavoriteResponse
+	34,  // 93: miru.MiruCoreService.DeleteFavorite:output_type -> miru.DeleteFavoriteResponse
+	36,  // 94: miru.MiruCoreService.GetFavoriteGroupsById:output_type -> miru.GetFavoriteGroupsByIdResponse
+	38,  // 95: miru.MiruCoreService.GetAllFavoriteGroup:output_type -> miru.GetAllFavoriteGroupResponse
+	40,  // 96: miru.MiruCoreService.PutFavoriteGroup:output_type -> miru.PutFavoriteGroupResponse
+	42,  // 97: miru.MiruCoreService.RenameFavoriteGroup:output_type -> miru.RenameFavoriteGroupResponse
+	44,  // 98: miru.MiruCoreService.DeleteFavoriteGroup:output_type -> miru.DeleteFavoriteGroupResponse
+	46,  // 99: miru.MiruCoreService.GetFavoriteGroupsByFavorite:output_type -> miru.GetFavoriteGroupsByFavoriteResponse
+	49,  // 100: miru.MiruCoreService.GetHistoriesByType:output_type -> miru.GetHistoriesByTypeResponse
+	51,  // 101: miru.MiruCoreService.GetHistoryByPackageAndUrl:output_type -> miru.GetHistoryByPackageAndUrlResponse
+	53,  // 102: miru.MiruCoreService.PutHistory:output_type -> miru.PutHistoryResponse
+	55,  // 103: miru.MiruCoreService.DeleteHistoryByPackageAndUrl:output_type -> miru.DeleteHistoryByPackageAndUrlResponse
+	57,  // 104: miru.MiruCoreService.DeleteAllHistory:output_type -> miru.DeleteAllHistoryResponse
+	59,  // 105: miru.MiruCoreService.GetHistorysFiltered:output_type -> miru.GetHistorysFilteredResponse
+	61,  // 106: miru.MiruCoreService.GetDownloadStatus:output_type -> miru.GetDownloadStatusResponse
+	63,  // 107: miru.MiruCoreService.CancelDownload:output_type -> miru.CancelDownloadResponse
+	65,  // 108: miru.MiruCoreService.ResumeDownload:output_type -> miru.ResumeDownloadResponse
+	67,  // 109: miru.MiruCoreService.PauseDownload:output_type -> miru.PauseDownloadResponse
+	69,  // 110: miru.MiruCoreService.DownloadBangumi:output_type -> miru.DownloadBangumiResponse
+	72,  // 111: miru.MiruCoreService.GetAllDownloads:output_type -> miru.GetAllDownloadsResponse
+	74,  // 112: miru.MiruCoreService.DeleteDownload:output_type -> miru.DeleteDownloadResponse
+	78,  // 113: miru.MiruCoreService.ListTorrent:output_type -> miru.ListTorrentResponse
+	80,  // 114: miru.MiruCoreService.AddTorrent:output_type -> miru.AddTorrentResponse
+	82,  // 115: miru.MiruCoreService.DeleteTorrent:output_type -> miru.DeleteTorrentResponse
+	84,  // 116: miru.MiruCoreService.AddMagnet:output_type -> miru.AddMagnetResponse
+	86,  // 117: miru.MiruCoreService.GetRepos:output_type -> miru.GetReposResponse
+	88,  // 118: miru.MiruCoreService.SetRepo:output_type -> miru.SetRepoResponse
+	90,  // 119: miru.MiruCoreService.DeleteRepo:output_type -> miru.DeleteRepoResponse
+	92,  // 120: miru.MiruCoreService.FetchRepoList:output_type -> miru.FetchRepoListResponse
+	94,  // 121: miru.MiruCoreService.DownloadExtension:output_type -> miru.DownloadExtensionResponse
+	96,  // 122: miru.MiruCoreService.RemoveExtension:output_type -> miru.RemoveExtensionResponse
+	98,  // 123: miru.MiruCoreService.SetCookie:output_type -> miru.SetCookieResponse
+	1,   // 124: miru.MiruCoreService.WatchEvents:output_type -> miru.WatchEventsResponse
+	80,  // [80:125] is the sub-list for method output_type
+	35,  // [35:80] is the sub-list for method input_type
+	35,  // [35:35] is the sub-list for extension type_name
+	35,  // [35:35] is the sub-list for extension extendee
+	0,   // [0:35] is the sub-list for field type_name
 }
 
 func init() { file_proto_miru_core_service_proto_init() }
@@ -5518,15 +6165,19 @@ func file_proto_miru_core_service_proto_init() {
 	if File_proto_miru_core_service_proto != nil {
 		return
 	}
-	file_proto_miru_core_service_proto_msgTypes[90].OneofWrappers = []any{}
-	file_proto_miru_core_service_proto_msgTypes[93].OneofWrappers = []any{}
+	file_proto_miru_core_service_proto_msgTypes[1].OneofWrappers = []any{
+		(*WatchEventsResponse_DownloadEvent)(nil),
+		(*WatchEventsResponse_ExtensionEvent)(nil),
+	}
+	file_proto_miru_core_service_proto_msgTypes[99].OneofWrappers = []any{}
+	file_proto_miru_core_service_proto_msgTypes[102].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_miru_core_service_proto_rawDesc), len(file_proto_miru_core_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   98,
+			NumMessages:   108,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

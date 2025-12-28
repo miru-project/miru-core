@@ -28,14 +28,14 @@ func Search(pkg string, page int, kw string, filter string) (any, error) {
 }
 
 // Extension watch should contain V1 and V2 api
-func Watch(pkg string, link string) (any, error) {
+func Watch(pkg string, watchLink string) (any, error) {
 
 	api, e := getPkgFromCache(pkg)
 	if e != nil {
 		return nil, e
 	}
 
-	o, e := api.asyncCallBack(api, pkg, fmt.Sprintf(api.watchEval, link))
+	o, e := api.asyncCallBack(api, pkg, fmt.Sprintf(api.watchEval, watchLink))
 	if e != nil {
 		return nil, e
 	}
@@ -47,7 +47,8 @@ func Watch(pkg string, link string) (any, error) {
 	switch vidType {
 
 	case "magnet":
-		t, e := torrent.AddMagnet(link)
+		link := obj["url"].(string)
+		t, e := torrent.AddMagnet(link, "", pkg)
 		if e != nil {
 			return nil, e
 		}
@@ -55,12 +56,13 @@ func Watch(pkg string, link string) (any, error) {
 		return obj, nil
 
 	case "torrent":
+		link := obj["url"].(string)
 		if o, _ := url.Parse(link); !o.IsAbs() {
 			web, _ := url.Parse(api.Ext.Website)
 			web.Path = filepath.Join(web.Path, link)
 			link = web.String()
 		}
-		t, e := torrent.AddTorrent(link)
+		t, e := torrent.AddTorrent(link, "", pkg)
 		if e != nil {
 			return nil, e
 		}

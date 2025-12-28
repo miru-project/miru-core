@@ -50,6 +50,8 @@ const (
 	MiruCoreService_ResumeDownload_FullMethodName               = "/miru.MiruCoreService/ResumeDownload"
 	MiruCoreService_PauseDownload_FullMethodName                = "/miru.MiruCoreService/PauseDownload"
 	MiruCoreService_DownloadBangumi_FullMethodName              = "/miru.MiruCoreService/DownloadBangumi"
+	MiruCoreService_GetAllDownloads_FullMethodName              = "/miru.MiruCoreService/GetAllDownloads"
+	MiruCoreService_DeleteDownload_FullMethodName               = "/miru.MiruCoreService/DeleteDownload"
 	MiruCoreService_ListTorrent_FullMethodName                  = "/miru.MiruCoreService/ListTorrent"
 	MiruCoreService_AddTorrent_FullMethodName                   = "/miru.MiruCoreService/AddTorrent"
 	MiruCoreService_DeleteTorrent_FullMethodName                = "/miru.MiruCoreService/DeleteTorrent"
@@ -61,6 +63,7 @@ const (
 	MiruCoreService_DownloadExtension_FullMethodName            = "/miru.MiruCoreService/DownloadExtension"
 	MiruCoreService_RemoveExtension_FullMethodName              = "/miru.MiruCoreService/RemoveExtension"
 	MiruCoreService_SetCookie_FullMethodName                    = "/miru.MiruCoreService/SetCookie"
+	MiruCoreService_WatchEvents_FullMethodName                  = "/miru.MiruCoreService/WatchEvents"
 )
 
 // MiruCoreServiceClient is the client API for MiruCoreService service.
@@ -103,6 +106,8 @@ type MiruCoreServiceClient interface {
 	ResumeDownload(ctx context.Context, in *ResumeDownloadRequest, opts ...grpc.CallOption) (*ResumeDownloadResponse, error)
 	PauseDownload(ctx context.Context, in *PauseDownloadRequest, opts ...grpc.CallOption) (*PauseDownloadResponse, error)
 	DownloadBangumi(ctx context.Context, in *DownloadBangumiRequest, opts ...grpc.CallOption) (*DownloadBangumiResponse, error)
+	GetAllDownloads(ctx context.Context, in *GetAllDownloadsRequest, opts ...grpc.CallOption) (*GetAllDownloadsResponse, error)
+	DeleteDownload(ctx context.Context, in *DeleteDownloadRequest, opts ...grpc.CallOption) (*DeleteDownloadResponse, error)
 	// Torrent
 	ListTorrent(ctx context.Context, in *ListTorrentRequest, opts ...grpc.CallOption) (*ListTorrentResponse, error)
 	AddTorrent(ctx context.Context, in *AddTorrentRequest, opts ...grpc.CallOption) (*AddTorrentResponse, error)
@@ -118,6 +123,8 @@ type MiruCoreServiceClient interface {
 	RemoveExtension(ctx context.Context, in *RemoveExtensionRequest, opts ...grpc.CallOption) (*RemoveExtensionResponse, error)
 	// Network
 	SetCookie(ctx context.Context, in *SetCookieRequest, opts ...grpc.CallOption) (*SetCookieResponse, error)
+	// Events Stream
+	WatchEvents(ctx context.Context, in *WatchEventsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WatchEventsResponse], error)
 }
 
 type miruCoreServiceClient struct {
@@ -438,6 +445,26 @@ func (c *miruCoreServiceClient) DownloadBangumi(ctx context.Context, in *Downloa
 	return out, nil
 }
 
+func (c *miruCoreServiceClient) GetAllDownloads(ctx context.Context, in *GetAllDownloadsRequest, opts ...grpc.CallOption) (*GetAllDownloadsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAllDownloadsResponse)
+	err := c.cc.Invoke(ctx, MiruCoreService_GetAllDownloads_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *miruCoreServiceClient) DeleteDownload(ctx context.Context, in *DeleteDownloadRequest, opts ...grpc.CallOption) (*DeleteDownloadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteDownloadResponse)
+	err := c.cc.Invoke(ctx, MiruCoreService_DeleteDownload_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *miruCoreServiceClient) ListTorrent(ctx context.Context, in *ListTorrentRequest, opts ...grpc.CallOption) (*ListTorrentResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListTorrentResponse)
@@ -548,6 +575,25 @@ func (c *miruCoreServiceClient) SetCookie(ctx context.Context, in *SetCookieRequ
 	return out, nil
 }
 
+func (c *miruCoreServiceClient) WatchEvents(ctx context.Context, in *WatchEventsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WatchEventsResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &MiruCoreService_ServiceDesc.Streams[0], MiruCoreService_WatchEvents_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[WatchEventsRequest, WatchEventsResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type MiruCoreService_WatchEventsClient = grpc.ServerStreamingClient[WatchEventsResponse]
+
 // MiruCoreServiceServer is the server API for MiruCoreService service.
 // All implementations must embed UnimplementedMiruCoreServiceServer
 // for forward compatibility.
@@ -588,6 +634,8 @@ type MiruCoreServiceServer interface {
 	ResumeDownload(context.Context, *ResumeDownloadRequest) (*ResumeDownloadResponse, error)
 	PauseDownload(context.Context, *PauseDownloadRequest) (*PauseDownloadResponse, error)
 	DownloadBangumi(context.Context, *DownloadBangumiRequest) (*DownloadBangumiResponse, error)
+	GetAllDownloads(context.Context, *GetAllDownloadsRequest) (*GetAllDownloadsResponse, error)
+	DeleteDownload(context.Context, *DeleteDownloadRequest) (*DeleteDownloadResponse, error)
 	// Torrent
 	ListTorrent(context.Context, *ListTorrentRequest) (*ListTorrentResponse, error)
 	AddTorrent(context.Context, *AddTorrentRequest) (*AddTorrentResponse, error)
@@ -603,6 +651,8 @@ type MiruCoreServiceServer interface {
 	RemoveExtension(context.Context, *RemoveExtensionRequest) (*RemoveExtensionResponse, error)
 	// Network
 	SetCookie(context.Context, *SetCookieRequest) (*SetCookieResponse, error)
+	// Events Stream
+	WatchEvents(*WatchEventsRequest, grpc.ServerStreamingServer[WatchEventsResponse]) error
 	mustEmbedUnimplementedMiruCoreServiceServer()
 }
 
@@ -706,6 +756,12 @@ func (UnimplementedMiruCoreServiceServer) PauseDownload(context.Context, *PauseD
 func (UnimplementedMiruCoreServiceServer) DownloadBangumi(context.Context, *DownloadBangumiRequest) (*DownloadBangumiResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DownloadBangumi not implemented")
 }
+func (UnimplementedMiruCoreServiceServer) GetAllDownloads(context.Context, *GetAllDownloadsRequest) (*GetAllDownloadsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetAllDownloads not implemented")
+}
+func (UnimplementedMiruCoreServiceServer) DeleteDownload(context.Context, *DeleteDownloadRequest) (*DeleteDownloadResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteDownload not implemented")
+}
 func (UnimplementedMiruCoreServiceServer) ListTorrent(context.Context, *ListTorrentRequest) (*ListTorrentResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListTorrent not implemented")
 }
@@ -738,6 +794,9 @@ func (UnimplementedMiruCoreServiceServer) RemoveExtension(context.Context, *Remo
 }
 func (UnimplementedMiruCoreServiceServer) SetCookie(context.Context, *SetCookieRequest) (*SetCookieResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetCookie not implemented")
+}
+func (UnimplementedMiruCoreServiceServer) WatchEvents(*WatchEventsRequest, grpc.ServerStreamingServer[WatchEventsResponse]) error {
+	return status.Error(codes.Unimplemented, "method WatchEvents not implemented")
 }
 func (UnimplementedMiruCoreServiceServer) mustEmbedUnimplementedMiruCoreServiceServer() {}
 func (UnimplementedMiruCoreServiceServer) testEmbeddedByValue()                         {}
@@ -1318,6 +1377,42 @@ func _MiruCoreService_DownloadBangumi_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MiruCoreService_GetAllDownloads_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllDownloadsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MiruCoreServiceServer).GetAllDownloads(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MiruCoreService_GetAllDownloads_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MiruCoreServiceServer).GetAllDownloads(ctx, req.(*GetAllDownloadsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MiruCoreService_DeleteDownload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteDownloadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MiruCoreServiceServer).DeleteDownload(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MiruCoreService_DeleteDownload_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MiruCoreServiceServer).DeleteDownload(ctx, req.(*DeleteDownloadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _MiruCoreService_ListTorrent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListTorrentRequest)
 	if err := dec(in); err != nil {
@@ -1516,6 +1611,17 @@ func _MiruCoreService_SetCookie_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MiruCoreService_WatchEvents_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(WatchEventsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(MiruCoreServiceServer).WatchEvents(m, &grpc.GenericServerStream[WatchEventsRequest, WatchEventsResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type MiruCoreService_WatchEventsServer = grpc.ServerStreamingServer[WatchEventsResponse]
+
 // MiruCoreService_ServiceDesc is the grpc.ServiceDesc for MiruCoreService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1648,6 +1754,14 @@ var MiruCoreService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _MiruCoreService_DownloadBangumi_Handler,
 		},
 		{
+			MethodName: "GetAllDownloads",
+			Handler:    _MiruCoreService_GetAllDownloads_Handler,
+		},
+		{
+			MethodName: "DeleteDownload",
+			Handler:    _MiruCoreService_DeleteDownload_Handler,
+		},
+		{
 			MethodName: "ListTorrent",
 			Handler:    _MiruCoreService_ListTorrent_Handler,
 		},
@@ -1692,6 +1806,12 @@ var MiruCoreService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _MiruCoreService_SetCookie_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "WatchEvents",
+			Handler:       _MiruCoreService_WatchEvents_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "proto/miru_core_service.proto",
 }

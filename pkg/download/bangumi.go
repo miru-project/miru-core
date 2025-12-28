@@ -4,14 +4,14 @@ import (
 	"path"
 )
 
-func DownloadBangumi(filePath string, url string, header map[string]string, isHLS bool) (MultipleLinkJson, error) {
+func DownloadBangumi(filePath string, url string, header map[string]string, isHLS bool, title string, pkg string, key string) (MultipleLinkJson, error) {
 
 	// Check if the URL is a valid HLS URL
 	if isHlsUrl(url) || isHLS {
-		return downloadHls(filePath, url, header)
+		return downloadHls(filePath, url, header, title, pkg, key)
 	}
 
-	return downloadMp4(filePath, url, header)
+	return downloadMp4(filePath, url, header, title, pkg, key)
 }
 
 func isHlsUrl(url string) bool {

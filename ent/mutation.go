@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/miru-project/miru-core/ent/appsetting"
 	"github.com/miru-project/miru-core/ent/detail"
+	"github.com/miru-project/miru-core/ent/download"
 	"github.com/miru-project/miru-core/ent/extensionreposetting"
 	"github.com/miru-project/miru-core/ent/extensionsetting"
 	"github.com/miru-project/miru-core/ent/favorite"
@@ -32,6 +33,7 @@ const (
 	// Node types.
 	TypeAppSetting           = "AppSetting"
 	TypeDetail               = "Detail"
+	TypeDownload             = "Download"
 	TypeExtension            = "Extension"
 	TypeExtensionRepoSetting = "ExtensionRepoSetting"
 	TypeExtensionSetting     = "ExtensionSetting"
@@ -1262,6 +1264,917 @@ func (m *DetailMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *DetailMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Detail edge %s", name)
+}
+
+// DownloadMutation represents an operation that mutates the Download nodes in the graph.
+type DownloadMutation struct {
+	config
+	op             Op
+	typ            string
+	id             *int
+	url            *[]string
+	appendurl      []string
+	headers        *string
+	_package       *string
+	progress       *[]int
+	appendprogress []int
+	key            *string
+	title          *string
+	media_type     *string
+	status         *string
+	save_path      *string
+	date           *time.Time
+	clearedFields  map[string]struct{}
+	done           bool
+	oldValue       func(context.Context) (*Download, error)
+	predicates     []predicate.Download
+}
+
+var _ ent.Mutation = (*DownloadMutation)(nil)
+
+// downloadOption allows management of the mutation configuration using functional options.
+type downloadOption func(*DownloadMutation)
+
+// newDownloadMutation creates new mutation for the Download entity.
+func newDownloadMutation(c config, op Op, opts ...downloadOption) *DownloadMutation {
+	m := &DownloadMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeDownload,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withDownloadID sets the ID field of the mutation.
+func withDownloadID(id int) downloadOption {
+	return func(m *DownloadMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Download
+		)
+		m.oldValue = func(ctx context.Context) (*Download, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Download.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withDownload sets the old Download of the mutation.
+func withDownload(node *Download) downloadOption {
+	return func(m *DownloadMutation) {
+		m.oldValue = func(context.Context) (*Download, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m DownloadMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m DownloadMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Download entities.
+func (m *DownloadMutation) SetID(id int) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *DownloadMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *DownloadMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Download.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetURL sets the "url" field.
+func (m *DownloadMutation) SetURL(s []string) {
+	m.url = &s
+	m.appendurl = nil
+}
+
+// URL returns the value of the "url" field in the mutation.
+func (m *DownloadMutation) URL() (r []string, exists bool) {
+	v := m.url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldURL returns the old "url" field's value of the Download entity.
+// If the Download object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DownloadMutation) OldURL(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldURL: %w", err)
+	}
+	return oldValue.URL, nil
+}
+
+// AppendURL adds s to the "url" field.
+func (m *DownloadMutation) AppendURL(s []string) {
+	m.appendurl = append(m.appendurl, s...)
+}
+
+// AppendedURL returns the list of values that were appended to the "url" field in this mutation.
+func (m *DownloadMutation) AppendedURL() ([]string, bool) {
+	if len(m.appendurl) == 0 {
+		return nil, false
+	}
+	return m.appendurl, true
+}
+
+// ResetURL resets all changes to the "url" field.
+func (m *DownloadMutation) ResetURL() {
+	m.url = nil
+	m.appendurl = nil
+}
+
+// SetHeaders sets the "headers" field.
+func (m *DownloadMutation) SetHeaders(s string) {
+	m.headers = &s
+}
+
+// Headers returns the value of the "headers" field in the mutation.
+func (m *DownloadMutation) Headers() (r string, exists bool) {
+	v := m.headers
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHeaders returns the old "headers" field's value of the Download entity.
+// If the Download object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DownloadMutation) OldHeaders(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHeaders is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHeaders requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHeaders: %w", err)
+	}
+	return oldValue.Headers, nil
+}
+
+// ClearHeaders clears the value of the "headers" field.
+func (m *DownloadMutation) ClearHeaders() {
+	m.headers = nil
+	m.clearedFields[download.FieldHeaders] = struct{}{}
+}
+
+// HeadersCleared returns if the "headers" field was cleared in this mutation.
+func (m *DownloadMutation) HeadersCleared() bool {
+	_, ok := m.clearedFields[download.FieldHeaders]
+	return ok
+}
+
+// ResetHeaders resets all changes to the "headers" field.
+func (m *DownloadMutation) ResetHeaders() {
+	m.headers = nil
+	delete(m.clearedFields, download.FieldHeaders)
+}
+
+// SetPackage sets the "package" field.
+func (m *DownloadMutation) SetPackage(s string) {
+	m._package = &s
+}
+
+// Package returns the value of the "package" field in the mutation.
+func (m *DownloadMutation) Package() (r string, exists bool) {
+	v := m._package
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPackage returns the old "package" field's value of the Download entity.
+// If the Download object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DownloadMutation) OldPackage(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPackage is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPackage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPackage: %w", err)
+	}
+	return oldValue.Package, nil
+}
+
+// ResetPackage resets all changes to the "package" field.
+func (m *DownloadMutation) ResetPackage() {
+	m._package = nil
+}
+
+// SetProgress sets the "progress" field.
+func (m *DownloadMutation) SetProgress(i []int) {
+	m.progress = &i
+	m.appendprogress = nil
+}
+
+// Progress returns the value of the "progress" field in the mutation.
+func (m *DownloadMutation) Progress() (r []int, exists bool) {
+	v := m.progress
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProgress returns the old "progress" field's value of the Download entity.
+// If the Download object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DownloadMutation) OldProgress(ctx context.Context) (v []int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProgress is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProgress requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProgress: %w", err)
+	}
+	return oldValue.Progress, nil
+}
+
+// AppendProgress adds i to the "progress" field.
+func (m *DownloadMutation) AppendProgress(i []int) {
+	m.appendprogress = append(m.appendprogress, i...)
+}
+
+// AppendedProgress returns the list of values that were appended to the "progress" field in this mutation.
+func (m *DownloadMutation) AppendedProgress() ([]int, bool) {
+	if len(m.appendprogress) == 0 {
+		return nil, false
+	}
+	return m.appendprogress, true
+}
+
+// ClearProgress clears the value of the "progress" field.
+func (m *DownloadMutation) ClearProgress() {
+	m.progress = nil
+	m.appendprogress = nil
+	m.clearedFields[download.FieldProgress] = struct{}{}
+}
+
+// ProgressCleared returns if the "progress" field was cleared in this mutation.
+func (m *DownloadMutation) ProgressCleared() bool {
+	_, ok := m.clearedFields[download.FieldProgress]
+	return ok
+}
+
+// ResetProgress resets all changes to the "progress" field.
+func (m *DownloadMutation) ResetProgress() {
+	m.progress = nil
+	m.appendprogress = nil
+	delete(m.clearedFields, download.FieldProgress)
+}
+
+// SetKey sets the "key" field.
+func (m *DownloadMutation) SetKey(s string) {
+	m.key = &s
+}
+
+// Key returns the value of the "key" field in the mutation.
+func (m *DownloadMutation) Key() (r string, exists bool) {
+	v := m.key
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldKey returns the old "key" field's value of the Download entity.
+// If the Download object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DownloadMutation) OldKey(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldKey is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldKey requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldKey: %w", err)
+	}
+	return oldValue.Key, nil
+}
+
+// ResetKey resets all changes to the "key" field.
+func (m *DownloadMutation) ResetKey() {
+	m.key = nil
+}
+
+// SetTitle sets the "title" field.
+func (m *DownloadMutation) SetTitle(s string) {
+	m.title = &s
+}
+
+// Title returns the value of the "title" field in the mutation.
+func (m *DownloadMutation) Title() (r string, exists bool) {
+	v := m.title
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTitle returns the old "title" field's value of the Download entity.
+// If the Download object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DownloadMutation) OldTitle(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTitle is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTitle requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
+	}
+	return oldValue.Title, nil
+}
+
+// ResetTitle resets all changes to the "title" field.
+func (m *DownloadMutation) ResetTitle() {
+	m.title = nil
+}
+
+// SetMediaType sets the "media_type" field.
+func (m *DownloadMutation) SetMediaType(s string) {
+	m.media_type = &s
+}
+
+// MediaType returns the value of the "media_type" field in the mutation.
+func (m *DownloadMutation) MediaType() (r string, exists bool) {
+	v := m.media_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMediaType returns the old "media_type" field's value of the Download entity.
+// If the Download object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DownloadMutation) OldMediaType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMediaType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMediaType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMediaType: %w", err)
+	}
+	return oldValue.MediaType, nil
+}
+
+// ResetMediaType resets all changes to the "media_type" field.
+func (m *DownloadMutation) ResetMediaType() {
+	m.media_type = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *DownloadMutation) SetStatus(s string) {
+	m.status = &s
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *DownloadMutation) Status() (r string, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the Download entity.
+// If the Download object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DownloadMutation) OldStatus(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *DownloadMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetSavePath sets the "save_path" field.
+func (m *DownloadMutation) SetSavePath(s string) {
+	m.save_path = &s
+}
+
+// SavePath returns the value of the "save_path" field in the mutation.
+func (m *DownloadMutation) SavePath() (r string, exists bool) {
+	v := m.save_path
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSavePath returns the old "save_path" field's value of the Download entity.
+// If the Download object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DownloadMutation) OldSavePath(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSavePath is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSavePath requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSavePath: %w", err)
+	}
+	return oldValue.SavePath, nil
+}
+
+// ClearSavePath clears the value of the "save_path" field.
+func (m *DownloadMutation) ClearSavePath() {
+	m.save_path = nil
+	m.clearedFields[download.FieldSavePath] = struct{}{}
+}
+
+// SavePathCleared returns if the "save_path" field was cleared in this mutation.
+func (m *DownloadMutation) SavePathCleared() bool {
+	_, ok := m.clearedFields[download.FieldSavePath]
+	return ok
+}
+
+// ResetSavePath resets all changes to the "save_path" field.
+func (m *DownloadMutation) ResetSavePath() {
+	m.save_path = nil
+	delete(m.clearedFields, download.FieldSavePath)
+}
+
+// SetDate sets the "date" field.
+func (m *DownloadMutation) SetDate(t time.Time) {
+	m.date = &t
+}
+
+// Date returns the value of the "date" field in the mutation.
+func (m *DownloadMutation) Date() (r time.Time, exists bool) {
+	v := m.date
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDate returns the old "date" field's value of the Download entity.
+// If the Download object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DownloadMutation) OldDate(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDate is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDate requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDate: %w", err)
+	}
+	return oldValue.Date, nil
+}
+
+// ResetDate resets all changes to the "date" field.
+func (m *DownloadMutation) ResetDate() {
+	m.date = nil
+}
+
+// Where appends a list predicates to the DownloadMutation builder.
+func (m *DownloadMutation) Where(ps ...predicate.Download) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the DownloadMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *DownloadMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Download, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *DownloadMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *DownloadMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Download).
+func (m *DownloadMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *DownloadMutation) Fields() []string {
+	fields := make([]string, 0, 10)
+	if m.url != nil {
+		fields = append(fields, download.FieldURL)
+	}
+	if m.headers != nil {
+		fields = append(fields, download.FieldHeaders)
+	}
+	if m._package != nil {
+		fields = append(fields, download.FieldPackage)
+	}
+	if m.progress != nil {
+		fields = append(fields, download.FieldProgress)
+	}
+	if m.key != nil {
+		fields = append(fields, download.FieldKey)
+	}
+	if m.title != nil {
+		fields = append(fields, download.FieldTitle)
+	}
+	if m.media_type != nil {
+		fields = append(fields, download.FieldMediaType)
+	}
+	if m.status != nil {
+		fields = append(fields, download.FieldStatus)
+	}
+	if m.save_path != nil {
+		fields = append(fields, download.FieldSavePath)
+	}
+	if m.date != nil {
+		fields = append(fields, download.FieldDate)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *DownloadMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case download.FieldURL:
+		return m.URL()
+	case download.FieldHeaders:
+		return m.Headers()
+	case download.FieldPackage:
+		return m.Package()
+	case download.FieldProgress:
+		return m.Progress()
+	case download.FieldKey:
+		return m.Key()
+	case download.FieldTitle:
+		return m.Title()
+	case download.FieldMediaType:
+		return m.MediaType()
+	case download.FieldStatus:
+		return m.Status()
+	case download.FieldSavePath:
+		return m.SavePath()
+	case download.FieldDate:
+		return m.Date()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *DownloadMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case download.FieldURL:
+		return m.OldURL(ctx)
+	case download.FieldHeaders:
+		return m.OldHeaders(ctx)
+	case download.FieldPackage:
+		return m.OldPackage(ctx)
+	case download.FieldProgress:
+		return m.OldProgress(ctx)
+	case download.FieldKey:
+		return m.OldKey(ctx)
+	case download.FieldTitle:
+		return m.OldTitle(ctx)
+	case download.FieldMediaType:
+		return m.OldMediaType(ctx)
+	case download.FieldStatus:
+		return m.OldStatus(ctx)
+	case download.FieldSavePath:
+		return m.OldSavePath(ctx)
+	case download.FieldDate:
+		return m.OldDate(ctx)
+	}
+	return nil, fmt.Errorf("unknown Download field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DownloadMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case download.FieldURL:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetURL(v)
+		return nil
+	case download.FieldHeaders:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHeaders(v)
+		return nil
+	case download.FieldPackage:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPackage(v)
+		return nil
+	case download.FieldProgress:
+		v, ok := value.([]int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProgress(v)
+		return nil
+	case download.FieldKey:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetKey(v)
+		return nil
+	case download.FieldTitle:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTitle(v)
+		return nil
+	case download.FieldMediaType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMediaType(v)
+		return nil
+	case download.FieldStatus:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case download.FieldSavePath:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSavePath(v)
+		return nil
+	case download.FieldDate:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDate(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Download field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *DownloadMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *DownloadMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DownloadMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Download numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *DownloadMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(download.FieldHeaders) {
+		fields = append(fields, download.FieldHeaders)
+	}
+	if m.FieldCleared(download.FieldProgress) {
+		fields = append(fields, download.FieldProgress)
+	}
+	if m.FieldCleared(download.FieldSavePath) {
+		fields = append(fields, download.FieldSavePath)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *DownloadMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *DownloadMutation) ClearField(name string) error {
+	switch name {
+	case download.FieldHeaders:
+		m.ClearHeaders()
+		return nil
+	case download.FieldProgress:
+		m.ClearProgress()
+		return nil
+	case download.FieldSavePath:
+		m.ClearSavePath()
+		return nil
+	}
+	return fmt.Errorf("unknown Download nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *DownloadMutation) ResetField(name string) error {
+	switch name {
+	case download.FieldURL:
+		m.ResetURL()
+		return nil
+	case download.FieldHeaders:
+		m.ResetHeaders()
+		return nil
+	case download.FieldPackage:
+		m.ResetPackage()
+		return nil
+	case download.FieldProgress:
+		m.ResetProgress()
+		return nil
+	case download.FieldKey:
+		m.ResetKey()
+		return nil
+	case download.FieldTitle:
+		m.ResetTitle()
+		return nil
+	case download.FieldMediaType:
+		m.ResetMediaType()
+		return nil
+	case download.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case download.FieldSavePath:
+		m.ResetSavePath()
+		return nil
+	case download.FieldDate:
+		m.ResetDate()
+		return nil
+	}
+	return fmt.Errorf("unknown Download field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *DownloadMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *DownloadMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *DownloadMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *DownloadMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *DownloadMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *DownloadMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *DownloadMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown Download unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *DownloadMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown Download edge %s", name)
 }
 
 // ExtensionMutation represents an operation that mutates the Extension nodes in the graph.

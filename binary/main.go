@@ -9,6 +9,7 @@ import (
 	"github.com/miru-project/miru-core/ext"
 	"github.com/miru-project/miru-core/pkg/anilist"
 	"github.com/miru-project/miru-core/pkg/db"
+	"github.com/miru-project/miru-core/pkg/download"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 	jsext "github.com/miru-project/miru-core/pkg/jsExtension"
 	log "github.com/miru-project/miru-core/pkg/logger"
@@ -59,6 +60,7 @@ func Init() {
 	anilist.InitToken()
 	network.Init()
 	torrent.Init()
+	download.Init()
 	jsext.InitRuntime(config.Global.ExtensionPath, f)
 	log.Println("Miru Core initialized successfully!")
 }

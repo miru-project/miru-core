@@ -45,6 +45,26 @@ var (
 			},
 		},
 	}
+	// DownloadsColumns holds the columns for the "downloads" table.
+	DownloadsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "url", Type: field.TypeJSON},
+		{Name: "headers", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "package", Type: field.TypeString},
+		{Name: "progress", Type: field.TypeJSON, Nullable: true},
+		{Name: "key", Type: field.TypeString, Unique: true},
+		{Name: "title", Type: field.TypeString},
+		{Name: "media_type", Type: field.TypeString},
+		{Name: "status", Type: field.TypeString},
+		{Name: "save_path", Type: field.TypeString, Nullable: true},
+		{Name: "date", Type: field.TypeTime},
+	}
+	// DownloadsTable holds the schema information for the "downloads" table.
+	DownloadsTable = &schema.Table{
+		Name:       "downloads",
+		Columns:    DownloadsColumns,
+		PrimaryKey: []*schema.Column{DownloadsColumns[0]},
+	}
 	// ExtensionsColumns holds the columns for the "extensions" table.
 	ExtensionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -192,6 +212,7 @@ var (
 	Tables = []*schema.Table{
 		AppSettingsTable,
 		DetailsTable,
+		DownloadsTable,
 		ExtensionsTable,
 		ExtensionRepoSettingsTable,
 		ExtensionSettingsTable,

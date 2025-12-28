@@ -12,6 +12,9 @@ type AppSetting func(*sql.Selector)
 // Detail is the predicate function for detail builders.
 type Detail func(*sql.Selector)
 
+// Download is the predicate function for download builders.
+type Download func(*sql.Selector)
+
 // Extension is the predicate function for extension builders.
 type Extension func(*sql.Selector)
 
