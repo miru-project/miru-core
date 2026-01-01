@@ -27,6 +27,13 @@ import (
 
 type MiruCoreServer struct {
 	proto.UnimplementedMiruCoreServiceServer
+	proto.UnimplementedAppSettingServiceServer
+	proto.UnimplementedExtensionServiceServer
+	proto.UnimplementedRepoServiceServer
+	proto.UnimplementedDownloadServiceServer
+	proto.UnimplementedDbServiceServer
+	proto.UnimplementedNetworkServiceServer
+	proto.UnimplementedEventServiceServer
 }
 
 func (s *MiruCoreServer) HelloMiru(ctx context.Context, req *proto.HelloMiruRequest) (*proto.HelloMiruResponse, error) {
@@ -63,10 +70,17 @@ func (s *MiruCoreServer) HelloMiru(ctx context.Context, req *proto.HelloMiruRequ
 		protoDownloadStatus[int32(id)] = toProtoDownloadProgress(p)
 	}
 
+	history := data["history"].([]*ent.History)
+	protoHistory := make([]*proto.History, len(history))
+	for i, h := range history {
+		protoHistory[i] = toProtoHistory(h)
+	}
+
 	torrentStats := torrent.TorrentStatus()
 	resp := &proto.HelloMiruResponse{
 		ExtensionMeta:  protoExtMeta,
 		DownloadStatus: protoDownloadStatus,
+		History:        protoHistory,
 		Torrent: &proto.TorrentStats{
 			TotalDown: torrentStats.ConnStats.BytesReadData.Int64(),
 			TotalUp:   torrentStats.ConnStats.BytesWrittenData.Int64(),
@@ -637,7 +651,7 @@ func (s *MiruCoreServer) SetCookie(ctx context.Context, req *proto.SetCookieRequ
 	return &proto.SetCookieResponse{Message: "Success"}, nil
 }
 
-func (s *MiruCoreServer) WatchEvents(req *proto.WatchEventsRequest, stream proto.MiruCoreService_WatchEventsServer) error {
+func (s *MiruCoreServer) WatchEvents(req *proto.WatchEventsRequest, stream proto.EventService_WatchEventsServer) error {
 	ch := event.GlobalBus.Subscribe()
 	defer event.GlobalBus.Unsubscribe(ch)
 
@@ -686,6 +700,19 @@ func (s *MiruCoreServer) WatchEvents(req *proto.WatchEventsRequest, stream proto
 					Event: &proto.WatchEventsResponse_ExtensionEvent{
 						ExtensionEvent: &proto.ExtensionEvent{
 							ExtensionMeta: protoExtMeta,
+						},
+					},
+				}
+			case event.HistoryUpdate:
+				history := e.Data.([]*ent.History)
+				protoHistory := make([]*proto.History, len(history))
+				for i, h := range history {
+					protoHistory[i] = toProtoHistory(h)
+				}
+				resp = &proto.WatchEventsResponse{
+					Event: &proto.WatchEventsResponse_HistoryEvent{
+						HistoryEvent: &proto.HistoryEvent{
+							History: protoHistory,
 						},
 					},
 				}
@@ -845,7 +872,15 @@ func StartGRPCServer() {
 	}
 
 	s := grpc.NewServer()
-	proto.RegisterMiruCoreServiceServer(s, &MiruCoreServer{})
+	srv := &MiruCoreServer{}
+	proto.RegisterMiruCoreServiceServer(s, srv)
+	proto.RegisterAppSettingServiceServer(s, srv)
+	proto.RegisterExtensionServiceServer(s, srv)
+	proto.RegisterRepoServiceServer(s, srv)
+	proto.RegisterDownloadServiceServer(s, srv)
+	proto.RegisterDbServiceServer(s, srv)
+	proto.RegisterNetworkServiceServer(s, srv)
+	proto.RegisterEventServiceServer(s, srv)
 	reflection.Register(s)
 
 	// Initialize callbacks for real-time events

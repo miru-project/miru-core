@@ -9,6 +9,7 @@ type EventType string
 const (
 	DownloadStatusUpdate EventType = "download_status_update"
 	ExtensionUpdate      EventType = "extension_update"
+	HistoryUpdate        EventType = "history_update"
 )
 
 type Event struct {

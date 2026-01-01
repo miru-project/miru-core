@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package miru;
+
+option go_package = "github.com/miru-project/miru-core/proto";
+
+message AppSetting {
+  string key = 1;
+  string value = 2;
+}
+
+message GetAppSettingRequest {}
+
+message GetAppSettingResponse { repeated AppSetting settings = 1; }
+
+message SetAppSettingRequest { repeated AppSetting settings = 1; }
+
+message SetAppSettingResponse { string message = 1; }
+
+service AppSettingService {
+  rpc GetAppSetting(GetAppSettingRequest) returns (GetAppSettingResponse);
+  rpc SetAppSetting(SetAppSettingRequest) returns (SetAppSettingResponse);
+}

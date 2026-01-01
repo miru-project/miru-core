@@ -1,15 +1,16 @@
 package download
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"path"
 	"path/filepath"
 
 	log "github.com/miru-project/miru-core/pkg/logger"
+	"github.com/valyala/fasthttp"
 
 	"github.com/miru-project/miru-core/pkg/network"
 )
@@ -47,7 +48,7 @@ func downloadMp4Task(param *Mp4TaskParam, ctx context.Context) {
 	}
 
 }
-func (t *Mp4TaskParam) readAndSavePartial(res *http.Response) ([]byte, error) {
+func (t *Mp4TaskParam) readAndSavePartial(res *fasthttp.Response) ([]byte, error) {
 
 	var downloadedBytes int64 = t.startingPoint
 	const bufferSize = 1024 * 1024 // 1MB
@@ -55,8 +56,8 @@ func (t *Mp4TaskParam) readAndSavePartial(res *http.Response) ([]byte, error) {
 	taskId := *t.taskID
 	ctx := t.ctx
 
-	totalBytes := res.ContentLength
-	if rangeHeader := res.Header.Get("Content-Range"); rangeHeader != "" {
+	totalBytes := int64(res.Header.ContentLength())
+	if rangeHeader := string(res.Header.Peek("Content-Range")); rangeHeader != "" {
 		var totalSize int64
 		if _, err := fmt.Sscanf(rangeHeader, "bytes %d-%d/%d",
 			new(int64), new(int64), &totalSize); err == nil {
@@ -96,6 +97,9 @@ func (t *Mp4TaskParam) readAndSavePartial(res *http.Response) ([]byte, error) {
 	}
 	defer file.Close()
 
+	body := res.Body()
+	bodyReader := bytes.NewReader(body)
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -103,7 +107,7 @@ func (t *Mp4TaskParam) readAndSavePartial(res *http.Response) ([]byte, error) {
 			log.Printf("Mp4 download task %d canceled", taskId)
 			return nil, nil
 		default:
-			n, err := res.Body.Read(buf)
+			n, err := bodyReader.Read(buf)
 
 			if n > 0 {
 				_, writeErr := file.Write(buf[:n])

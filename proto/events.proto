@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package miru;
+
+import "proto/common.proto";
+
+option go_package = "github.com/miru-project/miru-core/proto";
+
+message WatchEventsRequest {}
+
+message WatchEventsResponse {
+  oneof event {
+    DownloadEvent download_event = 1;
+    ExtensionEvent extension_event = 2;
+    HistoryEvent history_event = 3;
+  }
+}
+
+message DownloadEvent { map<int32, DownloadProgress> download_status = 1; }
+
+message ExtensionEvent { repeated ExtensionMeta extension_meta = 1; }
+
+message HistoryEvent { repeated History history = 1; }
+
+service EventService {
+  rpc WatchEvents(WatchEventsRequest) returns (stream WatchEventsResponse);
+}

@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package miru;
+
+option go_package = "github.com/miru-project/miru-core/proto";
+
+// Repo
+message GetReposRequest {}
+message GetReposResponse {
+  string data = 1; // JSON string for now
+}
+
+message SetRepoRequest {
+  string repo_url = 1;
+  string name = 2;
+}
+message SetRepoResponse { string message = 1; }
+
+message DeleteRepoRequest { string repo_url = 1; }
+message DeleteRepoResponse { string message = 1; }
+
+message FetchRepoListRequest {}
+message FetchRepoListResponse {
+  string data = 1; // JSON string for now
+}
+
+service RepoService {
+  rpc GetRepos(GetReposRequest) returns (GetReposResponse);
+  rpc SetRepo(SetRepoRequest) returns (SetRepoResponse);
+  rpc DeleteRepo(DeleteRepoRequest) returns (DeleteRepoResponse);
+  rpc FetchRepoList(FetchRepoListRequest) returns (FetchRepoListResponse);
+}

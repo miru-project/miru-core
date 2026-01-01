@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package miru;
+
+import "proto/common.proto";
+
+option go_package = "github.com/miru-project/miru-core/proto";
+
+message SearchRequest {
+  string pkg = 1;
+  string kw = 2;
+  int32 page = 3;
+  string filter = 4;
+}
+
+message SearchResponse { repeated ExtensionListItem items = 1; }
+
+message LatestRequest {
+  string pkg = 1;
+  int32 page = 2;
+}
+
+message LatestResponse { repeated ExtensionListItem items = 1; }
+
+message DetailRequest {
+  string pkg = 1;
+  string url = 2;
+}
+
+message DetailResponse {
+  string data = 1; // JSON encoded for now or detailed message
+}
+
+message WatchRequest {
+  string pkg = 1;
+  string url = 2;
+}
+
+message WatchResponse {
+  string data = 1; // JSON encoded for now or detailed message
+}
+
+// Extension Management
+message DownloadExtensionRequest {
+  string repo_url = 1;
+  string pkg = 2;
+}
+message DownloadExtensionResponse { string message = 1; }
+
+message RemoveExtensionRequest { string pkg = 2; }
+message RemoveExtensionResponse { string message = 1; }
+
+service ExtensionService {
+  rpc Search(SearchRequest) returns (SearchResponse);
+  rpc Latest(LatestRequest) returns (LatestResponse);
+  rpc Detail(DetailRequest) returns (DetailResponse);
+  rpc Watch(WatchRequest) returns (WatchResponse);
+  rpc DownloadExtension(DownloadExtensionRequest)
+      returns (DownloadExtensionResponse);
+  rpc RemoveExtension(RemoveExtensionRequest) returns (RemoveExtensionResponse);
+}

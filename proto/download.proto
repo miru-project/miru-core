@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package miru;
+
+import "proto/common.proto";
+
+option go_package = "github.com/miru-project/miru-core/proto";
+
+message GetDownloadStatusRequest {}
+message GetDownloadStatusResponse {
+  map<int32, DownloadProgress> download_status = 1;
+}
+
+message CancelDownloadRequest { int32 task_id = 1; }
+message CancelDownloadResponse { string message = 1; }
+
+message ResumeDownloadRequest { int32 task_id = 1; }
+message ResumeDownloadResponse { string message = 1; }
+
+message PauseDownloadRequest { int32 task_id = 1; }
+message PauseDownloadResponse { string message = 1; }
+
+message DownloadBangumiRequest {
+  string url = 1;
+  string download_path = 2;
+  map<string, string> header = 3;
+  bool is_hls = 4;
+  string package = 5;
+  string key = 6;
+  string title = 7;
+}
+message DownloadBangumiResponse {
+  int32 task_id = 1;
+  repeated AvailableHlsVariant variant_summary = 2;
+  bool is_downloading = 3;
+}
+
+message GetAllDownloadsRequest {}
+message GetAllDownloadsResponse { repeated Download downloads = 1; }
+
+message DeleteDownloadRequest { int32 id = 1; }
+message DeleteDownloadResponse { string message = 1; }
+
+// Torrent
+message ListTorrentRequest {}
+message ListTorrentResponse { repeated TorrentResult torrents = 1; }
+
+message AddTorrentRequest {
+  bytes torrent = 1;
+  string package = 2;
+  string title = 3;
+}
+message AddTorrentResponse {
+  string info_hash = 1;
+  string detail_json = 2;
+  repeated string files = 3;
+}
+
+message DeleteTorrentRequest { string info_hash = 1; }
+message DeleteTorrentResponse { string message = 1; }
+
+message AddMagnetRequest {
+  string url = 1;
+  string package = 2;
+  string title = 3;
+}
+message AddMagnetResponse {
+  string info_hash = 1;
+  string detail_json = 2;
+  repeated string files = 3;
+}
+
+service DownloadService {
+  rpc GetDownloadStatus(GetDownloadStatusRequest)
+      returns (GetDownloadStatusResponse);
+  rpc CancelDownload(CancelDownloadRequest) returns (CancelDownloadResponse);
+  rpc ResumeDownload(ResumeDownloadRequest) returns (ResumeDownloadResponse);
+  rpc PauseDownload(PauseDownloadRequest) returns (PauseDownloadResponse);
+  rpc DownloadBangumi(DownloadBangumiRequest) returns (DownloadBangumiResponse);
+  rpc GetAllDownloads(GetAllDownloadsRequest) returns (GetAllDownloadsResponse);
+  rpc DeleteDownload(DeleteDownloadRequest) returns (DeleteDownloadResponse);
+
+  // Torrent
+  rpc ListTorrent(ListTorrentRequest) returns (ListTorrentResponse);
+  rpc AddTorrent(AddTorrentRequest) returns (AddTorrentResponse);
+  rpc DeleteTorrent(DeleteTorrentRequest) returns (DeleteTorrentResponse);
+  rpc AddMagnet(AddMagnetRequest) returns (AddMagnetResponse);
+}

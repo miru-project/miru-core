@@ -3,13 +3,12 @@ package jsExtension
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"reflect"
-	"strings"
 	"time"
 
 	log "github.com/miru-project/miru-core/pkg/logger"
+	"github.com/valyala/fasthttp"
 
 	"github.com/dop251/goja"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
@@ -31,7 +30,7 @@ type Response struct {
 	Headers    map[string]string
 }
 
-func Request[T any](url string, options *RequestOptions, responseHandler func(*http.Response) (T, error)) (Response, error) {
+func Request[T any](reqUrl string, options *RequestOptions, responseHandler func(*fasthttp.Response) (T, error)) (Response, error) {
 	if options == nil {
 		options = &RequestOptions{
 			Method: "GET",
@@ -41,19 +40,22 @@ func Request[T any](url string, options *RequestOptions, responseHandler func(*h
 	if options.Method == "" {
 		options.Method = "GET"
 	}
-	log.Println("Request URL:", url)
-	client := &http.Client{}
-	if options.Timeout > 0 {
-		client.Timeout = time.Duration(options.Timeout) * time.Millisecond
-	}
+	log.Println("Request URL:", reqUrl)
 
-	req, err := http.NewRequest(options.Method, url, nil)
-	if err != nil {
-		return Response{}, err
+	req := fasthttp.AcquireRequest()
+	res := fasthttp.AcquireResponse()
+	defer fasthttp.ReleaseRequest(req)
+	defer fasthttp.ReleaseResponse(res)
+
+	req.SetRequestURI(reqUrl)
+	req.Header.SetMethod(options.Method)
+
+	if options.Timeout > 0 {
+		// fasthttp handle timeout in client.DoTimeout or by setting client.ReadTimeout
 	}
 
 	if options.Body != "" && (options.Method == "POST" || options.Method == "PUT" || options.Method == "PATCH") {
-		req.Body = io.NopCloser(strings.NewReader(options.Body))
+		req.SetBodyString(options.Body)
 	}
 
 	// Set headers
@@ -64,27 +66,30 @@ func Request[T any](url string, options *RequestOptions, responseHandler func(*h
 	}
 
 	// Set default headers if not present
-	if req.Header.Get("User-Agent") == "" {
+	if string(req.Header.Peek("User-Agent")) == "" {
 		req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 	}
 
-	resp, err := client.Do(req)
+	var err error
+	if options.Timeout > 0 {
+		err = fasthttp.DoTimeout(req, res, time.Duration(options.Timeout)*time.Millisecond)
+	} else {
+		err = fasthttp.Do(req, res)
+	}
+
 	if err != nil {
 		return Response{}, err
 	}
-	defer resp.Body.Close()
 
-	bodyContent, err := responseHandler(resp)
+	bodyContent, err := responseHandler(res)
 	if err != nil {
 		return Response{}, err
 	}
 
 	headers := make(map[string]string)
-	for k, v := range resp.Header {
-		if len(v) > 0 {
-			headers[k] = v[0]
-		}
-	}
+	res.Header.VisitAll(func(k, v []byte) {
+		headers[string(k)] = string(v)
+	})
 
 	var bodyStr string
 	switch v := any(bodyContent).(type) {
@@ -94,8 +99,8 @@ func Request[T any](url string, options *RequestOptions, responseHandler func(*h
 		bodyStr = fmt.Sprintf("%v", v)
 	}
 	return Response{
-		StatusCode: resp.StatusCode,
-		StatusText: resp.Status,
+		StatusCode: res.StatusCode(),
+		StatusText: http.StatusText(res.StatusCode()),
 		Body:       bodyStr,
 		Headers:    headers,
 	}, nil

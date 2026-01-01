@@ -23,6 +23,11 @@ func HelloMiru() (*result.Result[any], error) {
 	// Download status
 	out["downloadStatus"] = download.DownloadStatus()
 	out["torrent"] = torrent.TorrentStatus()
+
+	// History
+	histories, _ := db.GetHistorysFiltered(nil, nil)
+	out["history"] = histories
+
 	return result.NewSuccessResult(out), nil
 }
 

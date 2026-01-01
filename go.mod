@@ -21,7 +21,6 @@ require (
 )
 
 require (
-	github.com/mattn/go-sqlite3 v1.14.32 // indirect
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/RoaringBitmap/roaring v1.2.3 // indirect
 	github.com/ajwerner/btree v0.0.0-20211221152037-f427b3e689c0 // indirect
@@ -63,6 +62,7 @@ require (
 	github.com/google/gopacket v1.1.19 // indirect
 	github.com/huandu/xstrings v1.3.3 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
+	github.com/mattn/go-sqlite3 v1.14.32 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/mr-tron/base58 v1.2.0 // indirect
 	github.com/mschoch/smat v0.2.0 // indirect
@@ -144,7 +144,7 @@ require (
 	github.com/refraction-networking/utls v1.8.1 // indirect
 	github.com/studio-b12/gowebdav v0.11.0 // direct
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.68.0 // indirect
+	github.com/valyala/fasthttp v1.68.0
 	github.com/zclconf/go-cty v1.17.0 // indirect
 	github.com/zclconf/go-cty-yaml v1.1.0 // indirect
 	golang.org/x/crypto v0.45.0 // indirect

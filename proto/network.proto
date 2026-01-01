@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package miru;
+
+option go_package = "github.com/miru-project/miru-core/proto";
+
+// Network
+message SetCookieRequest {
+  string cookie = 1;
+  string url = 2;
+}
+message SetCookieResponse { string message = 1; }
+
+service NetworkService {
+  rpc SetCookie(SetCookieRequest) returns (SetCookieResponse);
+}

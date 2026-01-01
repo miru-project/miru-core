@@ -1,24 +1,23 @@
 package network
 
 import (
-	"bytes"
 	"context"
-	"io"
+	"fmt"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
-
 	"time"
 
 	"github.com/Danny-Dasilva/CycleTLS/cycletls"
 	logger "github.com/gofiber/fiber/v2/log"
 	log "github.com/miru-project/miru-core/pkg/logger"
+	"github.com/valyala/fasthttp"
+	"github.com/valyala/fasthttp/fasthttpproxy"
 )
 
-var defaultClient *http.Client
-var defaultTransport *http.Transport
+var defaultClient *fasthttp.Client
 
 // Request makes an HTTP request and returns the response as type T.
 //
@@ -31,7 +30,7 @@ var defaultTransport *http.Transport
 // Returns:
 //
 //	The response body as type T (string or []byte), and an error if any occurred.
-func Request[T StringOrBytes](url string, option *RequestOptions, readPreference func(*http.Response) ([]byte, error)) (T, error) {
+func Request[T StringOrBytes](url string, option *RequestOptions, readPreference func(*fasthttp.Response) ([]byte, error)) (T, error) {
 
 	log.Println("Making request to:", url)
 
@@ -78,59 +77,82 @@ func cookieHeader(rawCookies string) []*http.Cookie {
 }
 
 // Request with built-in http client
-func request[T StringOrBytes](url string, option *RequestOptions, readPreference func(*http.Response) ([]byte, error)) (T, error) {
+func request[T StringOrBytes](reqUrl string, option *RequestOptions, readPreference func(*fasthttp.Response) ([]byte, error)) (T, error) {
 
-	// create request body
-	var requestBody io.Reader
+	req := fasthttp.AcquireRequest()
+	res := fasthttp.AcquireResponse()
+	defer fasthttp.ReleaseRequest(req)
+	defer fasthttp.ReleaseResponse(res)
 
+	req.SetRequestURI(reqUrl)
+	req.Header.SetMethod(checkRequestMethod(option.Method))
+
+	// Set headers
+	for k, v := range option.Headers {
+		req.Header.Set(k, v)
+	}
+
+	// Body
 	if option.RequestBody != "" {
-		requestBody = bytes.NewBuffer([]byte(option.RequestBody))
+		req.SetBodyString(option.RequestBody)
 	} else if option.RequestBodyRaw != nil {
-		requestBody = bytes.NewBuffer(option.RequestBodyRaw)
-	} else {
-		requestBody = nil
+		req.SetBody(option.RequestBodyRaw)
 	}
 
-	// Create a new request
-	req, err := http.NewRequest(checkRequestMethod(option.Method), url, requestBody)
-	if err != nil {
-		return T(""), err
-	}
+	u, _ := url.Parse(reqUrl)
 
 	// Add Cookie from cookiejar
-	for _, value := range jar.Cookies(req.URL) {
-		req.AddCookie(value)
+	for _, value := range jar.Cookies(u) {
+		req.Header.SetCookie(value.Name, value.Value)
 	}
 
 	// Parse cookie string from request header
 	for _, value := range cookieHeader(option.Headers["Cookie"]) {
-		req.AddCookie(value)
+		req.Header.SetCookie(value.Name, value.Value)
 	}
 
-	var client *http.Client
+	var client *fasthttp.Client
 
 	if option.ProxyHost != "" {
-		client = &http.Client{}
-		client.Transport = setupProxy(option)
+		proxyUrl := fmt.Sprintf("%s://%s", option.ProxyScheme, option.ProxyHost)
+		if option.ProxyUserName != "" {
+			proxyUrl = fmt.Sprintf("%s://%s:%s@%s", option.ProxyScheme, option.ProxyUserName, option.ProxyPassword, option.ProxyHost)
+		}
+		client = &fasthttp.Client{
+			Dial: fasthttpproxy.FasthttpHTTPDialer(proxyUrl),
+		}
 	} else {
 		client = defaultClient
 	}
 
-	resp, err := client.Do(req)
+	err := client.Do(req, res)
 	if err != nil {
 		return T(""), err
 	}
-	defer resp.Body.Close()
 
 	// Read the response body
-	body, err := readPreference(resp)
+	body, err := readPreference(res)
 	if err != nil {
 		return T(""), err
 	}
 
 	// Save Cookies
-	resCookies := resp.Cookies()
-	jar.SetCookies(req.URL, resCookies)
+	res.Header.VisitAllCookie(func(key, value []byte) {
+		c := fasthttp.AcquireCookie()
+		defer fasthttp.ReleaseCookie(c)
+		c.ParseBytes(value)
+
+		hc := &http.Cookie{
+			Name:     string(c.Key()),
+			Value:    string(c.Value()),
+			Domain:   string(c.Domain()),
+			Path:     string(c.Path()),
+			Expires:  c.Expire(),
+			Secure:   c.Secure(),
+			HttpOnly: c.HTTPOnly(),
+		}
+		jar.SetCookies(u, []*http.Cookie{hc})
+	})
 
 	var result T
 
@@ -151,26 +173,6 @@ func checkRequestMethod(method string) string {
 	default:
 		return "GET"
 	}
-}
-
-// setup proxy for http client
-func setupProxy(option *RequestOptions) *http.Transport {
-
-	transport := defaultTransport.Clone()
-
-	if option.ProxyHost != "" {
-		transport.Proxy = http.ProxyURL(&url.URL{
-			Scheme: option.ProxyScheme,
-			Host:   option.ProxyHost,
-			User:   url.UserPassword(option.ProxyUserName, option.ProxyPassword),
-		})
-
-	} else {
-
-		transport.Proxy = http.ProxyFromEnvironment
-
-	}
-	return transport
 }
 
 func SaveFile(filePath string, data *[]byte) error {
@@ -204,8 +206,19 @@ func DeleteFile(filePath string) error {
 }
 
 // ReadAll reads the entire response body and returns it as a byte slice.
-func ReadAll(res *http.Response) ([]byte, error) {
-	return io.ReadAll(res.Body)
+func ReadAll(res *fasthttp.Response) ([]byte, error) {
+	// check if compressed
+	contentEncoding := string(res.Header.Peek("Content-Encoding"))
+	switch contentEncoding {
+	case "gzip":
+		return res.BodyGunzip()
+	case "deflate":
+		return res.BodyInflate()
+	case "br":
+		return res.BodyUnbrotli()
+	default:
+		return res.Body(), nil
+	}
 }
 
 type StringOrBytes interface {
@@ -248,14 +261,11 @@ func dnsResolve() {
 func Init() {
 	go dnsResolve()
 	initCookieJar()
-	defaultTransport = &http.Transport{
-		Proxy:               http.ProxyFromEnvironment,
-		MaxIdleConns:        1024,
-		MaxIdleConnsPerHost: 100,
-		IdleConnTimeout:     90 * time.Second,
-	}
-	defaultClient = &http.Client{
-		Transport: defaultTransport,
-		Timeout:   15 * time.Second,
+	defaultClient = &fasthttp.Client{
+		Name:                "fasthttp",
+		MaxIdleConnDuration: 90 * time.Second,
+		ReadTimeout:         15 * time.Second,
+		WriteTimeout:        15 * time.Second,
+		MaxConnsPerHost:     100,
 	}
 }
