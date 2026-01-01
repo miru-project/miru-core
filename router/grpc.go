@@ -467,8 +467,8 @@ func (s *MiruCoreServer) PauseDownload(ctx context.Context, req *proto.PauseDown
 	return &proto.PauseDownloadResponse{Message: "Success"}, nil
 }
 
-func (s *MiruCoreServer) DownloadBangumi(ctx context.Context, req *proto.DownloadBangumiRequest) (*proto.DownloadBangumiResponse, error) {
-	res, err := download.DownloadBangumi(req.DownloadPath, req.Url, req.Header, req.IsHls, req.Title, req.Package, req.Key)
+func (s *MiruCoreServer) Download(ctx context.Context, req *proto.DownloadRequest) (*proto.DownloadResponse, error) {
+	res, err := download.Download(req.DownloadPath, req.Url, req.Header, req.MediaType, req.Title, req.Package, req.Key)
 	if err != nil {
 		return nil, err
 	}
@@ -482,7 +482,7 @@ func (s *MiruCoreServer) DownloadBangumi(ctx context.Context, req *proto.Downloa
 		}
 	}
 
-	return &proto.DownloadBangumiResponse{
+	return &proto.DownloadResponse{
 		TaskId:         int32(res.TaskID),
 		VariantSummary: protoVariants,
 		IsDownloading:  res.IsDownloading,
@@ -553,7 +553,7 @@ func (s *MiruCoreServer) ListTorrent(ctx context.Context, req *proto.ListTorrent
 }
 
 func (s *MiruCoreServer) AddTorrent(ctx context.Context, req *proto.AddTorrentRequest) (*proto.AddTorrentResponse, error) {
-	res, err := torrent.AddTorrentBytes(req.Torrent, req.Title, req.Package)
+	res, err := torrent.AddTorrent(req.Url, req.Title, req.Package)
 	if err != nil {
 		return nil, err
 	}

@@ -85,7 +85,7 @@ func downloadHls(filePath string, url string, header map[string]string, title st
 	iv := getIV(playList.Key, playList.SeqNo)
 
 	taskParamMap[taskId] = &HlsTaskParam{
-		TaskParam:   TaskParam{taskID: &taskId},
+		TaskParam:   TaskParam{taskID: taskId},
 		playList:    playList,
 		filePath:    filePath,
 		header:      header,
@@ -166,7 +166,7 @@ func downloadSegment(param *HlsTaskParam, ctx context.Context) {
 
 	key := param.playList.Key
 	seg := param.playList.Segments
-	taskId := *param.taskID
+	taskId := param.taskID
 	completed := status[taskId].Progrss
 
 	for i, s := range seg {

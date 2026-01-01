@@ -23,7 +23,7 @@ const (
 	DownloadService_CancelDownload_FullMethodName    = "/miru.DownloadService/CancelDownload"
 	DownloadService_ResumeDownload_FullMethodName    = "/miru.DownloadService/ResumeDownload"
 	DownloadService_PauseDownload_FullMethodName     = "/miru.DownloadService/PauseDownload"
-	DownloadService_DownloadBangumi_FullMethodName   = "/miru.DownloadService/DownloadBangumi"
+	DownloadService_Download_FullMethodName          = "/miru.DownloadService/Download"
 	DownloadService_GetAllDownloads_FullMethodName   = "/miru.DownloadService/GetAllDownloads"
 	DownloadService_DeleteDownload_FullMethodName    = "/miru.DownloadService/DeleteDownload"
 	DownloadService_ListTorrent_FullMethodName       = "/miru.DownloadService/ListTorrent"
@@ -40,7 +40,7 @@ type DownloadServiceClient interface {
 	CancelDownload(ctx context.Context, in *CancelDownloadRequest, opts ...grpc.CallOption) (*CancelDownloadResponse, error)
 	ResumeDownload(ctx context.Context, in *ResumeDownloadRequest, opts ...grpc.CallOption) (*ResumeDownloadResponse, error)
 	PauseDownload(ctx context.Context, in *PauseDownloadRequest, opts ...grpc.CallOption) (*PauseDownloadResponse, error)
-	DownloadBangumi(ctx context.Context, in *DownloadBangumiRequest, opts ...grpc.CallOption) (*DownloadBangumiResponse, error)
+	Download(ctx context.Context, in *DownloadRequest, opts ...grpc.CallOption) (*DownloadResponse, error)
 	GetAllDownloads(ctx context.Context, in *GetAllDownloadsRequest, opts ...grpc.CallOption) (*GetAllDownloadsResponse, error)
 	DeleteDownload(ctx context.Context, in *DeleteDownloadRequest, opts ...grpc.CallOption) (*DeleteDownloadResponse, error)
 	// Torrent
@@ -98,10 +98,10 @@ func (c *downloadServiceClient) PauseDownload(ctx context.Context, in *PauseDown
 	return out, nil
 }
 
-func (c *downloadServiceClient) DownloadBangumi(ctx context.Context, in *DownloadBangumiRequest, opts ...grpc.CallOption) (*DownloadBangumiResponse, error) {
+func (c *downloadServiceClient) Download(ctx context.Context, in *DownloadRequest, opts ...grpc.CallOption) (*DownloadResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DownloadBangumiResponse)
-	err := c.cc.Invoke(ctx, DownloadService_DownloadBangumi_FullMethodName, in, out, cOpts...)
+	out := new(DownloadResponse)
+	err := c.cc.Invoke(ctx, DownloadService_Download_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +176,7 @@ type DownloadServiceServer interface {
 	CancelDownload(context.Context, *CancelDownloadRequest) (*CancelDownloadResponse, error)
 	ResumeDownload(context.Context, *ResumeDownloadRequest) (*ResumeDownloadResponse, error)
 	PauseDownload(context.Context, *PauseDownloadRequest) (*PauseDownloadResponse, error)
-	DownloadBangumi(context.Context, *DownloadBangumiRequest) (*DownloadBangumiResponse, error)
+	Download(context.Context, *DownloadRequest) (*DownloadResponse, error)
 	GetAllDownloads(context.Context, *GetAllDownloadsRequest) (*GetAllDownloadsResponse, error)
 	DeleteDownload(context.Context, *DeleteDownloadRequest) (*DeleteDownloadResponse, error)
 	// Torrent
@@ -206,8 +206,8 @@ func (UnimplementedDownloadServiceServer) ResumeDownload(context.Context, *Resum
 func (UnimplementedDownloadServiceServer) PauseDownload(context.Context, *PauseDownloadRequest) (*PauseDownloadResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PauseDownload not implemented")
 }
-func (UnimplementedDownloadServiceServer) DownloadBangumi(context.Context, *DownloadBangumiRequest) (*DownloadBangumiResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method DownloadBangumi not implemented")
+func (UnimplementedDownloadServiceServer) Download(context.Context, *DownloadRequest) (*DownloadResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Download not implemented")
 }
 func (UnimplementedDownloadServiceServer) GetAllDownloads(context.Context, *GetAllDownloadsRequest) (*GetAllDownloadsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAllDownloads not implemented")
@@ -320,20 +320,20 @@ func _DownloadService_PauseDownload_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DownloadService_DownloadBangumi_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DownloadBangumiRequest)
+func _DownloadService_Download_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DownloadRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DownloadServiceServer).DownloadBangumi(ctx, in)
+		return srv.(DownloadServiceServer).Download(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DownloadService_DownloadBangumi_FullMethodName,
+		FullMethod: DownloadService_Download_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DownloadServiceServer).DownloadBangumi(ctx, req.(*DownloadBangumiRequest))
+		return srv.(DownloadServiceServer).Download(ctx, req.(*DownloadRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -470,8 +470,8 @@ var DownloadService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _DownloadService_PauseDownload_Handler,
 		},
 		{
-			MethodName: "DownloadBangumi",
-			Handler:    _DownloadService_DownloadBangumi_Handler,
+			MethodName: "Download",
+			Handler:    _DownloadService_Download_Handler,
 		},
 		{
 			MethodName: "GetAllDownloads",

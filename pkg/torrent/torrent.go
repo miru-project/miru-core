@@ -50,13 +50,12 @@ func syncProgress() {
 			if t.Info() == nil {
 				continue
 			}
-			kbReceived := t.BytesCompleted() / 1024
-			totalKb := t.Length() / 1024
-			progress := int(kbReceived * 100 / totalKb)
+			kbReceived := int(t.BytesCompleted() / 1024)
+			totalKb := int(t.Length() / 1024)
 
 			db.UpsertDownload(&ent.Download{
 				Key:      hex,
-				Progress: []int{progress},
+				Progress: []int{kbReceived, totalKb},
 				Status:   "Downloading",
 			})
 		}
@@ -67,55 +66,57 @@ func TorrentStatus() torrent.ClientStats {
 	return BTClient.Stats()
 }
 
+// Handle for extension Watch
 func AddMagnet(magnet string, title string, pkg string) (result.TorrentDetailResult, error) {
-	t, err := BTClient.AddMagnet(magnet)
+	t, err := FetchMagnet(magnet)
 	if err != nil {
 		return result.TorrentDetailResult{}, err
 	}
-
-	<-t.GotInfo()
 	return addStream(t, title, pkg, magnet)
 }
 
-func AddTorrentBytes(body []byte, title string, pkg string) (result.TorrentDetailResult, error) {
-	mediaInfo, err := metainfo.Load(bytes.NewReader(body))
+func FetchMagnet(magnet string) (*torrent.Torrent, error) {
+	t, err := BTClient.AddMagnet(magnet)
 	if err != nil {
-		return result.TorrentDetailResult{}, err
+		return nil, err
 	}
-
-	t, err := BTClient.AddTorrent(mediaInfo)
-	if err != nil {
-		return result.TorrentDetailResult{}, err
-	}
-
-	return addStream(t, title, pkg, "")
+	<-t.GotInfo()
+	return t, nil
 }
 
+// Handle for extension Watch
 func AddTorrent(link string, title string, pkg string) (result.TorrentDetailResult, error) {
-	body, err := network.Request[[]byte](link, &network.RequestOptions{}, network.ReadAll)
+	t, err := FetchTorrent(link)
 	if err != nil {
 		return result.TorrentDetailResult{}, err
+	}
+	return addStream(t, title, pkg, link)
+}
+
+func FetchTorrent(link string) (*torrent.Torrent, error) {
+	body, err := network.Request[[]byte](link, &network.RequestOptions{}, network.ReadAll)
+	if err != nil {
+		return nil, err
 	}
 
 	mediaInfo, err := metainfo.Load(bytes.NewReader(body))
 	if err != nil {
-		return result.TorrentDetailResult{}, err
+		return nil, err
 	}
 
 	t, err := BTClient.AddTorrent(mediaInfo)
 	if err != nil {
-		return result.TorrentDetailResult{}, err
+		return nil, err
 	}
 
-	return addStream(t, title, pkg, link)
+	return t, nil
 }
 
 func addStream(t *torrent.Torrent, title string, pkg string, url string) (result.TorrentDetailResult, error) {
 	hex := t.InfoHash().HexString()
-
 	Torrents[hex] = t
-
 	files := []string{}
+
 	if len(t.Info().Files) == 0 {
 		files = append(files, t.Name())
 	} else {

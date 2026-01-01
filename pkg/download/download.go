@@ -2,15 +2,18 @@ package download
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/pkg/db"
+	"github.com/miru-project/miru-core/pkg/torrent"
 )
 
 var tasks = sync.Map{}
@@ -36,18 +39,19 @@ type Progress struct {
 }
 
 type TaskParam struct {
-	taskID *int
+	taskID int
 }
 
 type TaskParamInterface interface {
-	GetTaskID() *int
+	GetTaskID() int
 }
 
 type MediaType string
 
 const (
-	Hls MediaType = "hls"
-	Mp4 MediaType = "mp4"
+	Hls     MediaType = "hls"
+	Mp4     MediaType = "mp4"
+	Torrent MediaType = "torrent"
 )
 
 type Status string
@@ -60,7 +64,7 @@ const (
 	Canceled    Status = "Canceled"
 )
 
-func (t *TaskParam) GetTaskID() *int {
+func (t *TaskParam) GetTaskID() int {
 	return t.taskID
 }
 
@@ -140,7 +144,8 @@ func ResumeTask(taskId int) error {
 		return resumeHlsTask(taskId)
 	case Mp4:
 		return resumeMp4Task(taskId)
-
+	case Torrent:
+		return resumeTorrentTask(taskId)
 	}
 
 	return fmt.Errorf("task %d not found", taskId)
@@ -150,7 +155,7 @@ func ResumeTask(taskId int) error {
 func startDownloadTask[T TaskParamInterface](param T, taskFunc func(param T, ctx context.Context)) {
 
 	ctx, cancel := context.WithCancel(context.Background())
-	taskId := *param.GetTaskID()
+	taskId := param.GetTaskID()
 	tasks.Store(taskId, cancel)
 
 	// Start the task in a goroutine
@@ -195,6 +200,10 @@ func (p *Progress) syncDB() {
 	}
 }
 
+func GetTaskParam(taskId int) TaskParamInterface {
+	return taskParamMap[taskId]
+}
+
 func Init() {
 	downloads, err := db.GetAllDownloads()
 	if err != nil {
@@ -203,11 +212,22 @@ func Init() {
 	for _, d := range downloads {
 		id := genTaskID()
 		p := 0
+		total := 0
 		if len(d.Progress) > 0 {
 			p = d.Progress[0]
 		}
+		if len(d.Progress) > 1 {
+			total = d.Progress[1]
+		}
+
+		headers := make(map[string]string)
+		if d.Headers != "" {
+			_ = json.Unmarshal([]byte(d.Headers), &headers)
+		}
+
 		status[id] = &Progress{
 			Progrss:   p,
+			Total:     total,
 			Status:    Status(d.Status),
 			MediaType: MediaType(d.MediaType),
 			TaskID:    id,
@@ -218,8 +238,56 @@ func Init() {
 			Headers:   d.Headers,
 			SavePath:  d.SavePath,
 		}
+		// status
 		if status[id].Status == Downloading {
 			status[id].Status = Paused
 		}
+
+		// Reconstruct TaskParam
+		switch MediaType(d.MediaType) {
+		case Hls:
+			taskParamMap[id] = &HlsTaskParam{
+				TaskParam:   TaskParam{taskID: id},
+				playListUrl: d.URL[0],
+				filePath:    d.SavePath,
+				header:      headers,
+			}
+		case Mp4:
+			taskParamMap[id] = &Mp4TaskParam{
+				TaskParam: TaskParam{taskID: id},
+				url:       d.URL[0],
+				filePath:  d.SavePath,
+				header:    headers,
+				title:     d.Title,
+				pkg:       d.Package,
+				key:       d.Key,
+			}
+		case Torrent:
+			taskParamMap[id] = &TorrentTaskParam{
+				TaskParam: TaskParam{taskID: id},
+				url:       d.URL[0],
+				title:     d.Title,
+				pkg:       d.Package,
+			}
+		}
 	}
+}
+
+func resumeTorrentTask(taskId int) error {
+	taskParam := taskParamMap[taskId]
+	if taskParam == nil {
+		return fmt.Errorf("task %d not found", taskId)
+	}
+
+	torrentTaskParam, ok := taskParam.(*TorrentTaskParam)
+	if !ok {
+		return fmt.Errorf("task %d is not a torrent task", taskId)
+	}
+
+	if strings.HasPrefix(torrentTaskParam.url, "magnet:") {
+		_, err := torrent.AddMagnet(torrentTaskParam.url, torrentTaskParam.title, torrentTaskParam.pkg)
+		return err
+	}
+	_, err := torrent.AddTorrent(torrentTaskParam.url, torrentTaskParam.title, torrentTaskParam.pkg)
+	return err
 }

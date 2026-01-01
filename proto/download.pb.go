@@ -365,12 +365,12 @@ func (x *PauseDownloadResponse) GetMessage() string {
 	return ""
 }
 
-type DownloadBangumiRequest struct {
+type DownloadRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
 	DownloadPath  string                 `protobuf:"bytes,2,opt,name=download_path,json=downloadPath,proto3" json:"download_path,omitempty"`
 	Header        map[string]string      `protobuf:"bytes,3,rep,name=header,proto3" json:"header,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	IsHls         bool                   `protobuf:"varint,4,opt,name=is_hls,json=isHls,proto3" json:"is_hls,omitempty"`
+	MediaType     string                 `protobuf:"bytes,4,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
 	Package       string                 `protobuf:"bytes,5,opt,name=package,proto3" json:"package,omitempty"`
 	Key           string                 `protobuf:"bytes,6,opt,name=key,proto3" json:"key,omitempty"`
 	Title         string                 `protobuf:"bytes,7,opt,name=title,proto3" json:"title,omitempty"`
@@ -378,20 +378,20 @@ type DownloadBangumiRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DownloadBangumiRequest) Reset() {
-	*x = DownloadBangumiRequest{}
+func (x *DownloadRequest) Reset() {
+	*x = DownloadRequest{}
 	mi := &file_proto_download_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DownloadBangumiRequest) String() string {
+func (x *DownloadRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DownloadBangumiRequest) ProtoMessage() {}
+func (*DownloadRequest) ProtoMessage() {}
 
-func (x *DownloadBangumiRequest) ProtoReflect() protoreflect.Message {
+func (x *DownloadRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_download_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -403,61 +403,61 @@ func (x *DownloadBangumiRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DownloadBangumiRequest.ProtoReflect.Descriptor instead.
-func (*DownloadBangumiRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use DownloadRequest.ProtoReflect.Descriptor instead.
+func (*DownloadRequest) Descriptor() ([]byte, []int) {
 	return file_proto_download_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *DownloadBangumiRequest) GetUrl() string {
+func (x *DownloadRequest) GetUrl() string {
 	if x != nil {
 		return x.Url
 	}
 	return ""
 }
 
-func (x *DownloadBangumiRequest) GetDownloadPath() string {
+func (x *DownloadRequest) GetDownloadPath() string {
 	if x != nil {
 		return x.DownloadPath
 	}
 	return ""
 }
 
-func (x *DownloadBangumiRequest) GetHeader() map[string]string {
+func (x *DownloadRequest) GetHeader() map[string]string {
 	if x != nil {
 		return x.Header
 	}
 	return nil
 }
 
-func (x *DownloadBangumiRequest) GetIsHls() bool {
+func (x *DownloadRequest) GetMediaType() string {
 	if x != nil {
-		return x.IsHls
+		return x.MediaType
 	}
-	return false
+	return ""
 }
 
-func (x *DownloadBangumiRequest) GetPackage() string {
+func (x *DownloadRequest) GetPackage() string {
 	if x != nil {
 		return x.Package
 	}
 	return ""
 }
 
-func (x *DownloadBangumiRequest) GetKey() string {
+func (x *DownloadRequest) GetKey() string {
 	if x != nil {
 		return x.Key
 	}
 	return ""
 }
 
-func (x *DownloadBangumiRequest) GetTitle() string {
+func (x *DownloadRequest) GetTitle() string {
 	if x != nil {
 		return x.Title
 	}
 	return ""
 }
 
-type DownloadBangumiResponse struct {
+type DownloadResponse struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	TaskId         int32                  `protobuf:"varint,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
 	VariantSummary []*AvailableHlsVariant `protobuf:"bytes,2,rep,name=variant_summary,json=variantSummary,proto3" json:"variant_summary,omitempty"`
@@ -466,20 +466,20 @@ type DownloadBangumiResponse struct {
 	sizeCache      protoimpl.SizeCache
 }
 
-func (x *DownloadBangumiResponse) Reset() {
-	*x = DownloadBangumiResponse{}
+func (x *DownloadResponse) Reset() {
+	*x = DownloadResponse{}
 	mi := &file_proto_download_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DownloadBangumiResponse) String() string {
+func (x *DownloadResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DownloadBangumiResponse) ProtoMessage() {}
+func (*DownloadResponse) ProtoMessage() {}
 
-func (x *DownloadBangumiResponse) ProtoReflect() protoreflect.Message {
+func (x *DownloadResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_download_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -491,26 +491,26 @@ func (x *DownloadBangumiResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DownloadBangumiResponse.ProtoReflect.Descriptor instead.
-func (*DownloadBangumiResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use DownloadResponse.ProtoReflect.Descriptor instead.
+func (*DownloadResponse) Descriptor() ([]byte, []int) {
 	return file_proto_download_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *DownloadBangumiResponse) GetTaskId() int32 {
+func (x *DownloadResponse) GetTaskId() int32 {
 	if x != nil {
 		return x.TaskId
 	}
 	return 0
 }
 
-func (x *DownloadBangumiResponse) GetVariantSummary() []*AvailableHlsVariant {
+func (x *DownloadResponse) GetVariantSummary() []*AvailableHlsVariant {
 	if x != nil {
 		return x.VariantSummary
 	}
 	return nil
 }
 
-func (x *DownloadBangumiResponse) GetIsDownloading() bool {
+func (x *DownloadResponse) GetIsDownloading() bool {
 	if x != nil {
 		return x.IsDownloading
 	}
@@ -768,7 +768,7 @@ func (x *ListTorrentResponse) GetTorrents() []*TorrentResult {
 
 type AddTorrentRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Torrent       []byte                 `protobuf:"bytes,1,opt,name=torrent,proto3" json:"torrent,omitempty"`
+	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
 	Package       string                 `protobuf:"bytes,2,opt,name=package,proto3" json:"package,omitempty"`
 	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -805,11 +805,11 @@ func (*AddTorrentRequest) Descriptor() ([]byte, []int) {
 	return file_proto_download_proto_rawDescGZIP(), []int{16}
 }
 
-func (x *AddTorrentRequest) GetTorrent() []byte {
+func (x *AddTorrentRequest) GetUrl() string {
 	if x != nil {
-		return x.Torrent
+		return x.Url
 	}
-	return nil
+	return ""
 }
 
 func (x *AddTorrentRequest) GetPackage() string {
@@ -1116,19 +1116,20 @@ const file_proto_download_proto_rawDesc = "" +
 	"\x14PauseDownloadRequest\x12\x17\n" +
 	"\atask_id\x18\x01 \x01(\x05R\x06taskId\"1\n" +
 	"\x15PauseDownloadResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"\xa5\x02\n" +
-	"\x16DownloadBangumiRequest\x12\x10\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"\x9f\x02\n" +
+	"\x0fDownloadRequest\x12\x10\n" +
 	"\x03url\x18\x01 \x01(\tR\x03url\x12#\n" +
-	"\rdownload_path\x18\x02 \x01(\tR\fdownloadPath\x12@\n" +
-	"\x06header\x18\x03 \x03(\v2(.miru.DownloadBangumiRequest.HeaderEntryR\x06header\x12\x15\n" +
-	"\x06is_hls\x18\x04 \x01(\bR\x05isHls\x12\x18\n" +
+	"\rdownload_path\x18\x02 \x01(\tR\fdownloadPath\x129\n" +
+	"\x06header\x18\x03 \x03(\v2!.miru.DownloadRequest.HeaderEntryR\x06header\x12\x1d\n" +
+	"\n" +
+	"media_type\x18\x04 \x01(\tR\tmediaType\x12\x18\n" +
 	"\apackage\x18\x05 \x01(\tR\apackage\x12\x10\n" +
 	"\x03key\x18\x06 \x01(\tR\x03key\x12\x14\n" +
 	"\x05title\x18\a \x01(\tR\x05title\x1a9\n" +
 	"\vHeaderEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9d\x01\n" +
-	"\x17DownloadBangumiResponse\x12\x17\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x96\x01\n" +
+	"\x10DownloadResponse\x12\x17\n" +
 	"\atask_id\x18\x01 \x01(\x05R\x06taskId\x12B\n" +
 	"\x0fvariant_summary\x18\x02 \x03(\v2\x19.miru.AvailableHlsVariantR\x0evariantSummary\x12%\n" +
 	"\x0eis_downloading\x18\x03 \x01(\bR\risDownloading\"\x18\n" +
@@ -1141,9 +1142,9 @@ const file_proto_download_proto_rawDesc = "" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"\x14\n" +
 	"\x12ListTorrentRequest\"F\n" +
 	"\x13ListTorrentResponse\x12/\n" +
-	"\btorrents\x18\x01 \x03(\v2\x13.miru.TorrentResultR\btorrents\"]\n" +
-	"\x11AddTorrentRequest\x12\x18\n" +
-	"\atorrent\x18\x01 \x01(\fR\atorrent\x12\x18\n" +
+	"\btorrents\x18\x01 \x03(\v2\x13.miru.TorrentResultR\btorrents\"U\n" +
+	"\x11AddTorrentRequest\x12\x10\n" +
+	"\x03url\x18\x01 \x01(\tR\x03url\x12\x18\n" +
 	"\apackage\x18\x02 \x01(\tR\apackage\x12\x14\n" +
 	"\x05title\x18\x03 \x01(\tR\x05title\"h\n" +
 	"\x12AddTorrentResponse\x12\x1b\n" +
@@ -1163,13 +1164,13 @@ const file_proto_download_proto_rawDesc = "" +
 	"\tinfo_hash\x18\x01 \x01(\tR\binfoHash\x12\x1f\n" +
 	"\vdetail_json\x18\x02 \x01(\tR\n" +
 	"detailJson\x12\x14\n" +
-	"\x05files\x18\x03 \x03(\tR\x05files2\xc5\x06\n" +
+	"\x05files\x18\x03 \x03(\tR\x05files2\xb0\x06\n" +
 	"\x0fDownloadService\x12T\n" +
 	"\x11GetDownloadStatus\x12\x1e.miru.GetDownloadStatusRequest\x1a\x1f.miru.GetDownloadStatusResponse\x12K\n" +
 	"\x0eCancelDownload\x12\x1b.miru.CancelDownloadRequest\x1a\x1c.miru.CancelDownloadResponse\x12K\n" +
 	"\x0eResumeDownload\x12\x1b.miru.ResumeDownloadRequest\x1a\x1c.miru.ResumeDownloadResponse\x12H\n" +
-	"\rPauseDownload\x12\x1a.miru.PauseDownloadRequest\x1a\x1b.miru.PauseDownloadResponse\x12N\n" +
-	"\x0fDownloadBangumi\x12\x1c.miru.DownloadBangumiRequest\x1a\x1d.miru.DownloadBangumiResponse\x12N\n" +
+	"\rPauseDownload\x12\x1a.miru.PauseDownloadRequest\x1a\x1b.miru.PauseDownloadResponse\x129\n" +
+	"\bDownload\x12\x15.miru.DownloadRequest\x1a\x16.miru.DownloadResponse\x12N\n" +
 	"\x0fGetAllDownloads\x12\x1c.miru.GetAllDownloadsRequest\x1a\x1d.miru.GetAllDownloadsResponse\x12K\n" +
 	"\x0eDeleteDownload\x12\x1b.miru.DeleteDownloadRequest\x1a\x1c.miru.DeleteDownloadResponse\x12B\n" +
 	"\vListTorrent\x12\x18.miru.ListTorrentRequest\x1a\x19.miru.ListTorrentResponse\x12?\n" +
@@ -1200,8 +1201,8 @@ var file_proto_download_proto_goTypes = []any{
 	(*ResumeDownloadResponse)(nil),    // 5: miru.ResumeDownloadResponse
 	(*PauseDownloadRequest)(nil),      // 6: miru.PauseDownloadRequest
 	(*PauseDownloadResponse)(nil),     // 7: miru.PauseDownloadResponse
-	(*DownloadBangumiRequest)(nil),    // 8: miru.DownloadBangumiRequest
-	(*DownloadBangumiResponse)(nil),   // 9: miru.DownloadBangumiResponse
+	(*DownloadRequest)(nil),           // 8: miru.DownloadRequest
+	(*DownloadResponse)(nil),          // 9: miru.DownloadResponse
 	(*GetAllDownloadsRequest)(nil),    // 10: miru.GetAllDownloadsRequest
 	(*GetAllDownloadsResponse)(nil),   // 11: miru.GetAllDownloadsResponse
 	(*DeleteDownloadRequest)(nil),     // 12: miru.DeleteDownloadRequest
@@ -1215,7 +1216,7 @@ var file_proto_download_proto_goTypes = []any{
 	(*AddMagnetRequest)(nil),          // 20: miru.AddMagnetRequest
 	(*AddMagnetResponse)(nil),         // 21: miru.AddMagnetResponse
 	nil,                               // 22: miru.GetDownloadStatusResponse.DownloadStatusEntry
-	nil,                               // 23: miru.DownloadBangumiRequest.HeaderEntry
+	nil,                               // 23: miru.DownloadRequest.HeaderEntry
 	(*AvailableHlsVariant)(nil),       // 24: miru.AvailableHlsVariant
 	(*Download)(nil),                  // 25: miru.Download
 	(*TorrentResult)(nil),             // 26: miru.TorrentResult
@@ -1223,8 +1224,8 @@ var file_proto_download_proto_goTypes = []any{
 }
 var file_proto_download_proto_depIdxs = []int32{
 	22, // 0: miru.GetDownloadStatusResponse.download_status:type_name -> miru.GetDownloadStatusResponse.DownloadStatusEntry
-	23, // 1: miru.DownloadBangumiRequest.header:type_name -> miru.DownloadBangumiRequest.HeaderEntry
-	24, // 2: miru.DownloadBangumiResponse.variant_summary:type_name -> miru.AvailableHlsVariant
+	23, // 1: miru.DownloadRequest.header:type_name -> miru.DownloadRequest.HeaderEntry
+	24, // 2: miru.DownloadResponse.variant_summary:type_name -> miru.AvailableHlsVariant
 	25, // 3: miru.GetAllDownloadsResponse.downloads:type_name -> miru.Download
 	26, // 4: miru.ListTorrentResponse.torrents:type_name -> miru.TorrentResult
 	27, // 5: miru.GetDownloadStatusResponse.DownloadStatusEntry.value:type_name -> miru.DownloadProgress
@@ -1232,7 +1233,7 @@ var file_proto_download_proto_depIdxs = []int32{
 	2,  // 7: miru.DownloadService.CancelDownload:input_type -> miru.CancelDownloadRequest
 	4,  // 8: miru.DownloadService.ResumeDownload:input_type -> miru.ResumeDownloadRequest
 	6,  // 9: miru.DownloadService.PauseDownload:input_type -> miru.PauseDownloadRequest
-	8,  // 10: miru.DownloadService.DownloadBangumi:input_type -> miru.DownloadBangumiRequest
+	8,  // 10: miru.DownloadService.Download:input_type -> miru.DownloadRequest
 	10, // 11: miru.DownloadService.GetAllDownloads:input_type -> miru.GetAllDownloadsRequest
 	12, // 12: miru.DownloadService.DeleteDownload:input_type -> miru.DeleteDownloadRequest
 	14, // 13: miru.DownloadService.ListTorrent:input_type -> miru.ListTorrentRequest
@@ -1243,7 +1244,7 @@ var file_proto_download_proto_depIdxs = []int32{
 	3,  // 18: miru.DownloadService.CancelDownload:output_type -> miru.CancelDownloadResponse
 	5,  // 19: miru.DownloadService.ResumeDownload:output_type -> miru.ResumeDownloadResponse
 	7,  // 20: miru.DownloadService.PauseDownload:output_type -> miru.PauseDownloadResponse
-	9,  // 21: miru.DownloadService.DownloadBangumi:output_type -> miru.DownloadBangumiResponse
+	9,  // 21: miru.DownloadService.Download:output_type -> miru.DownloadResponse
 	11, // 22: miru.DownloadService.GetAllDownloads:output_type -> miru.GetAllDownloadsResponse
 	13, // 23: miru.DownloadService.DeleteDownload:output_type -> miru.DeleteDownloadResponse
 	15, // 24: miru.DownloadService.ListTorrent:output_type -> miru.ListTorrentResponse

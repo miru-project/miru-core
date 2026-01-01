@@ -6,12 +6,9 @@ import (
 	"net"
 	"net/http"
 	"net/url"
-	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/Danny-Dasilva/CycleTLS/cycletls"
-	logger "github.com/gofiber/fiber/v2/log"
 	log "github.com/miru-project/miru-core/pkg/logger"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttpproxy"
@@ -136,11 +133,12 @@ func request[T StringOrBytes](reqUrl string, option *RequestOptions, readPrefere
 		return T(""), err
 	}
 
+	cookies := res.Header.Cookies()
 	// Save Cookies
-	res.Header.VisitAllCookie(func(key, value []byte) {
+	for _, cookie := range cookies {
 		c := fasthttp.AcquireCookie()
 		defer fasthttp.ReleaseCookie(c)
-		c.ParseBytes(value)
+		c.ParseBytes(cookie)
 
 		hc := &http.Cookie{
 			Name:     string(c.Key()),
@@ -152,7 +150,7 @@ func request[T StringOrBytes](reqUrl string, option *RequestOptions, readPrefere
 			HttpOnly: c.HTTPOnly(),
 		}
 		jar.SetCookies(u, []*http.Cookie{hc})
-	})
+	}
 
 	var result T
 
@@ -173,36 +171,6 @@ func checkRequestMethod(method string) string {
 	default:
 		return "GET"
 	}
-}
-
-func SaveFile(filePath string, data *[]byte) error {
-
-	// Create directory if it doesn't exist
-	dir := filepath.Dir(filePath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return err
-	}
-
-	// Create the file
-	out, err := os.Create(filePath)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	// Write the data to file
-	_, err = out.Write(*data)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-func DeleteFile(filePath string) error {
-	if err := os.Remove(filePath); err != nil {
-		return err
-	}
-	return nil
 }
 
 // ReadAll reads the entire response body and returns it as a byte slice.
@@ -239,22 +207,18 @@ type RequestOptions struct {
 
 func dnsResolve() {
 	addrs, err := net.LookupHost("www.google.com")
-	if len(addrs) == 0 {
-		logger.Error("Check dns failed", addrs, err)
+	if len(addrs) != 0 && err == nil {
+		log.Println("Check dns OK", addrs, err)
+		return
+	}
 
-		fn := func(ctx context.Context, network, address string) (net.Conn, error) {
-			d := net.Dialer{}
-			return d.DialContext(ctx, "udp", "1.1.1.1:53")
-		}
-
-		net.DefaultResolver = &net.Resolver{
-			Dial: fn,
-		}
-
-		addrs, err = net.LookupHost("www.google.com")
-		logger.Info("Check cloudflare dns", addrs, err)
-	} else {
-		logger.Info("Check dns OK", addrs, err)
+	log.Println("Check dns failed", addrs, err)
+	fn := func(ctx context.Context, network, address string) (net.Conn, error) {
+		d := net.Dialer{}
+		return d.DialContext(ctx, "udp", "1.1.1.1:53")
+	}
+	net.DefaultResolver = &net.Resolver{
+		Dial: fn,
 	}
 }
 
@@ -264,8 +228,11 @@ func Init() {
 	defaultClient = &fasthttp.Client{
 		Name:                "fasthttp",
 		MaxIdleConnDuration: 90 * time.Second,
-		ReadTimeout:         15 * time.Second,
-		WriteTimeout:        15 * time.Second,
-		MaxConnsPerHost:     100,
+		ReadTimeout:         30 * time.Second,
+		WriteTimeout:        30 * time.Second,
+		Dial: func(addr string) (net.Conn, error) {
+			return fasthttp.DialTimeout(addr, 30*time.Second)
+		},
+		MaxConnsPerHost: 300,
 	}
 }

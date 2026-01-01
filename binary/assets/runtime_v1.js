@@ -114,8 +114,8 @@ class Extension {
     options = options || {};
     options.headers = options.headers || {};
     const miruUrl = options.headers["Miru-Url"] || this.webSite;
-    println("miruUrl",options.headers["Miru-Url"])
-    println("miruUrl: " + miruUrl);
+    // println("miruUrl",options.headers["Miru-Url"])
+    // println("miruUrl: " + miruUrl);
     options.method = options.method || "get";
     if (options.headers["Miru-Url"]) {
       delete options.headers["Miru-Url"];

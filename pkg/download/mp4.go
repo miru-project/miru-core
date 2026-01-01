@@ -23,7 +23,7 @@ func downloadMp4(filePath string, url string, header map[string]string, title st
 	taskId := genTaskID()
 
 	taskParamMap[taskId] = &Mp4TaskParam{
-		TaskParam:     TaskParam{taskID: &taskId},
+		TaskParam:     TaskParam{taskID: taskId},
 		filePath:      fileName,
 		header:        header,
 		url:           url,
@@ -42,8 +42,10 @@ func downloadMp4Task(param *Mp4TaskParam, ctx context.Context) {
 	param.ctx = ctx
 	if _, e := network.Request[[]byte](param.url, &network.RequestOptions{Headers: param.header, Method: "GET"}, param.readAndSavePartial); e != nil {
 		log.Println("Error downloading mp4 file:", e)
-		status[*param.taskID].Status = Failed
-
+		status[param.taskID] = &Progress{
+			TaskID: param.taskID,
+			Status: Failed,
+		}
 		return
 	}
 
@@ -53,7 +55,7 @@ func (t *Mp4TaskParam) readAndSavePartial(res *fasthttp.Response) ([]byte, error
 	var downloadedBytes int64 = t.startingPoint
 	const bufferSize = 1024 * 1024 // 1MB
 	buf := make([]byte, bufferSize)
-	taskId := *t.taskID
+	taskId := t.taskID
 	ctx := t.ctx
 
 	totalBytes := int64(res.Header.ContentLength())
@@ -90,7 +92,7 @@ func (t *Mp4TaskParam) readAndSavePartial(res *fasthttp.Response) ([]byte, error
 	if t.isResuming {
 		file, err = os.OpenFile(t.filePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	} else {
-		file, err = os.Create(t.filePath)
+		file, err = network.TouchFile(t.filePath)
 	}
 	if err != nil {
 		return nil, err
@@ -108,7 +110,7 @@ func (t *Mp4TaskParam) readAndSavePartial(res *fasthttp.Response) ([]byte, error
 			return nil, nil
 		default:
 			n, err := bodyReader.Read(buf)
-
+			// logger.Println(t.title, "Downloading", n, "bytes", downloadedBytes, "of", totalBytes)
 			if n > 0 {
 				_, writeErr := file.Write(buf[:n])
 				if writeErr != nil {
