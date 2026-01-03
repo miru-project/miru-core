@@ -19,7 +19,7 @@ import (
 	"github.com/miru-project/miru-core/pkg/logger"
 	"github.com/miru-project/miru-core/pkg/network"
 	"github.com/miru-project/miru-core/pkg/torrent"
-	"github.com/miru-project/miru-core/proto"
+	"github.com/miru-project/miru-core/proto/generate/proto"
 	"github.com/miru-project/miru-core/router/handler"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"

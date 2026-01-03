@@ -55,12 +55,14 @@ func Init() {
 		config.Global.ExtensionPath = absPath
 	}
 
+	network.Init()
 	ext.EntClient()
 	db.Initialize()
 	anilist.InitToken()
-	network.Init()
 	torrent.Init()
 	download.Init()
 	jsext.InitRuntime(config.Global.ExtensionPath, f)
 	log.Println("Miru Core initialized successfully!")
+	//  hang main routnie so that ffi function doesn't exit
+	// select {}
 }

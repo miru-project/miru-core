@@ -226,13 +226,16 @@ func Init() {
 	go dnsResolve()
 	initCookieJar()
 	defaultClient = &fasthttp.Client{
-		Name:                "fasthttp",
+		MaxIdemponentCallAttempts: 2,
+		// Name:                      "Mozilla/5.0 (X11; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0",
 		MaxIdleConnDuration: 90 * time.Second,
 		ReadTimeout:         30 * time.Second,
 		WriteTimeout:        30 * time.Second,
-		Dial: func(addr string) (net.Conn, error) {
-			return fasthttp.DialTimeout(addr, 30*time.Second)
-		},
+		Dial: (&fasthttp.TCPDialer{
+			Concurrency:      4096,
+			DNSCacheDuration: 6 * time.Hour,
+		}).Dial,
 		MaxConnsPerHost: 300,
+		// TLSConfig:       &tls.Config{MinVersion: tls.VersionTLS12},
 	}
 }
