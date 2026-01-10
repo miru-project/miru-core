@@ -81,7 +81,7 @@ func (t *Mp4TaskParam) readAndSavePartial(res *fasthttp.Response) ([]byte, error
 		URL:       []string{t.url},
 		SavePath:  t.filePath,
 	}
-	status[taskId].syncDB()
+	status[taskId].SyncDB()
 
 	status[taskId].CurrentDownloading = t.filePath
 
@@ -118,19 +118,19 @@ func (t *Mp4TaskParam) readAndSavePartial(res *fasthttp.Response) ([]byte, error
 				}
 				downloadedBytes += int64(n)
 				status[taskId].Progrss = int(downloadedBytes)
-				status[taskId].syncDB()
+				status[taskId].SyncDB()
 				// log.Printf("\rDownloading... %d%% complete", 100*downloadedBytes/totalBytes)
 			}
 
 			if err == io.EOF {
 				status[taskId].Status = Completed
-				status[taskId].syncDB()
+				status[taskId].SyncDB()
 				return nil, nil
 			}
 
 			if err != nil {
 				status[taskId].Status = Failed
-				status[taskId].syncDB()
+				status[taskId].SyncDB()
 				return nil, err
 			}
 

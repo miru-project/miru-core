@@ -14,6 +14,7 @@ import (
 	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/pkg/db"
 	"github.com/miru-project/miru-core/pkg/torrent"
+	miruTorrent "github.com/miru-project/miru-core/pkg/torrent"
 )
 
 var tasks = sync.Map{}
@@ -62,6 +63,7 @@ const (
 	Completed   Status = "Completed"
 	Failed      Status = "Failed"
 	Canceled    Status = "Canceled"
+	Converted   Status = "Converted"
 )
 
 func (t *TaskParam) GetTaskID() int {
@@ -105,12 +107,20 @@ func CancelTask(taskId int) error {
 					return fmt.Errorf("failed to remove file %s: %v", file, err)
 				}
 			}
+			status[taskId].SyncDB()
 			return nil
 		case Mp4:
 			// Remove single mp4 file
 			if err := os.Remove(status[taskId].CurrentDownloading); err != nil {
 				return fmt.Errorf("failed to remove file %s: %v", status[taskId].CurrentDownloading, err)
 			}
+			status[taskId].SyncDB()
+		case Torrent:
+			miruTorrent.DeleteTorrent(status[taskId].Key, true)
+			if err := os.Remove(status[taskId].CurrentDownloading); err != nil {
+				return fmt.Errorf("failed to remove file %s: %v", status[taskId].CurrentDownloading, err)
+			}
+			status[taskId].SyncDB()
 		}
 
 		return nil
@@ -125,6 +135,7 @@ func PauseTask(taskId int) error {
 		cancelFunc.(context.CancelFunc)()
 		tasks.Delete(taskId)
 		status[taskId].Status = Paused
+		status[taskId].SyncDB()
 
 		return nil
 	}
@@ -183,7 +194,7 @@ func parsePath(basePath string, fileName string) string {
 	return link.String()
 
 }
-func (p *Progress) syncDB() {
+func (p *Progress) SyncDB() {
 	db.UpsertDownload(&ent.Download{
 		URL:       p.URL,
 		Headers:   p.Headers,

@@ -79,7 +79,7 @@ func downloadHls(filePath string, url string, header map[string]string, title st
 		URL:       []string{url},
 		SavePath:  filePath,
 	}
-	status[taskId].syncDB()
+	status[taskId].SyncDB()
 
 	fetchedKey := downloadKey(playList.Key, url)
 	iv := getIV(playList.Key, playList.SeqNo)
@@ -211,14 +211,14 @@ func downloadSegment(param *HlsTaskParam, ctx context.Context) {
 
 			status[taskId].Progrss++
 			*status[taskId].Names = append(*status[taskId].Names, fileName)
-			status[taskId].syncDB()
+			status[taskId].SyncDB()
 			log.Println("Downloaded segment:", url)
 		}
 
 	}
 
 	status[taskId].Status = Completed
-	status[taskId].syncDB()
+	status[taskId].SyncDB()
 }
 
 func resumeHlsTask(taskId int) error {

@@ -6,6 +6,7 @@ import "proto/common.proto";
 
 option go_package = "github.com/miru-project/miru-core/proto";
 
+// Dow
 message GetDownloadStatusRequest {}
 message GetDownloadStatusResponse {
   map<int32, DownloadProgress> download_status = 1;
@@ -40,7 +41,6 @@ message GetAllDownloadsResponse { repeated Download downloads = 1; }
 
 message DeleteDownloadRequest { int32 id = 1; }
 message DeleteDownloadResponse { string message = 1; }
-
 // Torrent
 message ListTorrentRequest {}
 message ListTorrentResponse { repeated TorrentResult torrents = 1; }
@@ -85,4 +85,14 @@ service DownloadService {
   rpc AddTorrent(AddTorrentRequest) returns (AddTorrentResponse);
   rpc DeleteTorrent(DeleteTorrentRequest) returns (DeleteTorrentResponse);
   rpc AddMagnet(AddMagnetRequest) returns (AddMagnetResponse);
+
+  rpc UpdateDownloadStatus(UpdateDownloadStatusRequest)
+      returns (UpdateDownloadStatusResponse);
 }
+
+message UpdateDownloadStatusRequest {
+  int32 task_id = 1;
+  string status = 2;
+}
+
+message UpdateDownloadStatusResponse { string message = 1; }

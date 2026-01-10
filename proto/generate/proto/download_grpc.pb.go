@@ -19,17 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	DownloadService_GetDownloadStatus_FullMethodName = "/miru.DownloadService/GetDownloadStatus"
-	DownloadService_CancelDownload_FullMethodName    = "/miru.DownloadService/CancelDownload"
-	DownloadService_ResumeDownload_FullMethodName    = "/miru.DownloadService/ResumeDownload"
-	DownloadService_PauseDownload_FullMethodName     = "/miru.DownloadService/PauseDownload"
-	DownloadService_Download_FullMethodName          = "/miru.DownloadService/Download"
-	DownloadService_GetAllDownloads_FullMethodName   = "/miru.DownloadService/GetAllDownloads"
-	DownloadService_DeleteDownload_FullMethodName    = "/miru.DownloadService/DeleteDownload"
-	DownloadService_ListTorrent_FullMethodName       = "/miru.DownloadService/ListTorrent"
-	DownloadService_AddTorrent_FullMethodName        = "/miru.DownloadService/AddTorrent"
-	DownloadService_DeleteTorrent_FullMethodName     = "/miru.DownloadService/DeleteTorrent"
-	DownloadService_AddMagnet_FullMethodName         = "/miru.DownloadService/AddMagnet"
+	DownloadService_GetDownloadStatus_FullMethodName    = "/miru.DownloadService/GetDownloadStatus"
+	DownloadService_CancelDownload_FullMethodName       = "/miru.DownloadService/CancelDownload"
+	DownloadService_ResumeDownload_FullMethodName       = "/miru.DownloadService/ResumeDownload"
+	DownloadService_PauseDownload_FullMethodName        = "/miru.DownloadService/PauseDownload"
+	DownloadService_Download_FullMethodName             = "/miru.DownloadService/Download"
+	DownloadService_GetAllDownloads_FullMethodName      = "/miru.DownloadService/GetAllDownloads"
+	DownloadService_DeleteDownload_FullMethodName       = "/miru.DownloadService/DeleteDownload"
+	DownloadService_ListTorrent_FullMethodName          = "/miru.DownloadService/ListTorrent"
+	DownloadService_AddTorrent_FullMethodName           = "/miru.DownloadService/AddTorrent"
+	DownloadService_DeleteTorrent_FullMethodName        = "/miru.DownloadService/DeleteTorrent"
+	DownloadService_AddMagnet_FullMethodName            = "/miru.DownloadService/AddMagnet"
+	DownloadService_UpdateDownloadStatus_FullMethodName = "/miru.DownloadService/UpdateDownloadStatus"
 )
 
 // DownloadServiceClient is the client API for DownloadService service.
@@ -48,6 +49,7 @@ type DownloadServiceClient interface {
 	AddTorrent(ctx context.Context, in *AddTorrentRequest, opts ...grpc.CallOption) (*AddTorrentResponse, error)
 	DeleteTorrent(ctx context.Context, in *DeleteTorrentRequest, opts ...grpc.CallOption) (*DeleteTorrentResponse, error)
 	AddMagnet(ctx context.Context, in *AddMagnetRequest, opts ...grpc.CallOption) (*AddMagnetResponse, error)
+	UpdateDownloadStatus(ctx context.Context, in *UpdateDownloadStatusRequest, opts ...grpc.CallOption) (*UpdateDownloadStatusResponse, error)
 }
 
 type downloadServiceClient struct {
@@ -168,6 +170,16 @@ func (c *downloadServiceClient) AddMagnet(ctx context.Context, in *AddMagnetRequ
 	return out, nil
 }
 
+func (c *downloadServiceClient) UpdateDownloadStatus(ctx context.Context, in *UpdateDownloadStatusRequest, opts ...grpc.CallOption) (*UpdateDownloadStatusResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateDownloadStatusResponse)
+	err := c.cc.Invoke(ctx, DownloadService_UpdateDownloadStatus_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DownloadServiceServer is the server API for DownloadService service.
 // All implementations must embed UnimplementedDownloadServiceServer
 // for forward compatibility.
@@ -184,6 +196,7 @@ type DownloadServiceServer interface {
 	AddTorrent(context.Context, *AddTorrentRequest) (*AddTorrentResponse, error)
 	DeleteTorrent(context.Context, *DeleteTorrentRequest) (*DeleteTorrentResponse, error)
 	AddMagnet(context.Context, *AddMagnetRequest) (*AddMagnetResponse, error)
+	UpdateDownloadStatus(context.Context, *UpdateDownloadStatusRequest) (*UpdateDownloadStatusResponse, error)
 	mustEmbedUnimplementedDownloadServiceServer()
 }
 
@@ -226,6 +239,9 @@ func (UnimplementedDownloadServiceServer) DeleteTorrent(context.Context, *Delete
 }
 func (UnimplementedDownloadServiceServer) AddMagnet(context.Context, *AddMagnetRequest) (*AddMagnetResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AddMagnet not implemented")
+}
+func (UnimplementedDownloadServiceServer) UpdateDownloadStatus(context.Context, *UpdateDownloadStatusRequest) (*UpdateDownloadStatusResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateDownloadStatus not implemented")
 }
 func (UnimplementedDownloadServiceServer) mustEmbedUnimplementedDownloadServiceServer() {}
 func (UnimplementedDownloadServiceServer) testEmbeddedByValue()                         {}
@@ -446,6 +462,24 @@ func _DownloadService_AddMagnet_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DownloadService_UpdateDownloadStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateDownloadStatusRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DownloadServiceServer).UpdateDownloadStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DownloadService_UpdateDownloadStatus_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DownloadServiceServer).UpdateDownloadStatus(ctx, req.(*UpdateDownloadStatusRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DownloadService_ServiceDesc is the grpc.ServiceDesc for DownloadService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -496,6 +530,10 @@ var DownloadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddMagnet",
 			Handler:    _DownloadService_AddMagnet_Handler,
+		},
+		{
+			MethodName: "UpdateDownloadStatus",
+			Handler:    _DownloadService_UpdateDownloadStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -58,7 +58,7 @@ func downloadTorrent(filePath string, url string, header map[string]string, medi
 		URL:       []string{url},
 		SavePath:  fullPath,
 	}
-	status[taskId].syncDB()
+	status[taskId].SyncDB()
 
 	taskParamMap[taskId] = &TorrentTaskParam{
 		TaskParam:  TaskParam{taskID: taskId},
@@ -86,7 +86,7 @@ func (param *TorrentTaskParam) readAndSavePartial(ctx context.Context) {
 	if err := os.MkdirAll(filepath.Dir(param.filePath), 0755); err != nil {
 		logger.Println("Error creating directory:", err)
 		status[taskId].Status = Failed
-		status[taskId].syncDB()
+		status[taskId].SyncDB()
 		return
 	}
 
@@ -94,7 +94,7 @@ func (param *TorrentTaskParam) readAndSavePartial(ctx context.Context) {
 	if err != nil {
 		logger.Println("Error opening file:", err)
 		status[taskId].Status = Failed
-		status[taskId].syncDB()
+		status[taskId].SyncDB()
 		return
 	}
 	defer file.Close()
@@ -106,11 +106,11 @@ func (param *TorrentTaskParam) readAndSavePartial(ctx context.Context) {
 		if _, err := reader.Seek(currentSize, io.SeekStart); err != nil {
 			logger.Println("Error seeking torrent:", err)
 			status[taskId].Status = Failed
-			status[taskId].syncDB()
+			status[taskId].SyncDB()
 			return
 		}
 		status[taskId].Progrss = int(currentSize)
-		status[taskId].syncDB()
+		status[taskId].SyncDB()
 	}
 
 	status[taskId].CurrentDownloading = param.filePath
@@ -120,7 +120,7 @@ func (param *TorrentTaskParam) readAndSavePartial(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			status[taskId].Status = Canceled
-			status[taskId].syncDB()
+			status[taskId].SyncDB()
 			return
 		default:
 			n, err := reader.Read(buf)
@@ -128,25 +128,22 @@ func (param *TorrentTaskParam) readAndSavePartial(ctx context.Context) {
 				if _, wErr := file.Write(buf[:n]); wErr != nil {
 					logger.Println("Write error:", wErr)
 					status[taskId].Status = Failed
-					status[taskId].syncDB()
+					status[taskId].SyncDB()
 					return
 				}
 				status[taskId].Progrss += n
-				status[taskId].syncDB()
+				status[taskId].SyncDB()
 			}
 			if err == io.EOF {
 				status[taskId].Status = Completed
-				status[taskId].syncDB()
-				// Clean up network temporary file if needed, but here we saved to user path
-				// We might want to remove it from miruTorrent.Torrents to stop seeding?
-				// Keeping it allows seeding.
+				status[taskId].SyncDB()
 				miruTorrent.DeleteTorrent(param.key, true)
 				return
 			}
 			if err != nil {
 				logger.Println("Read torrent error:", err)
 				status[taskId].Status = Failed
-				status[taskId].syncDB()
+				status[taskId].SyncDB()
 				return
 			}
 		}

@@ -467,6 +467,17 @@ func (s *MiruCoreServer) PauseDownload(ctx context.Context, req *proto.PauseDown
 	return &proto.PauseDownloadResponse{Message: "Success"}, nil
 }
 
+func (s *MiruCoreServer) UpdateDownloadStatus(ctx context.Context, req *proto.UpdateDownloadStatusRequest) (*proto.UpdateDownloadStatusResponse, error) {
+	status := download.DownloadStatus()
+	p, ok := status[int(req.TaskId)]
+	if !ok {
+		return nil, fmt.Errorf("task %d not found", req.TaskId)
+	}
+	p.Status = download.Status(req.Status)
+	p.SyncDB()
+	return &proto.UpdateDownloadStatusResponse{Message: "Success"}, nil
+}
+
 func (s *MiruCoreServer) Download(ctx context.Context, req *proto.DownloadRequest) (*proto.DownloadResponse, error) {
 	res, err := download.Download(req.DownloadPath, req.Url, req.Header, req.MediaType, req.Title, req.Package, req.Key)
 	if err != nil {
