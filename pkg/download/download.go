@@ -88,45 +88,49 @@ func genTaskID() int {
 
 func CancelTask(taskId int) error {
 
-	// Cancel the task if it exists
 	if cancelFunc, ok := tasks.Load(taskId); ok {
 		cancelFunc.(context.CancelFunc)()
 		tasks.Delete(taskId)
 	}
-
-	if _, ok := taskParamMap[taskId]; ok {
-		status[taskId].Status = Canceled
-
-		names := *status[taskId].Names
-		// Remove files if the task is canceled
-		switch status[taskId].MediaType {
-		case Hls:
-			for _, file := range names {
-				// Remove the file
-				if err := os.Remove(file); err != nil {
-					return fmt.Errorf("failed to remove file %s: %v", file, err)
-				}
-			}
-			status[taskId].SyncDB()
-			return nil
-		case Mp4:
-			// Remove single mp4 file
-			if err := os.Remove(status[taskId].CurrentDownloading); err != nil {
-				return fmt.Errorf("failed to remove file %s: %v", status[taskId].CurrentDownloading, err)
-			}
-			status[taskId].SyncDB()
-		case Torrent:
-			miruTorrent.DeleteTorrent(status[taskId].Key, true)
-			if err := os.Remove(status[taskId].CurrentDownloading); err != nil {
-				return fmt.Errorf("failed to remove file %s: %v", status[taskId].CurrentDownloading, err)
-			}
-			status[taskId].SyncDB()
-		}
-
-		return nil
+	if _, ok := taskParamMap[taskId]; !ok {
+		return fmt.Errorf("task %d not found", taskId)
 	}
 
-	return fmt.Errorf("task %d not found", taskId)
+	status[taskId].Status = Canceled
+
+	if status[taskId].Names == nil {
+		status[taskId].SyncDB()
+		return nil
+	}
+	names := *status[taskId].Names
+
+	// Remove files if the task is canceled
+	switch status[taskId].MediaType {
+	case Hls:
+		for _, file := range names {
+			// Remove the file
+			if err := os.Remove(file); err != nil {
+				return fmt.Errorf("failed to remove file %s: %v", file, err)
+			}
+		}
+		status[taskId].SyncDB()
+		return nil
+	case Mp4:
+		// Remove single mp4 file
+		if err := os.Remove(status[taskId].CurrentDownloading); err != nil {
+			return fmt.Errorf("failed to remove file %s: %v", status[taskId].CurrentDownloading, err)
+		}
+		status[taskId].SyncDB()
+	case Torrent:
+		miruTorrent.DeleteTorrent(status[taskId].Key, true)
+		if err := os.Remove(status[taskId].CurrentDownloading); err != nil {
+			return fmt.Errorf("failed to remove file %s: %v", status[taskId].CurrentDownloading, err)
+		}
+		status[taskId].SyncDB()
+	}
+
+	return nil
+
 }
 
 func PauseTask(taskId int) error {
@@ -261,7 +265,7 @@ func Init() {
 				TaskParam:   TaskParam{taskID: id},
 				playListUrl: d.URL[0],
 				filePath:    d.SavePath,
-				header:      headers,
+				headers:     headers,
 			}
 		case Mp4:
 			taskParamMap[id] = &Mp4TaskParam{

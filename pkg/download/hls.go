@@ -30,10 +30,10 @@ func hlsDecrypt(enc []byte, key []byte, iv []byte) ([]byte, error) {
 	mode.CryptBlocks(decrypted, enc)
 	return decrypted, nil
 }
-func downloadHls(filePath string, url string, header map[string]string, title string, pkg string, key string) (MultipleLinkJson, error) {
+func downloadHls(filePath string, url string, headers map[string]string, title string, pkg string, key string) (MultipleLinkJson, error) {
 
 	// Get hls content from url
-	res, e := network.Request[string](url, &network.RequestOptions{Headers: header, Method: "GET"}, network.ReadAll)
+	res, e := network.Request[string](url, &network.RequestOptions{Headers: headers, Method: "GET"}, network.ReadAll)
 	if e != nil {
 		return MultipleLinkJson{}, e
 	}
@@ -81,14 +81,14 @@ func downloadHls(filePath string, url string, header map[string]string, title st
 	}
 	status[taskId].SyncDB()
 
-	fetchedKey := downloadKey(playList.Key, url)
+	fetchedKey := downloadKey(playList.Key, url, headers)
 	iv := getIV(playList.Key, playList.SeqNo)
 
 	taskParamMap[taskId] = &HlsTaskParam{
 		TaskParam:   TaskParam{taskID: taskId},
 		playList:    playList,
 		filePath:    filePath,
-		header:      header,
+		headers:     headers,
 		playListUrl: url,
 		Key:         &fetchedKey,
 		IV:          &iv,
@@ -146,13 +146,13 @@ func avaliableVarient(variants []*m3u8.Variant, prevUrl string) []*AvailableHlsV
 	return lis
 }
 
-func downloadKey(key *m3u8.Key, playListUrl string) []byte {
+func downloadKey(key *m3u8.Key, playListUrl string, headers map[string]string) []byte {
 	if key == nil {
 		return nil
 	}
 	// Download the key
 	url := parsePath(playListUrl, key.URI)
-	res, e := network.Request[[]byte](url, &network.RequestOptions{Headers: nil, Method: "GET"}, network.ReadAll)
+	res, e := network.Request[[]byte](url, &network.RequestOptions{Headers: headers, Method: "GET"}, network.ReadAll)
 	if e != nil {
 		log.Println("Error downloading key:", e)
 		return nil
@@ -183,7 +183,7 @@ func downloadSegment(param *HlsTaskParam, ctx context.Context) {
 
 			// Download the segment
 			url := parsePath(param.playListUrl, s.URI)
-			res, e := network.Request[[]byte](url, &network.RequestOptions{Headers: param.header, Method: "GET"}, network.ReadAll)
+			res, e := network.Request[[]byte](url, &network.RequestOptions{Headers: param.headers, Method: "GET"}, network.ReadAll)
 			if e != nil {
 				log.Println("Error downloading segment:", e)
 				continue
@@ -253,7 +253,7 @@ type HlsTaskParam struct {
 	TaskParam
 	playList    *m3u8.MediaPlaylist
 	filePath    string
-	header      map[string]string
+	headers     map[string]string
 	playListUrl string
 	Key         *[]byte
 	IV          *[]byte

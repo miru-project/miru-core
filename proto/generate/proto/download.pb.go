@@ -370,7 +370,7 @@ type DownloadRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
 	DownloadPath  string                 `protobuf:"bytes,2,opt,name=download_path,json=downloadPath,proto3" json:"download_path,omitempty"`
-	Header        map[string]string      `protobuf:"bytes,3,rep,name=header,proto3" json:"header,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Headers       map[string]string      `protobuf:"bytes,3,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	MediaType     string                 `protobuf:"bytes,4,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
 	Package       string                 `protobuf:"bytes,5,opt,name=package,proto3" json:"package,omitempty"`
 	Key           string                 `protobuf:"bytes,6,opt,name=key,proto3" json:"key,omitempty"`
@@ -423,9 +423,9 @@ func (x *DownloadRequest) GetDownloadPath() string {
 	return ""
 }
 
-func (x *DownloadRequest) GetHeader() map[string]string {
+func (x *DownloadRequest) GetHeaders() map[string]string {
 	if x != nil {
-		return x.Header
+		return x.Headers
 	}
 	return nil
 }
@@ -1213,17 +1213,17 @@ const file_proto_download_proto_rawDesc = "" +
 	"\x14PauseDownloadRequest\x12\x17\n" +
 	"\atask_id\x18\x01 \x01(\x05R\x06taskId\"1\n" +
 	"\x15PauseDownloadResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"\x9f\x02\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"\xa3\x02\n" +
 	"\x0fDownloadRequest\x12\x10\n" +
 	"\x03url\x18\x01 \x01(\tR\x03url\x12#\n" +
-	"\rdownload_path\x18\x02 \x01(\tR\fdownloadPath\x129\n" +
-	"\x06header\x18\x03 \x03(\v2!.miru.DownloadRequest.HeaderEntryR\x06header\x12\x1d\n" +
+	"\rdownload_path\x18\x02 \x01(\tR\fdownloadPath\x12<\n" +
+	"\aheaders\x18\x03 \x03(\v2\".miru.DownloadRequest.HeadersEntryR\aheaders\x12\x1d\n" +
 	"\n" +
 	"media_type\x18\x04 \x01(\tR\tmediaType\x12\x18\n" +
 	"\apackage\x18\x05 \x01(\tR\apackage\x12\x10\n" +
 	"\x03key\x18\x06 \x01(\tR\x03key\x12\x14\n" +
-	"\x05title\x18\a \x01(\tR\x05title\x1a9\n" +
-	"\vHeaderEntry\x12\x10\n" +
+	"\x05title\x18\a \x01(\tR\x05title\x1a:\n" +
+	"\fHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x96\x01\n" +
 	"\x10DownloadResponse\x12\x17\n" +
@@ -1321,7 +1321,7 @@ var file_proto_download_proto_goTypes = []any{
 	(*UpdateDownloadStatusRequest)(nil),  // 22: miru.UpdateDownloadStatusRequest
 	(*UpdateDownloadStatusResponse)(nil), // 23: miru.UpdateDownloadStatusResponse
 	nil,                                  // 24: miru.GetDownloadStatusResponse.DownloadStatusEntry
-	nil,                                  // 25: miru.DownloadRequest.HeaderEntry
+	nil,                                  // 25: miru.DownloadRequest.HeadersEntry
 	(*AvailableHlsVariant)(nil),          // 26: miru.AvailableHlsVariant
 	(*Download)(nil),                     // 27: miru.Download
 	(*TorrentResult)(nil),                // 28: miru.TorrentResult
@@ -1329,7 +1329,7 @@ var file_proto_download_proto_goTypes = []any{
 }
 var file_proto_download_proto_depIdxs = []int32{
 	24, // 0: miru.GetDownloadStatusResponse.download_status:type_name -> miru.GetDownloadStatusResponse.DownloadStatusEntry
-	25, // 1: miru.DownloadRequest.header:type_name -> miru.DownloadRequest.HeaderEntry
+	25, // 1: miru.DownloadRequest.headers:type_name -> miru.DownloadRequest.HeadersEntry
 	26, // 2: miru.DownloadResponse.variant_summary:type_name -> miru.AvailableHlsVariant
 	27, // 3: miru.GetAllDownloadsResponse.downloads:type_name -> miru.Download
 	28, // 4: miru.ListTorrentResponse.torrents:type_name -> miru.TorrentResult

@@ -479,7 +479,7 @@ func (s *MiruCoreServer) UpdateDownloadStatus(ctx context.Context, req *proto.Up
 }
 
 func (s *MiruCoreServer) Download(ctx context.Context, req *proto.DownloadRequest) (*proto.DownloadResponse, error) {
-	res, err := download.Download(req.DownloadPath, req.Url, req.Header, req.MediaType, req.Title, req.Package, req.Key)
+	res, err := download.Download(req.DownloadPath, req.Url, req.Headers, req.MediaType, req.Title, req.Package, req.Key)
 	if err != nil {
 		return nil, err
 	}
