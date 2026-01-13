@@ -41,10 +41,14 @@ func GetAppSetting() (*result.Result[any], error) {
 	return result.NewSuccessResult(settings), nil
 }
 
-func SetAppSetting(settings *[]db.AppSettingJson) []error {
+func SetAppSettings(settings map[string]string) []error {
 
 	if e := db.SetAppSettings(settings); len(e) != 0 {
 		return e
 	}
 	return nil
+}
+
+func SetAppSetting(key string, value string) error {
+	return db.SetAppSetting(key, value)
 }

@@ -215,7 +215,7 @@ func InitToken() error {
 		return e
 	}
 
-	token = tok.Value
+	token = tok
 
 	return nil
 }
