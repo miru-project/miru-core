@@ -113,15 +113,12 @@ func (s *MiruCoreServer) GetAppSetting(ctx context.Context, req *proto.GetAppSet
 }
 
 func (s *MiruCoreServer) SetAppSetting(ctx context.Context, req *proto.SetAppSettingRequest) (*proto.SetAppSettingResponse, error) {
-	settings := make([]db.AppSettingJson, len(req.Settings))
-	for i, s := range req.Settings {
-		settings[i] = db.AppSettingJson{
-			Key:   s.Key,
-			Value: s.Value,
-		}
+	settings := make(map[string]string, len(req.Settings))
+	for _, s := range req.Settings {
+		settings[s.Key] = s.Value
 	}
 
-	errs := handler.SetAppSetting(&settings)
+	errs := handler.SetAppSettings(settings)
 	if len(errs) > 0 {
 		return nil, errs[0]
 	}
