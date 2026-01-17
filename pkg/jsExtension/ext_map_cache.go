@@ -1,6 +1,10 @@
 package jsExtension
 
-import "sync"
+import (
+	"sync"
+
+	log "github.com/miru-project/miru-core/pkg/logger"
+)
 
 var extMemMap = sync.Map{}
 
@@ -26,6 +30,9 @@ func (m *ExtMapCache) Modify(key string, f func(*ExtApi) *ExtApi) {
 	m.notify()
 }
 func (m *ExtMapCache) SetError(key string, errString string) {
+	if errString != "" {
+		log.Println("Extension Error", key, errString)
+	}
 	m.Modify(key, func(ea *ExtApi) *ExtApi {
 		ea.Ext.Error = errString
 		return ea

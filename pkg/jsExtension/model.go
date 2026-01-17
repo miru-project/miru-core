@@ -11,7 +11,7 @@ type Ext struct {
 	Website     string   `json:"webSite"`
 	Description string   `json:"description"`
 	Tags        []string `json:"tags"`
-	Api         string   `json:"api"`
+	ApiVersion  string   `json:"apiVersion"`
 	Error       string   `json:"error,omitempty"`
 	Context     *string
 	WatchType   string `json:"type"`

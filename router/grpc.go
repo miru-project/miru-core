@@ -59,7 +59,7 @@ func (s *MiruCoreServer) HelloMiru(ctx context.Context, req *proto.HelloMiruRequ
 			WebSite:     e.Website,
 			Description: e.Description,
 			Tags:        e.Tags,
-			Api:         e.Api,
+			Api:         e.ApiVersion,
 			Error:       e.Error,
 			Type:        e.WatchType,
 		}
@@ -152,7 +152,9 @@ func (s *MiruCoreServer) Latest(ctx context.Context, req *proto.LatestRequest) (
 	if res.Code != 200 {
 		return nil, fmt.Errorf("latest failed with code %d: %s", res.Code, res.Message)
 	}
-
+	if res.Data == nil {
+		return &proto.LatestResponse{}, nil
+	}
 	items := res.Data.([]any)
 	protoItems := make([]*proto.ExtensionListItem, len(items))
 	for i, item := range items {
@@ -699,7 +701,7 @@ func (s *MiruCoreServer) WatchEvents(req *proto.WatchEventsRequest, stream proto
 						WebSite:     e.Website,
 						Description: e.Description,
 						Tags:        e.Tags,
-						Api:         e.Api,
+						Api:         e.ApiVersion,
 						Error:       e.Error,
 						Type:        e.WatchType,
 					}

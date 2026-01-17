@@ -44,15 +44,20 @@ func await(promise *goja.Promise) (any, error) {
 
 		state := promise.State()
 		log.Println(state)
-		res := promise.Result().(*goja.Object)
-
-		err := res.GetOwnPropertyNames()
-		errStr := "Js exception:"
-		for _, v := range err {
-			errStr += fmt.Sprintln(v, ":", res.Get(v).String())
+		switch promise.Result().(type) {
+		case *goja.Object:
+			res := promise.Result().(*goja.Object)
+			err := res.GetOwnPropertyNames()
+			errStr := "Js exception:"
+			for _, v := range err {
+				errStr += fmt.Sprintln(v, ":", res.Get(v).String())
+			}
+			return dataOut, errors.New(errStr)
+		case goja.Value:
+			return dataOut, errors.New(promise.Result().String())
+		default:
+			return dataOut, errors.New("Js exception")
 		}
-
-		return dataOut, errors.New(errStr)
 	}
 }
 

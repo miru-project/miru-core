@@ -107,7 +107,7 @@ func InitRuntime(extPath string, f embed.FS) {
 
 	}()
 	for _, ext := range exts {
-		switch ext.Api {
+		switch ext.ApiVersion {
 		case "2":
 			go LoadApiV2(ext, ScriptV2)
 		default:
@@ -116,8 +116,14 @@ func InitRuntime(extPath string, f embed.FS) {
 	}
 }
 
+// Compile the js before evaluating it
 func compileExtension(ext *Ext) (*goja.Program, error) {
 	compile, e := goja.Compile(ext.Pkg+".js", *ext.Context, true)
+	if e != nil {
+		log.Println("Error compiling extension:", e)
+		ApiPkgCache.SetError(ext.Pkg, e.Error())
+		return nil, e
+	}
 	return compile, e
 }
 
@@ -174,7 +180,7 @@ func WatchDir(dir string) {
 func (ext *Ext) ReloadExtension() error {
 
 	// Create a new extension runtime
-	switch ext.Api {
+	switch ext.ApiVersion {
 	case "2":
 		LoadApiV2(ext, ScriptV2)
 	case "1", "":
@@ -184,8 +190,8 @@ func (ext *Ext) ReloadExtension() error {
 	return nil
 }
 
-// ReplaceClassExtendsDeclaration replaces `class X extends Extension` with `X = class extends Extension {`
-func ReplaceClassExtendsDeclaration(jsCode string) string {
+// replaceClassExtendsDeclaration replaces `class X extends Extension` with `X = class extends Extension {`
+func replaceClassExtendsDeclaration(jsCode string) string {
 	re := regexp.MustCompile(`(?m)^.*class.+extends\s+Extension\s*{.*$`)
 	return re.ReplaceAllString(jsCode, "globalThis.Ext = class extends Extension {")
 }
@@ -265,8 +271,8 @@ func (ext *Ext) ParseExtMetadata(content string, fileName string) error {
 			ext.Website = value
 		case "description":
 			ext.Description = value
-		case "api":
-			ext.Api = value
+		case "apiVersion":
+			ext.ApiVersion = value
 		case "type":
 			ext.WatchType = value
 		case "tags":
@@ -285,6 +291,7 @@ func (ext *Ext) ParseExtMetadata(content string, fileName string) error {
 		err = errors.New("package name does not match the file name \r\n file name:" + fileName + "\r\n package name:" + ext.Pkg)
 	}
 
+	// Save so that it can be accessed at initialization
 	ext.Context = &content
 	return err
 }

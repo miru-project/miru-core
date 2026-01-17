@@ -110,7 +110,6 @@ class Extension {
   settingKeys = [];
 
   async request(url, options) {
-    // await jsRequest(url, options);
     options = options || {};
     options.headers = options.headers || {};
     const miruUrl = options.headers["Miru-Url"] || this.webSite;

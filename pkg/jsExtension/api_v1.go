@@ -1,250 +1,45 @@
 package jsExtension
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
-	"strings"
-
 	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/dop251/goja"
-	"github.com/dop251/goja_nodejs/eventloop"
-	"github.com/miru-project/miru-core/pkg/db"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
-	"github.com/miru-project/miru-core/pkg/network"
 )
 
 func LoadApiV1(ext *Ext, baseScript string) {
 
-	*ext.Context = ReplaceClassExtendsDeclaration(*ext.Context)
+	*ext.Context = replaceClassExtendsDeclaration(*ext.Context)
+	// compile base runtime
 	runtimeV1 := errorhandle.HandleFatal(goja.Compile("runtime_v1.js", baseScript, true))
+	// compile extension runtime
 	compiledExt, e := compileExtension(ext)
 	if e != nil {
-		log.Println("Error compiling extension:", e)
-		ext.Error = e.Error()
-
-		ApiPkgCache.Modify(ext.Pkg, func(ea *ExtApi) *ExtApi {
-			ea.Ext.Error = e.Error()
-			return ea
-		})
 		return
 	}
+
 	api := &ExtApi{Ext: ext, service: &ExtBaseService{base: runtimeV1, program: compiledExt}}
 	ApiPkgCache.Store(ext.Pkg, api)
-
-	ApiPkgCache.Modify(ext.Pkg, func(ea *ExtApi) *ExtApi {
-		ea.Ext.Error = ""
-		return ea
-	})
+	ApiPkgCache.SetError(ext.Pkg, "")
 
 	api.initEvalV1String()
-	api.InitV1Script(ext.Pkg)
-	api.loadExtension(ext.Pkg)
-	log.Println("Extension loaded:", ext.Name, ext.Pkg)
+	api.initRuntimeV1(ext.Pkg)
+	api.loadExtensionV1(ext.Pkg)
+	log.Println("Extension loaded (V1):", ext.Name, ext.Pkg)
 
 }
-func (api *ExtApi) loadExtension(pkg string) {
-	if _, e := AsyncCallBackV1(api, pkg, "ext.load()"); e != nil {
+
+func (api *ExtApi) loadExtensionV1(pkg string) {
+	if _, e := AsyncCallBack(api, pkg, "ext.load()"); e != nil {
 		ApiPkgCache.SetError(pkg, e.Error())
 	}
 }
+
 func (api *ExtApi) initEvalV1String() {
 	// Register  the async callback function for V1
-	api.asyncCallBack = AsyncCallBackV1
+	api.asyncCallBack = AsyncCallBack
 	api.latestEval = "ext.latest(%d)"
 	api.searchEval = "ext.search('%s', %d, %s)"
 	api.detailEval = "ext.detail('%s')"
 	api.watchEval = "ext.watch('%s')"
-}
-
-func (api *ExtApi) InitV1Script(pkg string) {
-
-	ApiPkgCache.Store(pkg, api)
-	loop := eventloop.NewEventLoop(
-		eventloop.WithRegistry(SharedRegistry),
-	)
-
-	if api == nil || api.service.program == nil {
-		ApiPkgCache.SetError(pkg, fmt.Sprintf("extension %s not found", pkg))
-	}
-	ser := api.service
-	// res := make(chan PromiseResult)
-	// defer close(res)
-
-	// var runtime *goja.Runtime
-	loop.RunOnLoop(func(vm *goja.Runtime) {
-
-		defer func() {
-			if r := recover(); r != nil {
-				if err, ok := r.(error); ok {
-					ApiPkgCache.SetError(pkg, err.Error())
-					return
-				}
-				log.Print("Unknown panic:", r)
-			}
-		}()
-
-		service := api.service
-		var job = Job{loop: loop}
-		// Run the program for the  first time
-		reg := SharedRegistry.Enable(vm)
-		ser.initModule(reg, vm, &job)
-		// eval base runtime
-		if _, e := vm.RunProgram(service.base); e != nil {
-			log.Println("Error running base script:", e)
-			panic(e)
-		}
-		// eval extension program
-		if _, e := vm.RunProgram(api.service.program); e != nil {
-			log.Println("Error running extension script:", e)
-			panic(e)
-		}
-		// Initialize the Ext class
-		_, e := vm.RunString(fmt.Sprintf(`
-			ext = new globalThis.Ext("%s");
-			`, api.Ext.Website))
-
-		if e != nil {
-			panic(e)
-		}
-
-		vm.Set(`println`, func(args ...any) {
-			log.Println(args...)
-		})
-
-		// vm.Set("registerSetting", )
-		vm.Set("registerSetting", func(call goja.FunctionCall) goja.Value {
-
-			val := call.Argument(0).ToObject(vm).Export()
-			value, ok := val.(map[string]any)
-			if !ok {
-				panic(vm.ToValue(errors.New("invalid setting object need map")))
-			}
-
-			e = db.RegisterSetting(value, pkg)
-			if e != nil {
-				panic(vm.ToValue(fmt.Errorf("error registering setting: %w", e)))
-			}
-			return vm.ToValue(nil)
-		})
-
-		vm.Set("getSetting", func(call goja.FunctionCall) goja.Value {
-			key := call.Argument(0).ToString().String()
-			setting, e := db.GetSetting(pkg, key)
-			if e != nil {
-				panic(vm.ToValue(errors.New("Error getting setting:" + e.Error())))
-			}
-			if setting == nil {
-				return nil
-			}
-			return vm.ToValue(setting.Value)
-		})
-
-		vm.Set("setSetting", func(call goja.FunctionCall) any {
-			pkg := call.Argument(0).ToString().String()
-			key := call.Argument(1).ToString().String()
-			value := call.Argument(2).ToString().String()
-			e := db.SetSetting(pkg, key, value)
-			if e != nil {
-				panic(vm.ToValue(errors.New("Error setting setting:" + e.Error())))
-			}
-			return nil
-		})
-
-		vm.Set("getCookies", func(call goja.FunctionCall) any {
-			url := call.Argument(0).ToString().String()
-			cookie, e := network.GetCookies(url)
-			if e != nil {
-				panic(vm.ToValue(errors.New("Error getting cookies:" + e.Error())))
-			}
-			return cookie
-		})
-
-		vm.Set("setCookies", func(call goja.FunctionCall) any {
-			url := call.Argument(0).ToString().String()
-			cookiesInterface := call.Argument(1).ToObject(vm).Export()
-			cookies, ok := cookiesInterface.([]any)
-			if !ok {
-				panic(vm.ToValue(errors.New("invalid cookies format, expected array of strings")))
-			}
-			cookieStrs := make([]string, len(cookies))
-			for i, c := range cookies {
-				cookieStrs[i] = fmt.Sprintf("%v", c)
-			}
-			e := network.SetCookies(url, cookieStrs)
-			if e != nil {
-				panic(vm.ToValue(errors.New("Error setting cookies:" + e.Error())))
-			}
-			return nil
-		})
-
-		ser.createSingleChannel(vm, "jsRequest", &job, func(call goja.FunctionCall, resolve func(any) error) any {
-
-			url := call.Argument(0).ToString().String()
-			url = strings.ReplaceAll(url, "&amp;", "&")
-			opt := call.Argument(1).ToObject(vm).Export()
-			var requestOptions network.RequestOptions
-			jsonData, e := json.Marshal(opt)
-			if e != nil {
-				panic("Error marshalling options to JSON:" + e.Error())
-			}
-
-			if err := json.Unmarshal(jsonData, &requestOptions); err != nil {
-				panic("Error unmarshalling JSON:" + err.Error())
-			}
-
-			res, err := network.Request[string](url, &requestOptions, network.ReadAll)
-
-			if err != nil {
-				panic(vm.ToValue(err))
-			}
-			return res
-		})
-
-	})
-	loop.Start()
-	defer loop.Stop()
-
-	extMemMap.Store(pkg, loop)
-
-}
-
-func AsyncCallBackV1(api *ExtApi, pkg string, evalStr string) (any, error) {
-	api.lock.Lock()
-	defer api.lock.Unlock()
-
-	ApiPkgCache.Store(pkg, api)
-
-	var loop *eventloop.EventLoop
-
-	// check extension does  contain eventloop runtime
-	lop, eventLoopIsExist := extMemMap.Load(pkg)
-	if eventLoopIsExist {
-		loop = lop.(*eventloop.EventLoop)
-	} else {
-		api.InitV1Script(pkg)
-		lop, _ = extMemMap.Load(pkg)
-		loop = lop.(*eventloop.EventLoop)
-	}
-	loop.Stop()
-	res := make(chan PromiseResult)
-	defer close(res)
-	loop.RunOnLoop(func(vm *goja.Runtime) {
-		o, e := vm.RunString(evalStr)
-		handlePromise(o, res, e)
-	})
-	loop.Start()
-	defer loop.StopNoWait()
-	result := <-res
-	// close(res)
-	// handle error from PromiseResult{err: e}
-	if result.err != nil {
-		var zero any
-		return zero, result.err
-	}
-	// handle result when Promise has established
-	o, e := await(result.promise)
-	return o, e
-
 }
