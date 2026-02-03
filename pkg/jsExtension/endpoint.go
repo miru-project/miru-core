@@ -1,6 +1,7 @@
 package jsExtension
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"path/filepath"
@@ -42,7 +43,10 @@ func Watch(pkg string, watchLink string) (any, error) {
 	if api.Ext.WatchType != "bangumi" {
 		return o, nil
 	}
-	obj := o.(map[string]any)
+	obj, ok := o.(map[string]any)
+	if !ok {
+		return nil, errors.New("Malformed watch response")
+	}
 	vidType := obj["type"].(string)
 	switch vidType {
 

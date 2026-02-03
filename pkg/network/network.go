@@ -125,6 +125,7 @@ func requestWithCycleTLS(requrl string, option *RequestOptions) (ExtensionRespon
 }
 
 func prepareRequest(req *fasthttp.Request, reqUrl string, option *RequestOptions) (*fasthttp.Client, error) {
+	log.Println("Making request to:", reqUrl)
 	req.SetRequestURI(reqUrl)
 	req.Header.SetMethod(checkRequestMethod(option.Method))
 

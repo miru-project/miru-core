@@ -1,6 +1,7 @@
 package jsExtension
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -181,6 +182,14 @@ func (api *ExtApi) registerFunction(vm *goja.Runtime, job Job) {
 			panic(vm.ToValue(errors.New("Error setting cookies:" + e.Error())))
 		}
 		return nil
+	})
+
+	api.setFunction(vm, "btoa", func(call goja.FunctionCall) goja.Value {
+		return vm.ToValue(base64.RawStdEncoding.EncodeToString([]byte(call.Arguments[0].String())))
+	})
+	api.setFunction(vm, "atob", func(call goja.FunctionCall) goja.Value {
+		str, _ := base64.RawStdEncoding.DecodeString(call.Arguments[0].String())
+		return vm.ToValue(string(str))
 	})
 
 	api.service.createSingleChannel(vm, "jsRequest", &job, func(call goja.FunctionCall, resolve func(any) error) any {
