@@ -15,14 +15,8 @@ func Latest(page string, pkg string) *result.Result[any] {
 	if err != nil {
 		return result.NewErrorResult("Invalid page number", 400, nil)
 	}
-
 	res, e := jsExtension.Latest(pkg, intPage)
-
-	if res == nil && e != nil {
-		return result.NewErrorResult(e.Error(), 404, nil)
-	}
-	return result.NewSuccessResult(res)
-
+	return handleResult(res, e)
 }
 
 // handle Search when receiving a request
@@ -34,33 +28,32 @@ func Search(page string, pkg string, kw string, filter string) *result.Result[an
 	}
 
 	res, e := jsExtension.Search(pkg, intPage, kw, filter)
-
-	if res == nil {
-		return result.NewErrorResult(e.Error(), 404, nil)
-	}
-	return result.NewSuccessResult(res)
-
+	return handleResult(res, e)
 }
 
 // handle Watch when receiving a request
 func Watch(pkg string, url string) *result.Result[any] {
 
 	res, e := jsExtension.Watch(pkg, url)
-
-	if res == nil {
-		return result.NewErrorResult(e.Error(), 404, nil)
-	}
-	return result.NewSuccessResult(res)
+	return handleResult(res, e)
 }
 
 // handle Detail when receiving a request
 func Detail(pkg string, url string) *result.Result[any] {
 
 	res, e := jsExtension.Detail(pkg, url)
+	return handleResult(res, e)
+}
 
-	if res == nil {
+func handleResult(res any, e error) *result.Result[any] {
+	if e != nil {
 		return result.NewErrorResult(e.Error(), 404, nil)
 	}
+
+	if res == nil {
+		return result.NewErrorResult("No results found", 404, nil)
+	}
+
 	return result.NewSuccessResult(res)
 }
 
