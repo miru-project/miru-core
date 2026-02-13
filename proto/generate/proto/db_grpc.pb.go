@@ -19,25 +19,25 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	DbService_GetDetail_FullMethodName                    = "/miru.DbService/GetDetail"
-	DbService_UpsertDetail_FullMethodName                 = "/miru.DbService/UpsertDetail"
-	DbService_GetAllFavorite_FullMethodName               = "/miru.DbService/GetAllFavorite"
-	DbService_GetFavoriteByPackageAndUrl_FullMethodName   = "/miru.DbService/GetFavoriteByPackageAndUrl"
-	DbService_PutFavoriteByIndex_FullMethodName           = "/miru.DbService/PutFavoriteByIndex"
-	DbService_PutFavorite_FullMethodName                  = "/miru.DbService/PutFavorite"
-	DbService_DeleteFavorite_FullMethodName               = "/miru.DbService/DeleteFavorite"
-	DbService_GetFavoriteGroupsById_FullMethodName        = "/miru.DbService/GetFavoriteGroupsById"
-	DbService_GetAllFavoriteGroup_FullMethodName          = "/miru.DbService/GetAllFavoriteGroup"
-	DbService_PutFavoriteGroup_FullMethodName             = "/miru.DbService/PutFavoriteGroup"
-	DbService_RenameFavoriteGroup_FullMethodName          = "/miru.DbService/RenameFavoriteGroup"
-	DbService_DeleteFavoriteGroup_FullMethodName          = "/miru.DbService/DeleteFavoriteGroup"
-	DbService_GetFavoriteGroupsByFavorite_FullMethodName  = "/miru.DbService/GetFavoriteGroupsByFavorite"
-	DbService_GetHistoriesByType_FullMethodName           = "/miru.DbService/GetHistoriesByType"
-	DbService_GetHistoryByPackageAndUrl_FullMethodName    = "/miru.DbService/GetHistoryByPackageAndUrl"
-	DbService_PutHistory_FullMethodName                   = "/miru.DbService/PutHistory"
-	DbService_DeleteHistoryByPackageAndUrl_FullMethodName = "/miru.DbService/DeleteHistoryByPackageAndUrl"
-	DbService_DeleteAllHistory_FullMethodName             = "/miru.DbService/DeleteAllHistory"
-	DbService_GetHistorysFiltered_FullMethodName          = "/miru.DbService/GetHistorysFiltered"
+	DbService_GetDetail_FullMethodName                       = "/miru.DbService/GetDetail"
+	DbService_UpsertDetail_FullMethodName                    = "/miru.DbService/UpsertDetail"
+	DbService_GetAllFavorite_FullMethodName                  = "/miru.DbService/GetAllFavorite"
+	DbService_GetFavoriteByPackageAndUrl_FullMethodName      = "/miru.DbService/GetFavoriteByPackageAndUrl"
+	DbService_PutFavoriteByIndex_FullMethodName              = "/miru.DbService/PutFavoriteByIndex"
+	DbService_PutFavorite_FullMethodName                     = "/miru.DbService/PutFavorite"
+	DbService_DeleteFavorite_FullMethodName                  = "/miru.DbService/DeleteFavorite"
+	DbService_GetFavoriteGroupsById_FullMethodName           = "/miru.DbService/GetFavoriteGroupsById"
+	DbService_GetAllFavoriteGroup_FullMethodName             = "/miru.DbService/GetAllFavoriteGroup"
+	DbService_PutFavoriteGroup_FullMethodName                = "/miru.DbService/PutFavoriteGroup"
+	DbService_RenameFavoriteGroup_FullMethodName             = "/miru.DbService/RenameFavoriteGroup"
+	DbService_DeleteFavoriteGroup_FullMethodName             = "/miru.DbService/DeleteFavoriteGroup"
+	DbService_GetFavoriteGroupsByFavorite_FullMethodName     = "/miru.DbService/GetFavoriteGroupsByFavorite"
+	DbService_GetHistoriesByType_FullMethodName              = "/miru.DbService/GetHistoriesByType"
+	DbService_GetHistoryByPackageAndDetailUrl_FullMethodName = "/miru.DbService/GetHistoryByPackageAndDetailUrl"
+	DbService_PutHistory_FullMethodName                      = "/miru.DbService/PutHistory"
+	DbService_DeleteHistoryByPackageAndUrl_FullMethodName    = "/miru.DbService/DeleteHistoryByPackageAndUrl"
+	DbService_DeleteAllHistory_FullMethodName                = "/miru.DbService/DeleteAllHistory"
+	DbService_GetHistorysFiltered_FullMethodName             = "/miru.DbService/GetHistorysFiltered"
 )
 
 // DbServiceClient is the client API for DbService service.
@@ -62,7 +62,7 @@ type DbServiceClient interface {
 	GetFavoriteGroupsByFavorite(ctx context.Context, in *GetFavoriteGroupsByFavoriteRequest, opts ...grpc.CallOption) (*GetFavoriteGroupsByFavoriteResponse, error)
 	// History
 	GetHistoriesByType(ctx context.Context, in *GetHistoriesByTypeRequest, opts ...grpc.CallOption) (*GetHistoriesByTypeResponse, error)
-	GetHistoryByPackageAndUrl(ctx context.Context, in *GetHistoryByPackageAndUrlRequest, opts ...grpc.CallOption) (*GetHistoryByPackageAndUrlResponse, error)
+	GetHistoryByPackageAndDetailUrl(ctx context.Context, in *GetHistoryByPackageAndDetailUrlRequest, opts ...grpc.CallOption) (*GetHistoryByPackageAndDetailUrlResponse, error)
 	PutHistory(ctx context.Context, in *PutHistoryRequest, opts ...grpc.CallOption) (*PutHistoryResponse, error)
 	DeleteHistoryByPackageAndUrl(ctx context.Context, in *DeleteHistoryByPackageAndUrlRequest, opts ...grpc.CallOption) (*DeleteHistoryByPackageAndUrlResponse, error)
 	DeleteAllHistory(ctx context.Context, in *DeleteAllHistoryRequest, opts ...grpc.CallOption) (*DeleteAllHistoryResponse, error)
@@ -217,10 +217,10 @@ func (c *dbServiceClient) GetHistoriesByType(ctx context.Context, in *GetHistori
 	return out, nil
 }
 
-func (c *dbServiceClient) GetHistoryByPackageAndUrl(ctx context.Context, in *GetHistoryByPackageAndUrlRequest, opts ...grpc.CallOption) (*GetHistoryByPackageAndUrlResponse, error) {
+func (c *dbServiceClient) GetHistoryByPackageAndDetailUrl(ctx context.Context, in *GetHistoryByPackageAndDetailUrlRequest, opts ...grpc.CallOption) (*GetHistoryByPackageAndDetailUrlResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetHistoryByPackageAndUrlResponse)
-	err := c.cc.Invoke(ctx, DbService_GetHistoryByPackageAndUrl_FullMethodName, in, out, cOpts...)
+	out := new(GetHistoryByPackageAndDetailUrlResponse)
+	err := c.cc.Invoke(ctx, DbService_GetHistoryByPackageAndDetailUrl_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -289,7 +289,7 @@ type DbServiceServer interface {
 	GetFavoriteGroupsByFavorite(context.Context, *GetFavoriteGroupsByFavoriteRequest) (*GetFavoriteGroupsByFavoriteResponse, error)
 	// History
 	GetHistoriesByType(context.Context, *GetHistoriesByTypeRequest) (*GetHistoriesByTypeResponse, error)
-	GetHistoryByPackageAndUrl(context.Context, *GetHistoryByPackageAndUrlRequest) (*GetHistoryByPackageAndUrlResponse, error)
+	GetHistoryByPackageAndDetailUrl(context.Context, *GetHistoryByPackageAndDetailUrlRequest) (*GetHistoryByPackageAndDetailUrlResponse, error)
 	PutHistory(context.Context, *PutHistoryRequest) (*PutHistoryResponse, error)
 	DeleteHistoryByPackageAndUrl(context.Context, *DeleteHistoryByPackageAndUrlRequest) (*DeleteHistoryByPackageAndUrlResponse, error)
 	DeleteAllHistory(context.Context, *DeleteAllHistoryRequest) (*DeleteAllHistoryResponse, error)
@@ -346,8 +346,8 @@ func (UnimplementedDbServiceServer) GetFavoriteGroupsByFavorite(context.Context,
 func (UnimplementedDbServiceServer) GetHistoriesByType(context.Context, *GetHistoriesByTypeRequest) (*GetHistoriesByTypeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetHistoriesByType not implemented")
 }
-func (UnimplementedDbServiceServer) GetHistoryByPackageAndUrl(context.Context, *GetHistoryByPackageAndUrlRequest) (*GetHistoryByPackageAndUrlResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetHistoryByPackageAndUrl not implemented")
+func (UnimplementedDbServiceServer) GetHistoryByPackageAndDetailUrl(context.Context, *GetHistoryByPackageAndDetailUrlRequest) (*GetHistoryByPackageAndDetailUrlResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetHistoryByPackageAndDetailUrl not implemented")
 }
 func (UnimplementedDbServiceServer) PutHistory(context.Context, *PutHistoryRequest) (*PutHistoryResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PutHistory not implemented")
@@ -634,20 +634,20 @@ func _DbService_GetHistoriesByType_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DbService_GetHistoryByPackageAndUrl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetHistoryByPackageAndUrlRequest)
+func _DbService_GetHistoryByPackageAndDetailUrl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetHistoryByPackageAndDetailUrlRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DbServiceServer).GetHistoryByPackageAndUrl(ctx, in)
+		return srv.(DbServiceServer).GetHistoryByPackageAndDetailUrl(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DbService_GetHistoryByPackageAndUrl_FullMethodName,
+		FullMethod: DbService_GetHistoryByPackageAndDetailUrl_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DbServiceServer).GetHistoryByPackageAndUrl(ctx, req.(*GetHistoryByPackageAndUrlRequest))
+		return srv.(DbServiceServer).GetHistoryByPackageAndDetailUrl(ctx, req.(*GetHistoryByPackageAndDetailUrlRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -788,8 +788,8 @@ var DbService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _DbService_GetHistoriesByType_Handler,
 		},
 		{
-			MethodName: "GetHistoryByPackageAndUrl",
-			Handler:    _DbService_GetHistoryByPackageAndUrl_Handler,
+			MethodName: "GetHistoryByPackageAndDetailUrl",
+			Handler:    _DbService_GetHistoryByPackageAndDetailUrl_Handler,
 		},
 		{
 			MethodName: "PutHistory",

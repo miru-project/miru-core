@@ -18,15 +18,6 @@ func main() {
 
 //export initDyLib
 func initDyLib(configPath *C.char) {
-	// var result *C.char
-	// defer func() {
-	// 	if r := recover(); r != nil {
-	// 		result = C.CString("Error: " + fmt.Sprint(r))
-	// 	}
-	// }()
-	// if result != nil {
-	// 	return result
-	// }
 	configPathStr := C.GoString(configPath)
 	go binary.InitProgram(&configPathStr)
 

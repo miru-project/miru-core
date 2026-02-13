@@ -89,14 +89,16 @@ message GetFavoriteGroupsByFavoriteResponse {
 message GetHistoriesByTypeRequest { string type = 1; }
 message GetHistoriesByTypeResponse { repeated History histories = 1; }
 
-message GetHistoryByPackageAndUrlRequest {
-  string package = 1;
-  string url = 2;
-}
-message GetHistoryByPackageAndUrlResponse { History history = 1; }
-
 message PutHistoryRequest { History history = 1; }
 message PutHistoryResponse { History history = 1; }
+
+message GetHistoryByPackageAndDetailUrlRequest {
+  string package = 1;
+  string detail_url = 2;
+}
+message GetHistoryByPackageAndDetailUrlResponse {
+  repeated History history = 1;
+}
 
 message DeleteHistoryByPackageAndUrlRequest {
   string package = 1;
@@ -144,8 +146,8 @@ service DbService {
   // History
   rpc GetHistoriesByType(GetHistoriesByTypeRequest)
       returns (GetHistoriesByTypeResponse);
-  rpc GetHistoryByPackageAndUrl(GetHistoryByPackageAndUrlRequest)
-      returns (GetHistoryByPackageAndUrlResponse);
+  rpc GetHistoryByPackageAndDetailUrl(GetHistoryByPackageAndDetailUrlRequest)
+      returns (GetHistoryByPackageAndDetailUrlResponse);
   rpc PutHistory(PutHistoryRequest) returns (PutHistoryResponse);
   rpc DeleteHistoryByPackageAndUrl(DeleteHistoryByPackageAndUrlRequest)
       returns (DeleteHistoryByPackageAndUrlResponse);

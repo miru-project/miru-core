@@ -40,19 +40,15 @@ func GetHistoriesByType(t *string) ([]*ent.History, error) {
 	return q.All(ctx)
 }
 
-// GetHistoryByPackageAndUrl returns the first history matching package and url or (nil, nil) if not found.
-func GetHistoryByPackageAndUrl(pkg string, url string) (*ent.History, error) {
+// GetHistoryByPackageAndDetailUrl returns all history matching package and detailUrl.
+func GetHistoryByPackageAndDetailUrl(pkg string, detailUrl string) ([]*ent.History, error) {
 	client := ext.EntClient()
 	ctx := context.Background()
 
-	h, err := client.History.Query().Where(history.PackageEQ(pkg), history.URLEQ(url)).First(ctx)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return h, nil
+	return client.History.Query().
+		Where(history.PackageEQ(pkg), history.DetailUrlEQ(detailUrl)).
+		Order(ent.Desc(history.FieldDate)).
+		All(ctx)
 }
 
 // PutHistory creates or updates a history record. Returns the ID of the saved record.
@@ -60,8 +56,10 @@ func PutHistory(h *ent.History) (int, error) {
 	client := ext.EntClient()
 	ctx := context.Background()
 
-	// Try to find existing by package and url
-	existing, err := client.History.Query().Where(history.PackageEQ(h.Package), history.URLEQ(h.URL)).Only(ctx)
+	// Try to find existing by package, url and detailUrl
+	existing, err := client.History.Query().
+		Where(history.PackageEQ(h.Package), history.URLEQ(h.URL), history.DetailUrlEQ(h.DetailUrl)).
+		Only(ctx)
 	if err != nil && !ent.IsNotFound(err) {
 		return 0, err
 	}
@@ -92,7 +90,7 @@ func PutHistory(h *ent.History) (int, error) {
 
 	// create
 	c := client.History.Create().SetPackage(h.Package).SetURL(h.URL)
-	c.OnConflict(sql.ConflictColumns(history.FieldPackage, history.FieldURL), sql.ResolveWithNewValues())
+	c.OnConflict(sql.ConflictColumns(history.FieldPackage, history.FieldURL, history.FieldDetailUrl), sql.ResolveWithNewValues())
 	if h.Cover != nil {
 		c = c.SetCover(*h.Cover)
 	}

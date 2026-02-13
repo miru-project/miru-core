@@ -377,12 +377,18 @@ func (s *MiruCoreServer) GetHistoriesByType(ctx context.Context, req *proto.GetH
 	return &proto.GetHistoriesByTypeResponse{Histories: protoHistories}, nil
 }
 
-func (s *MiruCoreServer) GetHistoryByPackageAndUrl(ctx context.Context, req *proto.GetHistoryByPackageAndUrlRequest) (*proto.GetHistoryByPackageAndUrlResponse, error) {
-	h, err := db.GetHistoryByPackageAndUrl(req.Package, req.Url)
+func (s *MiruCoreServer) GetHistoryByPackageAndDetailUrl(ctx context.Context, req *proto.GetHistoryByPackageAndDetailUrlRequest) (*proto.GetHistoryByPackageAndDetailUrlResponse, error) {
+	histories, err := db.GetHistoryByPackageAndDetailUrl(req.Package, req.DetailUrl)
 	if err != nil {
 		return nil, err
 	}
-	return &proto.GetHistoryByPackageAndUrlResponse{History: toProtoHistory(h)}, nil
+	protoHistories := []*proto.History{}
+	for _, h := range histories {
+		if h != nil {
+			protoHistories = append(protoHistories, toProtoHistory(h))
+		}
+	}
+	return &proto.GetHistoryByPackageAndDetailUrlResponse{History: protoHistories}, nil
 }
 
 func (s *MiruCoreServer) PutHistory(ctx context.Context, req *proto.PutHistoryRequest) (*proto.PutHistoryResponse, error) {

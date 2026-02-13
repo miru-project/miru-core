@@ -177,9 +177,9 @@ var (
 		PrimaryKey: []*schema.Column{HistoriesColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "history_package_url",
+				Name:    "history_package_url_detail_url",
 				Unique:  true,
-				Columns: []*schema.Column{HistoriesColumns[1], HistoriesColumns[2]},
+				Columns: []*schema.Column{HistoriesColumns[1], HistoriesColumns[2], HistoriesColumns[3]},
 			},
 		},
 	}

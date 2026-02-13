@@ -78,8 +78,8 @@ func (History) Edges() []ent.Edge {
 // Indexes of the History.
 func (History) Indexes() []ent.Index {
 	return []ent.Index{
-		// Create a unique index on the package and url field with replace on conflict strategy
-		index.Fields("package", "url").
+		// Create a unique index on the package, url and detailUrl field with replace on conflict strategy
+		index.Fields("package", "url", "detailUrl").
 			Unique(),
 	}
 }

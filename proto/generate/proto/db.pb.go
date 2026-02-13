@@ -1377,102 +1377,6 @@ func (x *GetHistoriesByTypeResponse) GetHistories() []*History {
 	return nil
 }
 
-type GetHistoryByPackageAndUrlRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Package       string                 `protobuf:"bytes,1,opt,name=package,proto3" json:"package,omitempty"`
-	Url           string                 `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetHistoryByPackageAndUrlRequest) Reset() {
-	*x = GetHistoryByPackageAndUrlRequest{}
-	mi := &file_proto_db_proto_msgTypes[28]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetHistoryByPackageAndUrlRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetHistoryByPackageAndUrlRequest) ProtoMessage() {}
-
-func (x *GetHistoryByPackageAndUrlRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_db_proto_msgTypes[28]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetHistoryByPackageAndUrlRequest.ProtoReflect.Descriptor instead.
-func (*GetHistoryByPackageAndUrlRequest) Descriptor() ([]byte, []int) {
-	return file_proto_db_proto_rawDescGZIP(), []int{28}
-}
-
-func (x *GetHistoryByPackageAndUrlRequest) GetPackage() string {
-	if x != nil {
-		return x.Package
-	}
-	return ""
-}
-
-func (x *GetHistoryByPackageAndUrlRequest) GetUrl() string {
-	if x != nil {
-		return x.Url
-	}
-	return ""
-}
-
-type GetHistoryByPackageAndUrlResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	History       *History               `protobuf:"bytes,1,opt,name=history,proto3" json:"history,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetHistoryByPackageAndUrlResponse) Reset() {
-	*x = GetHistoryByPackageAndUrlResponse{}
-	mi := &file_proto_db_proto_msgTypes[29]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetHistoryByPackageAndUrlResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetHistoryByPackageAndUrlResponse) ProtoMessage() {}
-
-func (x *GetHistoryByPackageAndUrlResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_db_proto_msgTypes[29]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetHistoryByPackageAndUrlResponse.ProtoReflect.Descriptor instead.
-func (*GetHistoryByPackageAndUrlResponse) Descriptor() ([]byte, []int) {
-	return file_proto_db_proto_rawDescGZIP(), []int{29}
-}
-
-func (x *GetHistoryByPackageAndUrlResponse) GetHistory() *History {
-	if x != nil {
-		return x.History
-	}
-	return nil
-}
-
 type PutHistoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	History       *History               `protobuf:"bytes,1,opt,name=history,proto3" json:"history,omitempty"`
@@ -1482,7 +1386,7 @@ type PutHistoryRequest struct {
 
 func (x *PutHistoryRequest) Reset() {
 	*x = PutHistoryRequest{}
-	mi := &file_proto_db_proto_msgTypes[30]
+	mi := &file_proto_db_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1494,7 +1398,7 @@ func (x *PutHistoryRequest) String() string {
 func (*PutHistoryRequest) ProtoMessage() {}
 
 func (x *PutHistoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_db_proto_msgTypes[30]
+	mi := &file_proto_db_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1507,7 +1411,7 @@ func (x *PutHistoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutHistoryRequest.ProtoReflect.Descriptor instead.
 func (*PutHistoryRequest) Descriptor() ([]byte, []int) {
-	return file_proto_db_proto_rawDescGZIP(), []int{30}
+	return file_proto_db_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *PutHistoryRequest) GetHistory() *History {
@@ -1526,7 +1430,7 @@ type PutHistoryResponse struct {
 
 func (x *PutHistoryResponse) Reset() {
 	*x = PutHistoryResponse{}
-	mi := &file_proto_db_proto_msgTypes[31]
+	mi := &file_proto_db_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1538,7 +1442,7 @@ func (x *PutHistoryResponse) String() string {
 func (*PutHistoryResponse) ProtoMessage() {}
 
 func (x *PutHistoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_db_proto_msgTypes[31]
+	mi := &file_proto_db_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1551,10 +1455,106 @@ func (x *PutHistoryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PutHistoryResponse.ProtoReflect.Descriptor instead.
 func (*PutHistoryResponse) Descriptor() ([]byte, []int) {
-	return file_proto_db_proto_rawDescGZIP(), []int{31}
+	return file_proto_db_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *PutHistoryResponse) GetHistory() *History {
+	if x != nil {
+		return x.History
+	}
+	return nil
+}
+
+type GetHistoryByPackageAndDetailUrlRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Package       string                 `protobuf:"bytes,1,opt,name=package,proto3" json:"package,omitempty"`
+	DetailUrl     string                 `protobuf:"bytes,2,opt,name=detail_url,json=detailUrl,proto3" json:"detail_url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetHistoryByPackageAndDetailUrlRequest) Reset() {
+	*x = GetHistoryByPackageAndDetailUrlRequest{}
+	mi := &file_proto_db_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetHistoryByPackageAndDetailUrlRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetHistoryByPackageAndDetailUrlRequest) ProtoMessage() {}
+
+func (x *GetHistoryByPackageAndDetailUrlRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_db_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetHistoryByPackageAndDetailUrlRequest.ProtoReflect.Descriptor instead.
+func (*GetHistoryByPackageAndDetailUrlRequest) Descriptor() ([]byte, []int) {
+	return file_proto_db_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *GetHistoryByPackageAndDetailUrlRequest) GetPackage() string {
+	if x != nil {
+		return x.Package
+	}
+	return ""
+}
+
+func (x *GetHistoryByPackageAndDetailUrlRequest) GetDetailUrl() string {
+	if x != nil {
+		return x.DetailUrl
+	}
+	return ""
+}
+
+type GetHistoryByPackageAndDetailUrlResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	History       []*History             `protobuf:"bytes,1,rep,name=history,proto3" json:"history,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetHistoryByPackageAndDetailUrlResponse) Reset() {
+	*x = GetHistoryByPackageAndDetailUrlResponse{}
+	mi := &file_proto_db_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetHistoryByPackageAndDetailUrlResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetHistoryByPackageAndDetailUrlResponse) ProtoMessage() {}
+
+func (x *GetHistoryByPackageAndDetailUrlResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_db_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetHistoryByPackageAndDetailUrlResponse.ProtoReflect.Descriptor instead.
+func (*GetHistoryByPackageAndDetailUrlResponse) Descriptor() ([]byte, []int) {
+	return file_proto_db_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *GetHistoryByPackageAndDetailUrlResponse) GetHistory() []*History {
 	if x != nil {
 		return x.History
 	}
@@ -1918,16 +1918,17 @@ const file_proto_db_proto_rawDesc = "" +
 	"\x19GetHistoriesByTypeRequest\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\"I\n" +
 	"\x1aGetHistoriesByTypeResponse\x12+\n" +
-	"\thistories\x18\x01 \x03(\v2\r.miru.HistoryR\thistories\"N\n" +
-	" GetHistoryByPackageAndUrlRequest\x12\x18\n" +
-	"\apackage\x18\x01 \x01(\tR\apackage\x12\x10\n" +
-	"\x03url\x18\x02 \x01(\tR\x03url\"L\n" +
-	"!GetHistoryByPackageAndUrlResponse\x12'\n" +
-	"\ahistory\x18\x01 \x01(\v2\r.miru.HistoryR\ahistory\"<\n" +
+	"\thistories\x18\x01 \x03(\v2\r.miru.HistoryR\thistories\"<\n" +
 	"\x11PutHistoryRequest\x12'\n" +
 	"\ahistory\x18\x01 \x01(\v2\r.miru.HistoryR\ahistory\"=\n" +
 	"\x12PutHistoryResponse\x12'\n" +
-	"\ahistory\x18\x01 \x01(\v2\r.miru.HistoryR\ahistory\"Q\n" +
+	"\ahistory\x18\x01 \x01(\v2\r.miru.HistoryR\ahistory\"a\n" +
+	"&GetHistoryByPackageAndDetailUrlRequest\x12\x18\n" +
+	"\apackage\x18\x01 \x01(\tR\apackage\x12\x1d\n" +
+	"\n" +
+	"detail_url\x18\x02 \x01(\tR\tdetailUrl\"R\n" +
+	"'GetHistoryByPackageAndDetailUrlResponse\x12'\n" +
+	"\ahistory\x18\x01 \x03(\v2\r.miru.HistoryR\ahistory\"Q\n" +
 	"#DeleteHistoryByPackageAndUrlRequest\x12\x18\n" +
 	"\apackage\x18\x01 \x01(\tR\apackage\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\"@\n" +
@@ -1941,7 +1942,7 @@ const file_proto_db_proto_rawDesc = "" +
 	"\vbefore_date\x18\x02 \x01(\tR\n" +
 	"beforeDate\"J\n" +
 	"\x1bGetHistorysFilteredResponse\x12+\n" +
-	"\thistories\x18\x01 \x03(\v2\r.miru.HistoryR\thistories2\xa3\r\n" +
+	"\thistories\x18\x01 \x03(\v2\r.miru.HistoryR\thistories2\xb5\r\n" +
 	"\tDbService\x12<\n" +
 	"\tGetDetail\x12\x16.miru.GetDetailRequest\x1a\x17.miru.GetDetailResponse\x12E\n" +
 	"\fUpsertDetail\x12\x19.miru.UpsertDetailRequest\x1a\x1a.miru.UpsertDetailResponse\x12K\n" +
@@ -1956,8 +1957,8 @@ const file_proto_db_proto_rawDesc = "" +
 	"\x13RenameFavoriteGroup\x12 .miru.RenameFavoriteGroupRequest\x1a!.miru.RenameFavoriteGroupResponse\x12Z\n" +
 	"\x13DeleteFavoriteGroup\x12 .miru.DeleteFavoriteGroupRequest\x1a!.miru.DeleteFavoriteGroupResponse\x12r\n" +
 	"\x1bGetFavoriteGroupsByFavorite\x12(.miru.GetFavoriteGroupsByFavoriteRequest\x1a).miru.GetFavoriteGroupsByFavoriteResponse\x12W\n" +
-	"\x12GetHistoriesByType\x12\x1f.miru.GetHistoriesByTypeRequest\x1a .miru.GetHistoriesByTypeResponse\x12l\n" +
-	"\x19GetHistoryByPackageAndUrl\x12&.miru.GetHistoryByPackageAndUrlRequest\x1a'.miru.GetHistoryByPackageAndUrlResponse\x12?\n" +
+	"\x12GetHistoriesByType\x12\x1f.miru.GetHistoriesByTypeRequest\x1a .miru.GetHistoriesByTypeResponse\x12~\n" +
+	"\x1fGetHistoryByPackageAndDetailUrl\x12,.miru.GetHistoryByPackageAndDetailUrlRequest\x1a-.miru.GetHistoryByPackageAndDetailUrlResponse\x12?\n" +
 	"\n" +
 	"PutHistory\x12\x17.miru.PutHistoryRequest\x1a\x18.miru.PutHistoryResponse\x12u\n" +
 	"\x1cDeleteHistoryByPackageAndUrl\x12).miru.DeleteHistoryByPackageAndUrlRequest\x1a*.miru.DeleteHistoryByPackageAndUrlResponse\x12Q\n" +
@@ -1978,48 +1979,48 @@ func file_proto_db_proto_rawDescGZIP() []byte {
 
 var file_proto_db_proto_msgTypes = make([]protoimpl.MessageInfo, 38)
 var file_proto_db_proto_goTypes = []any{
-	(*GetDetailRequest)(nil),                     // 0: miru.GetDetailRequest
-	(*GetDetailResponse)(nil),                    // 1: miru.GetDetailResponse
-	(*UpsertDetailRequest)(nil),                  // 2: miru.UpsertDetailRequest
-	(*UpsertDetailResponse)(nil),                 // 3: miru.UpsertDetailResponse
-	(*GetAllFavoriteRequest)(nil),                // 4: miru.GetAllFavoriteRequest
-	(*GetAllFavoriteResponse)(nil),               // 5: miru.GetAllFavoriteResponse
-	(*GetFavoriteByPackageAndUrlRequest)(nil),    // 6: miru.GetFavoriteByPackageAndUrlRequest
-	(*GetFavoriteByPackageAndUrlResponse)(nil),   // 7: miru.GetFavoriteByPackageAndUrlResponse
-	(*PutFavoriteByIndexRequest)(nil),            // 8: miru.PutFavoriteByIndexRequest
-	(*PutFavoriteByIndexResponse)(nil),           // 9: miru.PutFavoriteByIndexResponse
-	(*PutFavoriteRequest)(nil),                   // 10: miru.PutFavoriteRequest
-	(*PutFavoriteResponse)(nil),                  // 11: miru.PutFavoriteResponse
-	(*DeleteFavoriteRequest)(nil),                // 12: miru.DeleteFavoriteRequest
-	(*DeleteFavoriteResponse)(nil),               // 13: miru.DeleteFavoriteResponse
-	(*GetFavoriteGroupsByIdRequest)(nil),         // 14: miru.GetFavoriteGroupsByIdRequest
-	(*GetFavoriteGroupsByIdResponse)(nil),        // 15: miru.GetFavoriteGroupsByIdResponse
-	(*GetAllFavoriteGroupRequest)(nil),           // 16: miru.GetAllFavoriteGroupRequest
-	(*GetAllFavoriteGroupResponse)(nil),          // 17: miru.GetAllFavoriteGroupResponse
-	(*PutFavoriteGroupRequest)(nil),              // 18: miru.PutFavoriteGroupRequest
-	(*PutFavoriteGroupResponse)(nil),             // 19: miru.PutFavoriteGroupResponse
-	(*RenameFavoriteGroupRequest)(nil),           // 20: miru.RenameFavoriteGroupRequest
-	(*RenameFavoriteGroupResponse)(nil),          // 21: miru.RenameFavoriteGroupResponse
-	(*DeleteFavoriteGroupRequest)(nil),           // 22: miru.DeleteFavoriteGroupRequest
-	(*DeleteFavoriteGroupResponse)(nil),          // 23: miru.DeleteFavoriteGroupResponse
-	(*GetFavoriteGroupsByFavoriteRequest)(nil),   // 24: miru.GetFavoriteGroupsByFavoriteRequest
-	(*GetFavoriteGroupsByFavoriteResponse)(nil),  // 25: miru.GetFavoriteGroupsByFavoriteResponse
-	(*GetHistoriesByTypeRequest)(nil),            // 26: miru.GetHistoriesByTypeRequest
-	(*GetHistoriesByTypeResponse)(nil),           // 27: miru.GetHistoriesByTypeResponse
-	(*GetHistoryByPackageAndUrlRequest)(nil),     // 28: miru.GetHistoryByPackageAndUrlRequest
-	(*GetHistoryByPackageAndUrlResponse)(nil),    // 29: miru.GetHistoryByPackageAndUrlResponse
-	(*PutHistoryRequest)(nil),                    // 30: miru.PutHistoryRequest
-	(*PutHistoryResponse)(nil),                   // 31: miru.PutHistoryResponse
-	(*DeleteHistoryByPackageAndUrlRequest)(nil),  // 32: miru.DeleteHistoryByPackageAndUrlRequest
-	(*DeleteHistoryByPackageAndUrlResponse)(nil), // 33: miru.DeleteHistoryByPackageAndUrlResponse
-	(*DeleteAllHistoryRequest)(nil),              // 34: miru.DeleteAllHistoryRequest
-	(*DeleteAllHistoryResponse)(nil),             // 35: miru.DeleteAllHistoryResponse
-	(*GetHistorysFilteredRequest)(nil),           // 36: miru.GetHistorysFilteredRequest
-	(*GetHistorysFilteredResponse)(nil),          // 37: miru.GetHistorysFilteredResponse
-	(*Detail)(nil),                               // 38: miru.Detail
-	(*Favorite)(nil),                             // 39: miru.Favorite
-	(*FavoriteGroup)(nil),                        // 40: miru.FavoriteGroup
-	(*History)(nil),                              // 41: miru.History
+	(*GetDetailRequest)(nil),                        // 0: miru.GetDetailRequest
+	(*GetDetailResponse)(nil),                       // 1: miru.GetDetailResponse
+	(*UpsertDetailRequest)(nil),                     // 2: miru.UpsertDetailRequest
+	(*UpsertDetailResponse)(nil),                    // 3: miru.UpsertDetailResponse
+	(*GetAllFavoriteRequest)(nil),                   // 4: miru.GetAllFavoriteRequest
+	(*GetAllFavoriteResponse)(nil),                  // 5: miru.GetAllFavoriteResponse
+	(*GetFavoriteByPackageAndUrlRequest)(nil),       // 6: miru.GetFavoriteByPackageAndUrlRequest
+	(*GetFavoriteByPackageAndUrlResponse)(nil),      // 7: miru.GetFavoriteByPackageAndUrlResponse
+	(*PutFavoriteByIndexRequest)(nil),               // 8: miru.PutFavoriteByIndexRequest
+	(*PutFavoriteByIndexResponse)(nil),              // 9: miru.PutFavoriteByIndexResponse
+	(*PutFavoriteRequest)(nil),                      // 10: miru.PutFavoriteRequest
+	(*PutFavoriteResponse)(nil),                     // 11: miru.PutFavoriteResponse
+	(*DeleteFavoriteRequest)(nil),                   // 12: miru.DeleteFavoriteRequest
+	(*DeleteFavoriteResponse)(nil),                  // 13: miru.DeleteFavoriteResponse
+	(*GetFavoriteGroupsByIdRequest)(nil),            // 14: miru.GetFavoriteGroupsByIdRequest
+	(*GetFavoriteGroupsByIdResponse)(nil),           // 15: miru.GetFavoriteGroupsByIdResponse
+	(*GetAllFavoriteGroupRequest)(nil),              // 16: miru.GetAllFavoriteGroupRequest
+	(*GetAllFavoriteGroupResponse)(nil),             // 17: miru.GetAllFavoriteGroupResponse
+	(*PutFavoriteGroupRequest)(nil),                 // 18: miru.PutFavoriteGroupRequest
+	(*PutFavoriteGroupResponse)(nil),                // 19: miru.PutFavoriteGroupResponse
+	(*RenameFavoriteGroupRequest)(nil),              // 20: miru.RenameFavoriteGroupRequest
+	(*RenameFavoriteGroupResponse)(nil),             // 21: miru.RenameFavoriteGroupResponse
+	(*DeleteFavoriteGroupRequest)(nil),              // 22: miru.DeleteFavoriteGroupRequest
+	(*DeleteFavoriteGroupResponse)(nil),             // 23: miru.DeleteFavoriteGroupResponse
+	(*GetFavoriteGroupsByFavoriteRequest)(nil),      // 24: miru.GetFavoriteGroupsByFavoriteRequest
+	(*GetFavoriteGroupsByFavoriteResponse)(nil),     // 25: miru.GetFavoriteGroupsByFavoriteResponse
+	(*GetHistoriesByTypeRequest)(nil),               // 26: miru.GetHistoriesByTypeRequest
+	(*GetHistoriesByTypeResponse)(nil),              // 27: miru.GetHistoriesByTypeResponse
+	(*PutHistoryRequest)(nil),                       // 28: miru.PutHistoryRequest
+	(*PutHistoryResponse)(nil),                      // 29: miru.PutHistoryResponse
+	(*GetHistoryByPackageAndDetailUrlRequest)(nil),  // 30: miru.GetHistoryByPackageAndDetailUrlRequest
+	(*GetHistoryByPackageAndDetailUrlResponse)(nil), // 31: miru.GetHistoryByPackageAndDetailUrlResponse
+	(*DeleteHistoryByPackageAndUrlRequest)(nil),     // 32: miru.DeleteHistoryByPackageAndUrlRequest
+	(*DeleteHistoryByPackageAndUrlResponse)(nil),    // 33: miru.DeleteHistoryByPackageAndUrlResponse
+	(*DeleteAllHistoryRequest)(nil),                 // 34: miru.DeleteAllHistoryRequest
+	(*DeleteAllHistoryResponse)(nil),                // 35: miru.DeleteAllHistoryResponse
+	(*GetHistorysFilteredRequest)(nil),              // 36: miru.GetHistorysFilteredRequest
+	(*GetHistorysFilteredResponse)(nil),             // 37: miru.GetHistorysFilteredResponse
+	(*Detail)(nil),                                  // 38: miru.Detail
+	(*Favorite)(nil),                                // 39: miru.Favorite
+	(*FavoriteGroup)(nil),                           // 40: miru.FavoriteGroup
+	(*History)(nil),                                 // 41: miru.History
 }
 var file_proto_db_proto_depIdxs = []int32{
 	38, // 0: miru.GetDetailResponse.detail:type_name -> miru.Detail
@@ -2033,9 +2034,9 @@ var file_proto_db_proto_depIdxs = []int32{
 	40, // 8: miru.PutFavoriteGroupResponse.group:type_name -> miru.FavoriteGroup
 	40, // 9: miru.GetFavoriteGroupsByFavoriteResponse.groups:type_name -> miru.FavoriteGroup
 	41, // 10: miru.GetHistoriesByTypeResponse.histories:type_name -> miru.History
-	41, // 11: miru.GetHistoryByPackageAndUrlResponse.history:type_name -> miru.History
-	41, // 12: miru.PutHistoryRequest.history:type_name -> miru.History
-	41, // 13: miru.PutHistoryResponse.history:type_name -> miru.History
+	41, // 11: miru.PutHistoryRequest.history:type_name -> miru.History
+	41, // 12: miru.PutHistoryResponse.history:type_name -> miru.History
+	41, // 13: miru.GetHistoryByPackageAndDetailUrlResponse.history:type_name -> miru.History
 	41, // 14: miru.GetHistorysFilteredResponse.histories:type_name -> miru.History
 	0,  // 15: miru.DbService.GetDetail:input_type -> miru.GetDetailRequest
 	2,  // 16: miru.DbService.UpsertDetail:input_type -> miru.UpsertDetailRequest
@@ -2051,8 +2052,8 @@ var file_proto_db_proto_depIdxs = []int32{
 	22, // 26: miru.DbService.DeleteFavoriteGroup:input_type -> miru.DeleteFavoriteGroupRequest
 	24, // 27: miru.DbService.GetFavoriteGroupsByFavorite:input_type -> miru.GetFavoriteGroupsByFavoriteRequest
 	26, // 28: miru.DbService.GetHistoriesByType:input_type -> miru.GetHistoriesByTypeRequest
-	28, // 29: miru.DbService.GetHistoryByPackageAndUrl:input_type -> miru.GetHistoryByPackageAndUrlRequest
-	30, // 30: miru.DbService.PutHistory:input_type -> miru.PutHistoryRequest
+	30, // 29: miru.DbService.GetHistoryByPackageAndDetailUrl:input_type -> miru.GetHistoryByPackageAndDetailUrlRequest
+	28, // 30: miru.DbService.PutHistory:input_type -> miru.PutHistoryRequest
 	32, // 31: miru.DbService.DeleteHistoryByPackageAndUrl:input_type -> miru.DeleteHistoryByPackageAndUrlRequest
 	34, // 32: miru.DbService.DeleteAllHistory:input_type -> miru.DeleteAllHistoryRequest
 	36, // 33: miru.DbService.GetHistorysFiltered:input_type -> miru.GetHistorysFilteredRequest
@@ -2070,8 +2071,8 @@ var file_proto_db_proto_depIdxs = []int32{
 	23, // 45: miru.DbService.DeleteFavoriteGroup:output_type -> miru.DeleteFavoriteGroupResponse
 	25, // 46: miru.DbService.GetFavoriteGroupsByFavorite:output_type -> miru.GetFavoriteGroupsByFavoriteResponse
 	27, // 47: miru.DbService.GetHistoriesByType:output_type -> miru.GetHistoriesByTypeResponse
-	29, // 48: miru.DbService.GetHistoryByPackageAndUrl:output_type -> miru.GetHistoryByPackageAndUrlResponse
-	31, // 49: miru.DbService.PutHistory:output_type -> miru.PutHistoryResponse
+	31, // 48: miru.DbService.GetHistoryByPackageAndDetailUrl:output_type -> miru.GetHistoryByPackageAndDetailUrlResponse
+	29, // 49: miru.DbService.PutHistory:output_type -> miru.PutHistoryResponse
 	33, // 50: miru.DbService.DeleteHistoryByPackageAndUrl:output_type -> miru.DeleteHistoryByPackageAndUrlResponse
 	35, // 51: miru.DbService.DeleteAllHistory:output_type -> miru.DeleteAllHistoryResponse
 	37, // 52: miru.DbService.GetHistorysFiltered:output_type -> miru.GetHistorysFilteredResponse
