@@ -30,7 +30,7 @@ func hlsDecrypt(enc []byte, key []byte, iv []byte) ([]byte, error) {
 	mode.CryptBlocks(decrypted, enc)
 	return decrypted, nil
 }
-func downloadHls(filePath string, url string, headers map[string]string, title string, pkg string, key string) (MultipleLinkJson, error) {
+func downloadHls(filePath string, url string, headers map[string]string, title string, pkg string, key string, detailUrl string, watchUrl string) (MultipleLinkJson, error) {
 
 	// Get hls content from url
 	res, e := network.Request[string](url, &network.RequestOptions{Headers: headers, Method: "GET"}, network.ReadAll)
@@ -78,6 +78,9 @@ func downloadHls(filePath string, url string, headers map[string]string, title s
 		Key:       key,
 		URL:       []string{url},
 		SavePath:  filePath,
+		Headers:   headers,
+		DetailUrl: detailUrl,
+		WatchUrl:  watchUrl,
 	}
 	status[taskId].SyncDB()
 
@@ -208,7 +211,6 @@ func downloadSegment(param *HlsTaskParam, ctx context.Context) {
 			}
 
 			// Update status
-
 			status[taskId].Progrss++
 			*status[taskId].Names = append(*status[taskId].Names, fileName)
 			status[taskId].SyncDB()

@@ -1292,6 +1292,8 @@ func (x *GetFavoriteGroupsByFavoriteResponse) GetGroups() []*FavoriteGroup {
 type GetHistoriesByTypeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	Page          int32                  `protobuf:"varint,2,opt,name=page,proto3" json:"page,omitempty"`
+	PageSize      int32                  `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1331,6 +1333,20 @@ func (x *GetHistoriesByTypeRequest) GetType() string {
 		return x.Type
 	}
 	return ""
+}
+
+func (x *GetHistoriesByTypeRequest) GetPage() int32 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *GetHistoriesByTypeRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
 }
 
 type GetHistoriesByTypeResponse struct {
@@ -1741,6 +1757,8 @@ type GetHistorysFilteredRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
 	BeforeDate    string                 `protobuf:"bytes,2,opt,name=before_date,json=beforeDate,proto3" json:"before_date,omitempty"` // ISO8601
+	Page          int32                  `protobuf:"varint,3,opt,name=page,proto3" json:"page,omitempty"`
+	PageSize      int32                  `protobuf:"varint,4,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1787,6 +1805,20 @@ func (x *GetHistorysFilteredRequest) GetBeforeDate() string {
 		return x.BeforeDate
 	}
 	return ""
+}
+
+func (x *GetHistorysFilteredRequest) GetPage() int32 {
+	if x != nil {
+		return x.Page
+	}
+	return 0
+}
+
+func (x *GetHistorysFilteredRequest) GetPageSize() int32 {
+	if x != nil {
+		return x.PageSize
+	}
+	return 0
 }
 
 type GetHistorysFilteredResponse struct {
@@ -1914,9 +1946,11 @@ const file_proto_db_proto_rawDesc = "" +
 	"\apackage\x18\x01 \x01(\tR\apackage\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\"R\n" +
 	"#GetFavoriteGroupsByFavoriteResponse\x12+\n" +
-	"\x06groups\x18\x01 \x03(\v2\x13.miru.FavoriteGroupR\x06groups\"/\n" +
+	"\x06groups\x18\x01 \x03(\v2\x13.miru.FavoriteGroupR\x06groups\"`\n" +
 	"\x19GetHistoriesByTypeRequest\x12\x12\n" +
-	"\x04type\x18\x01 \x01(\tR\x04type\"I\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12\x12\n" +
+	"\x04page\x18\x02 \x01(\x05R\x04page\x12\x1b\n" +
+	"\tpage_size\x18\x03 \x01(\x05R\bpageSize\"I\n" +
 	"\x1aGetHistoriesByTypeResponse\x12+\n" +
 	"\thistories\x18\x01 \x03(\v2\r.miru.HistoryR\thistories\"<\n" +
 	"\x11PutHistoryRequest\x12'\n" +
@@ -1936,11 +1970,13 @@ const file_proto_db_proto_rawDesc = "" +
 	"\amessage\x18\x01 \x01(\tR\amessage\"\x19\n" +
 	"\x17DeleteAllHistoryRequest\"4\n" +
 	"\x18DeleteAllHistoryResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\"Q\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"\x82\x01\n" +
 	"\x1aGetHistorysFilteredRequest\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1f\n" +
 	"\vbefore_date\x18\x02 \x01(\tR\n" +
-	"beforeDate\"J\n" +
+	"beforeDate\x12\x12\n" +
+	"\x04page\x18\x03 \x01(\x05R\x04page\x12\x1b\n" +
+	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"J\n" +
 	"\x1bGetHistorysFilteredResponse\x12+\n" +
 	"\thistories\x18\x01 \x03(\v2\r.miru.HistoryR\thistories2\xb5\r\n" +
 	"\tDbService\x12<\n" +

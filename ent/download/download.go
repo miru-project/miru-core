@@ -15,6 +15,10 @@ const (
 	FieldID = "id"
 	// FieldURL holds the string denoting the url field in the database.
 	FieldURL = "url"
+	// FieldWatchUrl holds the string denoting the watchurl field in the database.
+	FieldWatchUrl = "watch_url"
+	// FieldDetailUrl holds the string denoting the detailurl field in the database.
+	FieldDetailUrl = "detail_url"
 	// FieldHeaders holds the string denoting the headers field in the database.
 	FieldHeaders = "headers"
 	// FieldPackage holds the string denoting the package field in the database.
@@ -41,6 +45,8 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldURL,
+	FieldWatchUrl,
+	FieldDetailUrl,
 	FieldHeaders,
 	FieldPackage,
 	FieldProgress,
@@ -63,8 +69,12 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// WatchUrlValidator is a validator for the "watchUrl" field. It is called by the builders before save.
+	WatchUrlValidator func(string) error
+	// DetailUrlValidator is a validator for the "detailUrl" field. It is called by the builders before save.
+	DetailUrlValidator func(string) error
 	// DefaultHeaders holds the default value on creation for the "headers" field.
-	DefaultHeaders string
+	DefaultHeaders map[string]string
 	// PackageValidator is a validator for the "package" field. It is called by the builders before save.
 	PackageValidator func(string) error
 	// KeyValidator is a validator for the "key" field. It is called by the builders before save.
@@ -89,9 +99,14 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByHeaders orders the results by the headers field.
-func ByHeaders(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldHeaders, opts...).ToFunc()
+// ByWatchUrl orders the results by the watchUrl field.
+func ByWatchUrl(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWatchUrl, opts...).ToFunc()
+}
+
+// ByDetailUrl orders the results by the detailUrl field.
+func ByDetailUrl(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDetailUrl, opts...).ToFunc()
 }
 
 // ByPackage orders the results by the package field.

@@ -28,17 +28,21 @@ func (_c *DownloadCreate) SetURL(v []string) *DownloadCreate {
 	return _c
 }
 
-// SetHeaders sets the "headers" field.
-func (_c *DownloadCreate) SetHeaders(v string) *DownloadCreate {
-	_c.mutation.SetHeaders(v)
+// SetWatchUrl sets the "watchUrl" field.
+func (_c *DownloadCreate) SetWatchUrl(v string) *DownloadCreate {
+	_c.mutation.SetWatchUrl(v)
 	return _c
 }
 
-// SetNillableHeaders sets the "headers" field if the given value is not nil.
-func (_c *DownloadCreate) SetNillableHeaders(v *string) *DownloadCreate {
-	if v != nil {
-		_c.SetHeaders(*v)
-	}
+// SetDetailUrl sets the "detailUrl" field.
+func (_c *DownloadCreate) SetDetailUrl(v string) *DownloadCreate {
+	_c.mutation.SetDetailUrl(v)
+	return _c
+}
+
+// SetHeaders sets the "headers" field.
+func (_c *DownloadCreate) SetHeaders(v map[string]string) *DownloadCreate {
+	_c.mutation.SetHeaders(v)
 	return _c
 }
 
@@ -162,6 +166,22 @@ func (_c *DownloadCreate) check() error {
 	if _, ok := _c.mutation.URL(); !ok {
 		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "Download.url"`)}
 	}
+	if _, ok := _c.mutation.WatchUrl(); !ok {
+		return &ValidationError{Name: "watchUrl", err: errors.New(`ent: missing required field "Download.watchUrl"`)}
+	}
+	if v, ok := _c.mutation.WatchUrl(); ok {
+		if err := download.WatchUrlValidator(v); err != nil {
+			return &ValidationError{Name: "watchUrl", err: fmt.Errorf(`ent: validator failed for field "Download.watchUrl": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.DetailUrl(); !ok {
+		return &ValidationError{Name: "detailUrl", err: errors.New(`ent: missing required field "Download.detailUrl"`)}
+	}
+	if v, ok := _c.mutation.DetailUrl(); ok {
+		if err := download.DetailUrlValidator(v); err != nil {
+			return &ValidationError{Name: "detailUrl", err: fmt.Errorf(`ent: validator failed for field "Download.detailUrl": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Package(); !ok {
 		return &ValidationError{Name: "package", err: errors.New(`ent: missing required field "Download.package"`)}
 	}
@@ -247,8 +267,16 @@ func (_c *DownloadCreate) createSpec() (*Download, *sqlgraph.CreateSpec) {
 		_spec.SetField(download.FieldURL, field.TypeJSON, value)
 		_node.URL = value
 	}
+	if value, ok := _c.mutation.WatchUrl(); ok {
+		_spec.SetField(download.FieldWatchUrl, field.TypeString, value)
+		_node.WatchUrl = value
+	}
+	if value, ok := _c.mutation.DetailUrl(); ok {
+		_spec.SetField(download.FieldDetailUrl, field.TypeString, value)
+		_node.DetailUrl = value
+	}
 	if value, ok := _c.mutation.Headers(); ok {
-		_spec.SetField(download.FieldHeaders, field.TypeString, value)
+		_spec.SetField(download.FieldHeaders, field.TypeJSON, value)
 		_node.Headers = value
 	}
 	if value, ok := _c.mutation.Package(); ok {
@@ -347,8 +375,32 @@ func (u *DownloadUpsert) UpdateURL() *DownloadUpsert {
 	return u
 }
 
+// SetWatchUrl sets the "watchUrl" field.
+func (u *DownloadUpsert) SetWatchUrl(v string) *DownloadUpsert {
+	u.Set(download.FieldWatchUrl, v)
+	return u
+}
+
+// UpdateWatchUrl sets the "watchUrl" field to the value that was provided on create.
+func (u *DownloadUpsert) UpdateWatchUrl() *DownloadUpsert {
+	u.SetExcluded(download.FieldWatchUrl)
+	return u
+}
+
+// SetDetailUrl sets the "detailUrl" field.
+func (u *DownloadUpsert) SetDetailUrl(v string) *DownloadUpsert {
+	u.Set(download.FieldDetailUrl, v)
+	return u
+}
+
+// UpdateDetailUrl sets the "detailUrl" field to the value that was provided on create.
+func (u *DownloadUpsert) UpdateDetailUrl() *DownloadUpsert {
+	u.SetExcluded(download.FieldDetailUrl)
+	return u
+}
+
 // SetHeaders sets the "headers" field.
-func (u *DownloadUpsert) SetHeaders(v string) *DownloadUpsert {
+func (u *DownloadUpsert) SetHeaders(v map[string]string) *DownloadUpsert {
 	u.Set(download.FieldHeaders, v)
 	return u
 }
@@ -535,8 +587,36 @@ func (u *DownloadUpsertOne) UpdateURL() *DownloadUpsertOne {
 	})
 }
 
+// SetWatchUrl sets the "watchUrl" field.
+func (u *DownloadUpsertOne) SetWatchUrl(v string) *DownloadUpsertOne {
+	return u.Update(func(s *DownloadUpsert) {
+		s.SetWatchUrl(v)
+	})
+}
+
+// UpdateWatchUrl sets the "watchUrl" field to the value that was provided on create.
+func (u *DownloadUpsertOne) UpdateWatchUrl() *DownloadUpsertOne {
+	return u.Update(func(s *DownloadUpsert) {
+		s.UpdateWatchUrl()
+	})
+}
+
+// SetDetailUrl sets the "detailUrl" field.
+func (u *DownloadUpsertOne) SetDetailUrl(v string) *DownloadUpsertOne {
+	return u.Update(func(s *DownloadUpsert) {
+		s.SetDetailUrl(v)
+	})
+}
+
+// UpdateDetailUrl sets the "detailUrl" field to the value that was provided on create.
+func (u *DownloadUpsertOne) UpdateDetailUrl() *DownloadUpsertOne {
+	return u.Update(func(s *DownloadUpsert) {
+		s.UpdateDetailUrl()
+	})
+}
+
 // SetHeaders sets the "headers" field.
-func (u *DownloadUpsertOne) SetHeaders(v string) *DownloadUpsertOne {
+func (u *DownloadUpsertOne) SetHeaders(v map[string]string) *DownloadUpsertOne {
 	return u.Update(func(s *DownloadUpsert) {
 		s.SetHeaders(v)
 	})
@@ -910,8 +990,36 @@ func (u *DownloadUpsertBulk) UpdateURL() *DownloadUpsertBulk {
 	})
 }
 
+// SetWatchUrl sets the "watchUrl" field.
+func (u *DownloadUpsertBulk) SetWatchUrl(v string) *DownloadUpsertBulk {
+	return u.Update(func(s *DownloadUpsert) {
+		s.SetWatchUrl(v)
+	})
+}
+
+// UpdateWatchUrl sets the "watchUrl" field to the value that was provided on create.
+func (u *DownloadUpsertBulk) UpdateWatchUrl() *DownloadUpsertBulk {
+	return u.Update(func(s *DownloadUpsert) {
+		s.UpdateWatchUrl()
+	})
+}
+
+// SetDetailUrl sets the "detailUrl" field.
+func (u *DownloadUpsertBulk) SetDetailUrl(v string) *DownloadUpsertBulk {
+	return u.Update(func(s *DownloadUpsert) {
+		s.SetDetailUrl(v)
+	})
+}
+
+// UpdateDetailUrl sets the "detailUrl" field to the value that was provided on create.
+func (u *DownloadUpsertBulk) UpdateDetailUrl() *DownloadUpsertBulk {
+	return u.Update(func(s *DownloadUpsert) {
+		s.UpdateDetailUrl()
+	})
+}
+
 // SetHeaders sets the "headers" field.
-func (u *DownloadUpsertBulk) SetHeaders(v string) *DownloadUpsertBulk {
+func (u *DownloadUpsertBulk) SetHeaders(v map[string]string) *DownloadUpsertBulk {
 	return u.Update(func(s *DownloadUpsert) {
 		s.SetHeaders(v)
 	})

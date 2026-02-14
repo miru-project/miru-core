@@ -46,32 +46,40 @@ func init() {
 	detail.IDValidator = detailDescID.Validators[0].(func(int) error)
 	downloadFields := schema.Download{}.Fields()
 	_ = downloadFields
+	// downloadDescWatchUrl is the schema descriptor for watchUrl field.
+	downloadDescWatchUrl := downloadFields[2].Descriptor()
+	// download.WatchUrlValidator is a validator for the "watchUrl" field. It is called by the builders before save.
+	download.WatchUrlValidator = downloadDescWatchUrl.Validators[0].(func(string) error)
+	// downloadDescDetailUrl is the schema descriptor for detailUrl field.
+	downloadDescDetailUrl := downloadFields[3].Descriptor()
+	// download.DetailUrlValidator is a validator for the "detailUrl" field. It is called by the builders before save.
+	download.DetailUrlValidator = downloadDescDetailUrl.Validators[0].(func(string) error)
 	// downloadDescHeaders is the schema descriptor for headers field.
-	downloadDescHeaders := downloadFields[2].Descriptor()
+	downloadDescHeaders := downloadFields[4].Descriptor()
 	// download.DefaultHeaders holds the default value on creation for the headers field.
-	download.DefaultHeaders = downloadDescHeaders.Default.(string)
+	download.DefaultHeaders = downloadDescHeaders.Default.(map[string]string)
 	// downloadDescPackage is the schema descriptor for package field.
-	downloadDescPackage := downloadFields[3].Descriptor()
+	downloadDescPackage := downloadFields[5].Descriptor()
 	// download.PackageValidator is a validator for the "package" field. It is called by the builders before save.
 	download.PackageValidator = downloadDescPackage.Validators[0].(func(string) error)
 	// downloadDescKey is the schema descriptor for key field.
-	downloadDescKey := downloadFields[5].Descriptor()
+	downloadDescKey := downloadFields[7].Descriptor()
 	// download.KeyValidator is a validator for the "key" field. It is called by the builders before save.
 	download.KeyValidator = downloadDescKey.Validators[0].(func(string) error)
 	// downloadDescTitle is the schema descriptor for title field.
-	downloadDescTitle := downloadFields[6].Descriptor()
+	downloadDescTitle := downloadFields[8].Descriptor()
 	// download.TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	download.TitleValidator = downloadDescTitle.Validators[0].(func(string) error)
 	// downloadDescMediaType is the schema descriptor for media_type field.
-	downloadDescMediaType := downloadFields[7].Descriptor()
+	downloadDescMediaType := downloadFields[9].Descriptor()
 	// download.MediaTypeValidator is a validator for the "media_type" field. It is called by the builders before save.
 	download.MediaTypeValidator = downloadDescMediaType.Validators[0].(func(string) error)
 	// downloadDescStatus is the schema descriptor for status field.
-	downloadDescStatus := downloadFields[8].Descriptor()
+	downloadDescStatus := downloadFields[10].Descriptor()
 	// download.StatusValidator is a validator for the "status" field. It is called by the builders before save.
 	download.StatusValidator = downloadDescStatus.Validators[0].(func(string) error)
 	// downloadDescDate is the schema descriptor for date field.
-	downloadDescDate := downloadFields[10].Descriptor()
+	downloadDescDate := downloadFields[12].Descriptor()
 	// download.DefaultDate holds the default value on creation for the date field.
 	download.DefaultDate = downloadDescDate.Default.(func() time.Time)
 	// downloadDescID is the schema descriptor for id field.

@@ -49,7 +49,9 @@ var (
 	DownloadsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "url", Type: field.TypeJSON},
-		{Name: "headers", Type: field.TypeString, Nullable: true, Default: ""},
+		{Name: "watch_url", Type: field.TypeString},
+		{Name: "detail_url", Type: field.TypeString},
+		{Name: "headers", Type: field.TypeJSON, Nullable: true},
 		{Name: "package", Type: field.TypeString},
 		{Name: "progress", Type: field.TypeJSON, Nullable: true},
 		{Name: "key", Type: field.TypeString, Unique: true},
@@ -64,6 +66,13 @@ var (
 		Name:       "downloads",
 		Columns:    DownloadsColumns,
 		PrimaryKey: []*schema.Column{DownloadsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "download_package_watch_url_detail_url",
+				Unique:  true,
+				Columns: []*schema.Column{DownloadsColumns[5], DownloadsColumns[2], DownloadsColumns[3]},
+			},
+		},
 	}
 	// ExtensionsColumns holds the columns for the "extensions" table.
 	ExtensionsColumns = []*schema.Column{

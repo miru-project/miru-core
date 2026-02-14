@@ -14,7 +14,7 @@ import (
 )
 
 // add torrent to torrent client -> start torrent download -> download torrent like mp4
-func downloadTorrent(filePath string, url string, header map[string]string, mediaType string, title string, pkg string, key string) (MultipleLinkJson, error) {
+func downloadTorrent(filePath string, url string, header map[string]string, mediaType string, title string, pkg string, key string, detailUrl string, watchUrl string) (MultipleLinkJson, error) {
 	var t *torrent.Torrent
 	var err error
 	if strings.HasPrefix(url, "magnet:") {
@@ -57,6 +57,8 @@ func downloadTorrent(filePath string, url string, header map[string]string, medi
 		Key:       t.InfoHash().HexString(),
 		URL:       []string{url},
 		SavePath:  fullPath,
+		DetailUrl: detailUrl,
+		WatchUrl:  watchUrl,
 	}
 	status[taskId].SyncDB()
 
@@ -67,6 +69,7 @@ func downloadTorrent(filePath string, url string, header map[string]string, medi
 		pkg:        pkg,
 		filePath:   fullPath,
 		targetFile: targetFile,
+		key:        key,
 	}
 
 	startDownloadTask(taskParamMap[taskId].(*TorrentTaskParam), downloadTorrentTask)
@@ -159,4 +162,23 @@ type TorrentTaskParam struct {
 	key        string
 	filePath   string
 	targetFile *torrent.File
+}
+
+func resumeTorrentTask(taskId int) error {
+	taskParam := taskParamMap[taskId]
+	if taskParam == nil {
+		return fmt.Errorf("task %d not found", taskId)
+	}
+
+	torrentTaskParam, ok := taskParam.(*TorrentTaskParam)
+	if !ok {
+		return fmt.Errorf("task %d is not a torrent task", taskId)
+	}
+
+	if strings.HasPrefix(torrentTaskParam.url, "magnet:") {
+		_, err := miruTorrent.AddMagnet(torrentTaskParam.url, torrentTaskParam.title, torrentTaskParam.pkg)
+		return err
+	}
+	_, err := miruTorrent.AddTorrent(torrentTaskParam.url, torrentTaskParam.title, torrentTaskParam.pkg)
+	return err
 }

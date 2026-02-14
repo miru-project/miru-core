@@ -1274,7 +1274,9 @@ type DownloadMutation struct {
 	id             *int
 	url            *[]string
 	appendurl      []string
-	headers        *string
+	watchUrl       *string
+	detailUrl      *string
+	headers        *map[string]string
 	_package       *string
 	progress       *[]int
 	appendprogress []int
@@ -1445,13 +1447,85 @@ func (m *DownloadMutation) ResetURL() {
 	m.appendurl = nil
 }
 
+// SetWatchUrl sets the "watchUrl" field.
+func (m *DownloadMutation) SetWatchUrl(s string) {
+	m.watchUrl = &s
+}
+
+// WatchUrl returns the value of the "watchUrl" field in the mutation.
+func (m *DownloadMutation) WatchUrl() (r string, exists bool) {
+	v := m.watchUrl
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWatchUrl returns the old "watchUrl" field's value of the Download entity.
+// If the Download object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DownloadMutation) OldWatchUrl(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWatchUrl is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWatchUrl requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWatchUrl: %w", err)
+	}
+	return oldValue.WatchUrl, nil
+}
+
+// ResetWatchUrl resets all changes to the "watchUrl" field.
+func (m *DownloadMutation) ResetWatchUrl() {
+	m.watchUrl = nil
+}
+
+// SetDetailUrl sets the "detailUrl" field.
+func (m *DownloadMutation) SetDetailUrl(s string) {
+	m.detailUrl = &s
+}
+
+// DetailUrl returns the value of the "detailUrl" field in the mutation.
+func (m *DownloadMutation) DetailUrl() (r string, exists bool) {
+	v := m.detailUrl
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDetailUrl returns the old "detailUrl" field's value of the Download entity.
+// If the Download object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DownloadMutation) OldDetailUrl(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDetailUrl is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDetailUrl requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDetailUrl: %w", err)
+	}
+	return oldValue.DetailUrl, nil
+}
+
+// ResetDetailUrl resets all changes to the "detailUrl" field.
+func (m *DownloadMutation) ResetDetailUrl() {
+	m.detailUrl = nil
+}
+
 // SetHeaders sets the "headers" field.
-func (m *DownloadMutation) SetHeaders(s string) {
-	m.headers = &s
+func (m *DownloadMutation) SetHeaders(value map[string]string) {
+	m.headers = &value
 }
 
 // Headers returns the value of the "headers" field in the mutation.
-func (m *DownloadMutation) Headers() (r string, exists bool) {
+func (m *DownloadMutation) Headers() (r map[string]string, exists bool) {
 	v := m.headers
 	if v == nil {
 		return
@@ -1462,7 +1536,7 @@ func (m *DownloadMutation) Headers() (r string, exists bool) {
 // OldHeaders returns the old "headers" field's value of the Download entity.
 // If the Download object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *DownloadMutation) OldHeaders(ctx context.Context) (v string, err error) {
+func (m *DownloadMutation) OldHeaders(ctx context.Context) (v map[string]string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldHeaders is only allowed on UpdateOne operations")
 	}
@@ -1858,9 +1932,15 @@ func (m *DownloadMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DownloadMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 12)
 	if m.url != nil {
 		fields = append(fields, download.FieldURL)
+	}
+	if m.watchUrl != nil {
+		fields = append(fields, download.FieldWatchUrl)
+	}
+	if m.detailUrl != nil {
+		fields = append(fields, download.FieldDetailUrl)
 	}
 	if m.headers != nil {
 		fields = append(fields, download.FieldHeaders)
@@ -1899,6 +1979,10 @@ func (m *DownloadMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case download.FieldURL:
 		return m.URL()
+	case download.FieldWatchUrl:
+		return m.WatchUrl()
+	case download.FieldDetailUrl:
+		return m.DetailUrl()
 	case download.FieldHeaders:
 		return m.Headers()
 	case download.FieldPackage:
@@ -1928,6 +2012,10 @@ func (m *DownloadMutation) OldField(ctx context.Context, name string) (ent.Value
 	switch name {
 	case download.FieldURL:
 		return m.OldURL(ctx)
+	case download.FieldWatchUrl:
+		return m.OldWatchUrl(ctx)
+	case download.FieldDetailUrl:
+		return m.OldDetailUrl(ctx)
 	case download.FieldHeaders:
 		return m.OldHeaders(ctx)
 	case download.FieldPackage:
@@ -1962,8 +2050,22 @@ func (m *DownloadMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetURL(v)
 		return nil
-	case download.FieldHeaders:
+	case download.FieldWatchUrl:
 		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWatchUrl(v)
+		return nil
+	case download.FieldDetailUrl:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDetailUrl(v)
+		return nil
+	case download.FieldHeaders:
+		v, ok := value.(map[string]string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -2097,6 +2199,12 @@ func (m *DownloadMutation) ResetField(name string) error {
 	switch name {
 	case download.FieldURL:
 		m.ResetURL()
+		return nil
+	case download.FieldWatchUrl:
+		m.ResetWatchUrl()
+		return nil
+	case download.FieldDetailUrl:
+		m.ResetDetailUrl()
 		return nil
 	case download.FieldHeaders:
 		m.ResetHeaders()

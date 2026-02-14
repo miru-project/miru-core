@@ -86,7 +86,11 @@ message GetFavoriteGroupsByFavoriteResponse {
 }
 
 // History
-message GetHistoriesByTypeRequest { string type = 1; }
+message GetHistoriesByTypeRequest {
+  string type = 1;
+  int32 page = 2;
+  int32 page_size = 3;
+}
 message GetHistoriesByTypeResponse { repeated History histories = 1; }
 
 message PutHistoryRequest { History history = 1; }
@@ -112,6 +116,8 @@ message DeleteAllHistoryResponse { string message = 1; }
 message GetHistorysFilteredRequest {
   string type = 1;
   string before_date = 2; // ISO8601
+  int32 page = 3;
+  int32 page_size = 4;
 }
 message GetHistorysFilteredResponse { repeated History histories = 1; }
 

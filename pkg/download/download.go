@@ -2,18 +2,15 @@ package download
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"net/url"
 	"os"
 	"path/filepath"
-	"strings"
 	"sync"
 
 	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/pkg/db"
-	"github.com/miru-project/miru-core/pkg/torrent"
 	miruTorrent "github.com/miru-project/miru-core/pkg/torrent"
 )
 
@@ -24,19 +21,21 @@ var taskParamMap = make(map[int]TaskParamInterface)
 var OnStatusUpdate func(map[int]*Progress)
 
 type Progress struct {
-	Progrss            int       `json:"progress"`
-	Names              *[]string `json:"names"`
-	Total              int       `json:"total"`
-	Status             Status    `json:"status"`
-	MediaType          MediaType `json:"media_type"`
-	CurrentDownloading string    `json:"current_downloading"`
-	TaskID             int       `json:"task_id"`
-	Title              string    `json:"title"`
-	Package            string    `json:"package"`
-	Key                string    `json:"key"`
-	URL                []string  `json:"url"`
-	Headers            string    `json:"headers"`
-	SavePath           string    `json:"save_path"`
+	Progrss            int               `json:"progress"`
+	Names              *[]string         `json:"names"`
+	Total              int               `json:"total"`
+	Status             Status            `json:"status"`
+	MediaType          MediaType         `json:"media_type"`
+	CurrentDownloading string            `json:"current_downloading"`
+	TaskID             int               `json:"task_id"`
+	Title              string            `json:"title"`
+	Package            string            `json:"package"`
+	Key                string            `json:"key"`
+	URL                []string          `json:"url"`
+	Headers            map[string]string `json:"headers"`
+	SavePath           string            `json:"save_path"`
+	DetailUrl          string            `json:"detail_url"`
+	WatchUrl           string            `json:"watch_url"`
 }
 
 type TaskParam struct {
@@ -209,6 +208,8 @@ func (p *Progress) SyncDB() {
 		MediaType: string(p.MediaType),
 		Status:    string(p.Status),
 		SavePath:  p.SavePath,
+		DetailUrl: p.DetailUrl,
+		WatchUrl:  p.WatchUrl,
 	})
 	if OnStatusUpdate != nil {
 		OnStatusUpdate(status)
@@ -220,7 +221,7 @@ func GetTaskParam(taskId int) TaskParamInterface {
 }
 
 func Init() {
-	downloads, err := db.GetAllDownloads()
+	downloads, err := db.GetPendingDownloads()
 	if err != nil {
 		return
 	}
@@ -236,9 +237,6 @@ func Init() {
 		}
 
 		headers := make(map[string]string)
-		if d.Headers != "" {
-			_ = json.Unmarshal([]byte(d.Headers), &headers)
-		}
 
 		status[id] = &Progress{
 			Progrss:   p,
@@ -286,23 +284,4 @@ func Init() {
 			}
 		}
 	}
-}
-
-func resumeTorrentTask(taskId int) error {
-	taskParam := taskParamMap[taskId]
-	if taskParam == nil {
-		return fmt.Errorf("task %d not found", taskId)
-	}
-
-	torrentTaskParam, ok := taskParam.(*TorrentTaskParam)
-	if !ok {
-		return fmt.Errorf("task %d is not a torrent task", taskId)
-	}
-
-	if strings.HasPrefix(torrentTaskParam.url, "magnet:") {
-		_, err := torrent.AddMagnet(torrentTaskParam.url, torrentTaskParam.title, torrentTaskParam.pkg)
-		return err
-	}
-	_, err := torrent.AddTorrent(torrentTaskParam.url, torrentTaskParam.title, torrentTaskParam.pkg)
-	return err
 }

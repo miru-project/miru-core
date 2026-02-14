@@ -29,6 +29,8 @@ message DownloadRequest {
   string package = 5;
   string key = 6;
   string title = 7;
+  string detail_url = 8;
+  string watch_url = 9;
 }
 message DownloadResponse {
   int32 task_id = 1;
@@ -36,11 +38,29 @@ message DownloadResponse {
   bool is_downloading = 3;
 }
 
-message GetAllDownloadsRequest {}
+message GetAllDownloadsRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
 message GetAllDownloadsResponse { repeated Download downloads = 1; }
 
 message DeleteDownloadRequest { int32 id = 1; }
 message DeleteDownloadResponse { string message = 1; }
+
+message GetDownloadsByPackageAndDetailUrlRequest {
+  string package = 1;
+  string detail_url = 2;
+}
+message GetDownloadsByPackageAndDetailUrlResponse {
+  repeated Download downloads = 1;
+}
+
+message GetDownloadByPackageWatchUrlDetailUrlRequest {
+  string package = 1;
+  string watch_url = 2;
+  string detail_url = 3;
+}
+message GetDownloadByPackageWatchUrlDetailUrlResponse { Download download = 1; }
 // Torrent
 message ListTorrentRequest {}
 message ListTorrentResponse { repeated TorrentResult torrents = 1; }
@@ -79,6 +99,12 @@ service DownloadService {
   rpc Download(DownloadRequest) returns (DownloadResponse);
   rpc GetAllDownloads(GetAllDownloadsRequest) returns (GetAllDownloadsResponse);
   rpc DeleteDownload(DeleteDownloadRequest) returns (DeleteDownloadResponse);
+  rpc GetDownloadsByPackageAndDetailUrl(
+      GetDownloadsByPackageAndDetailUrlRequest)
+      returns (GetDownloadsByPackageAndDetailUrlResponse);
+  rpc GetDownloadByPackageWatchUrlDetailUrl(
+      GetDownloadByPackageWatchUrlDetailUrlRequest)
+      returns (GetDownloadByPackageWatchUrlDetailUrlResponse);
 
   // Torrent
   rpc ListTorrent(ListTorrentRequest) returns (ListTorrentResponse);
@@ -93,6 +119,7 @@ service DownloadService {
 message UpdateDownloadStatusRequest {
   int32 task_id = 1;
   string status = 2;
+  optional string save_path = 3;
 }
 
 message UpdateDownloadStatusResponse { string message = 1; }

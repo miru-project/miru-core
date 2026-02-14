@@ -25,7 +25,7 @@ func HelloMiru() (*result.Result[any], error) {
 	out["torrent"] = torrent.TorrentStatus()
 
 	// History
-	histories, _ := db.GetHistorysFiltered(nil, nil)
+	histories, _ := db.GetHistorysFiltered(nil, nil, 0, 0)
 	out["history"] = histories
 
 	return result.NewSuccessResult(out), nil

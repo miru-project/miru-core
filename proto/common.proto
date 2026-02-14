@@ -104,7 +104,7 @@ message History {
 message Download {
   int32 id = 1;
   repeated string url = 2;
-  string headers = 3;
+  map<string, string> headers = 3;
   string package = 4;
   repeated int32 progress = 5;
   string key = 6;
@@ -113,6 +113,8 @@ message Download {
   string status = 9;
   string save_path = 10;
   string date = 11;
+  string download_url = 12;
+  string detail_url = 13;
 }
 
 // Torrent

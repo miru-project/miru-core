@@ -12,11 +12,18 @@ import (
 func UpsertDownload(d *ent.Download) (*ent.Download, error) {
 	client := ext.EntClient()
 	ctx := context.Background()
-	old, err := client.Download.Query().Where(download.Key(d.Key)).Only(ctx)
+	old, err := client.Download.Query().
+		Where(
+			download.Package(d.Package),
+			download.WatchUrl(d.WatchUrl),
+			download.DetailUrl(d.DetailUrl),
+		).Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return client.Download.Create().
 				SetURL(d.URL).
+				SetWatchUrl(d.WatchUrl).
+				SetDetailUrl(d.DetailUrl).
 				SetHeaders(d.Headers).
 				SetPackage(d.Package).
 				SetProgress(d.Progress).
@@ -31,6 +38,8 @@ func UpsertDownload(d *ent.Download) (*ent.Download, error) {
 	}
 	return client.Download.UpdateOne(old).
 		SetURL(d.URL).
+		SetWatchUrl(d.WatchUrl).
+		SetDetailUrl(d.DetailUrl).
 		SetHeaders(d.Headers).
 		SetPackage(d.Package).
 		SetProgress(d.Progress).
@@ -39,12 +48,18 @@ func UpsertDownload(d *ent.Download) (*ent.Download, error) {
 		SetStatus(d.Status).
 		SetSavePath(d.SavePath).
 		SetDate(time.Now()).
+		SetKey(d.Key).
 		Save(ctx)
 }
 
 func GetAllDownloads() ([]*ent.Download, error) {
 	client := ext.EntClient()
 	return client.Download.Query().All(context.Background())
+}
+
+func GetPendingDownloads() ([]*ent.Download, error) {
+	client := ext.EntClient()
+	return client.Download.Query().Where(download.Status("Downloading"), download.Status("Paused")).All(context.Background())
 }
 
 func DeleteDownloadByID(id int) error {
@@ -60,4 +75,23 @@ func GetDownloadByID(id int) (*ent.Download, error) {
 func GetDownloadByKey(key string) (*ent.Download, error) {
 	client := ext.EntClient()
 	return client.Download.Query().Where(download.Key(key)).Only(context.Background())
+}
+
+func GetDownloadByPackageWatchUrlDetailUrl(pkg string, watchUrl string, detailUrl string) (*ent.Download, error) {
+	client := ext.EntClient()
+	return client.Download.Query().
+		Where(
+			download.Package(pkg),
+			download.WatchUrl(watchUrl),
+			download.DetailUrl(detailUrl),
+		).Only(context.Background())
+}
+
+func GetDownloadsByPackageAndDetailUrl(pkg, detailUrl string) ([]*ent.Download, error) {
+	client := ext.EntClient()
+	return client.Download.Query().
+		Where(
+			download.Package(pkg),
+			download.DetailUrl(detailUrl),
+		).All(context.Background())
 }

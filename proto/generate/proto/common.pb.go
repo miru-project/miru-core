@@ -874,7 +874,7 @@ type Download struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int32                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Url           []string               `protobuf:"bytes,2,rep,name=url,proto3" json:"url,omitempty"`
-	Headers       string                 `protobuf:"bytes,3,opt,name=headers,proto3" json:"headers,omitempty"`
+	Headers       map[string]string      `protobuf:"bytes,3,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Package       string                 `protobuf:"bytes,4,opt,name=package,proto3" json:"package,omitempty"`
 	Progress      []int32                `protobuf:"varint,5,rep,packed,name=progress,proto3" json:"progress,omitempty"`
 	Key           string                 `protobuf:"bytes,6,opt,name=key,proto3" json:"key,omitempty"`
@@ -883,6 +883,8 @@ type Download struct {
 	Status        string                 `protobuf:"bytes,9,opt,name=status,proto3" json:"status,omitempty"`
 	SavePath      string                 `protobuf:"bytes,10,opt,name=save_path,json=savePath,proto3" json:"save_path,omitempty"`
 	Date          string                 `protobuf:"bytes,11,opt,name=date,proto3" json:"date,omitempty"`
+	DownloadUrl   string                 `protobuf:"bytes,12,opt,name=download_url,json=downloadUrl,proto3" json:"download_url,omitempty"`
+	DetailUrl     string                 `protobuf:"bytes,13,opt,name=detail_url,json=detailUrl,proto3" json:"detail_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -931,11 +933,11 @@ func (x *Download) GetUrl() []string {
 	return nil
 }
 
-func (x *Download) GetHeaders() string {
+func (x *Download) GetHeaders() map[string]string {
 	if x != nil {
 		return x.Headers
 	}
-	return ""
+	return nil
 }
 
 func (x *Download) GetPackage() string {
@@ -990,6 +992,20 @@ func (x *Download) GetSavePath() string {
 func (x *Download) GetDate() string {
 	if x != nil {
 		return x.Date
+	}
+	return ""
+}
+
+func (x *Download) GetDownloadUrl() string {
+	if x != nil {
+		return x.DownloadUrl
+	}
+	return ""
+}
+
+func (x *Download) GetDetailUrl() string {
+	if x != nil {
+		return x.DetailUrl
 	}
 	return ""
 }
@@ -1151,11 +1167,11 @@ const file_proto_common_proto_rawDesc = "" +
 	"\x0etotal_progress\x18\v \x01(\x05R\rtotalProgress\x12\x12\n" +
 	"\x04date\x18\f \x01(\tR\x04date\x12\x1d\n" +
 	"\n" +
-	"detail_url\x18\r \x01(\tR\tdetailUrl\"\x8c\x02\n" +
+	"detail_url\x18\r \x01(\tR\tdetailUrl\"\xa7\x03\n" +
 	"\bDownload\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x10\n" +
-	"\x03url\x18\x02 \x03(\tR\x03url\x12\x18\n" +
-	"\aheaders\x18\x03 \x01(\tR\aheaders\x12\x18\n" +
+	"\x03url\x18\x02 \x03(\tR\x03url\x125\n" +
+	"\aheaders\x18\x03 \x03(\v2\x1b.miru.Download.HeadersEntryR\aheaders\x12\x18\n" +
 	"\apackage\x18\x04 \x01(\tR\apackage\x12\x1a\n" +
 	"\bprogress\x18\x05 \x03(\x05R\bprogress\x12\x10\n" +
 	"\x03key\x18\x06 \x01(\tR\x03key\x12\x14\n" +
@@ -1165,7 +1181,13 @@ const file_proto_common_proto_rawDesc = "" +
 	"\x06status\x18\t \x01(\tR\x06status\x12\x1b\n" +
 	"\tsave_path\x18\n" +
 	" \x01(\tR\bsavePath\x12\x12\n" +
-	"\x04date\x18\v \x01(\tR\x04date\"V\n" +
+	"\x04date\x18\v \x01(\tR\x04date\x12!\n" +
+	"\fdownload_url\x18\f \x01(\tR\vdownloadUrl\x12\x1d\n" +
+	"\n" +
+	"detail_url\x18\r \x01(\tR\tdetailUrl\x1a:\n" +
+	"\fHeadersEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"V\n" +
 	"\rTorrentResult\x12\x1b\n" +
 	"\tinfo_hash\x18\x01 \x01(\tR\binfoHash\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
@@ -1183,7 +1205,7 @@ func file_proto_common_proto_rawDescGZIP() []byte {
 	return file_proto_common_proto_rawDescData
 }
 
-var file_proto_common_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_proto_common_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_proto_common_proto_goTypes = []any{
 	(*ExtensionMeta)(nil),       // 0: miru.ExtensionMeta
 	(*DownloadProgress)(nil),    // 1: miru.DownloadProgress
@@ -1196,14 +1218,16 @@ var file_proto_common_proto_goTypes = []any{
 	(*History)(nil),             // 8: miru.History
 	(*Download)(nil),            // 9: miru.Download
 	(*TorrentResult)(nil),       // 10: miru.TorrentResult
+	nil,                         // 11: miru.Download.HeadersEntry
 }
 var file_proto_common_proto_depIdxs = []int32{
-	6, // 0: miru.FavoriteGroup.favorites:type_name -> miru.Favorite
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	6,  // 0: miru.FavoriteGroup.favorites:type_name -> miru.Favorite
+	11, // 1: miru.Download.headers:type_name -> miru.Download.HeadersEntry
+	2,  // [2:2] is the sub-list for method output_type
+	2,  // [2:2] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_proto_common_proto_init() }
@@ -1218,7 +1242,7 @@ func file_proto_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_common_proto_rawDesc), len(file_proto_common_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

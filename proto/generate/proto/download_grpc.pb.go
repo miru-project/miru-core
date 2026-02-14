@@ -19,18 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	DownloadService_GetDownloadStatus_FullMethodName    = "/miru.DownloadService/GetDownloadStatus"
-	DownloadService_CancelDownload_FullMethodName       = "/miru.DownloadService/CancelDownload"
-	DownloadService_ResumeDownload_FullMethodName       = "/miru.DownloadService/ResumeDownload"
-	DownloadService_PauseDownload_FullMethodName        = "/miru.DownloadService/PauseDownload"
-	DownloadService_Download_FullMethodName             = "/miru.DownloadService/Download"
-	DownloadService_GetAllDownloads_FullMethodName      = "/miru.DownloadService/GetAllDownloads"
-	DownloadService_DeleteDownload_FullMethodName       = "/miru.DownloadService/DeleteDownload"
-	DownloadService_ListTorrent_FullMethodName          = "/miru.DownloadService/ListTorrent"
-	DownloadService_AddTorrent_FullMethodName           = "/miru.DownloadService/AddTorrent"
-	DownloadService_DeleteTorrent_FullMethodName        = "/miru.DownloadService/DeleteTorrent"
-	DownloadService_AddMagnet_FullMethodName            = "/miru.DownloadService/AddMagnet"
-	DownloadService_UpdateDownloadStatus_FullMethodName = "/miru.DownloadService/UpdateDownloadStatus"
+	DownloadService_GetDownloadStatus_FullMethodName                     = "/miru.DownloadService/GetDownloadStatus"
+	DownloadService_CancelDownload_FullMethodName                        = "/miru.DownloadService/CancelDownload"
+	DownloadService_ResumeDownload_FullMethodName                        = "/miru.DownloadService/ResumeDownload"
+	DownloadService_PauseDownload_FullMethodName                         = "/miru.DownloadService/PauseDownload"
+	DownloadService_Download_FullMethodName                              = "/miru.DownloadService/Download"
+	DownloadService_GetAllDownloads_FullMethodName                       = "/miru.DownloadService/GetAllDownloads"
+	DownloadService_DeleteDownload_FullMethodName                        = "/miru.DownloadService/DeleteDownload"
+	DownloadService_GetDownloadsByPackageAndDetailUrl_FullMethodName     = "/miru.DownloadService/GetDownloadsByPackageAndDetailUrl"
+	DownloadService_GetDownloadByPackageWatchUrlDetailUrl_FullMethodName = "/miru.DownloadService/GetDownloadByPackageWatchUrlDetailUrl"
+	DownloadService_ListTorrent_FullMethodName                           = "/miru.DownloadService/ListTorrent"
+	DownloadService_AddTorrent_FullMethodName                            = "/miru.DownloadService/AddTorrent"
+	DownloadService_DeleteTorrent_FullMethodName                         = "/miru.DownloadService/DeleteTorrent"
+	DownloadService_AddMagnet_FullMethodName                             = "/miru.DownloadService/AddMagnet"
+	DownloadService_UpdateDownloadStatus_FullMethodName                  = "/miru.DownloadService/UpdateDownloadStatus"
 )
 
 // DownloadServiceClient is the client API for DownloadService service.
@@ -44,6 +46,8 @@ type DownloadServiceClient interface {
 	Download(ctx context.Context, in *DownloadRequest, opts ...grpc.CallOption) (*DownloadResponse, error)
 	GetAllDownloads(ctx context.Context, in *GetAllDownloadsRequest, opts ...grpc.CallOption) (*GetAllDownloadsResponse, error)
 	DeleteDownload(ctx context.Context, in *DeleteDownloadRequest, opts ...grpc.CallOption) (*DeleteDownloadResponse, error)
+	GetDownloadsByPackageAndDetailUrl(ctx context.Context, in *GetDownloadsByPackageAndDetailUrlRequest, opts ...grpc.CallOption) (*GetDownloadsByPackageAndDetailUrlResponse, error)
+	GetDownloadByPackageWatchUrlDetailUrl(ctx context.Context, in *GetDownloadByPackageWatchUrlDetailUrlRequest, opts ...grpc.CallOption) (*GetDownloadByPackageWatchUrlDetailUrlResponse, error)
 	// Torrent
 	ListTorrent(ctx context.Context, in *ListTorrentRequest, opts ...grpc.CallOption) (*ListTorrentResponse, error)
 	AddTorrent(ctx context.Context, in *AddTorrentRequest, opts ...grpc.CallOption) (*AddTorrentResponse, error)
@@ -130,6 +134,26 @@ func (c *downloadServiceClient) DeleteDownload(ctx context.Context, in *DeleteDo
 	return out, nil
 }
 
+func (c *downloadServiceClient) GetDownloadsByPackageAndDetailUrl(ctx context.Context, in *GetDownloadsByPackageAndDetailUrlRequest, opts ...grpc.CallOption) (*GetDownloadsByPackageAndDetailUrlResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetDownloadsByPackageAndDetailUrlResponse)
+	err := c.cc.Invoke(ctx, DownloadService_GetDownloadsByPackageAndDetailUrl_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *downloadServiceClient) GetDownloadByPackageWatchUrlDetailUrl(ctx context.Context, in *GetDownloadByPackageWatchUrlDetailUrlRequest, opts ...grpc.CallOption) (*GetDownloadByPackageWatchUrlDetailUrlResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetDownloadByPackageWatchUrlDetailUrlResponse)
+	err := c.cc.Invoke(ctx, DownloadService_GetDownloadByPackageWatchUrlDetailUrl_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *downloadServiceClient) ListTorrent(ctx context.Context, in *ListTorrentRequest, opts ...grpc.CallOption) (*ListTorrentResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListTorrentResponse)
@@ -191,6 +215,8 @@ type DownloadServiceServer interface {
 	Download(context.Context, *DownloadRequest) (*DownloadResponse, error)
 	GetAllDownloads(context.Context, *GetAllDownloadsRequest) (*GetAllDownloadsResponse, error)
 	DeleteDownload(context.Context, *DeleteDownloadRequest) (*DeleteDownloadResponse, error)
+	GetDownloadsByPackageAndDetailUrl(context.Context, *GetDownloadsByPackageAndDetailUrlRequest) (*GetDownloadsByPackageAndDetailUrlResponse, error)
+	GetDownloadByPackageWatchUrlDetailUrl(context.Context, *GetDownloadByPackageWatchUrlDetailUrlRequest) (*GetDownloadByPackageWatchUrlDetailUrlResponse, error)
 	// Torrent
 	ListTorrent(context.Context, *ListTorrentRequest) (*ListTorrentResponse, error)
 	AddTorrent(context.Context, *AddTorrentRequest) (*AddTorrentResponse, error)
@@ -227,6 +253,12 @@ func (UnimplementedDownloadServiceServer) GetAllDownloads(context.Context, *GetA
 }
 func (UnimplementedDownloadServiceServer) DeleteDownload(context.Context, *DeleteDownloadRequest) (*DeleteDownloadResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteDownload not implemented")
+}
+func (UnimplementedDownloadServiceServer) GetDownloadsByPackageAndDetailUrl(context.Context, *GetDownloadsByPackageAndDetailUrlRequest) (*GetDownloadsByPackageAndDetailUrlResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetDownloadsByPackageAndDetailUrl not implemented")
+}
+func (UnimplementedDownloadServiceServer) GetDownloadByPackageWatchUrlDetailUrl(context.Context, *GetDownloadByPackageWatchUrlDetailUrlRequest) (*GetDownloadByPackageWatchUrlDetailUrlResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetDownloadByPackageWatchUrlDetailUrl not implemented")
 }
 func (UnimplementedDownloadServiceServer) ListTorrent(context.Context, *ListTorrentRequest) (*ListTorrentResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListTorrent not implemented")
@@ -390,6 +422,42 @@ func _DownloadService_DeleteDownload_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DownloadService_GetDownloadsByPackageAndDetailUrl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDownloadsByPackageAndDetailUrlRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DownloadServiceServer).GetDownloadsByPackageAndDetailUrl(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DownloadService_GetDownloadsByPackageAndDetailUrl_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DownloadServiceServer).GetDownloadsByPackageAndDetailUrl(ctx, req.(*GetDownloadsByPackageAndDetailUrlRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DownloadService_GetDownloadByPackageWatchUrlDetailUrl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDownloadByPackageWatchUrlDetailUrlRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DownloadServiceServer).GetDownloadByPackageWatchUrlDetailUrl(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DownloadService_GetDownloadByPackageWatchUrlDetailUrl_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DownloadServiceServer).GetDownloadByPackageWatchUrlDetailUrl(ctx, req.(*GetDownloadByPackageWatchUrlDetailUrlRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _DownloadService_ListTorrent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListTorrentRequest)
 	if err := dec(in); err != nil {
@@ -514,6 +582,14 @@ var DownloadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteDownload",
 			Handler:    _DownloadService_DeleteDownload_Handler,
+		},
+		{
+			MethodName: "GetDownloadsByPackageAndDetailUrl",
+			Handler:    _DownloadService_GetDownloadsByPackageAndDetailUrl_Handler,
+		},
+		{
+			MethodName: "GetDownloadByPackageWatchUrlDetailUrl",
+			Handler:    _DownloadService_GetDownloadByPackageWatchUrlDetailUrl_Handler,
 		},
 		{
 			MethodName: "ListTorrent",

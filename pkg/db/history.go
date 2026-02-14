@@ -28,7 +28,7 @@ func GetFavoritesByType(t *string, limit *int) ([]*ent.Favorite, error) {
 }
 
 // GetHistoriesByType returns histories optionally filtered by type ordered by date desc.
-func GetHistoriesByType(t *string) ([]*ent.History, error) {
+func GetHistoriesByType(t *string, page, pageSize int) ([]*ent.History, error) {
 	client := ext.EntClient()
 	ctx := context.Background()
 	q := client.History.Query()
@@ -37,6 +37,12 @@ func GetHistoriesByType(t *string) ([]*ent.History, error) {
 	}
 
 	q = q.Order(ent.Desc(history.FieldDate))
+	if pageSize > 0 {
+		q = q.Limit(pageSize)
+		if page > 1 {
+			q = q.Offset((page - 1) * pageSize)
+		}
+	}
 	return q.All(ctx)
 }
 
@@ -130,7 +136,7 @@ func DeleteAllHistory() (int, error) {
 }
 
 // GetHistorysFiltered returns histories optionally filtered by type and date.
-func GetHistorysFiltered(t *string, beforeDate *time.Time) ([]*ent.History, error) {
+func GetHistorysFiltered(t *string, beforeDate *time.Time, page, pageSize int) ([]*ent.History, error) {
 	client := ext.EntClient()
 	ctx := context.Background()
 	q := client.History.Query()
@@ -141,5 +147,12 @@ func GetHistorysFiltered(t *string, beforeDate *time.Time) ([]*ent.History, erro
 		q = q.Where(history.DateLT(*beforeDate))
 	}
 
-	return q.Order(ent.Desc(history.FieldDate)).All(ctx)
+	q = q.Order(ent.Desc(history.FieldDate))
+	if pageSize > 0 {
+		q = q.Limit(pageSize)
+		if page > 1 {
+			q = q.Offset((page - 1) * pageSize)
+		}
+	}
+	return q.All(ctx)
 }

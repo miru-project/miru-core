@@ -54,9 +54,14 @@ func IDLTE(id int) predicate.Download {
 	return predicate.Download(sql.FieldLTE(FieldID, id))
 }
 
-// Headers applies equality check predicate on the "headers" field. It's identical to HeadersEQ.
-func Headers(v string) predicate.Download {
-	return predicate.Download(sql.FieldEQ(FieldHeaders, v))
+// WatchUrl applies equality check predicate on the "watchUrl" field. It's identical to WatchUrlEQ.
+func WatchUrl(v string) predicate.Download {
+	return predicate.Download(sql.FieldEQ(FieldWatchUrl, v))
+}
+
+// DetailUrl applies equality check predicate on the "detailUrl" field. It's identical to DetailUrlEQ.
+func DetailUrl(v string) predicate.Download {
+	return predicate.Download(sql.FieldEQ(FieldDetailUrl, v))
 }
 
 // Package applies equality check predicate on the "package" field. It's identical to PackageEQ.
@@ -94,59 +99,134 @@ func Date(v time.Time) predicate.Download {
 	return predicate.Download(sql.FieldEQ(FieldDate, v))
 }
 
-// HeadersEQ applies the EQ predicate on the "headers" field.
-func HeadersEQ(v string) predicate.Download {
-	return predicate.Download(sql.FieldEQ(FieldHeaders, v))
+// WatchUrlEQ applies the EQ predicate on the "watchUrl" field.
+func WatchUrlEQ(v string) predicate.Download {
+	return predicate.Download(sql.FieldEQ(FieldWatchUrl, v))
 }
 
-// HeadersNEQ applies the NEQ predicate on the "headers" field.
-func HeadersNEQ(v string) predicate.Download {
-	return predicate.Download(sql.FieldNEQ(FieldHeaders, v))
+// WatchUrlNEQ applies the NEQ predicate on the "watchUrl" field.
+func WatchUrlNEQ(v string) predicate.Download {
+	return predicate.Download(sql.FieldNEQ(FieldWatchUrl, v))
 }
 
-// HeadersIn applies the In predicate on the "headers" field.
-func HeadersIn(vs ...string) predicate.Download {
-	return predicate.Download(sql.FieldIn(FieldHeaders, vs...))
+// WatchUrlIn applies the In predicate on the "watchUrl" field.
+func WatchUrlIn(vs ...string) predicate.Download {
+	return predicate.Download(sql.FieldIn(FieldWatchUrl, vs...))
 }
 
-// HeadersNotIn applies the NotIn predicate on the "headers" field.
-func HeadersNotIn(vs ...string) predicate.Download {
-	return predicate.Download(sql.FieldNotIn(FieldHeaders, vs...))
+// WatchUrlNotIn applies the NotIn predicate on the "watchUrl" field.
+func WatchUrlNotIn(vs ...string) predicate.Download {
+	return predicate.Download(sql.FieldNotIn(FieldWatchUrl, vs...))
 }
 
-// HeadersGT applies the GT predicate on the "headers" field.
-func HeadersGT(v string) predicate.Download {
-	return predicate.Download(sql.FieldGT(FieldHeaders, v))
+// WatchUrlGT applies the GT predicate on the "watchUrl" field.
+func WatchUrlGT(v string) predicate.Download {
+	return predicate.Download(sql.FieldGT(FieldWatchUrl, v))
 }
 
-// HeadersGTE applies the GTE predicate on the "headers" field.
-func HeadersGTE(v string) predicate.Download {
-	return predicate.Download(sql.FieldGTE(FieldHeaders, v))
+// WatchUrlGTE applies the GTE predicate on the "watchUrl" field.
+func WatchUrlGTE(v string) predicate.Download {
+	return predicate.Download(sql.FieldGTE(FieldWatchUrl, v))
 }
 
-// HeadersLT applies the LT predicate on the "headers" field.
-func HeadersLT(v string) predicate.Download {
-	return predicate.Download(sql.FieldLT(FieldHeaders, v))
+// WatchUrlLT applies the LT predicate on the "watchUrl" field.
+func WatchUrlLT(v string) predicate.Download {
+	return predicate.Download(sql.FieldLT(FieldWatchUrl, v))
 }
 
-// HeadersLTE applies the LTE predicate on the "headers" field.
-func HeadersLTE(v string) predicate.Download {
-	return predicate.Download(sql.FieldLTE(FieldHeaders, v))
+// WatchUrlLTE applies the LTE predicate on the "watchUrl" field.
+func WatchUrlLTE(v string) predicate.Download {
+	return predicate.Download(sql.FieldLTE(FieldWatchUrl, v))
 }
 
-// HeadersContains applies the Contains predicate on the "headers" field.
-func HeadersContains(v string) predicate.Download {
-	return predicate.Download(sql.FieldContains(FieldHeaders, v))
+// WatchUrlContains applies the Contains predicate on the "watchUrl" field.
+func WatchUrlContains(v string) predicate.Download {
+	return predicate.Download(sql.FieldContains(FieldWatchUrl, v))
 }
 
-// HeadersHasPrefix applies the HasPrefix predicate on the "headers" field.
-func HeadersHasPrefix(v string) predicate.Download {
-	return predicate.Download(sql.FieldHasPrefix(FieldHeaders, v))
+// WatchUrlHasPrefix applies the HasPrefix predicate on the "watchUrl" field.
+func WatchUrlHasPrefix(v string) predicate.Download {
+	return predicate.Download(sql.FieldHasPrefix(FieldWatchUrl, v))
 }
 
-// HeadersHasSuffix applies the HasSuffix predicate on the "headers" field.
-func HeadersHasSuffix(v string) predicate.Download {
-	return predicate.Download(sql.FieldHasSuffix(FieldHeaders, v))
+// WatchUrlHasSuffix applies the HasSuffix predicate on the "watchUrl" field.
+func WatchUrlHasSuffix(v string) predicate.Download {
+	return predicate.Download(sql.FieldHasSuffix(FieldWatchUrl, v))
+}
+
+// WatchUrlEqualFold applies the EqualFold predicate on the "watchUrl" field.
+func WatchUrlEqualFold(v string) predicate.Download {
+	return predicate.Download(sql.FieldEqualFold(FieldWatchUrl, v))
+}
+
+// WatchUrlContainsFold applies the ContainsFold predicate on the "watchUrl" field.
+func WatchUrlContainsFold(v string) predicate.Download {
+	return predicate.Download(sql.FieldContainsFold(FieldWatchUrl, v))
+}
+
+// DetailUrlEQ applies the EQ predicate on the "detailUrl" field.
+func DetailUrlEQ(v string) predicate.Download {
+	return predicate.Download(sql.FieldEQ(FieldDetailUrl, v))
+}
+
+// DetailUrlNEQ applies the NEQ predicate on the "detailUrl" field.
+func DetailUrlNEQ(v string) predicate.Download {
+	return predicate.Download(sql.FieldNEQ(FieldDetailUrl, v))
+}
+
+// DetailUrlIn applies the In predicate on the "detailUrl" field.
+func DetailUrlIn(vs ...string) predicate.Download {
+	return predicate.Download(sql.FieldIn(FieldDetailUrl, vs...))
+}
+
+// DetailUrlNotIn applies the NotIn predicate on the "detailUrl" field.
+func DetailUrlNotIn(vs ...string) predicate.Download {
+	return predicate.Download(sql.FieldNotIn(FieldDetailUrl, vs...))
+}
+
+// DetailUrlGT applies the GT predicate on the "detailUrl" field.
+func DetailUrlGT(v string) predicate.Download {
+	return predicate.Download(sql.FieldGT(FieldDetailUrl, v))
+}
+
+// DetailUrlGTE applies the GTE predicate on the "detailUrl" field.
+func DetailUrlGTE(v string) predicate.Download {
+	return predicate.Download(sql.FieldGTE(FieldDetailUrl, v))
+}
+
+// DetailUrlLT applies the LT predicate on the "detailUrl" field.
+func DetailUrlLT(v string) predicate.Download {
+	return predicate.Download(sql.FieldLT(FieldDetailUrl, v))
+}
+
+// DetailUrlLTE applies the LTE predicate on the "detailUrl" field.
+func DetailUrlLTE(v string) predicate.Download {
+	return predicate.Download(sql.FieldLTE(FieldDetailUrl, v))
+}
+
+// DetailUrlContains applies the Contains predicate on the "detailUrl" field.
+func DetailUrlContains(v string) predicate.Download {
+	return predicate.Download(sql.FieldContains(FieldDetailUrl, v))
+}
+
+// DetailUrlHasPrefix applies the HasPrefix predicate on the "detailUrl" field.
+func DetailUrlHasPrefix(v string) predicate.Download {
+	return predicate.Download(sql.FieldHasPrefix(FieldDetailUrl, v))
+}
+
+// DetailUrlHasSuffix applies the HasSuffix predicate on the "detailUrl" field.
+func DetailUrlHasSuffix(v string) predicate.Download {
+	return predicate.Download(sql.FieldHasSuffix(FieldDetailUrl, v))
+}
+
+// DetailUrlEqualFold applies the EqualFold predicate on the "detailUrl" field.
+func DetailUrlEqualFold(v string) predicate.Download {
+	return predicate.Download(sql.FieldEqualFold(FieldDetailUrl, v))
+}
+
+// DetailUrlContainsFold applies the ContainsFold predicate on the "detailUrl" field.
+func DetailUrlContainsFold(v string) predicate.Download {
+	return predicate.Download(sql.FieldContainsFold(FieldDetailUrl, v))
 }
 
 // HeadersIsNil applies the IsNil predicate on the "headers" field.
@@ -157,16 +237,6 @@ func HeadersIsNil() predicate.Download {
 // HeadersNotNil applies the NotNil predicate on the "headers" field.
 func HeadersNotNil() predicate.Download {
 	return predicate.Download(sql.FieldNotNull(FieldHeaders))
-}
-
-// HeadersEqualFold applies the EqualFold predicate on the "headers" field.
-func HeadersEqualFold(v string) predicate.Download {
-	return predicate.Download(sql.FieldEqualFold(FieldHeaders, v))
-}
-
-// HeadersContainsFold applies the ContainsFold predicate on the "headers" field.
-func HeadersContainsFold(v string) predicate.Download {
-	return predicate.Download(sql.FieldContainsFold(FieldHeaders, v))
 }
 
 // PackageEQ applies the EQ predicate on the "package" field.

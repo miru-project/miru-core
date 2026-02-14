@@ -41,17 +41,37 @@ func (_u *DownloadUpdate) AppendURL(v []string) *DownloadUpdate {
 	return _u
 }
 
-// SetHeaders sets the "headers" field.
-func (_u *DownloadUpdate) SetHeaders(v string) *DownloadUpdate {
-	_u.mutation.SetHeaders(v)
+// SetWatchUrl sets the "watchUrl" field.
+func (_u *DownloadUpdate) SetWatchUrl(v string) *DownloadUpdate {
+	_u.mutation.SetWatchUrl(v)
 	return _u
 }
 
-// SetNillableHeaders sets the "headers" field if the given value is not nil.
-func (_u *DownloadUpdate) SetNillableHeaders(v *string) *DownloadUpdate {
+// SetNillableWatchUrl sets the "watchUrl" field if the given value is not nil.
+func (_u *DownloadUpdate) SetNillableWatchUrl(v *string) *DownloadUpdate {
 	if v != nil {
-		_u.SetHeaders(*v)
+		_u.SetWatchUrl(*v)
 	}
+	return _u
+}
+
+// SetDetailUrl sets the "detailUrl" field.
+func (_u *DownloadUpdate) SetDetailUrl(v string) *DownloadUpdate {
+	_u.mutation.SetDetailUrl(v)
+	return _u
+}
+
+// SetNillableDetailUrl sets the "detailUrl" field if the given value is not nil.
+func (_u *DownloadUpdate) SetNillableDetailUrl(v *string) *DownloadUpdate {
+	if v != nil {
+		_u.SetDetailUrl(*v)
+	}
+	return _u
+}
+
+// SetHeaders sets the "headers" field.
+func (_u *DownloadUpdate) SetHeaders(v map[string]string) *DownloadUpdate {
+	_u.mutation.SetHeaders(v)
 	return _u
 }
 
@@ -217,6 +237,16 @@ func (_u *DownloadUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *DownloadUpdate) check() error {
+	if v, ok := _u.mutation.WatchUrl(); ok {
+		if err := download.WatchUrlValidator(v); err != nil {
+			return &ValidationError{Name: "watchUrl", err: fmt.Errorf(`ent: validator failed for field "Download.watchUrl": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.DetailUrl(); ok {
+		if err := download.DetailUrlValidator(v); err != nil {
+			return &ValidationError{Name: "detailUrl", err: fmt.Errorf(`ent: validator failed for field "Download.detailUrl": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Package(); ok {
 		if err := download.PackageValidator(v); err != nil {
 			return &ValidationError{Name: "package", err: fmt.Errorf(`ent: validator failed for field "Download.package": %w`, err)}
@@ -265,11 +295,17 @@ func (_u *DownloadUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			sqljson.Append(u, download.FieldURL, value)
 		})
 	}
+	if value, ok := _u.mutation.WatchUrl(); ok {
+		_spec.SetField(download.FieldWatchUrl, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.DetailUrl(); ok {
+		_spec.SetField(download.FieldDetailUrl, field.TypeString, value)
+	}
 	if value, ok := _u.mutation.Headers(); ok {
-		_spec.SetField(download.FieldHeaders, field.TypeString, value)
+		_spec.SetField(download.FieldHeaders, field.TypeJSON, value)
 	}
 	if _u.mutation.HeadersCleared() {
-		_spec.ClearField(download.FieldHeaders, field.TypeString)
+		_spec.ClearField(download.FieldHeaders, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.Package(); ok {
 		_spec.SetField(download.FieldPackage, field.TypeString, value)
@@ -338,17 +374,37 @@ func (_u *DownloadUpdateOne) AppendURL(v []string) *DownloadUpdateOne {
 	return _u
 }
 
-// SetHeaders sets the "headers" field.
-func (_u *DownloadUpdateOne) SetHeaders(v string) *DownloadUpdateOne {
-	_u.mutation.SetHeaders(v)
+// SetWatchUrl sets the "watchUrl" field.
+func (_u *DownloadUpdateOne) SetWatchUrl(v string) *DownloadUpdateOne {
+	_u.mutation.SetWatchUrl(v)
 	return _u
 }
 
-// SetNillableHeaders sets the "headers" field if the given value is not nil.
-func (_u *DownloadUpdateOne) SetNillableHeaders(v *string) *DownloadUpdateOne {
+// SetNillableWatchUrl sets the "watchUrl" field if the given value is not nil.
+func (_u *DownloadUpdateOne) SetNillableWatchUrl(v *string) *DownloadUpdateOne {
 	if v != nil {
-		_u.SetHeaders(*v)
+		_u.SetWatchUrl(*v)
 	}
+	return _u
+}
+
+// SetDetailUrl sets the "detailUrl" field.
+func (_u *DownloadUpdateOne) SetDetailUrl(v string) *DownloadUpdateOne {
+	_u.mutation.SetDetailUrl(v)
+	return _u
+}
+
+// SetNillableDetailUrl sets the "detailUrl" field if the given value is not nil.
+func (_u *DownloadUpdateOne) SetNillableDetailUrl(v *string) *DownloadUpdateOne {
+	if v != nil {
+		_u.SetDetailUrl(*v)
+	}
+	return _u
+}
+
+// SetHeaders sets the "headers" field.
+func (_u *DownloadUpdateOne) SetHeaders(v map[string]string) *DownloadUpdateOne {
+	_u.mutation.SetHeaders(v)
 	return _u
 }
 
@@ -527,6 +583,16 @@ func (_u *DownloadUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *DownloadUpdateOne) check() error {
+	if v, ok := _u.mutation.WatchUrl(); ok {
+		if err := download.WatchUrlValidator(v); err != nil {
+			return &ValidationError{Name: "watchUrl", err: fmt.Errorf(`ent: validator failed for field "Download.watchUrl": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.DetailUrl(); ok {
+		if err := download.DetailUrlValidator(v); err != nil {
+			return &ValidationError{Name: "detailUrl", err: fmt.Errorf(`ent: validator failed for field "Download.detailUrl": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Package(); ok {
 		if err := download.PackageValidator(v); err != nil {
 			return &ValidationError{Name: "package", err: fmt.Errorf(`ent: validator failed for field "Download.package": %w`, err)}
@@ -592,11 +658,17 @@ func (_u *DownloadUpdateOne) sqlSave(ctx context.Context) (_node *Download, err 
 			sqljson.Append(u, download.FieldURL, value)
 		})
 	}
+	if value, ok := _u.mutation.WatchUrl(); ok {
+		_spec.SetField(download.FieldWatchUrl, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.DetailUrl(); ok {
+		_spec.SetField(download.FieldDetailUrl, field.TypeString, value)
+	}
 	if value, ok := _u.mutation.Headers(); ok {
-		_spec.SetField(download.FieldHeaders, field.TypeString, value)
+		_spec.SetField(download.FieldHeaders, field.TypeJSON, value)
 	}
 	if _u.mutation.HeadersCleared() {
-		_spec.ClearField(download.FieldHeaders, field.TypeString)
+		_spec.ClearField(download.FieldHeaders, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.Package(); ok {
 		_spec.SetField(download.FieldPackage, field.TypeString, value)

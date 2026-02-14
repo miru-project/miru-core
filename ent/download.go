@@ -21,8 +21,12 @@ type Download struct {
 	ID int `json:"id,omitempty"`
 	// List of download URLs
 	URL []string `json:"url,omitempty"`
+	// The source watch URL
+	WatchUrl string `json:"watchUrl,omitempty"`
+	// The Detail URL of the content
+	DetailUrl string `json:"detailUrl,omitempty"`
 	// Download URL headers
-	Headers string `json:"headers,omitempty"`
+	Headers map[string]string `json:"headers,omitempty"`
 	// The extension package identifier
 	Package string `json:"package,omitempty"`
 	// List of segment progress
@@ -47,11 +51,11 @@ func (*Download) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case download.FieldURL, download.FieldProgress:
+		case download.FieldURL, download.FieldHeaders, download.FieldProgress:
 			values[i] = new([]byte)
 		case download.FieldID:
 			values[i] = new(sql.NullInt64)
-		case download.FieldHeaders, download.FieldPackage, download.FieldKey, download.FieldTitle, download.FieldMediaType, download.FieldStatus, download.FieldSavePath:
+		case download.FieldWatchUrl, download.FieldDetailUrl, download.FieldPackage, download.FieldKey, download.FieldTitle, download.FieldMediaType, download.FieldStatus, download.FieldSavePath:
 			values[i] = new(sql.NullString)
 		case download.FieldDate:
 			values[i] = new(sql.NullTime)
@@ -84,11 +88,25 @@ func (_m *Download) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field url: %w", err)
 				}
 			}
-		case download.FieldHeaders:
+		case download.FieldWatchUrl:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field headers", values[i])
+				return fmt.Errorf("unexpected type %T for field watchUrl", values[i])
 			} else if value.Valid {
-				_m.Headers = value.String
+				_m.WatchUrl = value.String
+			}
+		case download.FieldDetailUrl:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field detailUrl", values[i])
+			} else if value.Valid {
+				_m.DetailUrl = value.String
+			}
+		case download.FieldHeaders:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field headers", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Headers); err != nil {
+					return fmt.Errorf("unmarshal field headers: %w", err)
+				}
 			}
 		case download.FieldPackage:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -179,8 +197,14 @@ func (_m *Download) String() string {
 	builder.WriteString("url=")
 	builder.WriteString(fmt.Sprintf("%v", _m.URL))
 	builder.WriteString(", ")
+	builder.WriteString("watchUrl=")
+	builder.WriteString(_m.WatchUrl)
+	builder.WriteString(", ")
+	builder.WriteString("detailUrl=")
+	builder.WriteString(_m.DetailUrl)
+	builder.WriteString(", ")
 	builder.WriteString("headers=")
-	builder.WriteString(_m.Headers)
+	builder.WriteString(fmt.Sprintf("%v", _m.Headers))
 	builder.WriteString(", ")
 	builder.WriteString("package=")
 	builder.WriteString(_m.Package)

@@ -5,6 +5,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 )
 
 // Download holds the schema definition for the Download entity.
@@ -22,9 +23,15 @@ func (Download) Fields() []ent.Field {
 			StorageKey("id"),
 		field.Strings("url").
 			Comment("List of download URLs"),
-		field.String("headers").
+		field.String("watchUrl").
+			NotEmpty().
+			Comment("The source watch URL"),
+		field.String("detailUrl").
+			NotEmpty().
+			Comment("The Detail URL of the content"),
+		field.JSON("headers", map[string]string{}).
 			Optional().
-			Default("").
+			Default(map[string]string{}).
 			Comment("Download URL headers"),
 		field.String("package").
 			NotEmpty().
@@ -57,4 +64,12 @@ func (Download) Fields() []ent.Field {
 // Edges of the Download.
 func (Download) Edges() []ent.Edge {
 	return nil
+}
+
+// Indexes of the Download.
+func (Download) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("package", "watchUrl", "detailUrl").
+			Unique(),
+	}
 }

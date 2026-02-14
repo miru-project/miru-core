@@ -364,7 +364,7 @@ func (s *MiruCoreServer) GetFavoriteGroupsByFavorite(ctx context.Context, req *p
 
 // DB - History
 func (s *MiruCoreServer) GetHistoriesByType(ctx context.Context, req *proto.GetHistoriesByTypeRequest) (*proto.GetHistoriesByTypeResponse, error) {
-	histories, err := db.GetHistoriesByType(&req.Type)
+	histories, err := db.GetHistoriesByType(&req.Type, int(req.Page), int(req.PageSize))
 	if err != nil {
 		return nil, err
 	}
@@ -425,7 +425,7 @@ func (s *MiruCoreServer) GetHistorysFiltered(ctx context.Context, req *proto.Get
 			beforeDate = &t
 		}
 	}
-	histories, err := db.GetHistorysFiltered(&req.Type, beforeDate)
+	histories, err := db.GetHistorysFiltered(&req.Type, beforeDate, int(req.Page), int(req.PageSize))
 	if err != nil {
 		return nil, err
 	}
@@ -479,12 +479,15 @@ func (s *MiruCoreServer) UpdateDownloadStatus(ctx context.Context, req *proto.Up
 		return nil, fmt.Errorf("task %d not found", req.TaskId)
 	}
 	p.Status = download.Status(req.Status)
+	if req.SavePath != nil {
+		p.SavePath = *req.SavePath
+	}
 	p.SyncDB()
 	return &proto.UpdateDownloadStatusResponse{Message: "Success"}, nil
 }
 
 func (s *MiruCoreServer) Download(ctx context.Context, req *proto.DownloadRequest) (*proto.DownloadResponse, error) {
-	res, err := download.Download(req.DownloadPath, req.Url, req.Headers, req.MediaType, req.Title, req.Package, req.Key)
+	res, err := download.Download(req.DownloadPath, req.Url, req.Headers, req.MediaType, req.Title, req.Package, req.Key, req.DetailUrl, req.WatchUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -533,6 +536,62 @@ func (s *MiruCoreServer) GetAllDownloads(ctx context.Context, req *proto.GetAllD
 		}
 	}
 	return &proto.GetAllDownloadsResponse{Downloads: protoDownloads}, nil
+}
+
+func (s *MiruCoreServer) GetDownloadsByPackageAndDetailUrl(ctx context.Context, req *proto.GetDownloadsByPackageAndDetailUrlRequest) (*proto.GetDownloadsByPackageAndDetailUrlResponse, error) {
+	downloads, err := db.GetDownloadsByPackageAndDetailUrl(req.Package, req.DetailUrl)
+	if err != nil {
+		return nil, err
+	}
+	protoDownloads := make([]*proto.Download, len(downloads))
+	for i, d := range downloads {
+		protoDownloads[i] = &proto.Download{
+			Id:      int32(d.ID),
+			Url:     d.URL,
+			Headers: d.Headers,
+			Package: d.Package,
+			Progress: func() []int32 {
+				res := make([]int32, len(d.Progress))
+				for i, v := range d.Progress {
+					res[i] = int32(v)
+				}
+				return res
+			}(),
+			Key:       d.Key,
+			Title:     d.Title,
+			MediaType: d.MediaType,
+			Status:    d.Status,
+			SavePath:  d.SavePath,
+			Date:      d.Date.Format(time.RFC3339),
+		}
+	}
+	return &proto.GetDownloadsByPackageAndDetailUrlResponse{Downloads: protoDownloads}, nil
+}
+
+func (s *MiruCoreServer) GetDownloadByPackageWatchUrlDetailUrl(ctx context.Context, req *proto.GetDownloadByPackageWatchUrlDetailUrlRequest) (*proto.GetDownloadByPackageWatchUrlDetailUrlResponse, error) {
+	d, err := db.GetDownloadByPackageWatchUrlDetailUrl(req.Package, req.WatchUrl, req.DetailUrl)
+	if d == nil {
+		return nil, err
+	}
+	return &proto.GetDownloadByPackageWatchUrlDetailUrlResponse{Download: &proto.Download{
+		Id:      int32(d.ID),
+		Url:     d.URL,
+		Headers: d.Headers,
+		Package: d.Package,
+		Progress: func() []int32 {
+			res := make([]int32, len(d.Progress))
+			for i, v := range d.Progress {
+				res[i] = int32(v)
+			}
+			return res
+		}(),
+		Key:       d.Key,
+		Title:     d.Title,
+		MediaType: d.MediaType,
+		Status:    d.Status,
+		SavePath:  d.SavePath,
+		Date:      d.Date.Format(time.RFC3339),
+	}}, nil
 }
 
 func (s *MiruCoreServer) DeleteDownload(ctx context.Context, req *proto.DeleteDownloadRequest) (*proto.DeleteDownloadResponse, error) {

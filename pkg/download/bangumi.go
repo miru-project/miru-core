@@ -8,23 +8,23 @@ import (
 	"github.com/miru-project/miru-core/pkg/logger"
 )
 
-func Download(filePath string, url string, header map[string]string, mediaType string, title string, pkg string, key string) (MultipleLinkJson, error) {
+func Download(filePath string, url string, header map[string]string, mediaType string, title string, pkg string, key string, detailUrl string, watchUrl string) (MultipleLinkJson, error) {
 
 	mediaType = strings.ToLower(mediaType)
 	// Check if the URL is a valid HLS URL
 	if mediaType == "hls" || isHlsUrl(url) {
 		logger.Println("Downloading HLS : " + url)
-		return downloadHls(filePath, url, header, title, pkg, key)
+		return downloadHls(filePath, url, header, title, pkg, key, detailUrl, watchUrl)
 	}
 
 	if mediaType == "torrent" || isTorrent(url) {
 		logger.Println("Downloading Torrent : " + url)
-		return downloadTorrent(filePath, url, header, mediaType, title, pkg, key)
+		return downloadTorrent(filePath, url, header, mediaType, title, pkg, key, detailUrl, watchUrl)
 	}
 
 	if mediaType == "mp4" || isMp4Url(url) {
 		logger.Println("Downloading MP4 : " + url)
-		return downloadMp4(filePath, url, header, title, pkg, key)
+		return downloadMp4(filePath, url, header, title, pkg, key, detailUrl, watchUrl)
 	}
 
 	return MultipleLinkJson{}, errors.New("Unsupported media type: " + mediaType)

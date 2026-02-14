@@ -15,12 +15,28 @@ import (
 	"github.com/miru-project/miru-core/pkg/network"
 )
 
-func downloadMp4(filePath string, url string, header map[string]string, title string, pkg string, key string) (MultipleLinkJson, error) {
+func downloadMp4(filePath string, url string, header map[string]string, title string, pkg string, key string, detailUrl string, watchUrl string) (MultipleLinkJson, error) {
 
 	// Create the file path
 	fileName := filepath.Join(filePath, path.Base(url))
 
 	taskId := genTaskID()
+	status[taskId] = &Progress{
+		Progrss:   0,
+		Names:     &[]string{path.Base(url)},
+		Total:     0,
+		Status:    Downloading,
+		MediaType: Mp4,
+		TaskID:    taskId,
+		Title:     title,
+		Package:   pkg,
+		Key:       key,
+		URL:       []string{url},
+		SavePath:  fileName,
+		DetailUrl: detailUrl,
+		WatchUrl:  watchUrl,
+	}
+	status[taskId].SyncDB()
 
 	taskParamMap[taskId] = &Mp4TaskParam{
 		TaskParam:     TaskParam{taskID: taskId},
@@ -67,20 +83,10 @@ func (t *Mp4TaskParam) readAndSavePartial(res *fasthttp.Response) ([]byte, error
 		}
 	}
 
-	// Initialize the status
-	status[taskId] = &Progress{
-		Progrss:   int(t.startingPoint),
-		Names:     &[]string{},
-		Total:     int(totalBytes),
-		Status:    Downloading,
-		MediaType: Mp4,
-		TaskID:    taskId,
-		Title:     t.title,
-		Package:   t.pkg,
-		Key:       t.key,
-		URL:       []string{t.url},
-		SavePath:  t.filePath,
-	}
+	// Update the status
+	status[taskId].Progrss = int(t.startingPoint)
+	status[taskId].Total = int(totalBytes)
+	status[taskId].Status = Downloading
 	status[taskId].SyncDB()
 
 	status[taskId].CurrentDownloading = t.filePath
