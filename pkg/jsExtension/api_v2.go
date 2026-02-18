@@ -66,14 +66,6 @@ func (api *ExtApi) initRuntimeV2(pkg string) {
 			log.Println("Error running extension script:", e)
 			panic(e)
 		}
-		// // Initialize the Ext class
-		// _, e := vm.RunString(fmt.Sprintf(`
-		// 	ext = new globalThis.Ext("%s");
-		// 	`, api.Ext.Website))
-
-		// if e != nil {
-		// 	panic(e)
-		// }
 
 		api.registerFunction(vm, job)
 
