@@ -11,15 +11,17 @@ import (
 	"strings"
 	"time"
 
+	"encoding/json"
+
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/metainfo"
-	"github.com/gofiber/fiber/v2"
 	"github.com/miru-project/miru-core/config"
 	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/pkg/db"
 	"github.com/miru-project/miru-core/pkg/logger"
 	"github.com/miru-project/miru-core/pkg/network"
 	"github.com/miru-project/miru-core/pkg/result"
+	"github.com/valyala/fasthttp"
 )
 
 var (
@@ -170,13 +172,18 @@ func DeleteTorrent(infoHash string, forceDeleteFiles bool) error {
 	return nil
 }
 
-func GetTorrentData(c *fiber.Ctx) error {
-	params := c.AllParams()
-	infoHash := params["infoHash"]
-	filePath := params["*1"]
+func GetTorrentData(c *fasthttp.RequestCtx) {
+	infoHash := c.UserValue("infoHash").(string)
+	v := c.UserValue("path")
+	filePath := ""
+	if v != nil {
+		filePath = v.(string)
+	}
 	t, ok := Torrents[infoHash]
 	if !ok {
-		return c.Status(http.StatusNotFound).SendString("torrent not found")
+		c.SetStatusCode(http.StatusNotFound)
+		c.SetBodyString("torrent not found")
+		return
 	}
 	if filePath == "" {
 		files := []string{}
@@ -187,11 +194,15 @@ func GetTorrentData(c *fiber.Ctx) error {
 				files = append(files, file.DisplayPath(t.Info()))
 			}
 		}
-		return c.JSON(result.TorrentDetailResult{
+
+		res, _ := json.Marshal(result.TorrentDetailResult{
 			InfoHash: infoHash,
 			Detail:   t.Info(),
 			Files:    files,
 		})
+		c.SetContentType("application/json")
+		c.SetBody(res)
+		return
 	}
 	files := t.Files()
 	unescape, err := url.PathUnescape(filePath)
@@ -202,28 +213,32 @@ func GetTorrentData(c *fiber.Ctx) error {
 	// 获取文件后缀
 	fileExtension := path.Ext(unescape)
 	if len(files) == 0 && unescape == t.Name() {
-		return serverTorrentData(c, fileExtension, t.NewReader(), t.Length())
+		serverTorrentData(c, fileExtension, t.NewReader(), t.Length())
+		return
 	}
 	for _, file := range files {
 		if file.DisplayPath() == unescape {
-			return serverTorrentData(c, fileExtension, file.NewReader(), file.Length())
+			serverTorrentData(c, fileExtension, file.NewReader(), file.Length())
+			return
 		}
 	}
-	return c.Status(http.StatusNotFound).SendString("file not found")
+	c.SetStatusCode(http.StatusNotFound)
+	c.SetBodyString("file not found")
 }
 
-func serverTorrentData(c *fiber.Ctx, fileExtension string, reader torrent.Reader, fileSize int64) error {
+func serverTorrentData(c *fasthttp.RequestCtx, fileExtension string, reader torrent.Reader, fileSize int64) {
 	// 获取文件后缀
 	mime, ok := isMedia(fileExtension)
 	logger.Println(mime, fileExtension)
 	if !ok {
-		c.Set("Content-Type", "application/octet-stream")
-		return c.SendStream(reader)
+		c.Response.Header.Set("Content-Type", "application/octet-stream")
+		c.SetBodyStream(reader, int(fileSize))
+		return
 	}
 
-	c.Set("Content-Type", mime)
+	c.SetContentType(mime)
 	reader.SetResponsive()
-	rangeHeader := c.Get("Range")
+	rangeHeader := string(c.Request.Header.Peek("Range"))
 	if rangeHeader != "" {
 		ranges := strings.Split(rangeHeader, "=")[1]
 		rangeParts := strings.Split(ranges, "-")
@@ -233,19 +248,22 @@ func serverTorrentData(c *fiber.Ctx, fileExtension string, reader torrent.Reader
 			end, _ = strconv.ParseInt(rangeParts[1], 10, 64)
 		}
 
-		c.Status(http.StatusPartialContent)
-		c.Set("Content-Range", fmt.Sprintf("bytes %d-%d/%d", start, end, fileSize))
-		c.Set("Accept-Ranges", "bytes")
-		c.Set("Content-Length", strconv.FormatInt(end-start+1, 10))
+		c.SetStatusCode(http.StatusPartialContent)
+		c.Response.Header.Set("Content-Range", fmt.Sprintf("bytes %d-%d/%d", start, end, fileSize))
+		c.Response.Header.Set("Accept-Ranges", "bytes")
+		c.Response.Header.Set("Content-Length", strconv.FormatInt(end-start+1, 10))
 
 		logger.Printf("bytes %d-%d/%d", start, end, fileSize)
 
 		_, err := reader.Seek(start, 0)
 		if err != nil {
-			return c.Status(http.StatusInternalServerError).SendString("Internal server error")
+			c.SetStatusCode(http.StatusInternalServerError)
+			c.SetBodyString("Internal server error")
+			return
 		}
-		return c.SendStream(reader)
+		c.SetBodyStream(reader, int(end-start+1))
+		return
 	}
 
-	return c.SendStream(reader)
+	c.SetBodyStream(reader, int(fileSize))
 }

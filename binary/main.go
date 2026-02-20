@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gofiber/fiber/v2"
+	fasthttp_router "github.com/fasthttp/router"
 	"github.com/miru-project/miru-core/config"
 	"github.com/miru-project/miru-core/ext"
 	"github.com/miru-project/miru-core/pkg/anilist"
@@ -39,7 +39,7 @@ func InitProgram(configPath *string) {
 		}
 	}
 
-	app := fiber.New()
+	app := fasthttp_router.New()
 	Init()
 	router.InitRouter(app)
 

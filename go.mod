@@ -7,13 +7,13 @@ require (
 	github.com/dop251/goja v0.0.0-20260219130522-0ba9a5494a59
 	github.com/dop251/goja_nodejs v0.0.0-20260212111938-1f56ff5bcf14
 	github.com/fsnotify/fsnotify v1.9.0
-	github.com/gofiber/fiber/v2 v2.52.11
 	github.com/grafov/m3u8 v0.12.1
 	go.nhat.io/cookiejar v0.3.0
 	golang.org/x/mobile v0.0.0-20260217195705-b56b3793a9c4
 )
 
 require (
+	github.com/fasthttp/router v1.5.4
 	github.com/sqlite3ent/sqlite3 v1.45.0
 	github.com/stretchr/testify v1.11.1
 	google.golang.org/grpc v1.79.1
@@ -47,7 +47,6 @@ require (
 	github.com/bradfitz/iter v0.0.0-20191230175014-e8f45d346db8 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/edsrzf/mmap-go v1.2.0 // indirect
@@ -95,6 +94,7 @@ require (
 	github.com/refraction-networking/uquic v0.0.6 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rs/dnscache v0.0.0-20230804202142-fc85eb664529 // indirect
+	github.com/savsgio/gotils v0.0.0-20240704082632-aef3928b8a38 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/tidwall/btree v1.8.1 // indirect
@@ -138,9 +138,7 @@ require (
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/hashicorp/hcl/v2 v2.24.0 // indirect
 	github.com/klauspost/compress v1.18.4 // indirect
-	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-runewidth v0.0.20 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/refraction-networking/utls v1.8.2 // indirect
 	github.com/studio-b12/gowebdav v0.12.0 // direct

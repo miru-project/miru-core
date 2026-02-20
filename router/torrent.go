@@ -1,11 +1,12 @@
 package router
 
 import (
-	"github.com/gofiber/fiber/v2"
+	fasthttp_router "github.com/fasthttp/router"
 	"github.com/miru-project/miru-core/router/handler"
+	"github.com/valyala/fasthttp"
 )
 
-func initTorrentRouter(app *fiber.App) {
+func initTorrentRouter(app *fasthttp_router.Router) {
 	GetTorrentData(app)
 }
 
@@ -15,8 +16,8 @@ func initTorrentRouter(app *fiber.App) {
 // @Param			infoHash	path	string	true	"Torrent InfoHash"
 // @Param			path		path	string	false	"File path within torrent"
 // @Router			/torrent/data/{infoHash}/{path} [get]
-func GetTorrentData(app *fiber.App) fiber.Router {
-	return app.Get("/torrent/data/:infoHash/*", func(c *fiber.Ctx) error {
-		return handler.GetTorrentData(c)
+func GetTorrentData(app *fasthttp_router.Router) {
+	app.GET("/torrent/data/{infoHash}/{*path}", func(c *fasthttp.RequestCtx) {
+		handler.GetTorrentData(c)
 	})
 }

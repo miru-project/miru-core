@@ -1,9 +1,10 @@
 package router
 
 import (
-	"github.com/gofiber/fiber/v2"
+	fasthttp_router "github.com/fasthttp/router"
 	"github.com/miru-project/miru-core/config"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
+	"github.com/valyala/fasthttp"
 )
 
 //	@title			Miru Core API
@@ -24,7 +25,7 @@ import (
 //
 //	@Summary		Initialize API routes
 //	@Description	Sets up all available API endpoints for the Miru application
-func InitRouter(app *fiber.App) {
+func InitRouter(app *fasthttp_router.Router) {
 	// Initialize Swagger docs
 
 	initWebDavRouter(app)
@@ -36,8 +37,8 @@ func InitRouter(app *fiber.App) {
 
 }
 
-func startListening(app *fiber.App, host string) {
-	if e := app.Listen(host); e != nil {
+func startListening(app *fasthttp_router.Router, host string) {
+	if e := fasthttp.ListenAndServe(host, app.Handler); e != nil {
 		errorhandle.PanicF("Can't listen on host %q: %s", host, e)
 	}
 }

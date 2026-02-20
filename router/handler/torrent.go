@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"github.com/miru-project/miru-core/pkg/torrent"
+	"github.com/valyala/fasthttp"
 )
 
-func GetTorrentData(c *fiber.Ctx) error {
-	return torrent.GetTorrentData(c)
+func GetTorrentData(c *fasthttp.RequestCtx) {
+	torrent.GetTorrentData(c)
 }
