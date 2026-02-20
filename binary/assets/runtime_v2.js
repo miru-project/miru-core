@@ -61,35 +61,7 @@ const Miru = {
       return message;
     }
   },
-  // listCookies: async () => {
-  //   return await handlePromise("listCookies$className", "");
-  // },
-  // setCookie: async (cookie) => {
-  //   return await handlePromise("setCookie$className", cookie);
-  // },
-  // saveData: async (key, data) => {
-  //   try { await handlePromise("saveData$className", JSON.stringify([key, data])); return true; } catch (e) { return false; }
-  // },
-  // snackbar: (message) => {
-  //   return handlePromise("snackbar$className", JSON.stringify([message]));
-  // },
-  // getData: async (key) => {
-  //   return await handlePromise("getData$className", JSON.stringify([key]));
-  // },
-  // queryXPath: (content, selector) => {
-  //   return new XPathNode(content, selector);
-  // },
-  // registerSetting: async (settings) => {
-  //   console.log(JSON.stringify([settings]));
-  //   settingKeys.push(settings.key);
-  //   return await handlePromise("registerSetting$className", JSON.stringify([settings]));
-  // },
-  // getSetting: async (key) => {
-  //   return await handlePromise("getSetting$className", JSON.stringify([key]));
-  // },
-  // convert:async (data,from,to)=>{
-  //   return await handlePromise("convert$className",JSON.stringify([JSON.stringify(data),from,to]));
-  // }
+
 }
 var latest = () => {
   throw new Error("not implement latest");
@@ -114,16 +86,3 @@ async function load() { }
 var throwError = (message) => {
   throw new Error(message);
 }
-// const handlePromise = async (channelName, message) => {
-//   // const waitForChange = new Promise(resolve => {
-//   //   DartBridge.setHandler(channelName, async (arg) => {
-//   //     resolve(arg);
-//   //   })
-//   // });
-//   // DartBridge.sendMessage(channelName, message);
-//   // return await waitForChange
-// }
-// const stringify = async (callback) => {
-//   const data = await callback();
-//   return typeof data === "object" ? JSON.stringify(data, 0, 2) : data;
-// }

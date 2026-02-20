@@ -140,6 +140,7 @@ class Extension {
   }
 
   querySelector(content, selector) {
+    const {parseHTML} = require("linkedom")
     const { document } = parseHTML(content);
     // console.log(document)
     // console.log(selector)
@@ -152,6 +153,7 @@ class Extension {
     return new XPathNode(content, selector, this.extension);
   }
   querySelectorAll(content, selector) {
+    const {parseHTML} = require("linkedom")
     const { document } = parseHTML(content);
     const e = document.querySelectorAll(selector).map(function (e) {
       const c = new Element(e)
@@ -161,10 +163,9 @@ class Extension {
   }
 
   async getAttributeText(content, selector, attr) {
-    // console.log(content)
+    const {parseHTML} = require("linkedom")
     const { document } = parseHTML(content);
     const node = document.querySelector(selector);
-    // console.log(node)
     return node ? node.getAttribute(attr) : null;
   }
 
