@@ -2,23 +2,19 @@ package jsExtension
 
 import (
 	log "github.com/miru-project/miru-core/pkg/logger"
-
-	"github.com/dop251/goja"
-	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 )
 
-func LoadApiV1(ext *Ext, baseScript string) {
+func LoadApiV1(ext *Ext) {
 
 	*ext.Context = replaceClassExtendsDeclaration(*ext.Context)
-	// compile base runtime
-	runtimeV1 := errorhandle.HandleFatal(goja.Compile("runtime_v1.js", baseScript, true))
+
 	// compile extension runtime
 	compiledExt, e := compileExtension(ext)
 	if e != nil {
 		return
 	}
 
-	api := &ExtApi{Ext: ext, service: &ExtBaseService{base: runtimeV1, program: compiledExt}}
+	api := &ExtApi{Ext: ext, service: &ExtBaseService{program: compiledExt}}
 	ApiPkgCache.Store(ext.Pkg, api)
 	ApiPkgCache.SetError(ext.Pkg, "")
 

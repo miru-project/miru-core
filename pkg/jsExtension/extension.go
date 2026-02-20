@@ -21,20 +21,18 @@ import (
 
 // To complete an extension runtime, first it must compile base runtime then compile extension runtime
 type ExtBaseService struct {
-	// Base runtime (v1 or v2) compiles into goja program
-	base *goja.Program
 	// Extension program compiles into goja program
 	program *goja.Program
 }
 
-var SharedRegistry *require.Registry = require.NewRegistry()
+// Base runtime (v1 or v2) compiles into goja program
+var baseV1 *goja.Program
+var baseV2 *goja.Program
+var sharedRegistry *require.Registry
 var fs embed.FS
 
 // jsRoot is the root directory for JavaScript files copy from the embedded filesystem
 var jsRoot string
-
-var ScriptV1 string
-var ScriptV2 string
 
 var ExtPath string
 
@@ -73,6 +71,7 @@ func (j *Job) Done() {
 
 // Entry point of miru extension runtime
 func InitRuntime(extPath string, f embed.FS) {
+
 	exts := filterExts(extPath)
 	fs = f
 	ExtPath = extPath
@@ -89,11 +88,15 @@ func InitRuntime(extPath string, f embed.FS) {
 
 	// Embeded file are externel js library that need to copy to jsRoot so that
 	// goja can require them as node js module
-	readEmbedFileToDisk("assets", jsRoot)
+	// readEmbedFileToDisk("assets", jsRoot)
 	WatchDir(extPath)
-	ScriptV2 = string(errorhandle.HandleFatal(fs.ReadFile("assets/runtime_v2.js")))
-	ScriptV1 = string(errorhandle.HandleFatal(fs.ReadFile("assets/runtime_v1.js")))
+	ScriptV1 := string(errorhandle.HandleFatal(fs.ReadFile("assets/runtime_v1.js")))
+	ScriptV2 := string(errorhandle.HandleFatal(fs.ReadFile("assets/runtime_v2.js")))
+	baseV1 = errorhandle.HandleFatal(goja.Compile("runtime_v1.js", ScriptV1, true))
+	baseV2 = errorhandle.HandleFatal(goja.Compile("runtime_v2.js", ScriptV2, true))
 
+	sharedRegistry = require.NewRegistry()
+	initModule()
 	defer func() {
 		if r := recover(); r != nil {
 			if err, ok := r.(map[string]string); ok {
@@ -107,12 +110,16 @@ func InitRuntime(extPath string, f embed.FS) {
 
 	}()
 	for _, ext := range exts {
-		switch ext.ApiVersion {
-		case "2":
-			go LoadApiV2(ext, ScriptV2)
-		default:
-			go LoadApiV1(ext, ScriptV1)
-		}
+		loadExtApi(ext)
+	}
+}
+
+func loadExtApi(ext *Ext) {
+	switch ext.ApiVersion {
+	case "2":
+		go LoadApiV2(ext)
+	default:
+		go LoadApiV1(ext)
 	}
 }
 
@@ -121,7 +128,8 @@ func compileExtension(ext *Ext) (*goja.Program, error) {
 	compile, e := goja.Compile(ext.Pkg+".js", *ext.Context, true)
 	if e != nil {
 		log.Println("Error compiling extension:", e)
-		ApiPkgCache.SetError(ext.Pkg, e.Error())
+		ext.Error = e.Error()
+		ApiPkgCache.Store(ext.Pkg, &ExtApi{Ext: ext, service: nil})
 		return nil, e
 	}
 	return compile, e
@@ -152,7 +160,7 @@ func WatchDir(dir string) {
 						continue
 					}
 
-					ext.ReloadExtension()
+					loadExtApi(ext)
 					locked = false
 				}
 
@@ -176,18 +184,6 @@ func WatchDir(dir string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-func (ext *Ext) ReloadExtension() error {
-
-	// Create a new extension runtime
-	switch ext.ApiVersion {
-	case "2":
-		LoadApiV2(ext, ScriptV2)
-	case "1", "":
-		LoadApiV1(ext, ScriptV1)
-	}
-
-	return nil
 }
 
 // replaceClassExtendsDeclaration replaces `class X extends Extension` with `X = class extends Extension {`
@@ -311,8 +307,6 @@ func getPkgFromCache(pkg string) (*ExtApi, error) {
 		return nil, e
 	}
 
-	if e := ext.ReloadExtension(); e != nil {
-		return nil, e
-	}
+	loadExtApi(ext)
 	return ApiPkgCache.Load(pkg), nil
 }

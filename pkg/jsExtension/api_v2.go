@@ -7,18 +7,15 @@ import (
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"
-	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 )
 
-func LoadApiV2(ext *Ext, script string) {
+func LoadApiV2(ext *Ext) {
 
-	scriptV2 := fmt.Sprintf(script, ext.Pkg, ext.Name, ext.Website)
-	runtimeV2 := errorhandle.HandleFatal(goja.Compile("runtime_v2.js", scriptV2, true))
 	compiledExt, e := compileExtension(ext)
 	if e != nil {
 		return
 	}
-	api := &ExtApi{Ext: ext, service: &ExtBaseService{base: runtimeV2, program: compiledExt}}
+	api := &ExtApi{Ext: ext, service: &ExtBaseService{program: compiledExt}}
 	ApiPkgCache.Store(ext.Pkg, api)
 	ApiPkgCache.SetError(ext.Pkg, "")
 
@@ -32,7 +29,7 @@ func (api *ExtApi) initRuntimeV2(pkg string) {
 
 	ApiPkgCache.Store(pkg, api)
 	loop := eventloop.NewEventLoop(
-		eventloop.WithRegistry(SharedRegistry),
+		eventloop.WithRegistry(sharedRegistry),
 	)
 
 	if api == nil || api.service.program == nil {
@@ -51,13 +48,13 @@ func (api *ExtApi) initRuntimeV2(pkg string) {
 			}
 		}()
 
-		service := api.service
 		var job = Job{loop: loop}
 		// Run the program for the  first time
-		reg := SharedRegistry.Enable(vm)
-		ser.initModule(reg, vm, &job)
+		reg := sharedRegistry.Enable(vm)
+
+		ser.addModule(reg, vm, &job)
 		// eval base runtime
-		if _, e := vm.RunProgram(service.base); e != nil {
+		if _, e := vm.RunProgram(baseV2); e != nil {
 			log.Println("Error running base script:", e)
 			panic(e)
 		}

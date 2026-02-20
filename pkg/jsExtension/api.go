@@ -42,7 +42,6 @@ func AsyncCallBack(api *ExtApi, pkg string, evalStr string) (any, error) {
 	loop.Start()
 	defer loop.StopNoWait()
 	result := <-res
-	// close(res)
 	// handle error from PromiseResult{err: e}
 	if result.err != nil {
 		var zero any
@@ -63,13 +62,12 @@ func (api *ExtApi) initRuntimeV1(pkg string) {
 
 	ApiPkgCache.Store(pkg, api)
 	loop := eventloop.NewEventLoop(
-		eventloop.WithRegistry(SharedRegistry),
+		eventloop.WithRegistry(sharedRegistry),
 	)
 
 	if api == nil || api.service.program == nil {
 		ApiPkgCache.SetError(pkg, fmt.Sprintf("extension %s not found", pkg))
 	}
-	ser := api.service
 	loop.RunOnLoop(func(vm *goja.Runtime) {
 
 		defer func() {
@@ -82,13 +80,12 @@ func (api *ExtApi) initRuntimeV1(pkg string) {
 			}
 		}()
 
-		service := api.service
 		var job = Job{loop: loop}
 		// Run the program for the  first time
-		reg := SharedRegistry.Enable(vm)
-		ser.initModule(reg, vm, &job)
+		reg := sharedRegistry.Enable(vm)
+		api.service.addModule(reg, vm, &job)
 		// eval base runtime
-		if _, e := vm.RunProgram(service.base); e != nil {
+		if _, e := vm.RunProgram(baseV1); e != nil {
 			log.Println("Error running base script:", e)
 			panic(e)
 		}

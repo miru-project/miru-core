@@ -9,7 +9,7 @@ import (
 	"github.com/dop251/goja"
 )
 
-func (ser *ExtBaseService) initCrypto(vm *goja.Runtime) {
+func initCrypto(vm *goja.Runtime) {
 	cryptoObj := vm.NewObject()
 	cryptoObj.Set("getRandomValues", func(call goja.FunctionCall) goja.Value {
 		arg0 := call.Argument(0)

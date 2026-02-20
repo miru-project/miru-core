@@ -6817,7 +6817,5 @@
   globalThis.CryptoJS = CryptoJS;
   return CryptoJS;
 });
-
-module.exports = {
-  CryptoJS: globalThis.CryptoJS,
-};
+// For Goja 
+var CryptoJS = globalThis.CryptoJS;
