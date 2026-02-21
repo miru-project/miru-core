@@ -1,7 +1,6 @@
 package jsExtension
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -9,7 +8,6 @@ import (
 	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/dop251/goja"
-	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 )
 
 type PromiseResult struct {
@@ -35,10 +33,7 @@ func await(promise *goja.Promise) (any, error) {
 	case goja.PromiseStateFulfilled:
 
 		o := promise.Result().Export()
-		d := errorhandle.HandleFatal(json.Marshal(o))
-		json.Unmarshal(d, &dataOut)
-
-		return dataOut, nil
+		return o, nil
 
 	default: // case goja.PromiseStateRejected:
 

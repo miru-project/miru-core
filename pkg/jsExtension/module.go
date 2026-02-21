@@ -16,20 +16,36 @@ func initModule() {
 		log.Println("Error executing linkedom:", e)
 	}
 	sharedRegistry.RegisterNativeModule("linkedom", func(vm *goja.Runtime, module *goja.Object) {
-		// Save global fetch from being overridden by linkedom.js's internal fetch
+		// Save global fetch and Element from being overridden by linkedom.js's internal definitions
 		savedFetch := vm.Get("fetch")
+		savedElement := vm.Get("Element")
 
-		vm.RunProgram(linkeDomProgram)
 		obj := module.Get("exports").(*goja.Object)
-		exports := []string{"Attr", "CDATASection", "CharacterData", "Comment", "CustomEvent", "DOMParser", "Document", "DocumentFragment", "DocumentType", "Element", "Event", "EventTarget", "Facades", "HTMLAnchorElement", "HTMLAreaElement", "HTMLAudioElement", "HTMLBRElement", "HTMLBaseElement", "HTMLBodyElement", "HTMLButtonElement", "HTMLCanvasElement", "HTMLClasses", "HTMLDListElement", "HTMLDataElement", "HTMLDataListElement", "HTMLDetailsElement", "HTMLDirectoryElement", "HTMLDivElement", "HTMLElement", "HTMLEmbedElement", "HTMLFieldSetElement", "HTMLFontElement", "HTMLFormElement", "HTMLFrameElement", "HTMLFrameSetElement", "HTMLHRElement", "HTMLHeadElement", "HTMLHeadingElement", "HTMLHtmlElement", "HTMLIFrameElement", "HTMLImageElement", "HTMLInputElement", "HTMLLIElement", "HTMLLabelElement", "HTMLLegendElement", "HTMLLinkElement", "HTMLMapElement", "HTMLMarqueeElement", "HTMLMediaElement", "HTMLMenuElement", "HTMLMetaElement", "HTMLMeterElement", "HTMLModElement", "HTMLOListElement", "HTMLObjectElement", "HTMLOptGroupElement", "HTMLOptionElement", "HTMLOutputElement", "HTMLParagraphElement", "HTMLParamElement", "HTMLPictureElement", "HTMLPreElement", "HTMLProgressElement", "HTMLQuoteElement", "HTMLScriptElement", "HTMLSelectElement", "HTMLSlotElement", "HTMLSourceElement", "HTMLSpanElement", "HTMLStyleElement", "HTMLTableCaptionElement", "HTMLTableCellElement", "HTMLTableElement", "HTMLTableRowElement", "HTMLTemplateElement", "HTMLTextAreaElement", "HTMLTimeElement", "HTMLTitleElement", "HTMLTrackElement", "HTMLUListElement", "HTMLUnknownElement", "HTMLVideoElement", "InputEvent", "Node", "NodeFilter", "NodeList", "SVGElement", "ShadowRoot", "Text", "illegalConstructor", "parseHTML", "parseJSON", "toJSON"}
-		for i := range exports {
-			obj.Set(exports[i], vm.Get(exports[i]))
+		vm.Set("module", module)
+		vm.Set("exports", obj)
+
+		if _, err := vm.RunProgram(linkeDomProgram); err != nil {
+			log.Println("Error running linkedom:", err)
 		}
 
-		// Restore fetch if it was saved
+		// Restore fetch and Element if they were saved
 		if savedFetch != nil {
 			vm.Set("fetch", savedFetch)
 		}
+		if savedElement != nil {
+			vm.Set("Element", savedElement)
+		}
+
+		// Manually export common linkedom exports if they were set globally instead of on module.exports
+		exports := []string{"Attr", "CDATASection", "CharacterData", "Comment", "CustomEvent", "DOMParser", "Document", "DocumentFragment", "DocumentType", "Element", "Event", "EventTarget", "Facades", "HTMLAnchorElement", "HTMLAreaElement", "HTMLAudioElement", "HTMLBRElement", "HTMLBaseElement", "HTMLBodyElement", "HTMLButtonElement", "HTMLCanvasElement", "HTMLClasses", "HTMLDListElement", "HTMLDataElement", "HTMLDataListElement", "HTMLDetailsElement", "HTMLDirectoryElement", "HTMLDivElement", "HTMLElement", "HTMLEmbedElement", "HTMLFieldSetElement", "HTMLFontElement", "HTMLFormElement", "HTMLFrameElement", "HTMLFrameSetElement", "HTMLHRElement", "HTMLHeadElement", "HTMLHeadingElement", "HTMLHtmlElement", "HTMLIFrameElement", "HTMLImageElement", "HTMLInputElement", "HTMLLIElement", "HTMLLabelElement", "HTMLLegendElement", "HTMLLinkElement", "HTMLMapElement", "HTMLMarqueeElement", "HTMLMediaElement", "HTMLMenuElement", "HTMLMetaElement", "HTMLMeterElement", "HTMLModElement", "HTMLOListElement", "HTMLObjectElement", "HTMLOptGroupElement", "HTMLOptionElement", "HTMLOutputElement", "HTMLParagraphElement", "HTMLParamElement", "HTMLPictureElement", "HTMLPreElement", "HTMLProgressElement", "HTMLQuoteElement", "HTMLScriptElement", "HTMLSelectElement", "HTMLSlotElement", "HTMLSourceElement", "HTMLSpanElement", "HTMLStyleElement", "HTMLTableCaptionElement", "HTMLTableCellElement", "HTMLTableElement", "HTMLTableRowElement", "HTMLTemplateElement", "HTMLTextAreaElement", "HTMLTimeElement", "HTMLTitleElement", "HTMLTrackElement", "HTMLUListElement", "HTMLUnknownElement", "HTMLVideoElement", "InputEvent", "Node", "NodeFilter", "NodeList", "SVGElement", "ShadowRoot", "Text", "illegalConstructor", "parseHTML", "parseJSON", "toJSON"}
+		for i := range exports {
+			if val := vm.Get(exports[i]); val != nil && !goja.IsUndefined(val) {
+				obj.Set(exports[i], val)
+			}
+		}
+
+		vm.Set("module", goja.Undefined())
+		vm.Set("exports", goja.Undefined())
 	})
 
 	cryptoJs := string(errorhandle.HandleFatal(fs.ReadFile("assets/crypto-js/crypto-js.js")))
@@ -81,5 +97,6 @@ func (ser *ExtBaseService) addModule(module *require.RequireModule, vm *goja.Run
 	initCrypto(vm)
 	url.Enable(vm)
 	console.Enable(vm)
+	vm.Set("require", module.Require)
 	ser.initFetch(vm, job)
 }

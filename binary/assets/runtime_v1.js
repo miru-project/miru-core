@@ -1,4 +1,4 @@
-class Element {
+class V1Element {
   constructor(document) {
     this.document = document;
     this.content = document.outerHTML;
@@ -145,7 +145,7 @@ class Extension {
     // console.log(document)
     // console.log(selector)
     // console.log(document.querySelector(selector)) 
-    const e = new Element(document).querySelector(selector)
+    const e = new V1Element(document).querySelector(selector)
     return e;
   }
 
@@ -156,7 +156,7 @@ class Extension {
     const {parseHTML} = require("linkedom")
     const { document } = parseHTML(content);
     const e = document.querySelectorAll(selector).map(function (e) {
-      const c = new Element(e)
+      const c = new V1Element(e)
       return c;
     })
     return e;

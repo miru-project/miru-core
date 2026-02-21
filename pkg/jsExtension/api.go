@@ -208,6 +208,6 @@ func (api *ExtApi) registerFunction(vm *goja.Runtime, job Job) {
 		if err != nil {
 			panic(vm.ToValue(err))
 		}
-		return res.Body
+		return vm.ToValue(res.Body)
 	})
 }
