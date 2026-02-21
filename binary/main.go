@@ -16,7 +16,6 @@ import (
 	"github.com/miru-project/miru-core/pkg/network"
 	"github.com/miru-project/miru-core/pkg/torrent"
 	"github.com/miru-project/miru-core/router"
-	_ "golang.org/x/mobile/bind"
 )
 
 func InitProgram(configPath *string) {

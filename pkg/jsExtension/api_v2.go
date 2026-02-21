@@ -51,7 +51,6 @@ func (api *ExtApi) initRuntimeV2(pkg string) {
 		var job = Job{loop: loop}
 		// Run the program for the  first time
 		reg := sharedRegistry.Enable(vm)
-
 		ser.addModule(reg, vm, &job)
 		// eval base runtime
 		if _, e := vm.RunProgram(baseV2); e != nil {

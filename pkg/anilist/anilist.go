@@ -203,8 +203,8 @@ func request(query string) (string, error) {
 			"Accept":        "application/json",
 			"Authorization": "Bearer " + token,
 		}, RequestBodyRaw: q}
-
-	return network.Request[string](anilistAPI, option, network.ReadAll)
+	o, e := network.Request[string](anilistAPI, option, network.ReadAll)
+	return o.Body, e
 }
 
 func InitToken() error {

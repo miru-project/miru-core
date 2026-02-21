@@ -65,7 +65,7 @@ func FetchExtensionRepo() (map[string][]GithubExtension, map[string]error, error
 			continue
 		}
 		var ex []GithubExtension
-		if e := json.Unmarshal([]byte(req), &ex); e != nil {
+		if e := json.Unmarshal([]byte(req.Body), &ex); e != nil {
 			log.Println("Failed to parse extension repository", rep.Link, ":", e)
 			err[rep.Link] = e
 			continue
@@ -96,17 +96,10 @@ func DownloadExtension(repoUrl string, pkg string) error {
 			if e != nil {
 				return fmt.Errorf("failed to download package %s from %s: %v", pkg, link.String(), e)
 			}
-			if e := network.SaveFile(filepath.Join(ExtPath, fileName), &res); e != nil {
+			if e := network.SaveFile(filepath.Join(ExtPath, fileName), &res.Body); e != nil {
 				return fmt.Errorf("failed to save js extension %s to %s: %v", pkg, ExtPath, e)
 			}
 			log.Println("Downloaded package:", ext.Package, "from", link.String())
-
-			// ex, e := ParseExtMetadata(string(res), fileName)
-			// if e != nil {
-			// 	return fmt.Errorf("failed to parse metadata for package %s: %v", pkg, e)
-			// }
-
-			// ReloadExtension(ex, res)
 			return nil
 		}
 	}

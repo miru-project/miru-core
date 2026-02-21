@@ -191,16 +191,16 @@ func (ser *ExtBaseService) initFetch(vm *goja.Runtime, job *Job) {
 			}
 		}
 
-		res, err := network.ExtensionRequest(fetchUrl, &requestOptions)
+		res, err := network.Request[string](fetchUrl, &requestOptions, network.ReadAll)
 		if err != nil {
 			panic(vm.ToValue(err))
 		}
 
 		// Create a Response object similar to browser's Response
 		responseObj := vm.NewObject()
-		responseObj.Set("status", res.StatusCode)
-		responseObj.Set("statusText", http.StatusText(res.StatusCode))
-		responseObj.Set("ok", res.StatusCode >= 200 && res.StatusCode < 300)
+		responseObj.Set("status", res.Res.StatusCode())
+		responseObj.Set("statusText", http.StatusText(res.Res.StatusCode()))
+		responseObj.Set("ok", res.Res.StatusCode() >= 200 && res.Res.StatusCode() < 300)
 		responseObj.Set("data", res.Body)
 
 		// Add JSON method
@@ -233,9 +233,9 @@ func (ser *ExtBaseService) initFetch(vm *goja.Runtime, job *Job) {
 
 		// Add headers
 		headers := vm.NewObject()
-		for k, v := range res.Headers {
-			headers.Set(k, v)
-		}
+		res.Res.Header.VisitAll(func(key, value []byte) {
+			headers.Set(string(key), string(value))
+		})
 		responseObj.Set("headers", headers)
 
 		return responseObj

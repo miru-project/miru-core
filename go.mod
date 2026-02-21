@@ -9,7 +9,6 @@ require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/grafov/m3u8 v0.12.1
 	go.nhat.io/cookiejar v0.3.0
-	golang.org/x/mobile v0.0.0-20260217195705-b56b3793a9c4
 )
 
 require (
@@ -106,6 +105,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.40.0 // indirect
 	go.uber.org/mock v0.6.0 // indirect
 	golang.org/x/exp v0.0.0-20260218203240-3dfff04db8fa // indirect
+	golang.org/x/mobile v0.0.0-20260217195705-b56b3793a9c4 // direct
 	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.42.0 // indirect

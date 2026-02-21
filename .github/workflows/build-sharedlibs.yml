@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ main ]
 env:
-  GO_VERSION: '1.25.1'
+  GO_VERSION: '1.26.0'
 jobs:
   build-linux:
     name: Build Linux shared library (.so)
@@ -33,7 +33,7 @@ jobs:
           # Default LD flags - adjust if you need different linker flags
           LD_FLAG="-s -w"
           GO_OUTPUT="build/libmiru.so"
-          go build -o ${GO_OUTPUT} -ldflags="${LD_FLAG}" -trimpath -buildmode=c-shared main.go
+          go build -tags nosqlite -o ${GO_OUTPUT} -ldflags="${LD_FLAG}" -trimpath -buildmode=c-shared main.go
 
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
@@ -66,7 +66,7 @@ jobs:
           # Default LD flags - adjust if you need different linker flags
           LD_FLAG="-s -w"
           GO_OUTPUT="build/miru.dll"
-          go build -o ${GO_OUTPUT} -ldflags="${LD_FLAG}" -trimpath -buildmode=c-shared main.go
+          go build -tags nosqlite -o ${GO_OUTPUT} -ldflags="${LD_FLAG}" -trimpath -buildmode=c-shared main.go
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
@@ -160,7 +160,7 @@ jobs:
           echo "Using gomobile: $GOMOBILE_BIN"
           "$GOMOBILE_BIN" version || true
           LD_FLAG="-s -w -checklinkname=0"
-          "$GOMOBILE_BIN" bind -v -target=android -o build/miru.aar -androidapi "$ANDROID_API" -ldflags="$LD_FLAG" .
+          "$GOMOBILE_BIN" bind -v -tags nosqlite -target=android -o build/miru.aar -androidapi "$ANDROID_API" -ldflags="$LD_FLAG" .
 
       - name: Upload Android artifacts
         uses: actions/upload-artifact@v4

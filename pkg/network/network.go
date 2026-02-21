@@ -6,11 +6,11 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
-	netURL "net/url"
-
 	"github.com/Danny-Dasilva/CycleTLS/cycletls"
+	"github.com/miru-project/miru-core/pkg/logger"
 	log "github.com/miru-project/miru-core/pkg/logger"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttpproxy"
@@ -18,56 +18,9 @@ import (
 
 var defaultClient *fasthttp.Client
 
-type ExtensionResponse struct {
-	StatusCode int
-	Body       string
-	Headers    map[string]string
-}
-
-// ExtensionRequest makes a request and returns the full response (status, headers, body).
-func ExtensionRequest(url string, option *RequestOptions) (ExtensionResponse, error) {
-	if option.TlsSpoofConfig.Body != "" {
-		return requestWithCycleTLS(url, option)
-	}
-
-	req := fasthttp.AcquireRequest()
-	res := fasthttp.AcquireResponse()
-	defer fasthttp.ReleaseRequest(req)
-	defer fasthttp.ReleaseResponse(res)
-
-	client, err := prepareRequest(req, url, option)
-	if err != nil {
-		return ExtensionResponse{}, err
-	}
-
-	if option.Timeout > 0 {
-		err = client.DoTimeout(req, res, time.Duration(option.Timeout)*time.Millisecond)
-	} else {
-		err = client.Do(req, res)
-	}
-
-	if err != nil {
-		return ExtensionResponse{}, err
-	}
-
-	body, err := ReadAll(res)
-	if err != nil {
-		return ExtensionResponse{}, err
-	}
-
-	u, _ := netURL.Parse(url)
-	saveFasthttpCookies(u, res)
-
-	headers := make(map[string]string)
-	res.Header.VisitAll(func(k, v []byte) {
-		headers[string(k)] = string(v)
-	})
-
-	return ExtensionResponse{
-		StatusCode: res.StatusCode(),
-		Body:       string(body),
-		Headers:    headers,
-	}, nil
+type Response[T StringOrBytes] struct {
+	Res  *fasthttp.Response
+	Body T
 }
 
 // Request makes an HTTP request and returns the response as type T.
@@ -81,20 +34,19 @@ func ExtensionRequest(url string, option *RequestOptions) (ExtensionResponse, er
 // Returns:
 //
 //	The response body as type T (string or []byte), and an error if any occurred.
-func Request[T StringOrBytes](url string, option *RequestOptions, readPreference func(*fasthttp.Response) ([]byte, error)) (T, error) {
+func Request[T StringOrBytes](url string, option *RequestOptions, readPreference func(*fasthttp.Response) ([]byte, error)) (Response[T], error) {
 
-	log.Println("Making request to:", url)
-
+	logger.Println("Making request to:", url)
 	if option.TlsSpoofConfig.Body != "" {
-		o, e := requestWithCycleTLS(url, option)
-		return T(o.Body), e
+		o, e := requestWithCycleTLS[T](url, option)
+		return o, e
 	}
 
 	return request[T](url, option, readPreference)
 }
 
 // Request with cycle TLS
-func requestWithCycleTLS(requrl string, option *RequestOptions) (ExtensionResponse, error) {
+func requestWithCycleTLS[T StringOrBytes](requrl string, option *RequestOptions) (Response[T], error) {
 	client := cycletls.Init()
 	defer client.Close()
 	config := option.TlsSpoofConfig
@@ -112,16 +64,30 @@ func requestWithCycleTLS(requrl string, option *RequestOptions) (ExtensionRespon
 
 	res, err := client.Do(requrl, config, checkRequestMethod(option.Method))
 	if err != nil {
-		return ExtensionResponse{}, err
+		return Response[T]{}, err
 	}
 
 	jar.SetCookies(reqUrl, res.Cookies)
 
-	return ExtensionResponse{
-		StatusCode: res.Status,
-		Body:       res.Body,
-		Headers:    res.Headers,
+	return Response[T]{
+		Res:  &fasthttp.Response{},
+		Body: any(res.Body).(T),
 	}, nil
+}
+
+func parseCookie(cookie string) map[string]string {
+	cookieMap := make(map[string]string)
+	if cookie == "" {
+		return cookieMap
+	}
+	cookiePair := strings.Split(cookie, ";")
+	for _, cookie := range cookiePair {
+		cookiePair := strings.Split(cookie, "=")
+		if len(cookiePair) == 2 {
+			cookieMap[cookiePair[0]] = cookiePair[1]
+		}
+	}
+	return cookieMap
 }
 
 func prepareRequest(req *fasthttp.Request, reqUrl string, option *RequestOptions) (*fasthttp.Client, error) {
@@ -148,10 +114,12 @@ func prepareRequest(req *fasthttp.Request, reqUrl string, option *RequestOptions
 	}
 
 	// Parse cookie string from request header
-	for _, value := range cookieHeader(option.Headers["Cookie"]) {
-		req.Header.SetCookie(value.Name, value.Value)
+	reqCookie := option.Headers["Cookie"]
+	for k, v := range parseCookie(reqCookie) {
+		req.Header.SetCookie(k, v)
 	}
 
+	// Start client
 	var client *fasthttp.Client
 
 	if option.ProxyHost != "" {
@@ -189,15 +157,8 @@ func saveFasthttpCookies(u *url.URL, res *fasthttp.Response) {
 	}
 }
 
-func cookieHeader(rawCookies string) []*http.Cookie {
-	header := http.Header{}
-	header.Add("Cookie", rawCookies)
-	req := http.Request{Header: header}
-	return req.Cookies()
-}
-
 // Request with built-in http client
-func request[T StringOrBytes](reqUrl string, option *RequestOptions, readPreference func(*fasthttp.Response) ([]byte, error)) (T, error) {
+func request[T StringOrBytes](reqUrl string, option *RequestOptions, readPreference func(*fasthttp.Response) ([]byte, error)) (Response[T], error) {
 
 	req := fasthttp.AcquireRequest()
 	res := fasthttp.AcquireResponse()
@@ -206,7 +167,7 @@ func request[T StringOrBytes](reqUrl string, option *RequestOptions, readPrefere
 
 	client, err := prepareRequest(req, reqUrl, option)
 	if err != nil {
-		return T(""), err
+		return Response[T]{Res: res}, err
 	}
 
 	if option.Timeout > 0 {
@@ -216,13 +177,13 @@ func request[T StringOrBytes](reqUrl string, option *RequestOptions, readPrefere
 	}
 
 	if err != nil {
-		return T(""), err
+		return Response[T]{Res: res}, err
 	}
 
 	// Read the response body
 	body, err := readPreference(res)
 	if err != nil {
-		return T(""), err
+		return Response[T]{Res: res}, err
 	}
 
 	u, _ := url.Parse(reqUrl)
@@ -237,7 +198,10 @@ func request[T StringOrBytes](reqUrl string, option *RequestOptions, readPrefere
 		result = any(body).(T)
 	}
 
-	return result, nil
+	return Response[T]{
+		Res:  res,
+		Body: result,
+	}, nil
 }
 
 func checkRequestMethod(method string) string {

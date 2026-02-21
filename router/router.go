@@ -7,20 +7,6 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-//	@title			Miru Core API
-//	@version		1.0
-//	@description	Miru Core API documentation
-
-//	@contact.name	API Support
-//	@contact.url	https://github.com/miru-project
-
-//	@license.name	MIT
-//	@license.url	https://github.com/miru-project/miru-core/blob/main/LICENSE
-
-//	@host		127.127.127.127:12777
-//	@BasePath	/
-//	@schemes	http https
-
 // InitRouter initializes all API routes for the application
 //
 //	@Summary		Initialize API routes

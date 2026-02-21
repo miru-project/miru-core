@@ -205,10 +205,9 @@ func (api *ExtApi) registerFunction(vm *goja.Runtime, job Job) {
 		}
 
 		res, err := network.Request[string](url, &requestOptions, network.ReadAll)
-
 		if err != nil {
 			panic(vm.ToValue(err))
 		}
-		return res
+		return res.Body
 	})
 }

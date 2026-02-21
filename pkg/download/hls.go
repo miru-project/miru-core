@@ -37,7 +37,7 @@ func downloadHls(filePath string, url string, headers map[string]string, title s
 	if e != nil {
 		return MultipleLinkJson{}, e
 	}
-	o := bytes.NewBufferString(res)
+	o := bytes.NewBufferString(res.Body)
 
 	// Decode the m3u8 file
 	pl, li, e := m3u8.Decode(*o, true)
@@ -161,7 +161,7 @@ func downloadKey(key *m3u8.Key, playListUrl string, headers map[string]string) [
 		return nil
 	}
 
-	return res
+	return res.Body
 }
 
 // Download hls segment inside go routine
@@ -195,7 +195,7 @@ func downloadSegment(param *HlsTaskParam, ctx context.Context) {
 			// Decypt segment if needed
 			if key != nil {
 
-				res, e = hlsDecrypt(res, *param.Key, *param.IV)
+				res.Body, e = hlsDecrypt(res.Body, *param.Key, *param.IV)
 				if e != nil {
 					log.Println("Error decrypting segment:", e)
 					continue
@@ -204,7 +204,7 @@ func downloadSegment(param *HlsTaskParam, ctx context.Context) {
 			}
 
 			// Save the segment to file
-			err := network.SaveFile(fileName, &res)
+			err := network.SaveFile(fileName, &res.Body)
 			if err != nil {
 				log.Println("Error saving segment:", err)
 				continue

@@ -16,9 +16,20 @@ func initModule() {
 		log.Println("Error executing linkedom:", e)
 	}
 	sharedRegistry.RegisterNativeModule("linkedom", func(vm *goja.Runtime, module *goja.Object) {
+		// Save global fetch from being overridden by linkedom.js's internal fetch
+		savedFetch := vm.Get("fetch")
+
 		vm.RunProgram(linkeDomProgram)
 		obj := module.Get("exports").(*goja.Object)
-		obj.Set("parseHTML", vm.Get("parseHTML"))
+		exports := []string{"Attr", "CDATASection", "CharacterData", "Comment", "CustomEvent", "DOMParser", "Document", "DocumentFragment", "DocumentType", "Element", "Event", "EventTarget", "Facades", "HTMLAnchorElement", "HTMLAreaElement", "HTMLAudioElement", "HTMLBRElement", "HTMLBaseElement", "HTMLBodyElement", "HTMLButtonElement", "HTMLCanvasElement", "HTMLClasses", "HTMLDListElement", "HTMLDataElement", "HTMLDataListElement", "HTMLDetailsElement", "HTMLDirectoryElement", "HTMLDivElement", "HTMLElement", "HTMLEmbedElement", "HTMLFieldSetElement", "HTMLFontElement", "HTMLFormElement", "HTMLFrameElement", "HTMLFrameSetElement", "HTMLHRElement", "HTMLHeadElement", "HTMLHeadingElement", "HTMLHtmlElement", "HTMLIFrameElement", "HTMLImageElement", "HTMLInputElement", "HTMLLIElement", "HTMLLabelElement", "HTMLLegendElement", "HTMLLinkElement", "HTMLMapElement", "HTMLMarqueeElement", "HTMLMediaElement", "HTMLMenuElement", "HTMLMetaElement", "HTMLMeterElement", "HTMLModElement", "HTMLOListElement", "HTMLObjectElement", "HTMLOptGroupElement", "HTMLOptionElement", "HTMLOutputElement", "HTMLParagraphElement", "HTMLParamElement", "HTMLPictureElement", "HTMLPreElement", "HTMLProgressElement", "HTMLQuoteElement", "HTMLScriptElement", "HTMLSelectElement", "HTMLSlotElement", "HTMLSourceElement", "HTMLSpanElement", "HTMLStyleElement", "HTMLTableCaptionElement", "HTMLTableCellElement", "HTMLTableElement", "HTMLTableRowElement", "HTMLTemplateElement", "HTMLTextAreaElement", "HTMLTimeElement", "HTMLTitleElement", "HTMLTrackElement", "HTMLUListElement", "HTMLUnknownElement", "HTMLVideoElement", "InputEvent", "Node", "NodeFilter", "NodeList", "SVGElement", "ShadowRoot", "Text", "illegalConstructor", "parseHTML", "parseJSON", "toJSON"}
+		for i := range exports {
+			obj.Set(exports[i], vm.Get(exports[i]))
+		}
+
+		// Restore fetch if it was saved
+		if savedFetch != nil {
+			vm.Set("fetch", savedFetch)
+		}
 	})
 
 	cryptoJs := string(errorhandle.HandleFatal(fs.ReadFile("assets/crypto-js/crypto-js.js")))

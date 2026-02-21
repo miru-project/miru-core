@@ -101,7 +101,7 @@ func FetchTorrent(link string) (*torrent.Torrent, error) {
 		return nil, err
 	}
 
-	mediaInfo, err := metainfo.Load(bytes.NewReader(body))
+	mediaInfo, err := metainfo.Load(bytes.NewReader(body.Body))
 	if err != nil {
 		return nil, err
 	}
