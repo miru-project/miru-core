@@ -28,17 +28,17 @@ func HelloMiru() (*result.Result[any], error) {
 	histories, _ := db.GetHistorysFiltered(nil, nil, 0, 0)
 	out["history"] = histories
 
-	return result.NewSuccessResult(out), nil
+	return result.NewSuccessResult[any](out), nil
 }
 
 func GetAppSetting() (*result.Result[any], error) {
 	// Get all settings
 	settings, err := db.GetAllAPPSettings()
 	if err != nil {
-		return result.NewErrorResult("Failed to get settings", 500, nil), err
+		return result.NewErrorResultAny("Failed to get settings", 500), err
 	}
 
-	return result.NewSuccessResult(settings), nil
+	return result.NewSuccessResult[any](settings), nil
 }
 
 func SetAppSettings(settings map[string]string) []error {

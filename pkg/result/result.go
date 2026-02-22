@@ -7,8 +7,8 @@ type Result[T any] struct {
 	Code    int    `json:"code"`
 }
 
-func NewResult(success bool, message string, data any, code int) *Result[any] {
-	return &Result[any]{
+func NewResult[T any](success bool, message string, data T, code int) *Result[T] {
+	return &Result[T]{
 		Success: success,
 		Message: message,
 		Data:    data,
@@ -16,10 +16,14 @@ func NewResult(success bool, message string, data any, code int) *Result[any] {
 	}
 }
 
-func NewSuccessResult(data any) *Result[any] {
+func NewSuccessResult[T any](data T) *Result[T] {
 	return NewResult(true, "success", data, 200)
 }
 
-func NewErrorResult(message string, code int, errData any) *Result[any] {
+func NewErrorResult[T any](message string, code int, errData T) *Result[T] {
 	return NewResult(false, message, errData, code)
+}
+
+func NewErrorResultAny(message string, code int) *Result[any] {
+	return NewResult[any](false, message, nil, code)
 }

@@ -6,26 +6,69 @@ import (
 	"net/url"
 	"path/filepath"
 
+	"github.com/go-viper/mapstructure/v2"
 	"github.com/miru-project/miru-core/pkg/torrent"
+	"github.com/miru-project/miru-core/proto/generate/proto"
 )
 
+func Unmarshal[T any](input any) (*T, error) {
+	var result T
+	config := &mapstructure.DecoderConfig{
+		Metadata: nil,
+		Result:   &result,
+		TagName:  "json",
+	}
+	decoder, err := mapstructure.NewDecoder(config)
+	if err != nil {
+		return nil, err
+	}
+	err = decoder.Decode(input)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+func UnmarshalList[T any](input any) ([]*T, error) {
+	items, ok := input.([]any)
+	if !ok {
+		return nil, errors.New("input is not a list")
+	}
+	result := make([]*T, len(items))
+	for i, item := range items {
+		u, err := Unmarshal[T](item)
+		if err != nil {
+			return nil, err
+		}
+		result[i] = u
+	}
+	return result, nil
+}
+
 // Extension latest should contain V1 and V2 api
-func Latest(pkg string, page int) (any, error) {
+func Latest[T any](pkg string, page int) ([]*T, error) {
 	api, e := getPkgFromCache(pkg)
 	if e != nil {
 		return nil, e
 	}
-	return api.asyncCallBack(api, pkg, fmt.Sprintf(api.latestEval, page))
+	res, err := api.asyncCallBack(api, pkg, fmt.Sprintf(api.latestEval, page))
+	if err != nil {
+		return nil, err
+	}
+	return UnmarshalList[T](res)
 }
 
 // Extension search should contain V1 and V2 api
-func Search(pkg string, page int, kw string, filter string) (any, error) {
+func Search[T proto.ExtensionListItem](pkg string, page int, kw string, filter string) ([]*T, error) {
 	api, e := getPkgFromCache(pkg)
 	if e != nil {
 		return nil, e
 	}
-	return api.asyncCallBack(api, pkg, fmt.Sprintf(api.searchEval, kw, page, filter))
-
+	res, err := api.asyncCallBack(api, pkg, fmt.Sprintf(api.searchEval, kw, page, filter))
+	if err != nil {
+		return nil, err
+	}
+	return UnmarshalList[T](res)
 }
 
 // Extension watch should contain V1 and V2 api
@@ -79,10 +122,14 @@ func Watch(pkg string, watchLink string) (any, error) {
 
 }
 
-func Detail(pkg string, url string) (any, error) {
+func Detail[T proto.ExtensionDetail](pkg string, url string) (*T, error) {
 	api, e := getPkgFromCache(pkg)
 	if e != nil {
 		return nil, e
 	}
-	return api.asyncCallBack(api, pkg, fmt.Sprintf(api.detailEval, url))
+	res, err := api.asyncCallBack(api, pkg, fmt.Sprintf(api.detailEval, url))
+	if err != nil {
+		return nil, err
+	}
+	return Unmarshal[T](res)
 }

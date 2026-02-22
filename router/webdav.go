@@ -35,7 +35,7 @@ func WebDavLogin(app *fasthttp_router.Router) {
 
 		if e := json.Unmarshal(c.PostBody(), &jsonReq); e != nil {
 			c.SetStatusCode(400)
-			sendJSON(c, result.NewErrorResult("Invalid JSON in request body sent to miru_core", 400, nil))
+			sendJSON(c, result.NewErrorResultAny("Invalid JSON in request body sent to miru_core", 400))
 			return
 		}
 
@@ -43,7 +43,7 @@ func WebDavLogin(app *fasthttp_router.Router) {
 
 		if host == "" || user == "" || passwd == "" {
 			c.SetStatusCode(400)
-			sendJSON(c, result.NewErrorResult("Invalid URL in resuest body sent to miru_core", 400, nil))
+			sendJSON(c, result.NewErrorResultAny("Invalid URL in resuest body sent to miru_core", 400))
 			return
 		}
 

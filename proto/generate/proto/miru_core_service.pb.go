@@ -129,7 +129,7 @@ var File_proto_miru_core_service_proto protoreflect.FileDescriptor
 
 const file_proto_miru_core_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1dproto/miru_core_service.proto\x12\x04miru\x1a\x12proto/common.proto\"\x12\n" +
+	"\x1dproto/miru_core_service.proto\x12\x04miru\x1a\x12proto/common.proto\x1a\x14proto/db_model.proto\"\x12\n" +
 	"\x10HelloMiruRequest\"\xd5\x02\n" +
 	"\x11HelloMiruResponse\x129\n" +
 	"\rextensionMeta\x18\x01 \x03(\v2\x13.miru.ExtensionMetaR\rextensionMeta\x12S\n" +
@@ -185,6 +185,7 @@ func file_proto_miru_core_service_proto_init() {
 		return
 	}
 	file_proto_common_proto_init()
+	file_proto_db_model_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

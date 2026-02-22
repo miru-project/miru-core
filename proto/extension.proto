@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package miru;
 
-import "proto/common.proto";
+import "proto/extension_model.proto";
 
 option go_package = "github.com/miru-project/miru-core/proto";
 
@@ -28,7 +28,7 @@ message DetailRequest {
 }
 
 message DetailResponse {
-  string data = 1; // JSON encoded for now or detailed message
+  ExtensionDetail data = 1;
 }
 
 message WatchRequest {
@@ -37,7 +37,12 @@ message WatchRequest {
 }
 
 message WatchResponse {
-  string data = 1; // JSON encoded for now or detailed message
+  oneof data {
+    ExtensionBangumiWatch bangumi = 1;
+    ExtensionMangaWatch manga = 2;
+    ExtensionFikushonWatch fikushon = 3;
+    string raw = 4; // Backup or unknown watch type
+  }
 }
 
 // Extension Management

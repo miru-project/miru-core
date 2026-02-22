@@ -3,6 +3,7 @@ syntax = "proto3";
 package miru;
 
 import "proto/common.proto";
+import "proto/db_model.proto";
 
 option go_package = "github.com/miru-project/miru-core/proto";
 

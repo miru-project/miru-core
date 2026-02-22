@@ -291,7 +291,7 @@ var File_proto_events_proto protoreflect.FileDescriptor
 
 const file_proto_events_proto_rawDesc = "" +
 	"\n" +
-	"\x12proto/events.proto\x12\x04miru\x1a\x12proto/common.proto\"\x14\n" +
+	"\x12proto/events.proto\x12\x04miru\x1a\x12proto/common.proto\x1a\x14proto/db_model.proto\"\x14\n" +
 	"\x12WatchEventsRequest\"\xd8\x01\n" +
 	"\x13WatchEventsResponse\x12<\n" +
 	"\x0edownload_event\x18\x01 \x01(\v2\x13.miru.DownloadEventH\x00R\rdownloadEvent\x12?\n" +
@@ -357,6 +357,7 @@ func file_proto_events_proto_init() {
 		return
 	}
 	file_proto_common_proto_init()
+	file_proto_db_model_proto_init()
 	file_proto_events_proto_msgTypes[1].OneofWrappers = []any{
 		(*WatchEventsResponse_DownloadEvent)(nil),
 		(*WatchEventsResponse_ExtensionEvent)(nil),

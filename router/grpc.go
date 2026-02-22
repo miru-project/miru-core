@@ -132,19 +132,7 @@ func (s *MiruCoreServer) Search(ctx context.Context, req *proto.SearchRequest) (
 		return nil, fmt.Errorf("search failed with code %d: %s", res.Code, res.Message)
 	}
 
-	items := res.Data.([]any)
-	protoItems := make([]*proto.ExtensionListItem, len(items))
-	for i, item := range items {
-		m := item.(map[string]any)
-		protoItems[i] = &proto.ExtensionListItem{
-			Title:  safeSprint(m["title"]),
-			Url:    safeSprint(m["url"]),
-			Cover:  safeSprint(m["cover"]),
-			Update: safeSprint(m["update"]),
-		}
-	}
-
-	return &proto.SearchResponse{Items: protoItems}, nil
+	return &proto.SearchResponse{Items: res.Data}, nil
 }
 
 func (s *MiruCoreServer) Latest(ctx context.Context, req *proto.LatestRequest) (*proto.LatestResponse, error) {
@@ -155,19 +143,8 @@ func (s *MiruCoreServer) Latest(ctx context.Context, req *proto.LatestRequest) (
 	if res.Data == nil {
 		return &proto.LatestResponse{}, nil
 	}
-	items := res.Data.([]any)
-	protoItems := make([]*proto.ExtensionListItem, len(items))
-	for i, item := range items {
-		m := item.(map[string]any)
-		protoItems[i] = &proto.ExtensionListItem{
-			Title:  safeSprint(m["title"]),
-			Url:    safeSprint(m["url"]),
-			Cover:  safeSprint(m["cover"]),
-			Update: safeSprint(m["update"]),
-		}
-	}
 
-	return &proto.LatestResponse{Items: protoItems}, nil
+	return &proto.LatestResponse{Items: res.Data}, nil
 }
 
 func (s *MiruCoreServer) Detail(ctx context.Context, req *proto.DetailRequest) (*proto.DetailResponse, error) {
@@ -176,12 +153,7 @@ func (s *MiruCoreServer) Detail(ctx context.Context, req *proto.DetailRequest) (
 		return nil, fmt.Errorf("detail failed with code %d: %s", res.Code, res.Message)
 	}
 
-	jsonData, err := json.Marshal(res.Data)
-	if err != nil {
-		return nil, err
-	}
-
-	return &proto.DetailResponse{Data: string(jsonData)}, nil
+	return &proto.DetailResponse{Data: res.Data}, nil
 }
 
 func (s *MiruCoreServer) Watch(ctx context.Context, req *proto.WatchRequest) (*proto.WatchResponse, error) {
@@ -190,12 +162,24 @@ func (s *MiruCoreServer) Watch(ctx context.Context, req *proto.WatchRequest) (*p
 		return nil, fmt.Errorf("watch failed with code %d: %s", res.Code, res.Message)
 	}
 
-	jsonData, err := json.Marshal(res.Data)
-	if err != nil {
-		return nil, err
+	watchResp := &proto.WatchResponse{}
+	data := res.Data.(map[string]any)
+	switch data["type"].(string) {
+	case "bangumi":
+		u, _ := jsExtension.Unmarshal[proto.ExtensionBangumiWatch](data)
+		watchResp.Data = &proto.WatchResponse_Bangumi{Bangumi: u}
+	case "manga":
+		u, _ := jsExtension.Unmarshal[proto.ExtensionMangaWatch](data)
+		watchResp.Data = &proto.WatchResponse_Manga{Manga: u}
+	case "fikushon":
+		u, _ := jsExtension.Unmarshal[proto.ExtensionFikushonWatch](data)
+		watchResp.Data = &proto.WatchResponse_Fikushon{Fikushon: u}
+	default:
+		jsonData, _ := json.Marshal(data)
+		watchResp.Data = &proto.WatchResponse_Raw{Raw: string(jsonData)}
 	}
 
-	return &proto.WatchResponse{Data: string(jsonData)}, nil
+	return watchResp, nil
 }
 
 // DB - Detail

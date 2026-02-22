@@ -6,28 +6,29 @@ import (
 	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/pkg/jsExtension"
 	"github.com/miru-project/miru-core/pkg/result"
+	"github.com/miru-project/miru-core/proto/generate/proto"
 )
 
 // handle Latest when receiving a request
-func Latest(page string, pkg string) *result.Result[any] {
+func Latest(page string, pkg string) *result.Result[[]*proto.ExtensionListItem] {
 
 	intPage, err := strconv.Atoi(page)
 	if err != nil {
-		return result.NewErrorResult("Invalid page number", 400, nil)
+		return result.NewErrorResult[[]*proto.ExtensionListItem]("Invalid page number", 400, nil)
 	}
-	res, e := jsExtension.Latest(pkg, intPage)
+	res, e := jsExtension.Latest[proto.ExtensionListItem](pkg, intPage)
 	return handleResult(res, e)
 }
 
 // handle Search when receiving a request
-func Search(page string, pkg string, kw string, filter string) *result.Result[any] {
+func Search(page string, pkg string, kw string, filter string) *result.Result[[]*proto.ExtensionListItem] {
 
 	intPage, err := strconv.Atoi(page)
 	if err != nil {
-		return result.NewErrorResult("Invalid page number", 400, nil)
+		return result.NewErrorResult[[]*proto.ExtensionListItem]("Invalid page number", 400, nil)
 	}
 
-	res, e := jsExtension.Search(pkg, intPage, kw, filter)
+	res, e := jsExtension.Search[proto.ExtensionListItem](pkg, intPage, kw, filter)
 	return handleResult(res, e)
 }
 
@@ -39,19 +40,21 @@ func Watch(pkg string, url string) *result.Result[any] {
 }
 
 // handle Detail when receiving a request
-func Detail(pkg string, url string) *result.Result[any] {
+func Detail(pkg string, url string) *result.Result[*proto.ExtensionDetail] {
 
-	res, e := jsExtension.Detail(pkg, url)
+	res, e := jsExtension.Detail[proto.ExtensionDetail](pkg, url)
 	return handleResult(res, e)
 }
 
-func handleResult(res any, e error) *result.Result[any] {
+func handleResult[T any](res T, e error) *result.Result[T] {
 	if e != nil {
-		return result.NewErrorResult(e.Error(), 404, nil)
+		var zero T
+		return result.NewErrorResult(e.Error(), 404, zero)
 	}
 
-	if res == nil {
-		return result.NewErrorResult("No results found", 404, nil)
+	var zero T
+	if any(res) == nil {
+		return result.NewErrorResult("No results found", 404, zero)
 	}
 
 	return result.NewSuccessResult(res)
@@ -71,36 +74,36 @@ func GetExtensionRepo() ([]*ent.ExtensionRepoSetting, error) {
 }
 
 // Download the extension by the given repository and package name
-func DownloadExtension(repoUrl string, pkg string) *result.Result[any] {
+func DownloadExtension(repoUrl string, pkg string) *result.Result[string] {
 	if repoUrl == "" || pkg == "" {
-		return result.NewErrorResult("Repository URL and package name are required", 400, nil)
+		return result.NewErrorResult("Repository URL and package name are required", 400, "")
 	}
 
 	if e := jsExtension.DownloadExtension(repoUrl, pkg); e != nil {
-		return result.NewErrorResult(e.Error(), 500, nil)
+		return result.NewErrorResult(e.Error(), 500, "")
 	}
 
 	return result.NewSuccessResult("Extension download initiated successfully")
 }
 
 // Remove  the extension repository by the given url
-func RemoveExtensionRepo(url string) (*result.Result[any], error) {
+func RemoveExtensionRepo(url string) (*result.Result[string], error) {
 	if url == "" {
-		return result.NewErrorResult("Repository URL is required", 400, nil), nil
+		return result.NewErrorResult("Repository URL is required", 400, ""), nil
 	}
 	if err := jsExtension.RemoveExtensionRepo(url); err != nil {
-		return result.NewErrorResult(err.Error(), 500, nil), nil
+		return result.NewErrorResult(err.Error(), 500, ""), nil
 	}
 	return result.NewSuccessResult("Repository removed successfully"), nil
 }
 
 // Remove the extension by the given package name
-func RemoveExtension(pkg string) (*result.Result[any], error) {
+func RemoveExtension(pkg string) (*result.Result[string], error) {
 	if pkg == "" {
-		return result.NewErrorResult("Package name is required", 400, nil), nil
+		return result.NewErrorResult("Package name is required", 400, ""), nil
 	}
 	if e := jsExtension.RemoveExtension(pkg); e != nil {
-		return result.NewErrorResult(e.Error(), 500, nil), nil
+		return result.NewErrorResult(e.Error(), 500, ""), nil
 	}
 	return result.NewSuccessResult("Extension removal initiated successfully"), nil
 }

@@ -7,6 +7,7 @@ require (
 	github.com/dop251/goja v0.0.0-20260219130522-0ba9a5494a59
 	github.com/dop251/goja_nodejs v0.0.0-20260212111938-1f56ff5bcf14
 	github.com/fsnotify/fsnotify v1.9.0
+	github.com/go-viper/mapstructure/v2 v2.5.0
 	github.com/grafov/m3u8 v0.12.1
 	go.nhat.io/cookiejar v0.3.0
 )
@@ -84,7 +85,7 @@ require (
 	github.com/pion/stun/v3 v3.1.1 // indirect
 	github.com/pion/transport/v4 v4.0.1 // indirect
 	github.com/pion/turn/v4 v4.1.4 // indirect
-	github.com/pion/webrtc/v4 v4.2.8 // indirect
+	github.com/pion/webrtc/v4 v4.2.9 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/protolambda/ctxlock v0.1.0 // indirect
@@ -93,7 +94,7 @@ require (
 	github.com/refraction-networking/uquic v0.0.6 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rs/dnscache v0.0.0-20230804202142-fc85eb664529 // indirect
-	github.com/savsgio/gotils v0.0.0-20240704082632-aef3928b8a38 // indirect
+	github.com/savsgio/gotils v0.0.0-20250924091648-bce9a52d7761 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/tidwall/btree v1.8.1 // indirect

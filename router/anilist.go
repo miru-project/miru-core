@@ -34,7 +34,7 @@ func sendJSON(c *fasthttp.RequestCtx, data interface{}) {
 func sendError(c *fasthttp.RequestCtx, err error) {
 	c.SetStatusCode(500)
 	c.SetContentType("application/json")
-	res, _ := json.Marshal(result.NewErrorResult(err.Error(), 500, nil))
+	res, _ := json.Marshal(result.NewErrorResultAny(err.Error(), 500))
 	c.SetBody(res)
 }
 
@@ -80,7 +80,7 @@ func ProcessAnilistToken(app *fasthttp_router.Router) {
 		cookie := string(c.Request.Header.Cookie("anilist"))
 		if cookie == "" {
 			c.SetStatusCode(500)
-			sendJSON(c, result.NewErrorResult("Failed to get cookie", 500, nil))
+			sendJSON(c, result.NewErrorResultAny("Failed to get cookie", 500))
 			return
 		}
 
@@ -91,7 +91,7 @@ func ProcessAnilistToken(app *fasthttp_router.Router) {
 		// Save the token to the database
 		if e := handler.SetAppSetting("anilist_token", token); e != nil {
 			c.SetStatusCode(500)
-			sendJSON(c, result.NewErrorResult("Failed to set app settings"+e.Error(), 500, nil))
+			sendJSON(c, result.NewErrorResultAny("Failed to set app settings"+e.Error(), 500))
 			return
 		}
 
@@ -187,7 +187,7 @@ func EditAnilistList(app *fasthttp_router.Router) {
 
 		if e := json.Unmarshal(c.PostBody(), &jsonReq); e != nil {
 			c.SetStatusCode(400)
-			sendJSON(c, result.NewErrorResult("Invalid JSON in request body sent to miru_core", 400, nil))
+			sendJSON(c, result.NewErrorResultAny("Invalid JSON in request body sent to miru_core", 400))
 			return
 		}
 

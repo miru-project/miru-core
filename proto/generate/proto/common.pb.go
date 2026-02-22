@@ -329,74 +329,6 @@ func (x *TorrentStats) GetTotalUp() int64 {
 	return 0
 }
 
-type ExtensionListItem struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	Url           string                 `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
-	Cover         string                 `protobuf:"bytes,3,opt,name=cover,proto3" json:"cover,omitempty"`
-	Update        string                 `protobuf:"bytes,4,opt,name=update,proto3" json:"update,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ExtensionListItem) Reset() {
-	*x = ExtensionListItem{}
-	mi := &file_proto_common_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ExtensionListItem) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ExtensionListItem) ProtoMessage() {}
-
-func (x *ExtensionListItem) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_common_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ExtensionListItem.ProtoReflect.Descriptor instead.
-func (*ExtensionListItem) Descriptor() ([]byte, []int) {
-	return file_proto_common_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *ExtensionListItem) GetTitle() string {
-	if x != nil {
-		return x.Title
-	}
-	return ""
-}
-
-func (x *ExtensionListItem) GetUrl() string {
-	if x != nil {
-		return x.Url
-	}
-	return ""
-}
-
-func (x *ExtensionListItem) GetCover() string {
-	if x != nil {
-		return x.Cover
-	}
-	return ""
-}
-
-func (x *ExtensionListItem) GetUpdate() string {
-	if x != nil {
-		return x.Update
-	}
-	return ""
-}
-
 type AvailableHlsVariant struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Resolution    string                 `protobuf:"bytes,1,opt,name=resolution,proto3" json:"resolution,omitempty"`
@@ -408,7 +340,7 @@ type AvailableHlsVariant struct {
 
 func (x *AvailableHlsVariant) Reset() {
 	*x = AvailableHlsVariant{}
-	mi := &file_proto_common_proto_msgTypes[4]
+	mi := &file_proto_common_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -420,7 +352,7 @@ func (x *AvailableHlsVariant) String() string {
 func (*AvailableHlsVariant) ProtoMessage() {}
 
 func (x *AvailableHlsVariant) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_common_proto_msgTypes[4]
+	mi := &file_proto_common_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -433,7 +365,7 @@ func (x *AvailableHlsVariant) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AvailableHlsVariant.ProtoReflect.Descriptor instead.
 func (*AvailableHlsVariant) Descriptor() ([]byte, []int) {
-	return file_proto_common_proto_rawDescGZIP(), []int{4}
+	return file_proto_common_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *AvailableHlsVariant) GetResolution() string {
@@ -453,418 +385,6 @@ func (x *AvailableHlsVariant) GetUrl() string {
 func (x *AvailableHlsVariant) GetCodec() string {
 	if x != nil {
 		return x.Codec
-	}
-	return ""
-}
-
-// DB - Detail
-type Detail struct {
-	state      protoimpl.MessageState `protogen:"open.v1"`
-	Id         int32                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Title      *string                `protobuf:"bytes,2,opt,name=title,proto3,oneof" json:"title,omitempty"`
-	Cover      *string                `protobuf:"bytes,3,opt,name=cover,proto3,oneof" json:"cover,omitempty"`
-	Desc       *string                `protobuf:"bytes,4,opt,name=desc,proto3,oneof" json:"desc,omitempty"`
-	DetailUrl  string                 `protobuf:"bytes,5,opt,name=detail_url,json=detailUrl,proto3" json:"detail_url,omitempty"` // The key used in extension
-	Package    string                 `protobuf:"bytes,6,opt,name=package,proto3" json:"package,omitempty"`
-	Downloaded []string               `protobuf:"bytes,7,rep,name=downloaded,proto3" json:"downloaded,omitempty"`
-	// JSON encoded strings for complex types to mirror frontend ExtensionDetail
-	Episodes      *string `protobuf:"bytes,8,opt,name=episodes,proto3,oneof" json:"episodes,omitempty"`
-	Headers       *string `protobuf:"bytes,9,opt,name=headers,proto3,oneof" json:"headers,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Detail) Reset() {
-	*x = Detail{}
-	mi := &file_proto_common_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Detail) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Detail) ProtoMessage() {}
-
-func (x *Detail) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_common_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Detail.ProtoReflect.Descriptor instead.
-func (*Detail) Descriptor() ([]byte, []int) {
-	return file_proto_common_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *Detail) GetId() int32 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *Detail) GetTitle() string {
-	if x != nil && x.Title != nil {
-		return *x.Title
-	}
-	return ""
-}
-
-func (x *Detail) GetCover() string {
-	if x != nil && x.Cover != nil {
-		return *x.Cover
-	}
-	return ""
-}
-
-func (x *Detail) GetDesc() string {
-	if x != nil && x.Desc != nil {
-		return *x.Desc
-	}
-	return ""
-}
-
-func (x *Detail) GetDetailUrl() string {
-	if x != nil {
-		return x.DetailUrl
-	}
-	return ""
-}
-
-func (x *Detail) GetPackage() string {
-	if x != nil {
-		return x.Package
-	}
-	return ""
-}
-
-func (x *Detail) GetDownloaded() []string {
-	if x != nil {
-		return x.Downloaded
-	}
-	return nil
-}
-
-func (x *Detail) GetEpisodes() string {
-	if x != nil && x.Episodes != nil {
-		return *x.Episodes
-	}
-	return ""
-}
-
-func (x *Detail) GetHeaders() string {
-	if x != nil && x.Headers != nil {
-		return *x.Headers
-	}
-	return ""
-}
-
-// DB - Favorite
-type Favorite struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int32                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Package       string                 `protobuf:"bytes,2,opt,name=package,proto3" json:"package,omitempty"`
-	Url           string                 `protobuf:"bytes,3,opt,name=url,proto3" json:"url,omitempty"`
-	Type          string                 `protobuf:"bytes,4,opt,name=type,proto3" json:"type,omitempty"`
-	Title         string                 `protobuf:"bytes,5,opt,name=title,proto3" json:"title,omitempty"`
-	Cover         string                 `protobuf:"bytes,6,opt,name=cover,proto3" json:"cover,omitempty"`
-	Date          string                 `protobuf:"bytes,7,opt,name=date,proto3" json:"date,omitempty"` // ISO8601
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Favorite) Reset() {
-	*x = Favorite{}
-	mi := &file_proto_common_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Favorite) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Favorite) ProtoMessage() {}
-
-func (x *Favorite) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_common_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Favorite.ProtoReflect.Descriptor instead.
-func (*Favorite) Descriptor() ([]byte, []int) {
-	return file_proto_common_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *Favorite) GetId() int32 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *Favorite) GetPackage() string {
-	if x != nil {
-		return x.Package
-	}
-	return ""
-}
-
-func (x *Favorite) GetUrl() string {
-	if x != nil {
-		return x.Url
-	}
-	return ""
-}
-
-func (x *Favorite) GetType() string {
-	if x != nil {
-		return x.Type
-	}
-	return ""
-}
-
-func (x *Favorite) GetTitle() string {
-	if x != nil {
-		return x.Title
-	}
-	return ""
-}
-
-func (x *Favorite) GetCover() string {
-	if x != nil {
-		return x.Cover
-	}
-	return ""
-}
-
-func (x *Favorite) GetDate() string {
-	if x != nil {
-		return x.Date
-	}
-	return ""
-}
-
-type FavoriteGroup struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int32                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Date          string                 `protobuf:"bytes,3,opt,name=date,proto3" json:"date,omitempty"` // ISO8601
-	Favorites     []*Favorite            `protobuf:"bytes,4,rep,name=favorites,proto3" json:"favorites,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *FavoriteGroup) Reset() {
-	*x = FavoriteGroup{}
-	mi := &file_proto_common_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *FavoriteGroup) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*FavoriteGroup) ProtoMessage() {}
-
-func (x *FavoriteGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_common_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use FavoriteGroup.ProtoReflect.Descriptor instead.
-func (*FavoriteGroup) Descriptor() ([]byte, []int) {
-	return file_proto_common_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *FavoriteGroup) GetId() int32 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *FavoriteGroup) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *FavoriteGroup) GetDate() string {
-	if x != nil {
-		return x.Date
-	}
-	return ""
-}
-
-func (x *FavoriteGroup) GetFavorites() []*Favorite {
-	if x != nil {
-		return x.Favorites
-	}
-	return nil
-}
-
-// History
-type History struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	Id             int32                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Package        string                 `protobuf:"bytes,2,opt,name=package,proto3" json:"package,omitempty"`
-	Url            string                 `protobuf:"bytes,3,opt,name=url,proto3" json:"url,omitempty"`
-	Cover          string                 `protobuf:"bytes,4,opt,name=cover,proto3" json:"cover,omitempty"`
-	Type           string                 `protobuf:"bytes,5,opt,name=type,proto3" json:"type,omitempty"`
-	EpisodeGroupId int32                  `protobuf:"varint,6,opt,name=episode_group_id,json=episodeGroupId,proto3" json:"episode_group_id,omitempty"`
-	EpisodeId      int32                  `protobuf:"varint,7,opt,name=episode_id,json=episodeId,proto3" json:"episode_id,omitempty"`
-	Title          string                 `protobuf:"bytes,8,opt,name=title,proto3" json:"title,omitempty"`
-	EpisodeTitle   string                 `protobuf:"bytes,9,opt,name=episode_title,json=episodeTitle,proto3" json:"episode_title,omitempty"`
-	Progress       int32                  `protobuf:"varint,10,opt,name=progress,proto3" json:"progress,omitempty"`
-	TotalProgress  int32                  `protobuf:"varint,11,opt,name=total_progress,json=totalProgress,proto3" json:"total_progress,omitempty"`
-	Date           string                 `protobuf:"bytes,12,opt,name=date,proto3" json:"date,omitempty"` // ISO8601
-	DetailUrl      string                 `protobuf:"bytes,13,opt,name=detail_url,json=detailUrl,proto3" json:"detail_url,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *History) Reset() {
-	*x = History{}
-	mi := &file_proto_common_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *History) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*History) ProtoMessage() {}
-
-func (x *History) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_common_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use History.ProtoReflect.Descriptor instead.
-func (*History) Descriptor() ([]byte, []int) {
-	return file_proto_common_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *History) GetId() int32 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *History) GetPackage() string {
-	if x != nil {
-		return x.Package
-	}
-	return ""
-}
-
-func (x *History) GetUrl() string {
-	if x != nil {
-		return x.Url
-	}
-	return ""
-}
-
-func (x *History) GetCover() string {
-	if x != nil {
-		return x.Cover
-	}
-	return ""
-}
-
-func (x *History) GetType() string {
-	if x != nil {
-		return x.Type
-	}
-	return ""
-}
-
-func (x *History) GetEpisodeGroupId() int32 {
-	if x != nil {
-		return x.EpisodeGroupId
-	}
-	return 0
-}
-
-func (x *History) GetEpisodeId() int32 {
-	if x != nil {
-		return x.EpisodeId
-	}
-	return 0
-}
-
-func (x *History) GetTitle() string {
-	if x != nil {
-		return x.Title
-	}
-	return ""
-}
-
-func (x *History) GetEpisodeTitle() string {
-	if x != nil {
-		return x.EpisodeTitle
-	}
-	return ""
-}
-
-func (x *History) GetProgress() int32 {
-	if x != nil {
-		return x.Progress
-	}
-	return 0
-}
-
-func (x *History) GetTotalProgress() int32 {
-	if x != nil {
-		return x.TotalProgress
-	}
-	return 0
-}
-
-func (x *History) GetDate() string {
-	if x != nil {
-		return x.Date
-	}
-	return ""
-}
-
-func (x *History) GetDetailUrl() string {
-	if x != nil {
-		return x.DetailUrl
 	}
 	return ""
 }
@@ -891,7 +411,7 @@ type Download struct {
 
 func (x *Download) Reset() {
 	*x = Download{}
-	mi := &file_proto_common_proto_msgTypes[9]
+	mi := &file_proto_common_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -903,7 +423,7 @@ func (x *Download) String() string {
 func (*Download) ProtoMessage() {}
 
 func (x *Download) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_common_proto_msgTypes[9]
+	mi := &file_proto_common_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -916,7 +436,7 @@ func (x *Download) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Download.ProtoReflect.Descriptor instead.
 func (*Download) Descriptor() ([]byte, []int) {
-	return file_proto_common_proto_rawDescGZIP(), []int{9}
+	return file_proto_common_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *Download) GetId() int32 {
@@ -1022,7 +542,7 @@ type TorrentResult struct {
 
 func (x *TorrentResult) Reset() {
 	*x = TorrentResult{}
-	mi := &file_proto_common_proto_msgTypes[10]
+	mi := &file_proto_common_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1034,7 +554,7 @@ func (x *TorrentResult) String() string {
 func (*TorrentResult) ProtoMessage() {}
 
 func (x *TorrentResult) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_common_proto_msgTypes[10]
+	mi := &file_proto_common_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1047,7 +567,7 @@ func (x *TorrentResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TorrentResult.ProtoReflect.Descriptor instead.
 func (*TorrentResult) Descriptor() ([]byte, []int) {
-	return file_proto_common_proto_rawDescGZIP(), []int{10}
+	return file_proto_common_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *TorrentResult) GetInfoHash() string {
@@ -1107,67 +627,13 @@ const file_proto_common_proto_rawDesc = "" +
 	"\fTorrentStats\x12\x1d\n" +
 	"\n" +
 	"total_down\x18\x01 \x01(\x03R\ttotalDown\x12\x19\n" +
-	"\btotal_up\x18\x02 \x01(\x03R\atotalUp\"i\n" +
-	"\x11ExtensionListItem\x12\x14\n" +
-	"\x05title\x18\x01 \x01(\tR\x05title\x12\x10\n" +
-	"\x03url\x18\x02 \x01(\tR\x03url\x12\x14\n" +
-	"\x05cover\x18\x03 \x01(\tR\x05cover\x12\x16\n" +
-	"\x06update\x18\x04 \x01(\tR\x06update\"]\n" +
+	"\btotal_up\x18\x02 \x01(\x03R\atotalUp\"]\n" +
 	"\x13AvailableHlsVariant\x12\x1e\n" +
 	"\n" +
 	"resolution\x18\x01 \x01(\tR\n" +
 	"resolution\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\x12\x14\n" +
-	"\x05codec\x18\x03 \x01(\tR\x05codec\"\xb6\x02\n" +
-	"\x06Detail\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x19\n" +
-	"\x05title\x18\x02 \x01(\tH\x00R\x05title\x88\x01\x01\x12\x19\n" +
-	"\x05cover\x18\x03 \x01(\tH\x01R\x05cover\x88\x01\x01\x12\x17\n" +
-	"\x04desc\x18\x04 \x01(\tH\x02R\x04desc\x88\x01\x01\x12\x1d\n" +
-	"\n" +
-	"detail_url\x18\x05 \x01(\tR\tdetailUrl\x12\x18\n" +
-	"\apackage\x18\x06 \x01(\tR\apackage\x12\x1e\n" +
-	"\n" +
-	"downloaded\x18\a \x03(\tR\n" +
-	"downloaded\x12\x1f\n" +
-	"\bepisodes\x18\b \x01(\tH\x03R\bepisodes\x88\x01\x01\x12\x1d\n" +
-	"\aheaders\x18\t \x01(\tH\x04R\aheaders\x88\x01\x01B\b\n" +
-	"\x06_titleB\b\n" +
-	"\x06_coverB\a\n" +
-	"\x05_descB\v\n" +
-	"\t_episodesB\n" +
-	"\n" +
-	"\b_headers\"\x9a\x01\n" +
-	"\bFavorite\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x18\n" +
-	"\apackage\x18\x02 \x01(\tR\apackage\x12\x10\n" +
-	"\x03url\x18\x03 \x01(\tR\x03url\x12\x12\n" +
-	"\x04type\x18\x04 \x01(\tR\x04type\x12\x14\n" +
-	"\x05title\x18\x05 \x01(\tR\x05title\x12\x14\n" +
-	"\x05cover\x18\x06 \x01(\tR\x05cover\x12\x12\n" +
-	"\x04date\x18\a \x01(\tR\x04date\"u\n" +
-	"\rFavoriteGroup\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
-	"\x04date\x18\x03 \x01(\tR\x04date\x12,\n" +
-	"\tfavorites\x18\x04 \x03(\v2\x0e.miru.FavoriteR\tfavorites\"\xe9\x02\n" +
-	"\aHistory\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x18\n" +
-	"\apackage\x18\x02 \x01(\tR\apackage\x12\x10\n" +
-	"\x03url\x18\x03 \x01(\tR\x03url\x12\x14\n" +
-	"\x05cover\x18\x04 \x01(\tR\x05cover\x12\x12\n" +
-	"\x04type\x18\x05 \x01(\tR\x04type\x12(\n" +
-	"\x10episode_group_id\x18\x06 \x01(\x05R\x0eepisodeGroupId\x12\x1d\n" +
-	"\n" +
-	"episode_id\x18\a \x01(\x05R\tepisodeId\x12\x14\n" +
-	"\x05title\x18\b \x01(\tR\x05title\x12#\n" +
-	"\repisode_title\x18\t \x01(\tR\fepisodeTitle\x12\x1a\n" +
-	"\bprogress\x18\n" +
-	" \x01(\x05R\bprogress\x12%\n" +
-	"\x0etotal_progress\x18\v \x01(\x05R\rtotalProgress\x12\x12\n" +
-	"\x04date\x18\f \x01(\tR\x04date\x12\x1d\n" +
-	"\n" +
-	"detail_url\x18\r \x01(\tR\tdetailUrl\"\xa7\x03\n" +
+	"\x05codec\x18\x03 \x01(\tR\x05codec\"\xa7\x03\n" +
 	"\bDownload\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x10\n" +
 	"\x03url\x18\x02 \x03(\tR\x03url\x125\n" +
@@ -1205,29 +671,23 @@ func file_proto_common_proto_rawDescGZIP() []byte {
 	return file_proto_common_proto_rawDescData
 }
 
-var file_proto_common_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_proto_common_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_proto_common_proto_goTypes = []any{
 	(*ExtensionMeta)(nil),       // 0: miru.ExtensionMeta
 	(*DownloadProgress)(nil),    // 1: miru.DownloadProgress
 	(*TorrentStats)(nil),        // 2: miru.TorrentStats
-	(*ExtensionListItem)(nil),   // 3: miru.ExtensionListItem
-	(*AvailableHlsVariant)(nil), // 4: miru.AvailableHlsVariant
-	(*Detail)(nil),              // 5: miru.Detail
-	(*Favorite)(nil),            // 6: miru.Favorite
-	(*FavoriteGroup)(nil),       // 7: miru.FavoriteGroup
-	(*History)(nil),             // 8: miru.History
-	(*Download)(nil),            // 9: miru.Download
-	(*TorrentResult)(nil),       // 10: miru.TorrentResult
-	nil,                         // 11: miru.Download.HeadersEntry
+	(*AvailableHlsVariant)(nil), // 3: miru.AvailableHlsVariant
+	(*Download)(nil),            // 4: miru.Download
+	(*TorrentResult)(nil),       // 5: miru.TorrentResult
+	nil,                         // 6: miru.Download.HeadersEntry
 }
 var file_proto_common_proto_depIdxs = []int32{
-	6,  // 0: miru.FavoriteGroup.favorites:type_name -> miru.Favorite
-	11, // 1: miru.Download.headers:type_name -> miru.Download.HeadersEntry
-	2,  // [2:2] is the sub-list for method output_type
-	2,  // [2:2] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	6, // 0: miru.Download.headers:type_name -> miru.Download.HeadersEntry
+	1, // [1:1] is the sub-list for method output_type
+	1, // [1:1] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_proto_common_proto_init() }
@@ -1235,14 +695,13 @@ func file_proto_common_proto_init() {
 	if File_proto_common_proto != nil {
 		return
 	}
-	file_proto_common_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_common_proto_rawDesc), len(file_proto_common_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -1869,7 +1869,7 @@ var File_proto_db_proto protoreflect.FileDescriptor
 
 const file_proto_db_proto_rawDesc = "" +
 	"\n" +
-	"\x0eproto/db.proto\x12\x04miru\x1a\x12proto/common.proto\"K\n" +
+	"\x0eproto/db.proto\x12\x04miru\x1a\x14proto/db_model.proto\"K\n" +
 	"\x10GetDetailRequest\x12\x18\n" +
 	"\apackage\x18\x01 \x01(\tR\apackage\x12\x1d\n" +
 	"\n" +
@@ -2124,7 +2124,7 @@ func file_proto_db_proto_init() {
 	if File_proto_db_proto != nil {
 		return
 	}
-	file_proto_common_proto_init()
+	file_proto_db_model_proto_init()
 	file_proto_db_proto_msgTypes[2].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
