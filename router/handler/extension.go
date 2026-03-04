@@ -33,10 +33,10 @@ func Search(page string, pkg string, kw string, filter string) *result.Result[[]
 }
 
 // handle Watch when receiving a request
-func Watch(pkg string, url string) *result.Result[any] {
+func Watch(pkg string, url string) (*result.Result[any], *jsExtension.ExtApi) {
 
-	res, e := jsExtension.Watch(pkg, url)
-	return handleResult(res, e)
+	res, e, api := jsExtension.Watch(pkg, url)
+	return handleResult(res, e), api
 }
 
 // handle Detail when receiving a request

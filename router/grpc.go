@@ -157,27 +157,15 @@ func (s *MiruCoreServer) Detail(ctx context.Context, req *proto.DetailRequest) (
 }
 
 func (s *MiruCoreServer) Watch(ctx context.Context, req *proto.WatchRequest) (*proto.WatchResponse, error) {
-	res := handler.Watch(req.Pkg, req.Url)
+	res, _ := handler.Watch(req.Pkg, req.Url)
 	if res.Code != 200 {
 		return nil, fmt.Errorf("watch failed with code %d: %s", res.Code, res.Message)
 	}
 
 	watchResp := &proto.WatchResponse{}
 	data := res.Data.(map[string]any)
-	switch data["type"].(string) {
-	case "bangumi":
-		u, _ := jsExtension.Unmarshal[proto.ExtensionBangumiWatch](data)
-		watchResp.Data = &proto.WatchResponse_Bangumi{Bangumi: u}
-	case "manga":
-		u, _ := jsExtension.Unmarshal[proto.ExtensionMangaWatch](data)
-		watchResp.Data = &proto.WatchResponse_Manga{Manga: u}
-	case "fikushon":
-		u, _ := jsExtension.Unmarshal[proto.ExtensionFikushonWatch](data)
-		watchResp.Data = &proto.WatchResponse_Fikushon{Fikushon: u}
-	default:
-		jsonData, _ := json.Marshal(data)
-		watchResp.Data = &proto.WatchResponse_Raw{Raw: string(jsonData)}
-	}
+	jsonData, _ := json.Marshal(data)
+	watchResp.Data = &proto.WatchResponse_Raw{Raw: string(jsonData)}
 
 	return watchResp, nil
 }

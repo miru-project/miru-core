@@ -72,23 +72,23 @@ func Search[T proto.ExtensionListItem](pkg string, page int, kw string, filter s
 }
 
 // Extension watch should contain V1 and V2 api
-func Watch(pkg string, watchLink string) (any, error) {
+func Watch(pkg string, watchLink string) (any, error, *ExtApi) {
 
 	api, e := getPkgFromCache(pkg)
 	if e != nil {
-		return nil, e
+		return nil, e, nil
 	}
 
 	o, e := api.asyncCallBack(api, pkg, fmt.Sprintf(api.watchEval, watchLink))
 	if e != nil {
-		return nil, e
+		return nil, e, api
 	}
 	if api.Ext.WatchType != "bangumi" {
-		return o, nil
+		return o, nil, api
 	}
 	obj, ok := o.(map[string]any)
 	if !ok {
-		return nil, errors.New("Malformed watch response")
+		return nil, errors.New("Malformed watch response"), api
 	}
 	vidType := obj["type"].(string)
 	switch vidType {
@@ -97,10 +97,10 @@ func Watch(pkg string, watchLink string) (any, error) {
 		link := obj["url"].(string)
 		t, e := torrent.AddMagnet(link, "", pkg)
 		if e != nil {
-			return nil, e
+			return nil, e, api
 		}
 		obj["torrent"] = t
-		return obj, nil
+		return obj, nil, api
 
 	case "torrent":
 		link := obj["url"].(string)
@@ -111,13 +111,13 @@ func Watch(pkg string, watchLink string) (any, error) {
 		}
 		t, e := torrent.AddTorrent(link, "", pkg)
 		if e != nil {
-			return nil, e
+			return nil, e, api
 		}
 		obj["torrent"] = t
-		return obj, nil
+		return obj, nil, api
 
 	default:
-		return obj, nil
+		return obj, nil, api
 	}
 
 }

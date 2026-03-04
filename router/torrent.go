@@ -17,7 +17,7 @@ func initTorrentRouter(app *fasthttp_router.Router) {
 // @Param			path		path	string	false	"File path within torrent"
 // @Router			/torrent/data/{infoHash}/{path} [get]
 func GetTorrentData(app *fasthttp_router.Router) {
-	app.GET("/torrent/data/{infoHash}/{*path}", func(c *fasthttp.RequestCtx) {
+	app.GET("/torrent/data/{infoHash}/{path:*}", func(c *fasthttp.RequestCtx) {
 		handler.GetTorrentData(c)
 	})
 }
