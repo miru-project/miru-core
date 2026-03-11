@@ -117,5 +117,6 @@ func RemoveExtension(pkg string) error {
 		return fmt.Errorf("failed to delete extension file %s: %v", loc, e)
 	}
 	log.Println("Deleted extension file:", loc)
+	ApiPkgCache.Remove(pkg)
 	return nil
 }
