@@ -2,14 +2,15 @@ package network
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/Danny-Dasilva/CycleTLS/cycletls"
+	"github.com/miru-project/miru-core/pkg/db"
 	"github.com/miru-project/miru-core/pkg/logger"
 	log "github.com/miru-project/miru-core/pkg/logger"
 	"github.com/valyala/fasthttp"
@@ -36,7 +37,6 @@ type Response[T StringOrBytes] struct {
 //	The response body as type T (string or []byte), and an error if any occurred.
 func Request[T StringOrBytes](url string, option *RequestOptions, readPreference func(*fasthttp.Response) ([]byte, error)) (Response[T], error) {
 
-	logger.Println("Making request to:", url)
 	if option.TlsSpoofConfig.Body != "" {
 		o, e := requestWithCycleTLS[T](url, option)
 		return o, e
@@ -61,6 +61,8 @@ func requestWithCycleTLS[T StringOrBytes](requrl string, option *RequestOptions)
 	} else {
 		config.Headers["Cookie"] += "; " + getHeadersFromJar(reqUrl)
 	}
+
+	config.Proxy = getProxyURL(option)
 
 	res, err := client.Do(requrl, config, checkRequestMethod(option.Method))
 	if err != nil {
@@ -119,21 +121,123 @@ func prepareRequest(req *fasthttp.Request, reqUrl string, option *RequestOptions
 		req.Header.SetCookie(k, v)
 	}
 
-	// Start client
-	var client *fasthttp.Client
+	return PrepareProxy(option, reqUrl)
+}
 
-	if option.ProxyHost != "" {
-		proxyUrl := fmt.Sprintf("%s://%s", option.ProxyScheme, option.ProxyHost)
+func getProxyURL(option *RequestOptions) string {
+	if option != nil && option.ProxyHost != "" {
+		u := url.URL{
+			Scheme: option.ProxyScheme,
+			Host:   option.ProxyHost,
+		}
+		if u.Scheme == "" {
+			u.Scheme = "http"
+		}
 		if option.ProxyUserName != "" {
-			proxyUrl = fmt.Sprintf("%s://%s:%s@%s", option.ProxyScheme, option.ProxyUserName, option.ProxyPassword, option.ProxyHost)
+			if option.ProxyPassword != "" {
+				u.User = url.UserPassword(option.ProxyUserName, option.ProxyPassword)
+			} else {
+				u.User = url.User(option.ProxyUserName)
+			}
 		}
-		client = &fasthttp.Client{
-			Dial: fasthttpproxy.FasthttpHTTPDialer(proxyUrl),
-		}
-	} else {
-		client = defaultClient
+		return u.String()
 	}
+	proxy, _ := db.GetAPPSetting("Proxy")
+	return proxy
+}
+
+var (
+	proxyClients = make(map[string]*fasthttp.Client)
+	proxyMutex   sync.RWMutex
+)
+
+func PrepareProxy(option *RequestOptions, targetURL string) (*fasthttp.Client, error) {
+	proxy := getProxyURL(option)
+	enableProxy, _ := db.GetAPPSetting("ProxyActivate")
+	if proxy == "" || enableProxy == "false" {
+		logger.Println("request to:", targetURL)
+		return defaultClient, nil
+	}
+
+	proxyMutex.RLock()
+	client, ok := proxyClients[proxy]
+	proxyMutex.RUnlock()
+	if ok {
+		return client, nil
+	}
+
+	link, err := url.Parse(proxy)
+	if err != nil {
+		return nil, err
+	}
+
+	var dialFunc fasthttp.DialFunc
+	switch link.Scheme {
+	case "socks4", "socks4a":
+		protocol := SOCKS4
+		if link.Scheme == "socks4a" {
+			protocol = SOCKS4A
+		}
+		user := ""
+		if link.User != nil {
+			user = link.User.Username()
+		}
+		dialFunc = FasthttpDialer(protocol, link.Host, user, 15*time.Second)
+	case "socks5":
+		dialFunc = fasthttpproxy.FasthttpSocksDialer(proxy)
+	case "http", "https":
+		dialFunc = fasthttpproxy.FasthttpHTTPDialer(proxy)
+	default:
+		dialFunc = fasthttpproxy.FasthttpHTTPDialer(proxy)
+	}
+
+	client = &fasthttp.Client{
+		MaxIdemponentCallAttempts: 2,
+		MaxIdleConnDuration:       90 * time.Second,
+		ReadTimeout:               30 * time.Second,
+		WriteTimeout:              30 * time.Second,
+		Dial:                      dialFunc,
+		MaxConnsPerHost:           300,
+	}
+
+	proxyMutex.Lock()
+	proxyClients[proxy] = client
+	proxyMutex.Unlock()
+
+	logger.Println("[Proxy] request to:", targetURL)
 	return client, nil
+}
+func Proxy(ctx *fasthttp.RequestCtx) {
+	req := &ctx.Request
+	res := &ctx.Response
+
+	targetURL := ctx.UserValue("path").(string)
+	if targetURL == "" {
+		ctx.Error("Empty target URL", fasthttp.StatusBadRequest)
+		return
+	}
+
+	query := ctx.QueryArgs().String()
+	if query != "" {
+		if strings.Contains(targetURL, "?") {
+			targetURL += "&" + query
+		} else {
+			targetURL += "?" + query
+		}
+	}
+
+	req.SetRequestURI(targetURL)
+
+	client, err := PrepareProxy(nil, targetURL)
+	if err != nil {
+		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		return
+	}
+	logger.Println("[Proxy] request to:", targetURL)
+	if err := client.Do(req, res); err != nil {
+		ctx.Error(err.Error(), fasthttp.StatusBadGateway)
+		return
+	}
 }
 
 func saveFasthttpCookies(u *url.URL, res *fasthttp.Response) {

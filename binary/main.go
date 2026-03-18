@@ -62,6 +62,4 @@ func Init() {
 	download.Init()
 	jsext.InitRuntime(config.Global.ExtensionPath, f)
 	log.Println("Miru Core initialized successfully!")
-	//  hang main routnie so that ffi function doesn't exit
-	// select {}
 }

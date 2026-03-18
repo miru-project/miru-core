@@ -4,6 +4,8 @@ import (
 	fasthttp_router "github.com/fasthttp/router"
 	"github.com/miru-project/miru-core/config"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
+	"github.com/miru-project/miru-core/pkg/logger"
+	"github.com/miru-project/miru-core/pkg/network"
 	"github.com/valyala/fasthttp"
 )
 
@@ -17,13 +19,17 @@ func InitRouter(app *fasthttp_router.Router) {
 	initWebDavRouter(app)
 	initAnilistRouter(app)
 	initTorrentRouter(app)
-	// app.Get("/swagger/*", fiberSwagger.WrapHandler)
+	initProxy(app)
 	go StartGRPCServer()
 	startListening(app, config.Global.Address+":"+config.Global.Port)
 
 }
 
+func initProxy(app *fasthttp_router.Router) {
+	app.ANY("/proxy/{path:*}", network.Proxy)
+}
 func startListening(app *fasthttp_router.Router, host string) {
+	logger.Println("HTTP Server started on ", host)
 	if e := fasthttp.ListenAndServe(host, app.Handler); e != nil {
 		errorhandle.PanicF("Can't listen on host %q: %s", host, e)
 	}
