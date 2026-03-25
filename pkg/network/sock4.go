@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/valyala/fasthttp"
 )
 
 const (
@@ -64,11 +66,16 @@ func dialer(protocol int, proxyAddr, targetAddr, userID string, timeout time.Dur
 	}
 
 	// Connect to the proxy
+	dialer := &fasthttp.TCPDialer{
+		Concurrency:      4096,
+		DNSCacheDuration: 6 * time.Hour,
+	}
+
 	var conn net.Conn
 	if timeout > 0 {
-		conn, err = net.DialTimeout("tcp", proxyAddr, timeout)
+		conn, err = dialer.DialTimeout(proxyAddr, timeout)
 	} else {
-		conn, err = net.Dial("tcp", proxyAddr)
+		conn, err = dialer.DialTimeout(proxyAddr, 15*time.Second)
 	}
 	if err != nil {
 		return nil, err
