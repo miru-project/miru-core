@@ -102,6 +102,11 @@ func handlePromise(o goja.Value, res chan PromiseResult, e error) {
 		res <- PromiseResult{err: e}
 		return
 	}
+	out := o.Export()
+	if out == nil {
+		res <- PromiseResult{promise: &goja.Promise{}}
+		return
+	}
 	// Because it eval async funcion the value become a promise and send to channel
 	res <- PromiseResult{promise: o.Export().(*goja.Promise)}
 }

@@ -55,6 +55,17 @@ message DownloadExtensionResponse { string message = 1; }
 message RemoveExtensionRequest { string pkg = 2; }
 message RemoveExtensionResponse { string message = 1; }
 
+message GetExtensionSettingsRequest { string pkg = 1; }
+message GetExtensionSettingsResponse {
+  repeated ExtensionSetting settings = 1;
+}
+
+message SaveExtensionSettingsRequest {
+  string pkg = 1;
+  repeated ExtensionSetting settings = 2;
+}
+message SaveExtensionSettingsResponse { string message = 1; }
+
 service ExtensionService {
   rpc Search(SearchRequest) returns (SearchResponse);
   rpc Latest(LatestRequest) returns (LatestResponse);
@@ -63,4 +74,8 @@ service ExtensionService {
   rpc DownloadExtension(DownloadExtensionRequest)
       returns (DownloadExtensionResponse);
   rpc RemoveExtension(RemoveExtensionRequest) returns (RemoveExtensionResponse);
+  rpc GetExtensionSettings(GetExtensionSettingsRequest)
+      returns (GetExtensionSettingsResponse);
+  rpc SaveExtensionSettings(SaveExtensionSettingsRequest)
+      returns (SaveExtensionSettingsResponse);
 }

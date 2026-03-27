@@ -689,6 +689,44 @@ func (s *MiruCoreServer) RemoveExtension(ctx context.Context, req *proto.RemoveE
 	return &proto.RemoveExtensionResponse{Message: "Success"}, nil
 }
 
+func (s *MiruCoreServer) GetExtensionSettings(ctx context.Context, req *proto.GetExtensionSettingsRequest) (*proto.GetExtensionSettingsResponse, error) {
+	settings, err := db.GetSettingsByPackage(req.Pkg)
+	if err != nil {
+		return nil, err
+	}
+
+	protoSettings := make([]*proto.ExtensionSetting, len(settings))
+	for i, s := range settings {
+		protoSettings[i] = &proto.ExtensionSetting{
+			Id:           int32(s.ID),
+			Package:      s.Package,
+			Title:        s.Title,
+			Key:          s.Key,
+			Value:        s.Value,
+			DefaultValue: safeSprint(s.DefaultValue),
+			Type:         proto.ExtensionSettingType(proto.ExtensionSettingType_value[string(s.DbType)]),
+			Description:  s.Description,
+			Options:      s.Options,
+		}
+	}
+
+	return &proto.GetExtensionSettingsResponse{Settings: protoSettings}, nil
+}
+
+func (s *MiruCoreServer) SaveExtensionSettings(ctx context.Context, req *proto.SaveExtensionSettingsRequest) (*proto.SaveExtensionSettingsResponse, error) {
+	for _, s := range req.Settings {
+		val := ""
+		if s.Value != nil {
+			val = *s.Value
+		}
+		err := db.SetSetting(req.Pkg, s.Key, val)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &proto.SaveExtensionSettingsResponse{Message: "Success"}, nil
+}
+
 // Network
 func (s *MiruCoreServer) SetCookie(ctx context.Context, req *proto.SetCookieRequest) (*proto.SetCookieResponse, error) {
 	err := network.SetCookies(req.Url, strings.Split(req.Cookie, ";"))

@@ -21,6 +21,55 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type ExtensionSettingType int32
+
+const (
+	ExtensionSettingType_input  ExtensionSettingType = 0
+	ExtensionSettingType_radio  ExtensionSettingType = 1
+	ExtensionSettingType_toggle ExtensionSettingType = 2
+)
+
+// Enum value maps for ExtensionSettingType.
+var (
+	ExtensionSettingType_name = map[int32]string{
+		0: "input",
+		1: "radio",
+		2: "toggle",
+	}
+	ExtensionSettingType_value = map[string]int32{
+		"input":  0,
+		"radio":  1,
+		"toggle": 2,
+	}
+)
+
+func (x ExtensionSettingType) Enum() *ExtensionSettingType {
+	p := new(ExtensionSettingType)
+	*p = x
+	return p
+}
+
+func (x ExtensionSettingType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ExtensionSettingType) Descriptor() protoreflect.EnumDescriptor {
+	return file_proto_extension_model_proto_enumTypes[0].Descriptor()
+}
+
+func (ExtensionSettingType) Type() protoreflect.EnumType {
+	return &file_proto_extension_model_proto_enumTypes[0]
+}
+
+func (x ExtensionSettingType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ExtensionSettingType.Descriptor instead.
+func (ExtensionSettingType) EnumDescriptor() ([]byte, []int) {
+	return file_proto_extension_model_proto_rawDescGZIP(), []int{0}
+}
+
 type ExtensionListItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
@@ -1141,6 +1190,114 @@ func (x *RepoConfig) GetId() int32 {
 	return 0
 }
 
+type ExtensionSetting struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int32                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Package       string                 `protobuf:"bytes,2,opt,name=package,proto3" json:"package,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	Key           string                 `protobuf:"bytes,4,opt,name=key,proto3" json:"key,omitempty"`
+	Value         *string                `protobuf:"bytes,5,opt,name=value,proto3,oneof" json:"value,omitempty"`
+	DefaultValue  string                 `protobuf:"bytes,6,opt,name=defaultValue,proto3" json:"defaultValue,omitempty"`
+	Type          ExtensionSettingType   `protobuf:"varint,7,opt,name=type,proto3,enum=miru.ExtensionSettingType" json:"type,omitempty"`
+	Description   *string                `protobuf:"bytes,8,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	Options       *string                `protobuf:"bytes,9,opt,name=options,proto3,oneof" json:"options,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExtensionSetting) Reset() {
+	*x = ExtensionSetting{}
+	mi := &file_proto_extension_model_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExtensionSetting) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExtensionSetting) ProtoMessage() {}
+
+func (x *ExtensionSetting) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_extension_model_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExtensionSetting.ProtoReflect.Descriptor instead.
+func (*ExtensionSetting) Descriptor() ([]byte, []int) {
+	return file_proto_extension_model_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ExtensionSetting) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *ExtensionSetting) GetPackage() string {
+	if x != nil {
+		return x.Package
+	}
+	return ""
+}
+
+func (x *ExtensionSetting) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *ExtensionSetting) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+func (x *ExtensionSetting) GetValue() string {
+	if x != nil && x.Value != nil {
+		return *x.Value
+	}
+	return ""
+}
+
+func (x *ExtensionSetting) GetDefaultValue() string {
+	if x != nil {
+		return x.DefaultValue
+	}
+	return ""
+}
+
+func (x *ExtensionSetting) GetType() ExtensionSettingType {
+	if x != nil {
+		return x.Type
+	}
+	return ExtensionSettingType_input
+}
+
+func (x *ExtensionSetting) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
+	}
+	return ""
+}
+
+func (x *ExtensionSetting) GetOptions() string {
+	if x != nil && x.Options != nil {
+		return *x.Options
+	}
+	return ""
+}
+
 var File_proto_extension_model_proto protoreflect.FileDescriptor
 
 const file_proto_extension_model_proto_rawDesc = "" +
@@ -1271,7 +1428,26 @@ const file_proto_extension_model_proto_rawDesc = "" +
 	"RepoConfig\x12\x12\n" +
 	"\x04link\x18\x01 \x01(\tR\x04link\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x0e\n" +
-	"\x02id\x18\x03 \x01(\x05R\x02idB)Z'github.com/miru-project/miru-core/protob\x06proto3"
+	"\x02id\x18\x03 \x01(\x05R\x02id\"\xbf\x02\n" +
+	"\x10ExtensionSetting\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x18\n" +
+	"\apackage\x18\x02 \x01(\tR\apackage\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x10\n" +
+	"\x03key\x18\x04 \x01(\tR\x03key\x12\x19\n" +
+	"\x05value\x18\x05 \x01(\tH\x00R\x05value\x88\x01\x01\x12\"\n" +
+	"\fdefaultValue\x18\x06 \x01(\tR\fdefaultValue\x12.\n" +
+	"\x04type\x18\a \x01(\x0e2\x1a.miru.ExtensionSettingTypeR\x04type\x12%\n" +
+	"\vdescription\x18\b \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1d\n" +
+	"\aoptions\x18\t \x01(\tH\x02R\aoptions\x88\x01\x01B\b\n" +
+	"\x06_valueB\x0e\n" +
+	"\f_descriptionB\n" +
+	"\n" +
+	"\b_options*8\n" +
+	"\x14ExtensionSettingType\x12\t\n" +
+	"\x05input\x10\x00\x12\t\n" +
+	"\x05radio\x10\x01\x12\n" +
+	"\n" +
+	"\x06toggle\x10\x02B)Z'github.com/miru-project/miru-core/protob\x06proto3"
 
 var (
 	file_proto_extension_model_proto_rawDescOnce sync.Once
@@ -1285,52 +1461,56 @@ func file_proto_extension_model_proto_rawDescGZIP() []byte {
 	return file_proto_extension_model_proto_rawDescData
 }
 
-var file_proto_extension_model_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_proto_extension_model_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_proto_extension_model_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
 var file_proto_extension_model_proto_goTypes = []any{
-	(*ExtensionListItem)(nil),                        // 0: miru.ExtensionListItem
-	(*ExtensionFilter)(nil),                          // 1: miru.ExtensionFilter
-	(*ExtensionDetail)(nil),                          // 2: miru.ExtensionDetail
-	(*ExtensionEpisodeGroup)(nil),                    // 3: miru.ExtensionEpisodeGroup
-	(*ExtensionEpisode)(nil),                         // 4: miru.ExtensionEpisode
-	(*ExtensionBangumiWatchSubtitle)(nil),            // 5: miru.ExtensionBangumiWatchSubtitle
-	(*ExtensionBangumiWatchTorrentFileTreeFile)(nil), // 6: miru.ExtensionBangumiWatchTorrentFileTreeFile
-	(*ExtensionBangumiWatchTorrentFileTree)(nil),     // 7: miru.ExtensionBangumiWatchTorrentFileTree
-	(*ExtensionBangumiWatchTorrentDetail)(nil),       // 8: miru.ExtensionBangumiWatchTorrentDetail
-	(*ExtensionBangumiWatchTorrent)(nil),             // 9: miru.ExtensionBangumiWatchTorrent
-	(*ExtensionBangumiWatch)(nil),                    // 10: miru.ExtensionBangumiWatch
-	(*ExtensionMangaWatch)(nil),                      // 11: miru.ExtensionMangaWatch
-	(*ExtensionFikushonWatch)(nil),                   // 12: miru.ExtensionFikushonWatch
-	(*GithubExtension)(nil),                          // 13: miru.GithubExtension
-	(*ExtensionRepo)(nil),                            // 14: miru.ExtensionRepo
-	(*RepoConfig)(nil),                               // 15: miru.RepoConfig
-	nil,                                              // 16: miru.ExtensionListItem.HeadersEntry
-	nil,                                              // 17: miru.ExtensionFilter.OptionsEntry
-	nil,                                              // 18: miru.ExtensionDetail.HeadersEntry
-	nil,                                              // 19: miru.ExtensionBangumiWatchTorrentFileTree.DirEntry
-	nil,                                              // 20: miru.ExtensionBangumiWatch.HeadersEntry
-	nil,                                              // 21: miru.ExtensionMangaWatch.HeadersEntry
+	(ExtensionSettingType)(0),                        // 0: miru.ExtensionSettingType
+	(*ExtensionListItem)(nil),                        // 1: miru.ExtensionListItem
+	(*ExtensionFilter)(nil),                          // 2: miru.ExtensionFilter
+	(*ExtensionDetail)(nil),                          // 3: miru.ExtensionDetail
+	(*ExtensionEpisodeGroup)(nil),                    // 4: miru.ExtensionEpisodeGroup
+	(*ExtensionEpisode)(nil),                         // 5: miru.ExtensionEpisode
+	(*ExtensionBangumiWatchSubtitle)(nil),            // 6: miru.ExtensionBangumiWatchSubtitle
+	(*ExtensionBangumiWatchTorrentFileTreeFile)(nil), // 7: miru.ExtensionBangumiWatchTorrentFileTreeFile
+	(*ExtensionBangumiWatchTorrentFileTree)(nil),     // 8: miru.ExtensionBangumiWatchTorrentFileTree
+	(*ExtensionBangumiWatchTorrentDetail)(nil),       // 9: miru.ExtensionBangumiWatchTorrentDetail
+	(*ExtensionBangumiWatchTorrent)(nil),             // 10: miru.ExtensionBangumiWatchTorrent
+	(*ExtensionBangumiWatch)(nil),                    // 11: miru.ExtensionBangumiWatch
+	(*ExtensionMangaWatch)(nil),                      // 12: miru.ExtensionMangaWatch
+	(*ExtensionFikushonWatch)(nil),                   // 13: miru.ExtensionFikushonWatch
+	(*GithubExtension)(nil),                          // 14: miru.GithubExtension
+	(*ExtensionRepo)(nil),                            // 15: miru.ExtensionRepo
+	(*RepoConfig)(nil),                               // 16: miru.RepoConfig
+	(*ExtensionSetting)(nil),                         // 17: miru.ExtensionSetting
+	nil,                                              // 18: miru.ExtensionListItem.HeadersEntry
+	nil,                                              // 19: miru.ExtensionFilter.OptionsEntry
+	nil,                                              // 20: miru.ExtensionDetail.HeadersEntry
+	nil,                                              // 21: miru.ExtensionBangumiWatchTorrentFileTree.DirEntry
+	nil,                                              // 22: miru.ExtensionBangumiWatch.HeadersEntry
+	nil,                                              // 23: miru.ExtensionMangaWatch.HeadersEntry
 }
 var file_proto_extension_model_proto_depIdxs = []int32{
-	16, // 0: miru.ExtensionListItem.headers:type_name -> miru.ExtensionListItem.HeadersEntry
-	17, // 1: miru.ExtensionFilter.options:type_name -> miru.ExtensionFilter.OptionsEntry
-	3,  // 2: miru.ExtensionDetail.episodes:type_name -> miru.ExtensionEpisodeGroup
-	18, // 3: miru.ExtensionDetail.headers:type_name -> miru.ExtensionDetail.HeadersEntry
-	4,  // 4: miru.ExtensionEpisodeGroup.urls:type_name -> miru.ExtensionEpisode
-	6,  // 5: miru.ExtensionBangumiWatchTorrentFileTree.file:type_name -> miru.ExtensionBangumiWatchTorrentFileTreeFile
-	19, // 6: miru.ExtensionBangumiWatchTorrentFileTree.dir:type_name -> miru.ExtensionBangumiWatchTorrentFileTree.DirEntry
-	7,  // 7: miru.ExtensionBangumiWatchTorrentDetail.fileTree:type_name -> miru.ExtensionBangumiWatchTorrentFileTree
-	8,  // 8: miru.ExtensionBangumiWatchTorrent.detail:type_name -> miru.ExtensionBangumiWatchTorrentDetail
-	5,  // 9: miru.ExtensionBangumiWatch.subtitles:type_name -> miru.ExtensionBangumiWatchSubtitle
-	20, // 10: miru.ExtensionBangumiWatch.headers:type_name -> miru.ExtensionBangumiWatch.HeadersEntry
-	9,  // 11: miru.ExtensionBangumiWatch.torrent:type_name -> miru.ExtensionBangumiWatchTorrent
-	21, // 12: miru.ExtensionMangaWatch.headers:type_name -> miru.ExtensionMangaWatch.HeadersEntry
-	13, // 13: miru.ExtensionRepo.extensions:type_name -> miru.GithubExtension
-	7,  // 14: miru.ExtensionBangumiWatchTorrentFileTree.DirEntry.value:type_name -> miru.ExtensionBangumiWatchTorrentFileTree
-	15, // [15:15] is the sub-list for method output_type
-	15, // [15:15] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	18, // 0: miru.ExtensionListItem.headers:type_name -> miru.ExtensionListItem.HeadersEntry
+	19, // 1: miru.ExtensionFilter.options:type_name -> miru.ExtensionFilter.OptionsEntry
+	4,  // 2: miru.ExtensionDetail.episodes:type_name -> miru.ExtensionEpisodeGroup
+	20, // 3: miru.ExtensionDetail.headers:type_name -> miru.ExtensionDetail.HeadersEntry
+	5,  // 4: miru.ExtensionEpisodeGroup.urls:type_name -> miru.ExtensionEpisode
+	7,  // 5: miru.ExtensionBangumiWatchTorrentFileTree.file:type_name -> miru.ExtensionBangumiWatchTorrentFileTreeFile
+	21, // 6: miru.ExtensionBangumiWatchTorrentFileTree.dir:type_name -> miru.ExtensionBangumiWatchTorrentFileTree.DirEntry
+	8,  // 7: miru.ExtensionBangumiWatchTorrentDetail.fileTree:type_name -> miru.ExtensionBangumiWatchTorrentFileTree
+	9,  // 8: miru.ExtensionBangumiWatchTorrent.detail:type_name -> miru.ExtensionBangumiWatchTorrentDetail
+	6,  // 9: miru.ExtensionBangumiWatch.subtitles:type_name -> miru.ExtensionBangumiWatchSubtitle
+	22, // 10: miru.ExtensionBangumiWatch.headers:type_name -> miru.ExtensionBangumiWatch.HeadersEntry
+	10, // 11: miru.ExtensionBangumiWatch.torrent:type_name -> miru.ExtensionBangumiWatchTorrent
+	23, // 12: miru.ExtensionMangaWatch.headers:type_name -> miru.ExtensionMangaWatch.HeadersEntry
+	14, // 13: miru.ExtensionRepo.extensions:type_name -> miru.GithubExtension
+	0,  // 14: miru.ExtensionSetting.type:type_name -> miru.ExtensionSettingType
+	8,  // 15: miru.ExtensionBangumiWatchTorrentFileTree.DirEntry.value:type_name -> miru.ExtensionBangumiWatchTorrentFileTree
+	16, // [16:16] is the sub-list for method output_type
+	16, // [16:16] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_proto_extension_model_proto_init() }
@@ -1345,18 +1525,20 @@ func file_proto_extension_model_proto_init() {
 	file_proto_extension_model_proto_msgTypes[10].OneofWrappers = []any{}
 	file_proto_extension_model_proto_msgTypes[12].OneofWrappers = []any{}
 	file_proto_extension_model_proto_msgTypes[13].OneofWrappers = []any{}
+	file_proto_extension_model_proto_msgTypes[16].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_extension_model_proto_rawDesc), len(file_proto_extension_model_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   22,
+			NumEnums:      1,
+			NumMessages:   23,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_proto_extension_model_proto_goTypes,
 		DependencyIndexes: file_proto_extension_model_proto_depIdxs,
+		EnumInfos:         file_proto_extension_model_proto_enumTypes,
 		MessageInfos:      file_proto_extension_model_proto_msgTypes,
 	}.Build()
 	File_proto_extension_model_proto = out.File

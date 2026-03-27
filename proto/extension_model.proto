@@ -119,3 +119,21 @@ message RepoConfig {
   string name = 2;
   int32 id = 3;
 }
+
+enum ExtensionSettingType {
+  input = 0;
+  radio = 1;
+  toggle = 2;
+}
+
+message ExtensionSetting {
+  int32 id = 1;
+  string package = 2;
+  string title = 3;
+  string key = 4;
+  optional string value = 5;
+  string defaultValue = 6;
+  ExtensionSettingType type = 7;
+  optional string description = 8;
+  optional string options = 9;
+}

@@ -19,12 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ExtensionService_Search_FullMethodName            = "/miru.ExtensionService/Search"
-	ExtensionService_Latest_FullMethodName            = "/miru.ExtensionService/Latest"
-	ExtensionService_Detail_FullMethodName            = "/miru.ExtensionService/Detail"
-	ExtensionService_Watch_FullMethodName             = "/miru.ExtensionService/Watch"
-	ExtensionService_DownloadExtension_FullMethodName = "/miru.ExtensionService/DownloadExtension"
-	ExtensionService_RemoveExtension_FullMethodName   = "/miru.ExtensionService/RemoveExtension"
+	ExtensionService_Search_FullMethodName                = "/miru.ExtensionService/Search"
+	ExtensionService_Latest_FullMethodName                = "/miru.ExtensionService/Latest"
+	ExtensionService_Detail_FullMethodName                = "/miru.ExtensionService/Detail"
+	ExtensionService_Watch_FullMethodName                 = "/miru.ExtensionService/Watch"
+	ExtensionService_DownloadExtension_FullMethodName     = "/miru.ExtensionService/DownloadExtension"
+	ExtensionService_RemoveExtension_FullMethodName       = "/miru.ExtensionService/RemoveExtension"
+	ExtensionService_GetExtensionSettings_FullMethodName  = "/miru.ExtensionService/GetExtensionSettings"
+	ExtensionService_SaveExtensionSettings_FullMethodName = "/miru.ExtensionService/SaveExtensionSettings"
 )
 
 // ExtensionServiceClient is the client API for ExtensionService service.
@@ -37,6 +39,8 @@ type ExtensionServiceClient interface {
 	Watch(ctx context.Context, in *WatchRequest, opts ...grpc.CallOption) (*WatchResponse, error)
 	DownloadExtension(ctx context.Context, in *DownloadExtensionRequest, opts ...grpc.CallOption) (*DownloadExtensionResponse, error)
 	RemoveExtension(ctx context.Context, in *RemoveExtensionRequest, opts ...grpc.CallOption) (*RemoveExtensionResponse, error)
+	GetExtensionSettings(ctx context.Context, in *GetExtensionSettingsRequest, opts ...grpc.CallOption) (*GetExtensionSettingsResponse, error)
+	SaveExtensionSettings(ctx context.Context, in *SaveExtensionSettingsRequest, opts ...grpc.CallOption) (*SaveExtensionSettingsResponse, error)
 }
 
 type extensionServiceClient struct {
@@ -107,6 +111,26 @@ func (c *extensionServiceClient) RemoveExtension(ctx context.Context, in *Remove
 	return out, nil
 }
 
+func (c *extensionServiceClient) GetExtensionSettings(ctx context.Context, in *GetExtensionSettingsRequest, opts ...grpc.CallOption) (*GetExtensionSettingsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetExtensionSettingsResponse)
+	err := c.cc.Invoke(ctx, ExtensionService_GetExtensionSettings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *extensionServiceClient) SaveExtensionSettings(ctx context.Context, in *SaveExtensionSettingsRequest, opts ...grpc.CallOption) (*SaveExtensionSettingsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SaveExtensionSettingsResponse)
+	err := c.cc.Invoke(ctx, ExtensionService_SaveExtensionSettings_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ExtensionServiceServer is the server API for ExtensionService service.
 // All implementations must embed UnimplementedExtensionServiceServer
 // for forward compatibility.
@@ -117,6 +141,8 @@ type ExtensionServiceServer interface {
 	Watch(context.Context, *WatchRequest) (*WatchResponse, error)
 	DownloadExtension(context.Context, *DownloadExtensionRequest) (*DownloadExtensionResponse, error)
 	RemoveExtension(context.Context, *RemoveExtensionRequest) (*RemoveExtensionResponse, error)
+	GetExtensionSettings(context.Context, *GetExtensionSettingsRequest) (*GetExtensionSettingsResponse, error)
+	SaveExtensionSettings(context.Context, *SaveExtensionSettingsRequest) (*SaveExtensionSettingsResponse, error)
 	mustEmbedUnimplementedExtensionServiceServer()
 }
 
@@ -144,6 +170,12 @@ func (UnimplementedExtensionServiceServer) DownloadExtension(context.Context, *D
 }
 func (UnimplementedExtensionServiceServer) RemoveExtension(context.Context, *RemoveExtensionRequest) (*RemoveExtensionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RemoveExtension not implemented")
+}
+func (UnimplementedExtensionServiceServer) GetExtensionSettings(context.Context, *GetExtensionSettingsRequest) (*GetExtensionSettingsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetExtensionSettings not implemented")
+}
+func (UnimplementedExtensionServiceServer) SaveExtensionSettings(context.Context, *SaveExtensionSettingsRequest) (*SaveExtensionSettingsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SaveExtensionSettings not implemented")
 }
 func (UnimplementedExtensionServiceServer) mustEmbedUnimplementedExtensionServiceServer() {}
 func (UnimplementedExtensionServiceServer) testEmbeddedByValue()                          {}
@@ -274,6 +306,42 @@ func _ExtensionService_RemoveExtension_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ExtensionService_GetExtensionSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetExtensionSettingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ExtensionServiceServer).GetExtensionSettings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ExtensionService_GetExtensionSettings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ExtensionServiceServer).GetExtensionSettings(ctx, req.(*GetExtensionSettingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ExtensionService_SaveExtensionSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SaveExtensionSettingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ExtensionServiceServer).SaveExtensionSettings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ExtensionService_SaveExtensionSettings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ExtensionServiceServer).SaveExtensionSettings(ctx, req.(*SaveExtensionSettingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ExtensionService_ServiceDesc is the grpc.ServiceDesc for ExtensionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -304,6 +372,14 @@ var ExtensionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveExtension",
 			Handler:    _ExtensionService_RemoveExtension_Handler,
+		},
+		{
+			MethodName: "GetExtensionSettings",
+			Handler:    _ExtensionService_GetExtensionSettings_Handler,
+		},
+		{
+			MethodName: "SaveExtensionSettings",
+			Handler:    _ExtensionService_SaveExtensionSettings_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

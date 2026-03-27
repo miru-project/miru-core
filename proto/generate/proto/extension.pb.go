@@ -676,6 +676,190 @@ func (x *RemoveExtensionResponse) GetMessage() string {
 	return ""
 }
 
+type GetExtensionSettingsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pkg           string                 `protobuf:"bytes,1,opt,name=pkg,proto3" json:"pkg,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetExtensionSettingsRequest) Reset() {
+	*x = GetExtensionSettingsRequest{}
+	mi := &file_proto_extension_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetExtensionSettingsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetExtensionSettingsRequest) ProtoMessage() {}
+
+func (x *GetExtensionSettingsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_extension_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetExtensionSettingsRequest.ProtoReflect.Descriptor instead.
+func (*GetExtensionSettingsRequest) Descriptor() ([]byte, []int) {
+	return file_proto_extension_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetExtensionSettingsRequest) GetPkg() string {
+	if x != nil {
+		return x.Pkg
+	}
+	return ""
+}
+
+type GetExtensionSettingsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Settings      []*ExtensionSetting    `protobuf:"bytes,1,rep,name=settings,proto3" json:"settings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetExtensionSettingsResponse) Reset() {
+	*x = GetExtensionSettingsResponse{}
+	mi := &file_proto_extension_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetExtensionSettingsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetExtensionSettingsResponse) ProtoMessage() {}
+
+func (x *GetExtensionSettingsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_extension_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetExtensionSettingsResponse.ProtoReflect.Descriptor instead.
+func (*GetExtensionSettingsResponse) Descriptor() ([]byte, []int) {
+	return file_proto_extension_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *GetExtensionSettingsResponse) GetSettings() []*ExtensionSetting {
+	if x != nil {
+		return x.Settings
+	}
+	return nil
+}
+
+type SaveExtensionSettingsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pkg           string                 `protobuf:"bytes,1,opt,name=pkg,proto3" json:"pkg,omitempty"`
+	Settings      []*ExtensionSetting    `protobuf:"bytes,2,rep,name=settings,proto3" json:"settings,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SaveExtensionSettingsRequest) Reset() {
+	*x = SaveExtensionSettingsRequest{}
+	mi := &file_proto_extension_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SaveExtensionSettingsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SaveExtensionSettingsRequest) ProtoMessage() {}
+
+func (x *SaveExtensionSettingsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_extension_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SaveExtensionSettingsRequest.ProtoReflect.Descriptor instead.
+func (*SaveExtensionSettingsRequest) Descriptor() ([]byte, []int) {
+	return file_proto_extension_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *SaveExtensionSettingsRequest) GetPkg() string {
+	if x != nil {
+		return x.Pkg
+	}
+	return ""
+}
+
+func (x *SaveExtensionSettingsRequest) GetSettings() []*ExtensionSetting {
+	if x != nil {
+		return x.Settings
+	}
+	return nil
+}
+
+type SaveExtensionSettingsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SaveExtensionSettingsResponse) Reset() {
+	*x = SaveExtensionSettingsResponse{}
+	mi := &file_proto_extension_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SaveExtensionSettingsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SaveExtensionSettingsResponse) ProtoMessage() {}
+
+func (x *SaveExtensionSettingsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_extension_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SaveExtensionSettingsResponse.ProtoReflect.Descriptor instead.
+func (*SaveExtensionSettingsResponse) Descriptor() ([]byte, []int) {
+	return file_proto_extension_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *SaveExtensionSettingsResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_proto_extension_proto protoreflect.FileDescriptor
 
 const file_proto_extension_proto_rawDesc = "" +
@@ -715,14 +899,25 @@ const file_proto_extension_proto_rawDesc = "" +
 	"\x16RemoveExtensionRequest\x12\x10\n" +
 	"\x03pkg\x18\x02 \x01(\tR\x03pkg\"3\n" +
 	"\x17RemoveExtensionResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage2\x89\x03\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"/\n" +
+	"\x1bGetExtensionSettingsRequest\x12\x10\n" +
+	"\x03pkg\x18\x01 \x01(\tR\x03pkg\"R\n" +
+	"\x1cGetExtensionSettingsResponse\x122\n" +
+	"\bsettings\x18\x01 \x03(\v2\x16.miru.ExtensionSettingR\bsettings\"d\n" +
+	"\x1cSaveExtensionSettingsRequest\x12\x10\n" +
+	"\x03pkg\x18\x01 \x01(\tR\x03pkg\x122\n" +
+	"\bsettings\x18\x02 \x03(\v2\x16.miru.ExtensionSettingR\bsettings\"9\n" +
+	"\x1dSaveExtensionSettingsResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage2\xca\x04\n" +
 	"\x10ExtensionService\x123\n" +
 	"\x06Search\x12\x13.miru.SearchRequest\x1a\x14.miru.SearchResponse\x123\n" +
 	"\x06Latest\x12\x13.miru.LatestRequest\x1a\x14.miru.LatestResponse\x123\n" +
 	"\x06Detail\x12\x13.miru.DetailRequest\x1a\x14.miru.DetailResponse\x120\n" +
 	"\x05Watch\x12\x12.miru.WatchRequest\x1a\x13.miru.WatchResponse\x12T\n" +
 	"\x11DownloadExtension\x12\x1e.miru.DownloadExtensionRequest\x1a\x1f.miru.DownloadExtensionResponse\x12N\n" +
-	"\x0fRemoveExtension\x12\x1c.miru.RemoveExtensionRequest\x1a\x1d.miru.RemoveExtensionResponseB)Z'github.com/miru-project/miru-core/protob\x06proto3"
+	"\x0fRemoveExtension\x12\x1c.miru.RemoveExtensionRequest\x1a\x1d.miru.RemoveExtensionResponse\x12]\n" +
+	"\x14GetExtensionSettings\x12!.miru.GetExtensionSettingsRequest\x1a\".miru.GetExtensionSettingsResponse\x12`\n" +
+	"\x15SaveExtensionSettings\x12\".miru.SaveExtensionSettingsRequest\x1a#.miru.SaveExtensionSettingsResponseB)Z'github.com/miru-project/miru-core/protob\x06proto3"
 
 var (
 	file_proto_extension_proto_rawDescOnce sync.Once
@@ -736,50 +931,61 @@ func file_proto_extension_proto_rawDescGZIP() []byte {
 	return file_proto_extension_proto_rawDescData
 }
 
-var file_proto_extension_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_proto_extension_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_proto_extension_proto_goTypes = []any{
-	(*SearchRequest)(nil),             // 0: miru.SearchRequest
-	(*SearchResponse)(nil),            // 1: miru.SearchResponse
-	(*LatestRequest)(nil),             // 2: miru.LatestRequest
-	(*LatestResponse)(nil),            // 3: miru.LatestResponse
-	(*DetailRequest)(nil),             // 4: miru.DetailRequest
-	(*DetailResponse)(nil),            // 5: miru.DetailResponse
-	(*WatchRequest)(nil),              // 6: miru.WatchRequest
-	(*WatchResponse)(nil),             // 7: miru.WatchResponse
-	(*DownloadExtensionRequest)(nil),  // 8: miru.DownloadExtensionRequest
-	(*DownloadExtensionResponse)(nil), // 9: miru.DownloadExtensionResponse
-	(*RemoveExtensionRequest)(nil),    // 10: miru.RemoveExtensionRequest
-	(*RemoveExtensionResponse)(nil),   // 11: miru.RemoveExtensionResponse
-	(*ExtensionListItem)(nil),         // 12: miru.ExtensionListItem
-	(*ExtensionDetail)(nil),           // 13: miru.ExtensionDetail
-	(*ExtensionBangumiWatch)(nil),     // 14: miru.ExtensionBangumiWatch
-	(*ExtensionMangaWatch)(nil),       // 15: miru.ExtensionMangaWatch
-	(*ExtensionFikushonWatch)(nil),    // 16: miru.ExtensionFikushonWatch
+	(*SearchRequest)(nil),                 // 0: miru.SearchRequest
+	(*SearchResponse)(nil),                // 1: miru.SearchResponse
+	(*LatestRequest)(nil),                 // 2: miru.LatestRequest
+	(*LatestResponse)(nil),                // 3: miru.LatestResponse
+	(*DetailRequest)(nil),                 // 4: miru.DetailRequest
+	(*DetailResponse)(nil),                // 5: miru.DetailResponse
+	(*WatchRequest)(nil),                  // 6: miru.WatchRequest
+	(*WatchResponse)(nil),                 // 7: miru.WatchResponse
+	(*DownloadExtensionRequest)(nil),      // 8: miru.DownloadExtensionRequest
+	(*DownloadExtensionResponse)(nil),     // 9: miru.DownloadExtensionResponse
+	(*RemoveExtensionRequest)(nil),        // 10: miru.RemoveExtensionRequest
+	(*RemoveExtensionResponse)(nil),       // 11: miru.RemoveExtensionResponse
+	(*GetExtensionSettingsRequest)(nil),   // 12: miru.GetExtensionSettingsRequest
+	(*GetExtensionSettingsResponse)(nil),  // 13: miru.GetExtensionSettingsResponse
+	(*SaveExtensionSettingsRequest)(nil),  // 14: miru.SaveExtensionSettingsRequest
+	(*SaveExtensionSettingsResponse)(nil), // 15: miru.SaveExtensionSettingsResponse
+	(*ExtensionListItem)(nil),             // 16: miru.ExtensionListItem
+	(*ExtensionDetail)(nil),               // 17: miru.ExtensionDetail
+	(*ExtensionBangumiWatch)(nil),         // 18: miru.ExtensionBangumiWatch
+	(*ExtensionMangaWatch)(nil),           // 19: miru.ExtensionMangaWatch
+	(*ExtensionFikushonWatch)(nil),        // 20: miru.ExtensionFikushonWatch
+	(*ExtensionSetting)(nil),              // 21: miru.ExtensionSetting
 }
 var file_proto_extension_proto_depIdxs = []int32{
-	12, // 0: miru.SearchResponse.items:type_name -> miru.ExtensionListItem
-	12, // 1: miru.LatestResponse.items:type_name -> miru.ExtensionListItem
-	13, // 2: miru.DetailResponse.data:type_name -> miru.ExtensionDetail
-	14, // 3: miru.WatchResponse.bangumi:type_name -> miru.ExtensionBangumiWatch
-	15, // 4: miru.WatchResponse.manga:type_name -> miru.ExtensionMangaWatch
-	16, // 5: miru.WatchResponse.fikushon:type_name -> miru.ExtensionFikushonWatch
-	0,  // 6: miru.ExtensionService.Search:input_type -> miru.SearchRequest
-	2,  // 7: miru.ExtensionService.Latest:input_type -> miru.LatestRequest
-	4,  // 8: miru.ExtensionService.Detail:input_type -> miru.DetailRequest
-	6,  // 9: miru.ExtensionService.Watch:input_type -> miru.WatchRequest
-	8,  // 10: miru.ExtensionService.DownloadExtension:input_type -> miru.DownloadExtensionRequest
-	10, // 11: miru.ExtensionService.RemoveExtension:input_type -> miru.RemoveExtensionRequest
-	1,  // 12: miru.ExtensionService.Search:output_type -> miru.SearchResponse
-	3,  // 13: miru.ExtensionService.Latest:output_type -> miru.LatestResponse
-	5,  // 14: miru.ExtensionService.Detail:output_type -> miru.DetailResponse
-	7,  // 15: miru.ExtensionService.Watch:output_type -> miru.WatchResponse
-	9,  // 16: miru.ExtensionService.DownloadExtension:output_type -> miru.DownloadExtensionResponse
-	11, // 17: miru.ExtensionService.RemoveExtension:output_type -> miru.RemoveExtensionResponse
-	12, // [12:18] is the sub-list for method output_type
-	6,  // [6:12] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	16, // 0: miru.SearchResponse.items:type_name -> miru.ExtensionListItem
+	16, // 1: miru.LatestResponse.items:type_name -> miru.ExtensionListItem
+	17, // 2: miru.DetailResponse.data:type_name -> miru.ExtensionDetail
+	18, // 3: miru.WatchResponse.bangumi:type_name -> miru.ExtensionBangumiWatch
+	19, // 4: miru.WatchResponse.manga:type_name -> miru.ExtensionMangaWatch
+	20, // 5: miru.WatchResponse.fikushon:type_name -> miru.ExtensionFikushonWatch
+	21, // 6: miru.GetExtensionSettingsResponse.settings:type_name -> miru.ExtensionSetting
+	21, // 7: miru.SaveExtensionSettingsRequest.settings:type_name -> miru.ExtensionSetting
+	0,  // 8: miru.ExtensionService.Search:input_type -> miru.SearchRequest
+	2,  // 9: miru.ExtensionService.Latest:input_type -> miru.LatestRequest
+	4,  // 10: miru.ExtensionService.Detail:input_type -> miru.DetailRequest
+	6,  // 11: miru.ExtensionService.Watch:input_type -> miru.WatchRequest
+	8,  // 12: miru.ExtensionService.DownloadExtension:input_type -> miru.DownloadExtensionRequest
+	10, // 13: miru.ExtensionService.RemoveExtension:input_type -> miru.RemoveExtensionRequest
+	12, // 14: miru.ExtensionService.GetExtensionSettings:input_type -> miru.GetExtensionSettingsRequest
+	14, // 15: miru.ExtensionService.SaveExtensionSettings:input_type -> miru.SaveExtensionSettingsRequest
+	1,  // 16: miru.ExtensionService.Search:output_type -> miru.SearchResponse
+	3,  // 17: miru.ExtensionService.Latest:output_type -> miru.LatestResponse
+	5,  // 18: miru.ExtensionService.Detail:output_type -> miru.DetailResponse
+	7,  // 19: miru.ExtensionService.Watch:output_type -> miru.WatchResponse
+	9,  // 20: miru.ExtensionService.DownloadExtension:output_type -> miru.DownloadExtensionResponse
+	11, // 21: miru.ExtensionService.RemoveExtension:output_type -> miru.RemoveExtensionResponse
+	13, // 22: miru.ExtensionService.GetExtensionSettings:output_type -> miru.GetExtensionSettingsResponse
+	15, // 23: miru.ExtensionService.SaveExtensionSettings:output_type -> miru.SaveExtensionSettingsResponse
+	16, // [16:24] is the sub-list for method output_type
+	8,  // [8:16] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_proto_extension_proto_init() }
@@ -800,7 +1006,7 @@ func file_proto_extension_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_extension_proto_rawDesc), len(file_proto_extension_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
