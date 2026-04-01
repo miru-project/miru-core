@@ -135,6 +135,15 @@ func (s *MiruCoreServer) Search(ctx context.Context, req *proto.SearchRequest) (
 	return &proto.SearchResponse{Items: res.Data}, nil
 }
 
+func (s *MiruCoreServer) CreateFilter(ctx context.Context, req *proto.CreateFilterRequest) (*proto.CreateFilterResponse, error) {
+	res := handler.CreateFilter(req.Pkg, req.Filter)
+	if res.Code != 200 {
+		return nil, fmt.Errorf("create filter failed with code %d: %s", res.Code, res.Message)
+	}
+
+	return &proto.CreateFilterResponse{Filters: res.Data}, nil
+}
+
 func (s *MiruCoreServer) Latest(ctx context.Context, req *proto.LatestRequest) (*proto.LatestResponse, error) {
 	res := handler.Latest(strconv.Itoa(int(req.Page)), req.Pkg)
 	if res.Code != 200 {

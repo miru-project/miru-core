@@ -133,3 +133,22 @@ func Detail[T proto.ExtensionDetail](pkg string, url string) (*T, error) {
 	}
 	return Unmarshal[T](res)
 }
+
+func CreateFilter(pkg string, filter string) (map[string]*proto.ExtensionFilter, error) {
+	api, e := getPkgFromCache(pkg)
+	if e != nil {
+		return nil, e
+	}
+	if filter == "" {
+		filter = "null"
+	}
+	res, err := api.asyncCallBack(api, pkg, fmt.Sprintf(api.createFilterEval, filter))
+	if err != nil {
+		return nil, err
+	}
+	decoded, err := Unmarshal[map[string]*proto.ExtensionFilter](res)
+	if err != nil {
+		return nil, err
+	}
+	return *decoded, nil
+}

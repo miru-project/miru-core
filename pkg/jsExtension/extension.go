@@ -44,6 +44,7 @@ type ExtApi struct {
 	searchEval    string
 	detailEval    string
 	watchEval     string
+	createFilterEval string
 	lock          sync.Mutex
 }
 

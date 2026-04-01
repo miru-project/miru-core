@@ -32,6 +32,12 @@ func Search(page string, pkg string, kw string, filter string) *result.Result[[]
 	return handleResult(res, e)
 }
 
+// handle CreateFilter when receiving a request
+func CreateFilter(pkg string, filter string) *result.Result[map[string]*proto.ExtensionFilter] {
+	res, e := jsExtension.CreateFilter(pkg, filter)
+	return handleResult(res, e)
+}
+
 // handle Watch when receiving a request
 func Watch(pkg string, url string) (*result.Result[any], *jsExtension.ExtApi) {
 

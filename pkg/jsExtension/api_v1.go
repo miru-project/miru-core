@@ -38,4 +38,5 @@ func (api *ExtApi) initEvalV1String() {
 	api.searchEval = "ext.search('%s', %d, %s)"
 	api.detailEval = "ext.detail('%s')"
 	api.watchEval = "ext.watch('%s')"
+	api.createFilterEval = "ext.createFilter(%s)"
 }
