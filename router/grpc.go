@@ -738,7 +738,7 @@ func (s *MiruCoreServer) SaveExtensionSettings(ctx context.Context, req *proto.S
 
 // Network
 func (s *MiruCoreServer) SetCookie(ctx context.Context, req *proto.SetCookieRequest) (*proto.SetCookieResponse, error) {
-	err := network.SetCookies(req.Url, strings.Split(req.Cookie, ";"))
+	err := network.SetCookiesString(req.Url, strings.Split(req.Cookie, ";"))
 	if err != nil {
 		return nil, err
 	}

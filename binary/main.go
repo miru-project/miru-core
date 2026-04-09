@@ -7,7 +7,6 @@ import (
 	fasthttp_router "github.com/fasthttp/router"
 	"github.com/miru-project/miru-core/config"
 	"github.com/miru-project/miru-core/ext"
-	"github.com/miru-project/miru-core/pkg/anilist"
 	"github.com/miru-project/miru-core/pkg/db"
 	"github.com/miru-project/miru-core/pkg/download"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
@@ -57,7 +56,6 @@ func Init() {
 	network.Init()
 	ext.EntClient()
 	db.Initialize()
-	anilist.InitToken()
 	torrent.Init()
 	download.Init()
 	jsext.InitRuntime(config.Global.ExtensionPath, f)

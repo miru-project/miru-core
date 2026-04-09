@@ -174,7 +174,7 @@ func (api *ExtApi) registerFunction(vm *goja.Runtime, job Job) {
 		for i, c := range cookies {
 			cookieStrs[i] = fmt.Sprintf("%v", c)
 		}
-		e := network.SetCookies(url, cookieStrs)
+		e := network.SetCookiesString(url, cookieStrs)
 		if e != nil {
 			panic(vm.ToValue(errors.New("Error setting cookies:" + e.Error())))
 		}

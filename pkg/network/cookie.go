@@ -17,7 +17,7 @@ import (
 
 var jar *cookiejar.PersistentJar
 
-func SetCookies(u string, cookies []string) error {
+func SetCookiesString(u string, cookies []string) error {
 	parsedURL, err := url.Parse(u)
 	if err != nil {
 		return err

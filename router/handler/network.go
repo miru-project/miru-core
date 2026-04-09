@@ -18,7 +18,7 @@ func GetCookies(url string) *result.Result[any] {
 
 func SetCookies(url string, cookies string) *result.Result[any] {
 	cookieList := strings.Split(cookies, ";")
-	e := network.SetCookies(url, cookieList)
+	e := network.SetCookiesString(url, cookieList)
 	if e != nil {
 		return result.NewErrorResultAny(e.Error(), http.StatusInternalServerError)
 	}

@@ -133,6 +133,13 @@ func Proxy(ctx *fasthttp.RequestCtx) {
 
 	req.SetRequestURI(targetURL)
 
+	// Inject Anilist Token if target is Anilist and no auth header is present
+	if strings.Contains(targetURL, "anilist.co") && string(req.Header.Peek("Authorization")) == "" {
+		if token, err := db.GetAPPSetting("anilist_token"); err == nil && token != "" {
+			req.Header.Set("Authorization", "Bearer "+token)
+		}
+	}
+
 	client, err := PrepareProxy(nil, targetURL)
 	if err != nil {
 		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
