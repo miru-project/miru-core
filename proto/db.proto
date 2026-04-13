@@ -23,6 +23,7 @@ message UpsertDetailRequest {
   repeated string downloaded = 6;
   optional string episodes = 7; // JSON
   optional string headers = 8;  // JSON
+  map<string, string> track_ids = 9;
 }
 
 message UpsertDetailResponse { Detail detail = 1; }
@@ -121,6 +122,21 @@ message GetHistorysFilteredRequest {
 }
 message GetHistorysFilteredResponse { repeated History histories = 1; }
 
+// Track
+message GetTrackRequest {
+  string tracking_id = 1;
+  string provider = 2;
+}
+message GetTrackResponse { Track track = 1; }
+
+message PutTrackRequest {
+  string tracking_id = 1;
+  string data = 2;
+  string media_type = 3;
+  string provider = 4;
+}
+message PutTrackResponse { Track track = 1; }
+
 service DbService {
   // Detail
   rpc GetDetail(GetDetailRequest) returns (GetDetailResponse);
@@ -161,4 +177,8 @@ service DbService {
       returns (DeleteAllHistoryResponse);
   rpc GetHistorysFiltered(GetHistorysFilteredRequest)
       returns (GetHistorysFilteredResponse);
+
+  // Track
+  rpc GetTrack(GetTrackRequest) returns (GetTrackResponse);
+  rpc PutTrack(PutTrackRequest) returns (PutTrackResponse);
 }

@@ -602,6 +602,16 @@ func HeadersContainsFold(v string) predicate.Detail {
 	return predicate.Detail(sql.FieldContainsFold(FieldHeaders, v))
 }
 
+// TrackIdsIsNil applies the IsNil predicate on the "track_ids" field.
+func TrackIdsIsNil() predicate.Detail {
+	return predicate.Detail(sql.FieldIsNull(FieldTrackIds))
+}
+
+// TrackIdsNotNil applies the NotNil predicate on the "track_ids" field.
+func TrackIdsNotNil() predicate.Detail {
+	return predicate.Detail(sql.FieldNotNull(FieldTrackIds))
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Detail) predicate.Detail {
 	return predicate.Detail(sql.AndPredicates(predicates...))

@@ -32,8 +32,9 @@ type Detail struct {
 	Package    string                 `protobuf:"bytes,6,opt,name=package,proto3" json:"package,omitempty"`
 	Downloaded []string               `protobuf:"bytes,7,rep,name=downloaded,proto3" json:"downloaded,omitempty"`
 	// JSON encoded strings for complex types to mirror frontend ExtensionDetail
-	Episodes      *string `protobuf:"bytes,8,opt,name=episodes,proto3,oneof" json:"episodes,omitempty"`
-	Headers       *string `protobuf:"bytes,9,opt,name=headers,proto3,oneof" json:"headers,omitempty"`
+	Episodes      *string           `protobuf:"bytes,8,opt,name=episodes,proto3,oneof" json:"episodes,omitempty"`
+	Headers       *string           `protobuf:"bytes,9,opt,name=headers,proto3,oneof" json:"headers,omitempty"`
+	TrackIds      map[string]string `protobuf:"bytes,10,rep,name=track_ids,json=trackIds,proto3" json:"track_ids,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -129,6 +130,13 @@ func (x *Detail) GetHeaders() string {
 		return *x.Headers
 	}
 	return ""
+}
+
+func (x *Detail) GetTrackIds() map[string]string {
+	if x != nil {
+		return x.TrackIds
+	}
+	return nil
 }
 
 // DB - Favorite
@@ -433,11 +441,88 @@ func (x *History) GetDetailUrl() string {
 	return ""
 }
 
+// Track
+type Track struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int32                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	TrackingId    string                 `protobuf:"bytes,2,opt,name=tracking_id,json=trackingId,proto3" json:"tracking_id,omitempty"`
+	Data          string                 `protobuf:"bytes,3,opt,name=data,proto3" json:"data,omitempty"` // JSON
+	MediaType     string                 `protobuf:"bytes,4,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
+	Provider      string                 `protobuf:"bytes,5,opt,name=provider,proto3" json:"provider,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Track) Reset() {
+	*x = Track{}
+	mi := &file_proto_db_model_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Track) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Track) ProtoMessage() {}
+
+func (x *Track) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_db_model_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Track.ProtoReflect.Descriptor instead.
+func (*Track) Descriptor() ([]byte, []int) {
+	return file_proto_db_model_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *Track) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Track) GetTrackingId() string {
+	if x != nil {
+		return x.TrackingId
+	}
+	return ""
+}
+
+func (x *Track) GetData() string {
+	if x != nil {
+		return x.Data
+	}
+	return ""
+}
+
+func (x *Track) GetMediaType() string {
+	if x != nil {
+		return x.MediaType
+	}
+	return ""
+}
+
+func (x *Track) GetProvider() string {
+	if x != nil {
+		return x.Provider
+	}
+	return ""
+}
+
 var File_proto_db_model_proto protoreflect.FileDescriptor
 
 const file_proto_db_model_proto_rawDesc = "" +
 	"\n" +
-	"\x14proto/db_model.proto\x12\x04miru\"\xb6\x02\n" +
+	"\x14proto/db_model.proto\x12\x04miru\"\xac\x03\n" +
 	"\x06Detail\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x19\n" +
 	"\x05title\x18\x02 \x01(\tH\x00R\x05title\x88\x01\x01\x12\x19\n" +
@@ -450,7 +535,12 @@ const file_proto_db_model_proto_rawDesc = "" +
 	"downloaded\x18\a \x03(\tR\n" +
 	"downloaded\x12\x1f\n" +
 	"\bepisodes\x18\b \x01(\tH\x03R\bepisodes\x88\x01\x01\x12\x1d\n" +
-	"\aheaders\x18\t \x01(\tH\x04R\aheaders\x88\x01\x01B\b\n" +
+	"\aheaders\x18\t \x01(\tH\x04R\aheaders\x88\x01\x01\x127\n" +
+	"\ttrack_ids\x18\n" +
+	" \x03(\v2\x1a.miru.Detail.TrackIdsEntryR\btrackIds\x1a;\n" +
+	"\rTrackIdsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\b\n" +
 	"\x06_titleB\b\n" +
 	"\x06_coverB\a\n" +
 	"\x05_descB\v\n" +
@@ -486,7 +576,15 @@ const file_proto_db_model_proto_rawDesc = "" +
 	"\x0etotal_progress\x18\v \x01(\x05R\rtotalProgress\x12\x12\n" +
 	"\x04date\x18\f \x01(\tR\x04date\x12\x1d\n" +
 	"\n" +
-	"detail_url\x18\r \x01(\tR\tdetailUrlB)Z'github.com/miru-project/miru-core/protob\x06proto3"
+	"detail_url\x18\r \x01(\tR\tdetailUrl\"\x87\x01\n" +
+	"\x05Track\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x1f\n" +
+	"\vtracking_id\x18\x02 \x01(\tR\n" +
+	"trackingId\x12\x12\n" +
+	"\x04data\x18\x03 \x01(\tR\x04data\x12\x1d\n" +
+	"\n" +
+	"media_type\x18\x04 \x01(\tR\tmediaType\x12\x1a\n" +
+	"\bprovider\x18\x05 \x01(\tR\bproviderB)Z'github.com/miru-project/miru-core/protob\x06proto3"
 
 var (
 	file_proto_db_model_proto_rawDescOnce sync.Once
@@ -500,20 +598,23 @@ func file_proto_db_model_proto_rawDescGZIP() []byte {
 	return file_proto_db_model_proto_rawDescData
 }
 
-var file_proto_db_model_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_proto_db_model_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_proto_db_model_proto_goTypes = []any{
 	(*Detail)(nil),        // 0: miru.Detail
 	(*Favorite)(nil),      // 1: miru.Favorite
 	(*FavoriteGroup)(nil), // 2: miru.FavoriteGroup
 	(*History)(nil),       // 3: miru.History
+	(*Track)(nil),         // 4: miru.Track
+	nil,                   // 5: miru.Detail.TrackIdsEntry
 }
 var file_proto_db_model_proto_depIdxs = []int32{
-	1, // 0: miru.FavoriteGroup.favorites:type_name -> miru.Favorite
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	5, // 0: miru.Detail.track_ids:type_name -> miru.Detail.TrackIdsEntry
+	1, // 1: miru.FavoriteGroup.favorites:type_name -> miru.Favorite
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_proto_db_model_proto_init() }
@@ -528,7 +629,7 @@ func file_proto_db_model_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_db_model_proto_rawDesc), len(file_proto_db_model_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

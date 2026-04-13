@@ -18,6 +18,7 @@ message Detail {
   // JSON encoded strings for complex types to mirror frontend ExtensionDetail
   optional string episodes = 8;
   optional string headers = 9;
+  map<string, string> track_ids = 10;
 }
 
 // DB - Favorite
@@ -53,4 +54,13 @@ message History {
   int32 total_progress = 11;
   string  date = 12; // ISO8601
   string detail_url = 13;
+}
+
+// Track
+message Track {
+  int32 id = 1;
+  string tracking_id = 2;
+  string data = 3; // JSON
+  string media_type = 4;
+  string provider = 5;
 }

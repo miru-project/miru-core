@@ -109,6 +109,12 @@ func (_c *DetailCreate) SetNillableHeaders(v *string) *DetailCreate {
 	return _c
 }
 
+// SetTrackIds sets the "track_ids" field.
+func (_c *DetailCreate) SetTrackIds(v map[string]string) *DetailCreate {
+	_c.mutation.SetTrackIds(v)
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *DetailCreate) SetID(v int) *DetailCreate {
 	_c.mutation.SetID(v)
@@ -239,6 +245,10 @@ func (_c *DetailCreate) createSpec() (*Detail, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Headers(); ok {
 		_spec.SetField(detail.FieldHeaders, field.TypeString, value)
 		_node.Headers = &value
+	}
+	if value, ok := _c.mutation.TrackIds(); ok {
+		_spec.SetField(detail.FieldTrackIds, field.TypeJSON, value)
+		_node.TrackIds = value
 	}
 	return _node, _spec
 }
@@ -421,6 +431,24 @@ func (u *DetailUpsert) UpdateHeaders() *DetailUpsert {
 // ClearHeaders clears the value of the "headers" field.
 func (u *DetailUpsert) ClearHeaders() *DetailUpsert {
 	u.SetNull(detail.FieldHeaders)
+	return u
+}
+
+// SetTrackIds sets the "track_ids" field.
+func (u *DetailUpsert) SetTrackIds(v map[string]string) *DetailUpsert {
+	u.Set(detail.FieldTrackIds, v)
+	return u
+}
+
+// UpdateTrackIds sets the "track_ids" field to the value that was provided on create.
+func (u *DetailUpsert) UpdateTrackIds() *DetailUpsert {
+	u.SetExcluded(detail.FieldTrackIds)
+	return u
+}
+
+// ClearTrackIds clears the value of the "track_ids" field.
+func (u *DetailUpsert) ClearTrackIds() *DetailUpsert {
+	u.SetNull(detail.FieldTrackIds)
 	return u
 }
 
@@ -623,6 +651,27 @@ func (u *DetailUpsertOne) UpdateHeaders() *DetailUpsertOne {
 func (u *DetailUpsertOne) ClearHeaders() *DetailUpsertOne {
 	return u.Update(func(s *DetailUpsert) {
 		s.ClearHeaders()
+	})
+}
+
+// SetTrackIds sets the "track_ids" field.
+func (u *DetailUpsertOne) SetTrackIds(v map[string]string) *DetailUpsertOne {
+	return u.Update(func(s *DetailUpsert) {
+		s.SetTrackIds(v)
+	})
+}
+
+// UpdateTrackIds sets the "track_ids" field to the value that was provided on create.
+func (u *DetailUpsertOne) UpdateTrackIds() *DetailUpsertOne {
+	return u.Update(func(s *DetailUpsert) {
+		s.UpdateTrackIds()
+	})
+}
+
+// ClearTrackIds clears the value of the "track_ids" field.
+func (u *DetailUpsertOne) ClearTrackIds() *DetailUpsertOne {
+	return u.Update(func(s *DetailUpsert) {
+		s.ClearTrackIds()
 	})
 }
 
@@ -990,6 +1039,27 @@ func (u *DetailUpsertBulk) UpdateHeaders() *DetailUpsertBulk {
 func (u *DetailUpsertBulk) ClearHeaders() *DetailUpsertBulk {
 	return u.Update(func(s *DetailUpsert) {
 		s.ClearHeaders()
+	})
+}
+
+// SetTrackIds sets the "track_ids" field.
+func (u *DetailUpsertBulk) SetTrackIds(v map[string]string) *DetailUpsertBulk {
+	return u.Update(func(s *DetailUpsert) {
+		s.SetTrackIds(v)
+	})
+}
+
+// UpdateTrackIds sets the "track_ids" field to the value that was provided on create.
+func (u *DetailUpsertBulk) UpdateTrackIds() *DetailUpsertBulk {
+	return u.Update(func(s *DetailUpsert) {
+		s.UpdateTrackIds()
+	})
+}
+
+// ClearTrackIds clears the value of the "track_ids" field.
+func (u *DetailUpsertBulk) ClearTrackIds() *DetailUpsertBulk {
+	return u.Update(func(s *DetailUpsert) {
+		s.ClearTrackIds()
 	})
 }
 

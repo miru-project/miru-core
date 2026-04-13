@@ -128,6 +128,7 @@ type UpsertDetailRequest struct {
 	Downloaded    []string               `protobuf:"bytes,6,rep,name=downloaded,proto3" json:"downloaded,omitempty"`
 	Episodes      *string                `protobuf:"bytes,7,opt,name=episodes,proto3,oneof" json:"episodes,omitempty"` // JSON
 	Headers       *string                `protobuf:"bytes,8,opt,name=headers,proto3,oneof" json:"headers,omitempty"`   // JSON
+	TrackIds      map[string]string      `protobuf:"bytes,9,rep,name=track_ids,json=trackIds,proto3" json:"track_ids,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -216,6 +217,13 @@ func (x *UpsertDetailRequest) GetHeaders() string {
 		return *x.Headers
 	}
 	return ""
+}
+
+func (x *UpsertDetailRequest) GetTrackIds() map[string]string {
+	if x != nil {
+		return x.TrackIds
+	}
+	return nil
 }
 
 type UpsertDetailResponse struct {
@@ -1865,6 +1873,215 @@ func (x *GetHistorysFilteredResponse) GetHistories() []*History {
 	return nil
 }
 
+// Track
+type GetTrackRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TrackingId    string                 `protobuf:"bytes,1,opt,name=tracking_id,json=trackingId,proto3" json:"tracking_id,omitempty"`
+	Provider      string                 `protobuf:"bytes,2,opt,name=provider,proto3" json:"provider,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTrackRequest) Reset() {
+	*x = GetTrackRequest{}
+	mi := &file_proto_db_proto_msgTypes[38]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTrackRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTrackRequest) ProtoMessage() {}
+
+func (x *GetTrackRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_db_proto_msgTypes[38]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTrackRequest.ProtoReflect.Descriptor instead.
+func (*GetTrackRequest) Descriptor() ([]byte, []int) {
+	return file_proto_db_proto_rawDescGZIP(), []int{38}
+}
+
+func (x *GetTrackRequest) GetTrackingId() string {
+	if x != nil {
+		return x.TrackingId
+	}
+	return ""
+}
+
+func (x *GetTrackRequest) GetProvider() string {
+	if x != nil {
+		return x.Provider
+	}
+	return ""
+}
+
+type GetTrackResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Track         *Track                 `protobuf:"bytes,1,opt,name=track,proto3" json:"track,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetTrackResponse) Reset() {
+	*x = GetTrackResponse{}
+	mi := &file_proto_db_proto_msgTypes[39]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetTrackResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetTrackResponse) ProtoMessage() {}
+
+func (x *GetTrackResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_db_proto_msgTypes[39]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetTrackResponse.ProtoReflect.Descriptor instead.
+func (*GetTrackResponse) Descriptor() ([]byte, []int) {
+	return file_proto_db_proto_rawDescGZIP(), []int{39}
+}
+
+func (x *GetTrackResponse) GetTrack() *Track {
+	if x != nil {
+		return x.Track
+	}
+	return nil
+}
+
+type PutTrackRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TrackingId    string                 `protobuf:"bytes,1,opt,name=tracking_id,json=trackingId,proto3" json:"tracking_id,omitempty"`
+	Data          string                 `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
+	MediaType     string                 `protobuf:"bytes,3,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
+	Provider      string                 `protobuf:"bytes,4,opt,name=provider,proto3" json:"provider,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PutTrackRequest) Reset() {
+	*x = PutTrackRequest{}
+	mi := &file_proto_db_proto_msgTypes[40]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PutTrackRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PutTrackRequest) ProtoMessage() {}
+
+func (x *PutTrackRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_db_proto_msgTypes[40]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PutTrackRequest.ProtoReflect.Descriptor instead.
+func (*PutTrackRequest) Descriptor() ([]byte, []int) {
+	return file_proto_db_proto_rawDescGZIP(), []int{40}
+}
+
+func (x *PutTrackRequest) GetTrackingId() string {
+	if x != nil {
+		return x.TrackingId
+	}
+	return ""
+}
+
+func (x *PutTrackRequest) GetData() string {
+	if x != nil {
+		return x.Data
+	}
+	return ""
+}
+
+func (x *PutTrackRequest) GetMediaType() string {
+	if x != nil {
+		return x.MediaType
+	}
+	return ""
+}
+
+func (x *PutTrackRequest) GetProvider() string {
+	if x != nil {
+		return x.Provider
+	}
+	return ""
+}
+
+type PutTrackResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Track         *Track                 `protobuf:"bytes,1,opt,name=track,proto3" json:"track,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PutTrackResponse) Reset() {
+	*x = PutTrackResponse{}
+	mi := &file_proto_db_proto_msgTypes[41]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PutTrackResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PutTrackResponse) ProtoMessage() {}
+
+func (x *PutTrackResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_db_proto_msgTypes[41]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PutTrackResponse.ProtoReflect.Descriptor instead.
+func (*PutTrackResponse) Descriptor() ([]byte, []int) {
+	return file_proto_db_proto_rawDescGZIP(), []int{41}
+}
+
+func (x *PutTrackResponse) GetTrack() *Track {
+	if x != nil {
+		return x.Track
+	}
+	return nil
+}
+
 var File_proto_db_proto protoreflect.FileDescriptor
 
 const file_proto_db_proto_rawDesc = "" +
@@ -1875,7 +2092,7 @@ const file_proto_db_proto_rawDesc = "" +
 	"\n" +
 	"detail_url\x18\x02 \x01(\tR\tdetailUrl\"9\n" +
 	"\x11GetDetailResponse\x12$\n" +
-	"\x06detail\x18\x01 \x01(\v2\f.miru.DetailR\x06detail\"\xb3\x02\n" +
+	"\x06detail\x18\x01 \x01(\v2\f.miru.DetailR\x06detail\"\xb6\x03\n" +
 	"\x13UpsertDetailRequest\x12\x19\n" +
 	"\x05title\x18\x01 \x01(\tH\x00R\x05title\x88\x01\x01\x12\x19\n" +
 	"\x05cover\x18\x02 \x01(\tH\x01R\x05cover\x88\x01\x01\x12\x17\n" +
@@ -1887,7 +2104,11 @@ const file_proto_db_proto_rawDesc = "" +
 	"downloaded\x18\x06 \x03(\tR\n" +
 	"downloaded\x12\x1f\n" +
 	"\bepisodes\x18\a \x01(\tH\x03R\bepisodes\x88\x01\x01\x12\x1d\n" +
-	"\aheaders\x18\b \x01(\tH\x04R\aheaders\x88\x01\x01B\b\n" +
+	"\aheaders\x18\b \x01(\tH\x04R\aheaders\x88\x01\x01\x12D\n" +
+	"\ttrack_ids\x18\t \x03(\v2'.miru.UpsertDetailRequest.TrackIdsEntryR\btrackIds\x1a;\n" +
+	"\rTrackIdsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\b\n" +
 	"\x06_titleB\b\n" +
 	"\x06_coverB\a\n" +
 	"\x05_descB\v\n" +
@@ -1978,7 +2199,22 @@ const file_proto_db_proto_rawDesc = "" +
 	"\x04page\x18\x03 \x01(\x05R\x04page\x12\x1b\n" +
 	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"J\n" +
 	"\x1bGetHistorysFilteredResponse\x12+\n" +
-	"\thistories\x18\x01 \x03(\v2\r.miru.HistoryR\thistories2\xb5\r\n" +
+	"\thistories\x18\x01 \x03(\v2\r.miru.HistoryR\thistories\"N\n" +
+	"\x0fGetTrackRequest\x12\x1f\n" +
+	"\vtracking_id\x18\x01 \x01(\tR\n" +
+	"trackingId\x12\x1a\n" +
+	"\bprovider\x18\x02 \x01(\tR\bprovider\"5\n" +
+	"\x10GetTrackResponse\x12!\n" +
+	"\x05track\x18\x01 \x01(\v2\v.miru.TrackR\x05track\"\x81\x01\n" +
+	"\x0fPutTrackRequest\x12\x1f\n" +
+	"\vtracking_id\x18\x01 \x01(\tR\n" +
+	"trackingId\x12\x12\n" +
+	"\x04data\x18\x02 \x01(\tR\x04data\x12\x1d\n" +
+	"\n" +
+	"media_type\x18\x03 \x01(\tR\tmediaType\x12\x1a\n" +
+	"\bprovider\x18\x04 \x01(\tR\bprovider\"5\n" +
+	"\x10PutTrackResponse\x12!\n" +
+	"\x05track\x18\x01 \x01(\v2\v.miru.TrackR\x05track2\xab\x0e\n" +
 	"\tDbService\x12<\n" +
 	"\tGetDetail\x12\x16.miru.GetDetailRequest\x1a\x17.miru.GetDetailResponse\x12E\n" +
 	"\fUpsertDetail\x12\x19.miru.UpsertDetailRequest\x1a\x1a.miru.UpsertDetailResponse\x12K\n" +
@@ -1999,7 +2235,9 @@ const file_proto_db_proto_rawDesc = "" +
 	"PutHistory\x12\x17.miru.PutHistoryRequest\x1a\x18.miru.PutHistoryResponse\x12u\n" +
 	"\x1cDeleteHistoryByPackageAndUrl\x12).miru.DeleteHistoryByPackageAndUrlRequest\x1a*.miru.DeleteHistoryByPackageAndUrlResponse\x12Q\n" +
 	"\x10DeleteAllHistory\x12\x1d.miru.DeleteAllHistoryRequest\x1a\x1e.miru.DeleteAllHistoryResponse\x12Z\n" +
-	"\x13GetHistorysFiltered\x12 .miru.GetHistorysFilteredRequest\x1a!.miru.GetHistorysFilteredResponseB)Z'github.com/miru-project/miru-core/protob\x06proto3"
+	"\x13GetHistorysFiltered\x12 .miru.GetHistorysFilteredRequest\x1a!.miru.GetHistorysFilteredResponse\x129\n" +
+	"\bGetTrack\x12\x15.miru.GetTrackRequest\x1a\x16.miru.GetTrackResponse\x129\n" +
+	"\bPutTrack\x12\x15.miru.PutTrackRequest\x1a\x16.miru.PutTrackResponseB)Z'github.com/miru-project/miru-core/protob\x06proto3"
 
 var (
 	file_proto_db_proto_rawDescOnce sync.Once
@@ -2013,7 +2251,7 @@ func file_proto_db_proto_rawDescGZIP() []byte {
 	return file_proto_db_proto_rawDescData
 }
 
-var file_proto_db_proto_msgTypes = make([]protoimpl.MessageInfo, 38)
+var file_proto_db_proto_msgTypes = make([]protoimpl.MessageInfo, 43)
 var file_proto_db_proto_goTypes = []any{
 	(*GetDetailRequest)(nil),                        // 0: miru.GetDetailRequest
 	(*GetDetailResponse)(nil),                       // 1: miru.GetDetailResponse
@@ -2053,70 +2291,83 @@ var file_proto_db_proto_goTypes = []any{
 	(*DeleteAllHistoryResponse)(nil),                // 35: miru.DeleteAllHistoryResponse
 	(*GetHistorysFilteredRequest)(nil),              // 36: miru.GetHistorysFilteredRequest
 	(*GetHistorysFilteredResponse)(nil),             // 37: miru.GetHistorysFilteredResponse
-	(*Detail)(nil),                                  // 38: miru.Detail
-	(*Favorite)(nil),                                // 39: miru.Favorite
-	(*FavoriteGroup)(nil),                           // 40: miru.FavoriteGroup
-	(*History)(nil),                                 // 41: miru.History
+	(*GetTrackRequest)(nil),                         // 38: miru.GetTrackRequest
+	(*GetTrackResponse)(nil),                        // 39: miru.GetTrackResponse
+	(*PutTrackRequest)(nil),                         // 40: miru.PutTrackRequest
+	(*PutTrackResponse)(nil),                        // 41: miru.PutTrackResponse
+	nil,                                             // 42: miru.UpsertDetailRequest.TrackIdsEntry
+	(*Detail)(nil),                                  // 43: miru.Detail
+	(*Favorite)(nil),                                // 44: miru.Favorite
+	(*FavoriteGroup)(nil),                           // 45: miru.FavoriteGroup
+	(*History)(nil),                                 // 46: miru.History
+	(*Track)(nil),                                   // 47: miru.Track
 }
 var file_proto_db_proto_depIdxs = []int32{
-	38, // 0: miru.GetDetailResponse.detail:type_name -> miru.Detail
-	38, // 1: miru.UpsertDetailResponse.detail:type_name -> miru.Detail
-	39, // 2: miru.GetAllFavoriteResponse.favorites:type_name -> miru.Favorite
-	39, // 3: miru.GetFavoriteByPackageAndUrlResponse.favorite:type_name -> miru.Favorite
-	40, // 4: miru.PutFavoriteByIndexRequest.groups:type_name -> miru.FavoriteGroup
-	39, // 5: miru.PutFavoriteResponse.favorite:type_name -> miru.Favorite
-	40, // 6: miru.GetFavoriteGroupsByIdResponse.groups:type_name -> miru.FavoriteGroup
-	40, // 7: miru.GetAllFavoriteGroupResponse.groups:type_name -> miru.FavoriteGroup
-	40, // 8: miru.PutFavoriteGroupResponse.group:type_name -> miru.FavoriteGroup
-	40, // 9: miru.GetFavoriteGroupsByFavoriteResponse.groups:type_name -> miru.FavoriteGroup
-	41, // 10: miru.GetHistoriesByTypeResponse.histories:type_name -> miru.History
-	41, // 11: miru.PutHistoryRequest.history:type_name -> miru.History
-	41, // 12: miru.PutHistoryResponse.history:type_name -> miru.History
-	41, // 13: miru.GetHistoryByPackageAndDetailUrlResponse.history:type_name -> miru.History
-	41, // 14: miru.GetHistorysFilteredResponse.histories:type_name -> miru.History
-	0,  // 15: miru.DbService.GetDetail:input_type -> miru.GetDetailRequest
-	2,  // 16: miru.DbService.UpsertDetail:input_type -> miru.UpsertDetailRequest
-	4,  // 17: miru.DbService.GetAllFavorite:input_type -> miru.GetAllFavoriteRequest
-	6,  // 18: miru.DbService.GetFavoriteByPackageAndUrl:input_type -> miru.GetFavoriteByPackageAndUrlRequest
-	8,  // 19: miru.DbService.PutFavoriteByIndex:input_type -> miru.PutFavoriteByIndexRequest
-	10, // 20: miru.DbService.PutFavorite:input_type -> miru.PutFavoriteRequest
-	12, // 21: miru.DbService.DeleteFavorite:input_type -> miru.DeleteFavoriteRequest
-	14, // 22: miru.DbService.GetFavoriteGroupsById:input_type -> miru.GetFavoriteGroupsByIdRequest
-	16, // 23: miru.DbService.GetAllFavoriteGroup:input_type -> miru.GetAllFavoriteGroupRequest
-	18, // 24: miru.DbService.PutFavoriteGroup:input_type -> miru.PutFavoriteGroupRequest
-	20, // 25: miru.DbService.RenameFavoriteGroup:input_type -> miru.RenameFavoriteGroupRequest
-	22, // 26: miru.DbService.DeleteFavoriteGroup:input_type -> miru.DeleteFavoriteGroupRequest
-	24, // 27: miru.DbService.GetFavoriteGroupsByFavorite:input_type -> miru.GetFavoriteGroupsByFavoriteRequest
-	26, // 28: miru.DbService.GetHistoriesByType:input_type -> miru.GetHistoriesByTypeRequest
-	30, // 29: miru.DbService.GetHistoryByPackageAndDetailUrl:input_type -> miru.GetHistoryByPackageAndDetailUrlRequest
-	28, // 30: miru.DbService.PutHistory:input_type -> miru.PutHistoryRequest
-	32, // 31: miru.DbService.DeleteHistoryByPackageAndUrl:input_type -> miru.DeleteHistoryByPackageAndUrlRequest
-	34, // 32: miru.DbService.DeleteAllHistory:input_type -> miru.DeleteAllHistoryRequest
-	36, // 33: miru.DbService.GetHistorysFiltered:input_type -> miru.GetHistorysFilteredRequest
-	1,  // 34: miru.DbService.GetDetail:output_type -> miru.GetDetailResponse
-	3,  // 35: miru.DbService.UpsertDetail:output_type -> miru.UpsertDetailResponse
-	5,  // 36: miru.DbService.GetAllFavorite:output_type -> miru.GetAllFavoriteResponse
-	7,  // 37: miru.DbService.GetFavoriteByPackageAndUrl:output_type -> miru.GetFavoriteByPackageAndUrlResponse
-	9,  // 38: miru.DbService.PutFavoriteByIndex:output_type -> miru.PutFavoriteByIndexResponse
-	11, // 39: miru.DbService.PutFavorite:output_type -> miru.PutFavoriteResponse
-	13, // 40: miru.DbService.DeleteFavorite:output_type -> miru.DeleteFavoriteResponse
-	15, // 41: miru.DbService.GetFavoriteGroupsById:output_type -> miru.GetFavoriteGroupsByIdResponse
-	17, // 42: miru.DbService.GetAllFavoriteGroup:output_type -> miru.GetAllFavoriteGroupResponse
-	19, // 43: miru.DbService.PutFavoriteGroup:output_type -> miru.PutFavoriteGroupResponse
-	21, // 44: miru.DbService.RenameFavoriteGroup:output_type -> miru.RenameFavoriteGroupResponse
-	23, // 45: miru.DbService.DeleteFavoriteGroup:output_type -> miru.DeleteFavoriteGroupResponse
-	25, // 46: miru.DbService.GetFavoriteGroupsByFavorite:output_type -> miru.GetFavoriteGroupsByFavoriteResponse
-	27, // 47: miru.DbService.GetHistoriesByType:output_type -> miru.GetHistoriesByTypeResponse
-	31, // 48: miru.DbService.GetHistoryByPackageAndDetailUrl:output_type -> miru.GetHistoryByPackageAndDetailUrlResponse
-	29, // 49: miru.DbService.PutHistory:output_type -> miru.PutHistoryResponse
-	33, // 50: miru.DbService.DeleteHistoryByPackageAndUrl:output_type -> miru.DeleteHistoryByPackageAndUrlResponse
-	35, // 51: miru.DbService.DeleteAllHistory:output_type -> miru.DeleteAllHistoryResponse
-	37, // 52: miru.DbService.GetHistorysFiltered:output_type -> miru.GetHistorysFilteredResponse
-	34, // [34:53] is the sub-list for method output_type
-	15, // [15:34] is the sub-list for method input_type
-	15, // [15:15] is the sub-list for extension type_name
-	15, // [15:15] is the sub-list for extension extendee
-	0,  // [0:15] is the sub-list for field type_name
+	43, // 0: miru.GetDetailResponse.detail:type_name -> miru.Detail
+	42, // 1: miru.UpsertDetailRequest.track_ids:type_name -> miru.UpsertDetailRequest.TrackIdsEntry
+	43, // 2: miru.UpsertDetailResponse.detail:type_name -> miru.Detail
+	44, // 3: miru.GetAllFavoriteResponse.favorites:type_name -> miru.Favorite
+	44, // 4: miru.GetFavoriteByPackageAndUrlResponse.favorite:type_name -> miru.Favorite
+	45, // 5: miru.PutFavoriteByIndexRequest.groups:type_name -> miru.FavoriteGroup
+	44, // 6: miru.PutFavoriteResponse.favorite:type_name -> miru.Favorite
+	45, // 7: miru.GetFavoriteGroupsByIdResponse.groups:type_name -> miru.FavoriteGroup
+	45, // 8: miru.GetAllFavoriteGroupResponse.groups:type_name -> miru.FavoriteGroup
+	45, // 9: miru.PutFavoriteGroupResponse.group:type_name -> miru.FavoriteGroup
+	45, // 10: miru.GetFavoriteGroupsByFavoriteResponse.groups:type_name -> miru.FavoriteGroup
+	46, // 11: miru.GetHistoriesByTypeResponse.histories:type_name -> miru.History
+	46, // 12: miru.PutHistoryRequest.history:type_name -> miru.History
+	46, // 13: miru.PutHistoryResponse.history:type_name -> miru.History
+	46, // 14: miru.GetHistoryByPackageAndDetailUrlResponse.history:type_name -> miru.History
+	46, // 15: miru.GetHistorysFilteredResponse.histories:type_name -> miru.History
+	47, // 16: miru.GetTrackResponse.track:type_name -> miru.Track
+	47, // 17: miru.PutTrackResponse.track:type_name -> miru.Track
+	0,  // 18: miru.DbService.GetDetail:input_type -> miru.GetDetailRequest
+	2,  // 19: miru.DbService.UpsertDetail:input_type -> miru.UpsertDetailRequest
+	4,  // 20: miru.DbService.GetAllFavorite:input_type -> miru.GetAllFavoriteRequest
+	6,  // 21: miru.DbService.GetFavoriteByPackageAndUrl:input_type -> miru.GetFavoriteByPackageAndUrlRequest
+	8,  // 22: miru.DbService.PutFavoriteByIndex:input_type -> miru.PutFavoriteByIndexRequest
+	10, // 23: miru.DbService.PutFavorite:input_type -> miru.PutFavoriteRequest
+	12, // 24: miru.DbService.DeleteFavorite:input_type -> miru.DeleteFavoriteRequest
+	14, // 25: miru.DbService.GetFavoriteGroupsById:input_type -> miru.GetFavoriteGroupsByIdRequest
+	16, // 26: miru.DbService.GetAllFavoriteGroup:input_type -> miru.GetAllFavoriteGroupRequest
+	18, // 27: miru.DbService.PutFavoriteGroup:input_type -> miru.PutFavoriteGroupRequest
+	20, // 28: miru.DbService.RenameFavoriteGroup:input_type -> miru.RenameFavoriteGroupRequest
+	22, // 29: miru.DbService.DeleteFavoriteGroup:input_type -> miru.DeleteFavoriteGroupRequest
+	24, // 30: miru.DbService.GetFavoriteGroupsByFavorite:input_type -> miru.GetFavoriteGroupsByFavoriteRequest
+	26, // 31: miru.DbService.GetHistoriesByType:input_type -> miru.GetHistoriesByTypeRequest
+	30, // 32: miru.DbService.GetHistoryByPackageAndDetailUrl:input_type -> miru.GetHistoryByPackageAndDetailUrlRequest
+	28, // 33: miru.DbService.PutHistory:input_type -> miru.PutHistoryRequest
+	32, // 34: miru.DbService.DeleteHistoryByPackageAndUrl:input_type -> miru.DeleteHistoryByPackageAndUrlRequest
+	34, // 35: miru.DbService.DeleteAllHistory:input_type -> miru.DeleteAllHistoryRequest
+	36, // 36: miru.DbService.GetHistorysFiltered:input_type -> miru.GetHistorysFilteredRequest
+	38, // 37: miru.DbService.GetTrack:input_type -> miru.GetTrackRequest
+	40, // 38: miru.DbService.PutTrack:input_type -> miru.PutTrackRequest
+	1,  // 39: miru.DbService.GetDetail:output_type -> miru.GetDetailResponse
+	3,  // 40: miru.DbService.UpsertDetail:output_type -> miru.UpsertDetailResponse
+	5,  // 41: miru.DbService.GetAllFavorite:output_type -> miru.GetAllFavoriteResponse
+	7,  // 42: miru.DbService.GetFavoriteByPackageAndUrl:output_type -> miru.GetFavoriteByPackageAndUrlResponse
+	9,  // 43: miru.DbService.PutFavoriteByIndex:output_type -> miru.PutFavoriteByIndexResponse
+	11, // 44: miru.DbService.PutFavorite:output_type -> miru.PutFavoriteResponse
+	13, // 45: miru.DbService.DeleteFavorite:output_type -> miru.DeleteFavoriteResponse
+	15, // 46: miru.DbService.GetFavoriteGroupsById:output_type -> miru.GetFavoriteGroupsByIdResponse
+	17, // 47: miru.DbService.GetAllFavoriteGroup:output_type -> miru.GetAllFavoriteGroupResponse
+	19, // 48: miru.DbService.PutFavoriteGroup:output_type -> miru.PutFavoriteGroupResponse
+	21, // 49: miru.DbService.RenameFavoriteGroup:output_type -> miru.RenameFavoriteGroupResponse
+	23, // 50: miru.DbService.DeleteFavoriteGroup:output_type -> miru.DeleteFavoriteGroupResponse
+	25, // 51: miru.DbService.GetFavoriteGroupsByFavorite:output_type -> miru.GetFavoriteGroupsByFavoriteResponse
+	27, // 52: miru.DbService.GetHistoriesByType:output_type -> miru.GetHistoriesByTypeResponse
+	31, // 53: miru.DbService.GetHistoryByPackageAndDetailUrl:output_type -> miru.GetHistoryByPackageAndDetailUrlResponse
+	29, // 54: miru.DbService.PutHistory:output_type -> miru.PutHistoryResponse
+	33, // 55: miru.DbService.DeleteHistoryByPackageAndUrl:output_type -> miru.DeleteHistoryByPackageAndUrlResponse
+	35, // 56: miru.DbService.DeleteAllHistory:output_type -> miru.DeleteAllHistoryResponse
+	37, // 57: miru.DbService.GetHistorysFiltered:output_type -> miru.GetHistorysFilteredResponse
+	39, // 58: miru.DbService.GetTrack:output_type -> miru.GetTrackResponse
+	41, // 59: miru.DbService.PutTrack:output_type -> miru.PutTrackResponse
+	39, // [39:60] is the sub-list for method output_type
+	18, // [18:39] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_proto_db_proto_init() }
@@ -2132,7 +2383,7 @@ func file_proto_db_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_db_proto_rawDesc), len(file_proto_db_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   38,
+			NumMessages:   43,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

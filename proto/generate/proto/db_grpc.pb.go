@@ -38,6 +38,8 @@ const (
 	DbService_DeleteHistoryByPackageAndUrl_FullMethodName    = "/miru.DbService/DeleteHistoryByPackageAndUrl"
 	DbService_DeleteAllHistory_FullMethodName                = "/miru.DbService/DeleteAllHistory"
 	DbService_GetHistorysFiltered_FullMethodName             = "/miru.DbService/GetHistorysFiltered"
+	DbService_GetTrack_FullMethodName                        = "/miru.DbService/GetTrack"
+	DbService_PutTrack_FullMethodName                        = "/miru.DbService/PutTrack"
 )
 
 // DbServiceClient is the client API for DbService service.
@@ -67,6 +69,9 @@ type DbServiceClient interface {
 	DeleteHistoryByPackageAndUrl(ctx context.Context, in *DeleteHistoryByPackageAndUrlRequest, opts ...grpc.CallOption) (*DeleteHistoryByPackageAndUrlResponse, error)
 	DeleteAllHistory(ctx context.Context, in *DeleteAllHistoryRequest, opts ...grpc.CallOption) (*DeleteAllHistoryResponse, error)
 	GetHistorysFiltered(ctx context.Context, in *GetHistorysFilteredRequest, opts ...grpc.CallOption) (*GetHistorysFilteredResponse, error)
+	// Track
+	GetTrack(ctx context.Context, in *GetTrackRequest, opts ...grpc.CallOption) (*GetTrackResponse, error)
+	PutTrack(ctx context.Context, in *PutTrackRequest, opts ...grpc.CallOption) (*PutTrackResponse, error)
 }
 
 type dbServiceClient struct {
@@ -267,6 +272,26 @@ func (c *dbServiceClient) GetHistorysFiltered(ctx context.Context, in *GetHistor
 	return out, nil
 }
 
+func (c *dbServiceClient) GetTrack(ctx context.Context, in *GetTrackRequest, opts ...grpc.CallOption) (*GetTrackResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetTrackResponse)
+	err := c.cc.Invoke(ctx, DbService_GetTrack_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dbServiceClient) PutTrack(ctx context.Context, in *PutTrackRequest, opts ...grpc.CallOption) (*PutTrackResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PutTrackResponse)
+	err := c.cc.Invoke(ctx, DbService_PutTrack_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DbServiceServer is the server API for DbService service.
 // All implementations must embed UnimplementedDbServiceServer
 // for forward compatibility.
@@ -294,6 +319,9 @@ type DbServiceServer interface {
 	DeleteHistoryByPackageAndUrl(context.Context, *DeleteHistoryByPackageAndUrlRequest) (*DeleteHistoryByPackageAndUrlResponse, error)
 	DeleteAllHistory(context.Context, *DeleteAllHistoryRequest) (*DeleteAllHistoryResponse, error)
 	GetHistorysFiltered(context.Context, *GetHistorysFilteredRequest) (*GetHistorysFilteredResponse, error)
+	// Track
+	GetTrack(context.Context, *GetTrackRequest) (*GetTrackResponse, error)
+	PutTrack(context.Context, *PutTrackRequest) (*PutTrackResponse, error)
 	mustEmbedUnimplementedDbServiceServer()
 }
 
@@ -360,6 +388,12 @@ func (UnimplementedDbServiceServer) DeleteAllHistory(context.Context, *DeleteAll
 }
 func (UnimplementedDbServiceServer) GetHistorysFiltered(context.Context, *GetHistorysFilteredRequest) (*GetHistorysFilteredResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetHistorysFiltered not implemented")
+}
+func (UnimplementedDbServiceServer) GetTrack(context.Context, *GetTrackRequest) (*GetTrackResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetTrack not implemented")
+}
+func (UnimplementedDbServiceServer) PutTrack(context.Context, *PutTrackRequest) (*PutTrackResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PutTrack not implemented")
 }
 func (UnimplementedDbServiceServer) mustEmbedUnimplementedDbServiceServer() {}
 func (UnimplementedDbServiceServer) testEmbeddedByValue()                   {}
@@ -724,6 +758,42 @@ func _DbService_GetHistorysFiltered_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DbService_GetTrack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTrackRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DbServiceServer).GetTrack(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DbService_GetTrack_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DbServiceServer).GetTrack(ctx, req.(*GetTrackRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DbService_PutTrack_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PutTrackRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DbServiceServer).PutTrack(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DbService_PutTrack_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DbServiceServer).PutTrack(ctx, req.(*PutTrackRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DbService_ServiceDesc is the grpc.ServiceDesc for DbService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -806,6 +876,14 @@ var DbService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetHistorysFiltered",
 			Handler:    _DbService_GetHistorysFiltered_Handler,
+		},
+		{
+			MethodName: "GetTrack",
+			Handler:    _DbService_GetTrack_Handler,
+		},
+		{
+			MethodName: "PutTrack",
+			Handler:    _DbService_PutTrack_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

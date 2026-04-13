@@ -201,6 +201,7 @@ func (s *MiruCoreServer) UpsertDetail(ctx context.Context, req *proto.UpsertDeta
 		Downloaded: req.Downloaded,
 		Episodes:   req.Episodes,
 		Headers:    req.Headers,
+		TrackIds:   req.TrackIds,
 	}
 
 	saved, err := db.UpsertDetail(d)
@@ -417,6 +418,26 @@ func (s *MiruCoreServer) GetHistorysFiltered(ctx context.Context, req *proto.Get
 		}
 	}
 	return &proto.GetHistorysFilteredResponse{Histories: protoHistories}, nil
+}
+
+// Track
+func (s *MiruCoreServer) GetTrack(ctx context.Context, req *proto.GetTrackRequest) (*proto.GetTrackResponse, error) {
+	t, err := db.GetTrack(req.TrackingId, req.Provider)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return &proto.GetTrackResponse{}, nil
+		}
+		return nil, err
+	}
+	return &proto.GetTrackResponse{Track: toProtoTrack(t)}, nil
+}
+
+func (s *MiruCoreServer) PutTrack(ctx context.Context, req *proto.PutTrackRequest) (*proto.PutTrackResponse, error) {
+	t, err := db.PutTrack(req.TrackingId, req.Data, req.MediaType, req.Provider)
+	if err != nil {
+		return nil, err
+	}
+	return &proto.PutTrackResponse{Track: toProtoTrack(t)}, nil
 }
 
 // Download
@@ -913,7 +934,6 @@ func toProtoHistory(h *ent.History) *proto.History {
 		Date:           h.Date.Format(time.RFC3339),
 	}
 }
-
 func toProtoDetail(d *ent.Detail) *proto.Detail {
 	if d == nil {
 		return &proto.Detail{}
@@ -928,6 +948,20 @@ func toProtoDetail(d *ent.Detail) *proto.Detail {
 		Downloaded: d.Downloaded,
 		Episodes:   d.Episodes,
 		Headers:    d.Headers,
+		TrackIds:   d.TrackIds,
+	}
+}
+
+func toProtoTrack(t *ent.Track) *proto.Track {
+	if t == nil {
+		return &proto.Track{}
+	}
+	return &proto.Track{
+		Id:         int32(t.ID),
+		TrackingId: t.TrackingID,
+		Data:       t.Data,
+		MediaType:  t.MediaType,
+		Provider:   string(t.Provider),
 	}
 }
 

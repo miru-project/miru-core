@@ -174,6 +174,18 @@ func (_u *DetailUpdate) ClearHeaders() *DetailUpdate {
 	return _u
 }
 
+// SetTrackIds sets the "track_ids" field.
+func (_u *DetailUpdate) SetTrackIds(v map[string]string) *DetailUpdate {
+	_u.mutation.SetTrackIds(v)
+	return _u
+}
+
+// ClearTrackIds clears the value of the "track_ids" field.
+func (_u *DetailUpdate) ClearTrackIds() *DetailUpdate {
+	_u.mutation.ClearTrackIds()
+	return _u
+}
+
 // Mutation returns the DetailMutation object of the builder.
 func (_u *DetailUpdate) Mutation() *DetailMutation {
 	return _u.mutation
@@ -284,6 +296,12 @@ func (_u *DetailUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.HeadersCleared() {
 		_spec.ClearField(detail.FieldHeaders, field.TypeString)
+	}
+	if value, ok := _u.mutation.TrackIds(); ok {
+		_spec.SetField(detail.FieldTrackIds, field.TypeJSON, value)
+	}
+	if _u.mutation.TrackIdsCleared() {
+		_spec.ClearField(detail.FieldTrackIds, field.TypeJSON)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -451,6 +469,18 @@ func (_u *DetailUpdateOne) ClearHeaders() *DetailUpdateOne {
 	return _u
 }
 
+// SetTrackIds sets the "track_ids" field.
+func (_u *DetailUpdateOne) SetTrackIds(v map[string]string) *DetailUpdateOne {
+	_u.mutation.SetTrackIds(v)
+	return _u
+}
+
+// ClearTrackIds clears the value of the "track_ids" field.
+func (_u *DetailUpdateOne) ClearTrackIds() *DetailUpdateOne {
+	_u.mutation.ClearTrackIds()
+	return _u
+}
+
 // Mutation returns the DetailMutation object of the builder.
 func (_u *DetailUpdateOne) Mutation() *DetailMutation {
 	return _u.mutation
@@ -591,6 +621,12 @@ func (_u *DetailUpdateOne) sqlSave(ctx context.Context) (_node *Detail, err erro
 	}
 	if _u.mutation.HeadersCleared() {
 		_spec.ClearField(detail.FieldHeaders, field.TypeString)
+	}
+	if value, ok := _u.mutation.TrackIds(); ok {
+		_spec.SetField(detail.FieldTrackIds, field.TypeJSON, value)
+	}
+	if _u.mutation.TrackIdsCleared() {
+		_spec.ClearField(detail.FieldTrackIds, field.TypeJSON)
 	}
 	_node = &Detail{config: _u.config}
 	_spec.Assign = _node.assignValues

@@ -33,7 +33,9 @@ type Detail struct {
 	// JSON encoded string of episodes
 	Episodes *string `json:"episodes,omitempty"`
 	// JSON encoded string of headers
-	Headers      *string `json:"headers,omitempty"`
+	Headers *string `json:"headers,omitempty"`
+	// Map of provider to tracking ID
+	TrackIds     map[string]string `json:"track_ids,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -42,7 +44,7 @@ func (*Detail) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case detail.FieldDownloaded:
+		case detail.FieldDownloaded, detail.FieldTrackIds:
 			values[i] = new([]byte)
 		case detail.FieldID:
 			values[i] = new(sql.NullInt64)
@@ -124,6 +126,14 @@ func (_m *Detail) assignValues(columns []string, values []any) error {
 				_m.Headers = new(string)
 				*_m.Headers = value.String
 			}
+		case detail.FieldTrackIds:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field track_ids", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.TrackIds); err != nil {
+					return fmt.Errorf("unmarshal field track_ids: %w", err)
+				}
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -193,6 +203,9 @@ func (_m *Detail) String() string {
 		builder.WriteString("headers=")
 		builder.WriteString(*v)
 	}
+	builder.WriteString(", ")
+	builder.WriteString("track_ids=")
+	builder.WriteString(fmt.Sprintf("%v", _m.TrackIds))
 	builder.WriteByte(')')
 	return builder.String()
 }

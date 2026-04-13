@@ -24,6 +24,7 @@ import (
 	"github.com/miru-project/miru-core/ent/favorite"
 	"github.com/miru-project/miru-core/ent/favoritegroup"
 	"github.com/miru-project/miru-core/ent/history"
+	"github.com/miru-project/miru-core/ent/track"
 )
 
 // Client is the client that holds all ent builders.
@@ -49,6 +50,8 @@ type Client struct {
 	FavoriteGroup *FavoriteGroupClient
 	// History is the client for interacting with the History builders.
 	History *HistoryClient
+	// Track is the client for interacting with the Track builders.
+	Track *TrackClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -69,6 +72,7 @@ func (c *Client) init() {
 	c.Favorite = NewFavoriteClient(c.config)
 	c.FavoriteGroup = NewFavoriteGroupClient(c.config)
 	c.History = NewHistoryClient(c.config)
+	c.Track = NewTrackClient(c.config)
 }
 
 type (
@@ -170,6 +174,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Favorite:             NewFavoriteClient(cfg),
 		FavoriteGroup:        NewFavoriteGroupClient(cfg),
 		History:              NewHistoryClient(cfg),
+		Track:                NewTrackClient(cfg),
 	}, nil
 }
 
@@ -198,6 +203,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Favorite:             NewFavoriteClient(cfg),
 		FavoriteGroup:        NewFavoriteGroupClient(cfg),
 		History:              NewHistoryClient(cfg),
+		Track:                NewTrackClient(cfg),
 	}, nil
 }
 
@@ -228,7 +234,7 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.AppSetting, c.Detail, c.Download, c.Extension, c.ExtensionRepoSetting,
-		c.ExtensionSetting, c.Favorite, c.FavoriteGroup, c.History,
+		c.ExtensionSetting, c.Favorite, c.FavoriteGroup, c.History, c.Track,
 	} {
 		n.Use(hooks...)
 	}
@@ -239,7 +245,7 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.AppSetting, c.Detail, c.Download, c.Extension, c.ExtensionRepoSetting,
-		c.ExtensionSetting, c.Favorite, c.FavoriteGroup, c.History,
+		c.ExtensionSetting, c.Favorite, c.FavoriteGroup, c.History, c.Track,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -266,6 +272,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.FavoriteGroup.mutate(ctx, m)
 	case *HistoryMutation:
 		return c.History.mutate(ctx, m)
+	case *TrackMutation:
+		return c.Track.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -1502,14 +1510,147 @@ func (c *HistoryClient) mutate(ctx context.Context, m *HistoryMutation) (Value, 
 	}
 }
 
+// TrackClient is a client for the Track schema.
+type TrackClient struct {
+	config
+}
+
+// NewTrackClient returns a client for the Track from the given config.
+func NewTrackClient(c config) *TrackClient {
+	return &TrackClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `track.Hooks(f(g(h())))`.
+func (c *TrackClient) Use(hooks ...Hook) {
+	c.hooks.Track = append(c.hooks.Track, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `track.Intercept(f(g(h())))`.
+func (c *TrackClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Track = append(c.inters.Track, interceptors...)
+}
+
+// Create returns a builder for creating a Track entity.
+func (c *TrackClient) Create() *TrackCreate {
+	mutation := newTrackMutation(c.config, OpCreate)
+	return &TrackCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Track entities.
+func (c *TrackClient) CreateBulk(builders ...*TrackCreate) *TrackCreateBulk {
+	return &TrackCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TrackClient) MapCreateBulk(slice any, setFunc func(*TrackCreate, int)) *TrackCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TrackCreateBulk{err: fmt.Errorf("calling to TrackClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TrackCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TrackCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Track.
+func (c *TrackClient) Update() *TrackUpdate {
+	mutation := newTrackMutation(c.config, OpUpdate)
+	return &TrackUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TrackClient) UpdateOne(_m *Track) *TrackUpdateOne {
+	mutation := newTrackMutation(c.config, OpUpdateOne, withTrack(_m))
+	return &TrackUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TrackClient) UpdateOneID(id int) *TrackUpdateOne {
+	mutation := newTrackMutation(c.config, OpUpdateOne, withTrackID(id))
+	return &TrackUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Track.
+func (c *TrackClient) Delete() *TrackDelete {
+	mutation := newTrackMutation(c.config, OpDelete)
+	return &TrackDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TrackClient) DeleteOne(_m *Track) *TrackDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TrackClient) DeleteOneID(id int) *TrackDeleteOne {
+	builder := c.Delete().Where(track.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TrackDeleteOne{builder}
+}
+
+// Query returns a query builder for Track.
+func (c *TrackClient) Query() *TrackQuery {
+	return &TrackQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTrack},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Track entity by its id.
+func (c *TrackClient) Get(ctx context.Context, id int) (*Track, error) {
+	return c.Query().Where(track.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TrackClient) GetX(ctx context.Context, id int) *Track {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *TrackClient) Hooks() []Hook {
+	return c.hooks.Track
+}
+
+// Interceptors returns the client interceptors.
+func (c *TrackClient) Interceptors() []Interceptor {
+	return c.inters.Track
+}
+
+func (c *TrackClient) mutate(ctx context.Context, m *TrackMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TrackCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TrackUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TrackUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TrackDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Track mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
 		AppSetting, Detail, Download, Extension, ExtensionRepoSetting, ExtensionSetting,
-		Favorite, FavoriteGroup, History []ent.Hook
+		Favorite, FavoriteGroup, History, Track []ent.Hook
 	}
 	inters struct {
 		AppSetting, Detail, Download, Extension, ExtensionRepoSetting, ExtensionSetting,
-		Favorite, FavoriteGroup, History []ent.Interceptor
+		Favorite, FavoriteGroup, History, Track []ent.Interceptor
 	}
 )

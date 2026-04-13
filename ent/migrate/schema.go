@@ -31,6 +31,7 @@ var (
 		{Name: "downloaded", Type: field.TypeJSON, Nullable: true},
 		{Name: "episodes", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "headers", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "track_ids", Type: field.TypeJSON, Nullable: true},
 	}
 	// DetailsTable holds the schema information for the "details" table.
 	DetailsTable = &schema.Table{
@@ -192,6 +193,27 @@ var (
 			},
 		},
 	}
+	// TracksColumns holds the columns for the "tracks" table.
+	TracksColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "tracking_id", Type: field.TypeString},
+		{Name: "data", Type: field.TypeString, Size: 2147483647},
+		{Name: "media_type", Type: field.TypeString},
+		{Name: "provider", Type: field.TypeEnum, Enums: []string{"TMDB", "Anilist"}},
+	}
+	// TracksTable holds the schema information for the "tracks" table.
+	TracksTable = &schema.Table{
+		Name:       "tracks",
+		Columns:    TracksColumns,
+		PrimaryKey: []*schema.Column{TracksColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "track_provider_tracking_id",
+				Unique:  true,
+				Columns: []*schema.Column{TracksColumns[4], TracksColumns[1]},
+			},
+		},
+	}
 	// FavoriteGroupFavoritesColumns holds the columns for the "favorite_group_favorites" table.
 	FavoriteGroupFavoritesColumns = []*schema.Column{
 		{Name: "favorite_group_id", Type: field.TypeInt},
@@ -228,6 +250,7 @@ var (
 		FavoritesTable,
 		FavoriteGroupsTable,
 		HistoriesTable,
+		TracksTable,
 		FavoriteGroupFavoritesTable,
 	}
 )

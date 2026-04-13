@@ -21,6 +21,7 @@ import (
 	"github.com/miru-project/miru-core/ent/favorite"
 	"github.com/miru-project/miru-core/ent/favoritegroup"
 	"github.com/miru-project/miru-core/ent/history"
+	"github.com/miru-project/miru-core/ent/track"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -90,6 +91,7 @@ func checkColumn(t, c string) error {
 			favorite.Table:             favorite.ValidColumn,
 			favoritegroup.Table:        favoritegroup.ValidColumn,
 			history.Table:              history.ValidColumn,
+			track.Table:                track.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

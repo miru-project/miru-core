@@ -30,6 +30,8 @@ type Tx struct {
 	FavoriteGroup *FavoriteGroupClient
 	// History is the client for interacting with the History builders.
 	History *HistoryClient
+	// Track is the client for interacting with the Track builders.
+	Track *TrackClient
 
 	// lazily loaded.
 	client     *Client
@@ -170,6 +172,7 @@ func (tx *Tx) init() {
 	tx.Favorite = NewFavoriteClient(tx.config)
 	tx.FavoriteGroup = NewFavoriteGroupClient(tx.config)
 	tx.History = NewHistoryClient(tx.config)
+	tx.Track = NewTrackClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

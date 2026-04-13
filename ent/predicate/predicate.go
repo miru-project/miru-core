@@ -32,3 +32,6 @@ type FavoriteGroup func(*sql.Selector)
 
 // History is the predicate function for history builders.
 type History func(*sql.Selector)
+
+// Track is the predicate function for track builders.
+type Track func(*sql.Selector)

@@ -57,6 +57,10 @@ func (Detail) Fields() []ent.Field {
 			Optional().
 			Nillable().
 			Comment("JSON encoded string of headers"),
+
+		field.JSON("track_ids", map[string]string{}).
+			Optional().
+			Comment("Map of provider to tracking ID"),
 	}
 }
 

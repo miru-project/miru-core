@@ -27,6 +27,8 @@ const (
 	FieldEpisodes = "episodes"
 	// FieldHeaders holds the string denoting the headers field in the database.
 	FieldHeaders = "headers"
+	// FieldTrackIds holds the string denoting the track_ids field in the database.
+	FieldTrackIds = "track_ids"
 	// Table holds the table name of the detail in the database.
 	Table = "details"
 )
@@ -42,6 +44,7 @@ var Columns = []string{
 	FieldDownloaded,
 	FieldEpisodes,
 	FieldHeaders,
+	FieldTrackIds,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
