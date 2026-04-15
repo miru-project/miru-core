@@ -6,6 +6,7 @@ import (
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 	"github.com/miru-project/miru-core/pkg/logger"
 	"github.com/miru-project/miru-core/pkg/network"
+	"github.com/miru-project/miru-core/pkg/grpc"
 	"github.com/valyala/fasthttp"
 )
 
@@ -20,7 +21,7 @@ func InitRouter(app *fasthttp_router.Router) {
 	initAnilistRouter(app)
 	initTorrentRouter(app)
 	initProxy(app)
-	go StartGRPCServer()
+	go grpc.StartServer()
 	startListening(app, config.Global.Address+":"+config.Global.Port)
 
 }

@@ -24,6 +24,7 @@ const (
 	ExtensionService_Latest_FullMethodName                = "/miru.ExtensionService/Latest"
 	ExtensionService_Detail_FullMethodName                = "/miru.ExtensionService/Detail"
 	ExtensionService_Watch_FullMethodName                 = "/miru.ExtensionService/Watch"
+	ExtensionService_Mirror_FullMethodName                = "/miru.ExtensionService/Mirror"
 	ExtensionService_DownloadExtension_FullMethodName     = "/miru.ExtensionService/DownloadExtension"
 	ExtensionService_RemoveExtension_FullMethodName       = "/miru.ExtensionService/RemoveExtension"
 	ExtensionService_GetExtensionSettings_FullMethodName  = "/miru.ExtensionService/GetExtensionSettings"
@@ -39,6 +40,7 @@ type ExtensionServiceClient interface {
 	Latest(ctx context.Context, in *LatestRequest, opts ...grpc.CallOption) (*LatestResponse, error)
 	Detail(ctx context.Context, in *DetailRequest, opts ...grpc.CallOption) (*DetailResponse, error)
 	Watch(ctx context.Context, in *WatchRequest, opts ...grpc.CallOption) (*WatchResponse, error)
+	Mirror(ctx context.Context, in *MirrorRequest, opts ...grpc.CallOption) (*MirrorResponse, error)
 	DownloadExtension(ctx context.Context, in *DownloadExtensionRequest, opts ...grpc.CallOption) (*DownloadExtensionResponse, error)
 	RemoveExtension(ctx context.Context, in *RemoveExtensionRequest, opts ...grpc.CallOption) (*RemoveExtensionResponse, error)
 	GetExtensionSettings(ctx context.Context, in *GetExtensionSettingsRequest, opts ...grpc.CallOption) (*GetExtensionSettingsResponse, error)
@@ -103,6 +105,16 @@ func (c *extensionServiceClient) Watch(ctx context.Context, in *WatchRequest, op
 	return out, nil
 }
 
+func (c *extensionServiceClient) Mirror(ctx context.Context, in *MirrorRequest, opts ...grpc.CallOption) (*MirrorResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MirrorResponse)
+	err := c.cc.Invoke(ctx, ExtensionService_Mirror_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *extensionServiceClient) DownloadExtension(ctx context.Context, in *DownloadExtensionRequest, opts ...grpc.CallOption) (*DownloadExtensionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DownloadExtensionResponse)
@@ -152,6 +164,7 @@ type ExtensionServiceServer interface {
 	Latest(context.Context, *LatestRequest) (*LatestResponse, error)
 	Detail(context.Context, *DetailRequest) (*DetailResponse, error)
 	Watch(context.Context, *WatchRequest) (*WatchResponse, error)
+	Mirror(context.Context, *MirrorRequest) (*MirrorResponse, error)
 	DownloadExtension(context.Context, *DownloadExtensionRequest) (*DownloadExtensionResponse, error)
 	RemoveExtension(context.Context, *RemoveExtensionRequest) (*RemoveExtensionResponse, error)
 	GetExtensionSettings(context.Context, *GetExtensionSettingsRequest) (*GetExtensionSettingsResponse, error)
@@ -180,6 +193,9 @@ func (UnimplementedExtensionServiceServer) Detail(context.Context, *DetailReques
 }
 func (UnimplementedExtensionServiceServer) Watch(context.Context, *WatchRequest) (*WatchResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Watch not implemented")
+}
+func (UnimplementedExtensionServiceServer) Mirror(context.Context, *MirrorRequest) (*MirrorResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Mirror not implemented")
 }
 func (UnimplementedExtensionServiceServer) DownloadExtension(context.Context, *DownloadExtensionRequest) (*DownloadExtensionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DownloadExtension not implemented")
@@ -304,6 +320,24 @@ func _ExtensionService_Watch_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ExtensionService_Mirror_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MirrorRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ExtensionServiceServer).Mirror(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ExtensionService_Mirror_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ExtensionServiceServer).Mirror(ctx, req.(*MirrorRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ExtensionService_DownloadExtension_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DownloadExtensionRequest)
 	if err := dec(in); err != nil {
@@ -402,6 +436,10 @@ var ExtensionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Watch",
 			Handler:    _ExtensionService_Watch_Handler,
+		},
+		{
+			MethodName: "Mirror",
+			Handler:    _ExtensionService_Mirror_Handler,
 		},
 		{
 			MethodName: "DownloadExtension",

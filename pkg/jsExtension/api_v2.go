@@ -85,5 +85,6 @@ func (api *ExtApi) initEvalV2String() {
 	api.searchEval = "search('%s', %d, %s)"
 	api.detailEval = "detail('%s')"
 	api.watchEval = "watch('%s')"
+	api.mirrorEval = "mirror('%s')"
 	api.createFilterEval = "createFilter(%s)"
 }

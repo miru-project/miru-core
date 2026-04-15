@@ -78,6 +78,9 @@ var detail = () => {
 var watch = () => {
   throw new Error("not implement watch");
 }
+var mirror = (url) => {
+  return url;
+}
 var checkUpdate = () => {
   throw new Error("not implement checkUpdate");
 }

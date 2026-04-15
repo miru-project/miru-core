@@ -45,12 +45,27 @@ message WatchRequest {
   string url = 2;
 }
 
+message MirrorRequest {
+  string pkg = 1;
+  string url = 2;
+}
+
+message MirrorResponse {
+  oneof data {
+    ExtensionBangumiWatch bangumi = 1;
+    ExtensionMangaWatch manga = 2;
+    ExtensionFikushonWatch fikushon = 3;
+    string raw = 4;
+  }
+}
+
 message WatchResponse {
   oneof data {
     ExtensionBangumiWatch bangumi = 1;
     ExtensionMangaWatch manga = 2;
     ExtensionFikushonWatch fikushon = 3;
-    string raw = 4; // Backup or unknown watch type
+    ExtensionWatch watch = 4;
+    string raw = 5; // Backup or unknown watch type
   }
 }
 
@@ -81,6 +96,7 @@ service ExtensionService {
   rpc Latest(LatestRequest) returns (LatestResponse);
   rpc Detail(DetailRequest) returns (DetailResponse);
   rpc Watch(WatchRequest) returns (WatchResponse);
+  rpc Mirror(MirrorRequest) returns (MirrorResponse);
   rpc DownloadExtension(DownloadExtensionRequest)
       returns (DownloadExtensionResponse);
   rpc RemoveExtension(RemoveExtensionRequest) returns (RemoveExtensionResponse);

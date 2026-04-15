@@ -418,6 +418,110 @@ func (x *ExtensionEpisode) GetDescription() string {
 	return ""
 }
 
+type ExtensionMirror struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Url           string                 `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExtensionMirror) Reset() {
+	*x = ExtensionMirror{}
+	mi := &file_proto_extension_model_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExtensionMirror) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExtensionMirror) ProtoMessage() {}
+
+func (x *ExtensionMirror) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_extension_model_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExtensionMirror.ProtoReflect.Descriptor instead.
+func (*ExtensionMirror) Descriptor() ([]byte, []int) {
+	return file_proto_extension_model_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ExtensionMirror) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ExtensionMirror) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+type ExtensionMirrorGroup struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Mirrors       []*ExtensionMirror     `protobuf:"bytes,2,rep,name=mirrors,proto3" json:"mirrors,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExtensionMirrorGroup) Reset() {
+	*x = ExtensionMirrorGroup{}
+	mi := &file_proto_extension_model_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExtensionMirrorGroup) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExtensionMirrorGroup) ProtoMessage() {}
+
+func (x *ExtensionMirrorGroup) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_extension_model_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExtensionMirrorGroup.ProtoReflect.Descriptor instead.
+func (*ExtensionMirrorGroup) Descriptor() ([]byte, []int) {
+	return file_proto_extension_model_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ExtensionMirrorGroup) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *ExtensionMirrorGroup) GetMirrors() []*ExtensionMirror {
+	if x != nil {
+		return x.Mirrors
+	}
+	return nil
+}
+
 type ExtensionBangumiWatchSubtitle struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Language      *string                `protobuf:"bytes,1,opt,name=language,proto3,oneof" json:"language,omitempty"`
@@ -429,7 +533,7 @@ type ExtensionBangumiWatchSubtitle struct {
 
 func (x *ExtensionBangumiWatchSubtitle) Reset() {
 	*x = ExtensionBangumiWatchSubtitle{}
-	mi := &file_proto_extension_model_proto_msgTypes[5]
+	mi := &file_proto_extension_model_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -441,7 +545,7 @@ func (x *ExtensionBangumiWatchSubtitle) String() string {
 func (*ExtensionBangumiWatchSubtitle) ProtoMessage() {}
 
 func (x *ExtensionBangumiWatchSubtitle) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_model_proto_msgTypes[5]
+	mi := &file_proto_extension_model_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -454,7 +558,7 @@ func (x *ExtensionBangumiWatchSubtitle) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExtensionBangumiWatchSubtitle.ProtoReflect.Descriptor instead.
 func (*ExtensionBangumiWatchSubtitle) Descriptor() ([]byte, []int) {
-	return file_proto_extension_model_proto_rawDescGZIP(), []int{5}
+	return file_proto_extension_model_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ExtensionBangumiWatchSubtitle) GetLanguage() string {
@@ -488,7 +592,7 @@ type ExtensionBangumiWatchTorrentFileTreeFile struct {
 
 func (x *ExtensionBangumiWatchTorrentFileTreeFile) Reset() {
 	*x = ExtensionBangumiWatchTorrentFileTreeFile{}
-	mi := &file_proto_extension_model_proto_msgTypes[6]
+	mi := &file_proto_extension_model_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -500,7 +604,7 @@ func (x *ExtensionBangumiWatchTorrentFileTreeFile) String() string {
 func (*ExtensionBangumiWatchTorrentFileTreeFile) ProtoMessage() {}
 
 func (x *ExtensionBangumiWatchTorrentFileTreeFile) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_model_proto_msgTypes[6]
+	mi := &file_proto_extension_model_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -513,7 +617,7 @@ func (x *ExtensionBangumiWatchTorrentFileTreeFile) ProtoReflect() protoreflect.M
 
 // Deprecated: Use ExtensionBangumiWatchTorrentFileTreeFile.ProtoReflect.Descriptor instead.
 func (*ExtensionBangumiWatchTorrentFileTreeFile) Descriptor() ([]byte, []int) {
-	return file_proto_extension_model_proto_rawDescGZIP(), []int{6}
+	return file_proto_extension_model_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ExtensionBangumiWatchTorrentFileTreeFile) GetLength() int64 {
@@ -540,7 +644,7 @@ type ExtensionBangumiWatchTorrentFileTree struct {
 
 func (x *ExtensionBangumiWatchTorrentFileTree) Reset() {
 	*x = ExtensionBangumiWatchTorrentFileTree{}
-	mi := &file_proto_extension_model_proto_msgTypes[7]
+	mi := &file_proto_extension_model_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -552,7 +656,7 @@ func (x *ExtensionBangumiWatchTorrentFileTree) String() string {
 func (*ExtensionBangumiWatchTorrentFileTree) ProtoMessage() {}
 
 func (x *ExtensionBangumiWatchTorrentFileTree) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_model_proto_msgTypes[7]
+	mi := &file_proto_extension_model_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -565,7 +669,7 @@ func (x *ExtensionBangumiWatchTorrentFileTree) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use ExtensionBangumiWatchTorrentFileTree.ProtoReflect.Descriptor instead.
 func (*ExtensionBangumiWatchTorrentFileTree) Descriptor() ([]byte, []int) {
-	return file_proto_extension_model_proto_rawDescGZIP(), []int{7}
+	return file_proto_extension_model_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *ExtensionBangumiWatchTorrentFileTree) GetFile() *ExtensionBangumiWatchTorrentFileTreeFile {
@@ -598,7 +702,7 @@ type ExtensionBangumiWatchTorrentDetail struct {
 
 func (x *ExtensionBangumiWatchTorrentDetail) Reset() {
 	*x = ExtensionBangumiWatchTorrentDetail{}
-	mi := &file_proto_extension_model_proto_msgTypes[8]
+	mi := &file_proto_extension_model_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -610,7 +714,7 @@ func (x *ExtensionBangumiWatchTorrentDetail) String() string {
 func (*ExtensionBangumiWatchTorrentDetail) ProtoMessage() {}
 
 func (x *ExtensionBangumiWatchTorrentDetail) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_model_proto_msgTypes[8]
+	mi := &file_proto_extension_model_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -623,7 +727,7 @@ func (x *ExtensionBangumiWatchTorrentDetail) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ExtensionBangumiWatchTorrentDetail.ProtoReflect.Descriptor instead.
 func (*ExtensionBangumiWatchTorrentDetail) Descriptor() ([]byte, []int) {
-	return file_proto_extension_model_proto_rawDescGZIP(), []int{8}
+	return file_proto_extension_model_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ExtensionBangumiWatchTorrentDetail) GetPieceLength() int32 {
@@ -693,7 +797,7 @@ type ExtensionBangumiWatchTorrent struct {
 
 func (x *ExtensionBangumiWatchTorrent) Reset() {
 	*x = ExtensionBangumiWatchTorrent{}
-	mi := &file_proto_extension_model_proto_msgTypes[9]
+	mi := &file_proto_extension_model_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -705,7 +809,7 @@ func (x *ExtensionBangumiWatchTorrent) String() string {
 func (*ExtensionBangumiWatchTorrent) ProtoMessage() {}
 
 func (x *ExtensionBangumiWatchTorrent) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_model_proto_msgTypes[9]
+	mi := &file_proto_extension_model_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -718,7 +822,7 @@ func (x *ExtensionBangumiWatchTorrent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExtensionBangumiWatchTorrent.ProtoReflect.Descriptor instead.
 func (*ExtensionBangumiWatchTorrent) Descriptor() ([]byte, []int) {
-	return file_proto_extension_model_proto_rawDescGZIP(), []int{9}
+	return file_proto_extension_model_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ExtensionBangumiWatchTorrent) GetInfoHash() string {
@@ -756,7 +860,7 @@ type ExtensionBangumiWatch struct {
 
 func (x *ExtensionBangumiWatch) Reset() {
 	*x = ExtensionBangumiWatch{}
-	mi := &file_proto_extension_model_proto_msgTypes[10]
+	mi := &file_proto_extension_model_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -768,7 +872,7 @@ func (x *ExtensionBangumiWatch) String() string {
 func (*ExtensionBangumiWatch) ProtoMessage() {}
 
 func (x *ExtensionBangumiWatch) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_model_proto_msgTypes[10]
+	mi := &file_proto_extension_model_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -781,7 +885,7 @@ func (x *ExtensionBangumiWatch) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExtensionBangumiWatch.ProtoReflect.Descriptor instead.
 func (*ExtensionBangumiWatch) Descriptor() ([]byte, []int) {
-	return file_proto_extension_model_proto_rawDescGZIP(), []int{10}
+	return file_proto_extension_model_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ExtensionBangumiWatch) GetType() string {
@@ -836,7 +940,7 @@ type ExtensionMangaWatch struct {
 
 func (x *ExtensionMangaWatch) Reset() {
 	*x = ExtensionMangaWatch{}
-	mi := &file_proto_extension_model_proto_msgTypes[11]
+	mi := &file_proto_extension_model_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -848,7 +952,7 @@ func (x *ExtensionMangaWatch) String() string {
 func (*ExtensionMangaWatch) ProtoMessage() {}
 
 func (x *ExtensionMangaWatch) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_model_proto_msgTypes[11]
+	mi := &file_proto_extension_model_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -861,7 +965,7 @@ func (x *ExtensionMangaWatch) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExtensionMangaWatch.ProtoReflect.Descriptor instead.
 func (*ExtensionMangaWatch) Descriptor() ([]byte, []int) {
-	return file_proto_extension_model_proto_rawDescGZIP(), []int{11}
+	return file_proto_extension_model_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ExtensionMangaWatch) GetUrls() []string {
@@ -889,7 +993,7 @@ type ExtensionFikushonWatch struct {
 
 func (x *ExtensionFikushonWatch) Reset() {
 	*x = ExtensionFikushonWatch{}
-	mi := &file_proto_extension_model_proto_msgTypes[12]
+	mi := &file_proto_extension_model_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -901,7 +1005,7 @@ func (x *ExtensionFikushonWatch) String() string {
 func (*ExtensionFikushonWatch) ProtoMessage() {}
 
 func (x *ExtensionFikushonWatch) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_model_proto_msgTypes[12]
+	mi := &file_proto_extension_model_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -914,7 +1018,7 @@ func (x *ExtensionFikushonWatch) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExtensionFikushonWatch.ProtoReflect.Descriptor instead.
 func (*ExtensionFikushonWatch) Descriptor() ([]byte, []int) {
-	return file_proto_extension_model_proto_rawDescGZIP(), []int{12}
+	return file_proto_extension_model_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ExtensionFikushonWatch) GetContent() []string {
@@ -938,6 +1042,67 @@ func (x *ExtensionFikushonWatch) GetSubtitle() string {
 	return ""
 }
 
+// V2
+type ExtensionWatch struct {
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Mirrors       []*ExtensionMirrorGroup `protobuf:"bytes,1,rep,name=mirrors,proto3" json:"mirrors,omitempty"`
+	DefaultGroup  *string                 `protobuf:"bytes,2,opt,name=default_group,json=defaultGroup,proto3,oneof" json:"default_group,omitempty"`
+	DefaultIndex  *int32                  `protobuf:"varint,3,opt,name=default_index,json=defaultIndex,proto3,oneof" json:"default_index,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExtensionWatch) Reset() {
+	*x = ExtensionWatch{}
+	mi := &file_proto_extension_model_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExtensionWatch) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExtensionWatch) ProtoMessage() {}
+
+func (x *ExtensionWatch) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_extension_model_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExtensionWatch.ProtoReflect.Descriptor instead.
+func (*ExtensionWatch) Descriptor() ([]byte, []int) {
+	return file_proto_extension_model_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *ExtensionWatch) GetMirrors() []*ExtensionMirrorGroup {
+	if x != nil {
+		return x.Mirrors
+	}
+	return nil
+}
+
+func (x *ExtensionWatch) GetDefaultGroup() string {
+	if x != nil && x.DefaultGroup != nil {
+		return *x.DefaultGroup
+	}
+	return ""
+}
+
+func (x *ExtensionWatch) GetDefaultIndex() int32 {
+	if x != nil && x.DefaultIndex != nil {
+		return *x.DefaultIndex
+	}
+	return 0
+}
+
 type GithubExtension struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -958,7 +1123,7 @@ type GithubExtension struct {
 
 func (x *GithubExtension) Reset() {
 	*x = GithubExtension{}
-	mi := &file_proto_extension_model_proto_msgTypes[13]
+	mi := &file_proto_extension_model_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -970,7 +1135,7 @@ func (x *GithubExtension) String() string {
 func (*GithubExtension) ProtoMessage() {}
 
 func (x *GithubExtension) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_model_proto_msgTypes[13]
+	mi := &file_proto_extension_model_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -983,7 +1148,7 @@ func (x *GithubExtension) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GithubExtension.ProtoReflect.Descriptor instead.
 func (*GithubExtension) Descriptor() ([]byte, []int) {
-	return file_proto_extension_model_proto_rawDescGZIP(), []int{13}
+	return file_proto_extension_model_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GithubExtension) GetName() string {
@@ -1081,7 +1246,7 @@ type ExtensionRepo struct {
 
 func (x *ExtensionRepo) Reset() {
 	*x = ExtensionRepo{}
-	mi := &file_proto_extension_model_proto_msgTypes[14]
+	mi := &file_proto_extension_model_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1093,7 +1258,7 @@ func (x *ExtensionRepo) String() string {
 func (*ExtensionRepo) ProtoMessage() {}
 
 func (x *ExtensionRepo) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_model_proto_msgTypes[14]
+	mi := &file_proto_extension_model_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1106,7 +1271,7 @@ func (x *ExtensionRepo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExtensionRepo.ProtoReflect.Descriptor instead.
 func (*ExtensionRepo) Descriptor() ([]byte, []int) {
-	return file_proto_extension_model_proto_rawDescGZIP(), []int{14}
+	return file_proto_extension_model_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ExtensionRepo) GetExtensions() []*GithubExtension {
@@ -1141,7 +1306,7 @@ type RepoConfig struct {
 
 func (x *RepoConfig) Reset() {
 	*x = RepoConfig{}
-	mi := &file_proto_extension_model_proto_msgTypes[15]
+	mi := &file_proto_extension_model_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1153,7 +1318,7 @@ func (x *RepoConfig) String() string {
 func (*RepoConfig) ProtoMessage() {}
 
 func (x *RepoConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_model_proto_msgTypes[15]
+	mi := &file_proto_extension_model_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1166,7 +1331,7 @@ func (x *RepoConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RepoConfig.ProtoReflect.Descriptor instead.
 func (*RepoConfig) Descriptor() ([]byte, []int) {
-	return file_proto_extension_model_proto_rawDescGZIP(), []int{15}
+	return file_proto_extension_model_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *RepoConfig) GetLink() string {
@@ -1207,7 +1372,7 @@ type ExtensionSetting struct {
 
 func (x *ExtensionSetting) Reset() {
 	*x = ExtensionSetting{}
-	mi := &file_proto_extension_model_proto_msgTypes[16]
+	mi := &file_proto_extension_model_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1219,7 +1384,7 @@ func (x *ExtensionSetting) String() string {
 func (*ExtensionSetting) ProtoMessage() {}
 
 func (x *ExtensionSetting) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_model_proto_msgTypes[16]
+	mi := &file_proto_extension_model_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1232,7 +1397,7 @@ func (x *ExtensionSetting) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExtensionSetting.ProtoReflect.Descriptor instead.
 func (*ExtensionSetting) Descriptor() ([]byte, []int) {
-	return file_proto_extension_model_proto_rawDescGZIP(), []int{16}
+	return file_proto_extension_model_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ExtensionSetting) GetId() int32 {
@@ -1341,7 +1506,13 @@ const file_proto_extension_model_proto_rawDesc = "" +
 	"\x03url\x18\x02 \x01(\tR\x03url\x12\x16\n" +
 	"\x06update\x18\x03 \x01(\tR\x06update\x12%\n" +
 	"\vdescription\x18\x04 \x01(\tH\x00R\vdescription\x88\x01\x01B\x0e\n" +
-	"\f_description\"u\n" +
+	"\f_description\"7\n" +
+	"\x0fExtensionMirror\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x10\n" +
+	"\x03url\x18\x02 \x01(\tR\x03url\"]\n" +
+	"\x14ExtensionMirrorGroup\x12\x14\n" +
+	"\x05title\x18\x01 \x01(\tR\x05title\x12/\n" +
+	"\amirrors\x18\x02 \x03(\v2\x15.miru.ExtensionMirrorR\amirrors\"u\n" +
 	"\x1dExtensionBangumiWatchSubtitle\x12\x1f\n" +
 	"\blanguage\x18\x01 \x01(\tH\x00R\blanguage\x88\x01\x01\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x10\n" +
@@ -1401,7 +1572,13 @@ const file_proto_extension_model_proto_rawDesc = "" +
 	"\acontent\x18\x01 \x03(\tR\acontent\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x1f\n" +
 	"\bsubtitle\x18\x03 \x01(\tH\x00R\bsubtitle\x88\x01\x01B\v\n" +
-	"\t_subtitle\"\xce\x02\n" +
+	"\t_subtitle\"\xbe\x01\n" +
+	"\x0eExtensionWatch\x124\n" +
+	"\amirrors\x18\x01 \x03(\v2\x1a.miru.ExtensionMirrorGroupR\amirrors\x12(\n" +
+	"\rdefault_group\x18\x02 \x01(\tH\x00R\fdefaultGroup\x88\x01\x01\x12(\n" +
+	"\rdefault_index\x18\x03 \x01(\x05H\x01R\fdefaultIndex\x88\x01\x01B\x10\n" +
+	"\x0e_default_groupB\x10\n" +
+	"\x0e_default_index\"\xce\x02\n" +
 	"\x0fGithubExtension\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
 	"\vdescription\x18\x02 \x01(\tH\x00R\vdescription\x88\x01\x01\x12\x18\n" +
@@ -1462,7 +1639,7 @@ func file_proto_extension_model_proto_rawDescGZIP() []byte {
 }
 
 var file_proto_extension_model_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_proto_extension_model_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
+var file_proto_extension_model_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_proto_extension_model_proto_goTypes = []any{
 	(ExtensionSettingType)(0),                        // 0: miru.ExtensionSettingType
 	(*ExtensionListItem)(nil),                        // 1: miru.ExtensionListItem
@@ -1470,47 +1647,52 @@ var file_proto_extension_model_proto_goTypes = []any{
 	(*ExtensionDetail)(nil),                          // 3: miru.ExtensionDetail
 	(*ExtensionEpisodeGroup)(nil),                    // 4: miru.ExtensionEpisodeGroup
 	(*ExtensionEpisode)(nil),                         // 5: miru.ExtensionEpisode
-	(*ExtensionBangumiWatchSubtitle)(nil),            // 6: miru.ExtensionBangumiWatchSubtitle
-	(*ExtensionBangumiWatchTorrentFileTreeFile)(nil), // 7: miru.ExtensionBangumiWatchTorrentFileTreeFile
-	(*ExtensionBangumiWatchTorrentFileTree)(nil),     // 8: miru.ExtensionBangumiWatchTorrentFileTree
-	(*ExtensionBangumiWatchTorrentDetail)(nil),       // 9: miru.ExtensionBangumiWatchTorrentDetail
-	(*ExtensionBangumiWatchTorrent)(nil),             // 10: miru.ExtensionBangumiWatchTorrent
-	(*ExtensionBangumiWatch)(nil),                    // 11: miru.ExtensionBangumiWatch
-	(*ExtensionMangaWatch)(nil),                      // 12: miru.ExtensionMangaWatch
-	(*ExtensionFikushonWatch)(nil),                   // 13: miru.ExtensionFikushonWatch
-	(*GithubExtension)(nil),                          // 14: miru.GithubExtension
-	(*ExtensionRepo)(nil),                            // 15: miru.ExtensionRepo
-	(*RepoConfig)(nil),                               // 16: miru.RepoConfig
-	(*ExtensionSetting)(nil),                         // 17: miru.ExtensionSetting
-	nil,                                              // 18: miru.ExtensionListItem.HeadersEntry
-	nil,                                              // 19: miru.ExtensionFilter.OptionsEntry
-	nil,                                              // 20: miru.ExtensionDetail.HeadersEntry
-	nil,                                              // 21: miru.ExtensionBangumiWatchTorrentFileTree.DirEntry
-	nil,                                              // 22: miru.ExtensionBangumiWatch.HeadersEntry
-	nil,                                              // 23: miru.ExtensionMangaWatch.HeadersEntry
+	(*ExtensionMirror)(nil),                          // 6: miru.ExtensionMirror
+	(*ExtensionMirrorGroup)(nil),                     // 7: miru.ExtensionMirrorGroup
+	(*ExtensionBangumiWatchSubtitle)(nil),            // 8: miru.ExtensionBangumiWatchSubtitle
+	(*ExtensionBangumiWatchTorrentFileTreeFile)(nil), // 9: miru.ExtensionBangumiWatchTorrentFileTreeFile
+	(*ExtensionBangumiWatchTorrentFileTree)(nil),     // 10: miru.ExtensionBangumiWatchTorrentFileTree
+	(*ExtensionBangumiWatchTorrentDetail)(nil),       // 11: miru.ExtensionBangumiWatchTorrentDetail
+	(*ExtensionBangumiWatchTorrent)(nil),             // 12: miru.ExtensionBangumiWatchTorrent
+	(*ExtensionBangumiWatch)(nil),                    // 13: miru.ExtensionBangumiWatch
+	(*ExtensionMangaWatch)(nil),                      // 14: miru.ExtensionMangaWatch
+	(*ExtensionFikushonWatch)(nil),                   // 15: miru.ExtensionFikushonWatch
+	(*ExtensionWatch)(nil),                           // 16: miru.ExtensionWatch
+	(*GithubExtension)(nil),                          // 17: miru.GithubExtension
+	(*ExtensionRepo)(nil),                            // 18: miru.ExtensionRepo
+	(*RepoConfig)(nil),                               // 19: miru.RepoConfig
+	(*ExtensionSetting)(nil),                         // 20: miru.ExtensionSetting
+	nil,                                              // 21: miru.ExtensionListItem.HeadersEntry
+	nil,                                              // 22: miru.ExtensionFilter.OptionsEntry
+	nil,                                              // 23: miru.ExtensionDetail.HeadersEntry
+	nil,                                              // 24: miru.ExtensionBangumiWatchTorrentFileTree.DirEntry
+	nil,                                              // 25: miru.ExtensionBangumiWatch.HeadersEntry
+	nil,                                              // 26: miru.ExtensionMangaWatch.HeadersEntry
 }
 var file_proto_extension_model_proto_depIdxs = []int32{
-	18, // 0: miru.ExtensionListItem.headers:type_name -> miru.ExtensionListItem.HeadersEntry
-	19, // 1: miru.ExtensionFilter.options:type_name -> miru.ExtensionFilter.OptionsEntry
+	21, // 0: miru.ExtensionListItem.headers:type_name -> miru.ExtensionListItem.HeadersEntry
+	22, // 1: miru.ExtensionFilter.options:type_name -> miru.ExtensionFilter.OptionsEntry
 	4,  // 2: miru.ExtensionDetail.episodes:type_name -> miru.ExtensionEpisodeGroup
-	20, // 3: miru.ExtensionDetail.headers:type_name -> miru.ExtensionDetail.HeadersEntry
+	23, // 3: miru.ExtensionDetail.headers:type_name -> miru.ExtensionDetail.HeadersEntry
 	5,  // 4: miru.ExtensionEpisodeGroup.urls:type_name -> miru.ExtensionEpisode
-	7,  // 5: miru.ExtensionBangumiWatchTorrentFileTree.file:type_name -> miru.ExtensionBangumiWatchTorrentFileTreeFile
-	21, // 6: miru.ExtensionBangumiWatchTorrentFileTree.dir:type_name -> miru.ExtensionBangumiWatchTorrentFileTree.DirEntry
-	8,  // 7: miru.ExtensionBangumiWatchTorrentDetail.fileTree:type_name -> miru.ExtensionBangumiWatchTorrentFileTree
-	9,  // 8: miru.ExtensionBangumiWatchTorrent.detail:type_name -> miru.ExtensionBangumiWatchTorrentDetail
-	6,  // 9: miru.ExtensionBangumiWatch.subtitles:type_name -> miru.ExtensionBangumiWatchSubtitle
-	22, // 10: miru.ExtensionBangumiWatch.headers:type_name -> miru.ExtensionBangumiWatch.HeadersEntry
-	10, // 11: miru.ExtensionBangumiWatch.torrent:type_name -> miru.ExtensionBangumiWatchTorrent
-	23, // 12: miru.ExtensionMangaWatch.headers:type_name -> miru.ExtensionMangaWatch.HeadersEntry
-	14, // 13: miru.ExtensionRepo.extensions:type_name -> miru.GithubExtension
-	0,  // 14: miru.ExtensionSetting.type:type_name -> miru.ExtensionSettingType
-	8,  // 15: miru.ExtensionBangumiWatchTorrentFileTree.DirEntry.value:type_name -> miru.ExtensionBangumiWatchTorrentFileTree
-	16, // [16:16] is the sub-list for method output_type
-	16, // [16:16] is the sub-list for method input_type
-	16, // [16:16] is the sub-list for extension type_name
-	16, // [16:16] is the sub-list for extension extendee
-	0,  // [0:16] is the sub-list for field type_name
+	6,  // 5: miru.ExtensionMirrorGroup.mirrors:type_name -> miru.ExtensionMirror
+	9,  // 6: miru.ExtensionBangumiWatchTorrentFileTree.file:type_name -> miru.ExtensionBangumiWatchTorrentFileTreeFile
+	24, // 7: miru.ExtensionBangumiWatchTorrentFileTree.dir:type_name -> miru.ExtensionBangumiWatchTorrentFileTree.DirEntry
+	10, // 8: miru.ExtensionBangumiWatchTorrentDetail.fileTree:type_name -> miru.ExtensionBangumiWatchTorrentFileTree
+	11, // 9: miru.ExtensionBangumiWatchTorrent.detail:type_name -> miru.ExtensionBangumiWatchTorrentDetail
+	8,  // 10: miru.ExtensionBangumiWatch.subtitles:type_name -> miru.ExtensionBangumiWatchSubtitle
+	25, // 11: miru.ExtensionBangumiWatch.headers:type_name -> miru.ExtensionBangumiWatch.HeadersEntry
+	12, // 12: miru.ExtensionBangumiWatch.torrent:type_name -> miru.ExtensionBangumiWatchTorrent
+	26, // 13: miru.ExtensionMangaWatch.headers:type_name -> miru.ExtensionMangaWatch.HeadersEntry
+	7,  // 14: miru.ExtensionWatch.mirrors:type_name -> miru.ExtensionMirrorGroup
+	17, // 15: miru.ExtensionRepo.extensions:type_name -> miru.GithubExtension
+	0,  // 16: miru.ExtensionSetting.type:type_name -> miru.ExtensionSettingType
+	10, // 17: miru.ExtensionBangumiWatchTorrentFileTree.DirEntry.value:type_name -> miru.ExtensionBangumiWatchTorrentFileTree
+	18, // [18:18] is the sub-list for method output_type
+	18, // [18:18] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_proto_extension_model_proto_init() }
@@ -1520,19 +1702,20 @@ func file_proto_extension_model_proto_init() {
 	}
 	file_proto_extension_model_proto_msgTypes[2].OneofWrappers = []any{}
 	file_proto_extension_model_proto_msgTypes[4].OneofWrappers = []any{}
-	file_proto_extension_model_proto_msgTypes[5].OneofWrappers = []any{}
-	file_proto_extension_model_proto_msgTypes[8].OneofWrappers = []any{}
+	file_proto_extension_model_proto_msgTypes[7].OneofWrappers = []any{}
 	file_proto_extension_model_proto_msgTypes[10].OneofWrappers = []any{}
 	file_proto_extension_model_proto_msgTypes[12].OneofWrappers = []any{}
-	file_proto_extension_model_proto_msgTypes[13].OneofWrappers = []any{}
+	file_proto_extension_model_proto_msgTypes[14].OneofWrappers = []any{}
+	file_proto_extension_model_proto_msgTypes[15].OneofWrappers = []any{}
 	file_proto_extension_model_proto_msgTypes[16].OneofWrappers = []any{}
+	file_proto_extension_model_proto_msgTypes[19].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_extension_model_proto_rawDesc), len(file_proto_extension_model_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   23,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

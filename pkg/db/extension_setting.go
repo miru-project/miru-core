@@ -55,9 +55,7 @@ func RegisterSetting(setting map[string]any, pkg string) error {
 	set, _ := GetSetting(pkg, *key)
 	dbType := nilableObj[extensionsetting.DbType](setting["type"])
 	if set != nil && extensionsetting.DbType(set.DbType.String()) != setting["type"] {
-		if err := RemoveSetting(pkg, *key); err != nil {
-			log.Printf("[RegisterSetting] Error removing old setting: %v", err)
-		}
+		return nil
 	}
 	client := ext.EntClient()
 	ctx := context.Background()

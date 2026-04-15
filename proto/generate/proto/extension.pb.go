@@ -473,6 +473,172 @@ func (x *WatchRequest) GetUrl() string {
 	return ""
 }
 
+type MirrorRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pkg           string                 `protobuf:"bytes,1,opt,name=pkg,proto3" json:"pkg,omitempty"`
+	Url           string                 `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MirrorRequest) Reset() {
+	*x = MirrorRequest{}
+	mi := &file_proto_extension_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MirrorRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MirrorRequest) ProtoMessage() {}
+
+func (x *MirrorRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_extension_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MirrorRequest.ProtoReflect.Descriptor instead.
+func (*MirrorRequest) Descriptor() ([]byte, []int) {
+	return file_proto_extension_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *MirrorRequest) GetPkg() string {
+	if x != nil {
+		return x.Pkg
+	}
+	return ""
+}
+
+func (x *MirrorRequest) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+type MirrorResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Data:
+	//
+	//	*MirrorResponse_Bangumi
+	//	*MirrorResponse_Manga
+	//	*MirrorResponse_Fikushon
+	//	*MirrorResponse_Raw
+	Data          isMirrorResponse_Data `protobuf_oneof:"data"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MirrorResponse) Reset() {
+	*x = MirrorResponse{}
+	mi := &file_proto_extension_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MirrorResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MirrorResponse) ProtoMessage() {}
+
+func (x *MirrorResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_extension_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MirrorResponse.ProtoReflect.Descriptor instead.
+func (*MirrorResponse) Descriptor() ([]byte, []int) {
+	return file_proto_extension_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *MirrorResponse) GetData() isMirrorResponse_Data {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+func (x *MirrorResponse) GetBangumi() *ExtensionBangumiWatch {
+	if x != nil {
+		if x, ok := x.Data.(*MirrorResponse_Bangumi); ok {
+			return x.Bangumi
+		}
+	}
+	return nil
+}
+
+func (x *MirrorResponse) GetManga() *ExtensionMangaWatch {
+	if x != nil {
+		if x, ok := x.Data.(*MirrorResponse_Manga); ok {
+			return x.Manga
+		}
+	}
+	return nil
+}
+
+func (x *MirrorResponse) GetFikushon() *ExtensionFikushonWatch {
+	if x != nil {
+		if x, ok := x.Data.(*MirrorResponse_Fikushon); ok {
+			return x.Fikushon
+		}
+	}
+	return nil
+}
+
+func (x *MirrorResponse) GetRaw() string {
+	if x != nil {
+		if x, ok := x.Data.(*MirrorResponse_Raw); ok {
+			return x.Raw
+		}
+	}
+	return ""
+}
+
+type isMirrorResponse_Data interface {
+	isMirrorResponse_Data()
+}
+
+type MirrorResponse_Bangumi struct {
+	Bangumi *ExtensionBangumiWatch `protobuf:"bytes,1,opt,name=bangumi,proto3,oneof"`
+}
+
+type MirrorResponse_Manga struct {
+	Manga *ExtensionMangaWatch `protobuf:"bytes,2,opt,name=manga,proto3,oneof"`
+}
+
+type MirrorResponse_Fikushon struct {
+	Fikushon *ExtensionFikushonWatch `protobuf:"bytes,3,opt,name=fikushon,proto3,oneof"`
+}
+
+type MirrorResponse_Raw struct {
+	Raw string `protobuf:"bytes,4,opt,name=raw,proto3,oneof"`
+}
+
+func (*MirrorResponse_Bangumi) isMirrorResponse_Data() {}
+
+func (*MirrorResponse_Manga) isMirrorResponse_Data() {}
+
+func (*MirrorResponse_Fikushon) isMirrorResponse_Data() {}
+
+func (*MirrorResponse_Raw) isMirrorResponse_Data() {}
+
 type WatchResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Data:
@@ -480,6 +646,7 @@ type WatchResponse struct {
 	//	*WatchResponse_Bangumi
 	//	*WatchResponse_Manga
 	//	*WatchResponse_Fikushon
+	//	*WatchResponse_Watch
 	//	*WatchResponse_Raw
 	Data          isWatchResponse_Data `protobuf_oneof:"data"`
 	unknownFields protoimpl.UnknownFields
@@ -488,7 +655,7 @@ type WatchResponse struct {
 
 func (x *WatchResponse) Reset() {
 	*x = WatchResponse{}
-	mi := &file_proto_extension_proto_msgTypes[9]
+	mi := &file_proto_extension_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -500,7 +667,7 @@ func (x *WatchResponse) String() string {
 func (*WatchResponse) ProtoMessage() {}
 
 func (x *WatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_proto_msgTypes[9]
+	mi := &file_proto_extension_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -513,7 +680,7 @@ func (x *WatchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WatchResponse.ProtoReflect.Descriptor instead.
 func (*WatchResponse) Descriptor() ([]byte, []int) {
-	return file_proto_extension_proto_rawDescGZIP(), []int{9}
+	return file_proto_extension_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *WatchResponse) GetData() isWatchResponse_Data {
@@ -550,6 +717,15 @@ func (x *WatchResponse) GetFikushon() *ExtensionFikushonWatch {
 	return nil
 }
 
+func (x *WatchResponse) GetWatch() *ExtensionWatch {
+	if x != nil {
+		if x, ok := x.Data.(*WatchResponse_Watch); ok {
+			return x.Watch
+		}
+	}
+	return nil
+}
+
 func (x *WatchResponse) GetRaw() string {
 	if x != nil {
 		if x, ok := x.Data.(*WatchResponse_Raw); ok {
@@ -575,8 +751,12 @@ type WatchResponse_Fikushon struct {
 	Fikushon *ExtensionFikushonWatch `protobuf:"bytes,3,opt,name=fikushon,proto3,oneof"`
 }
 
+type WatchResponse_Watch struct {
+	Watch *ExtensionWatch `protobuf:"bytes,4,opt,name=watch,proto3,oneof"`
+}
+
 type WatchResponse_Raw struct {
-	Raw string `protobuf:"bytes,4,opt,name=raw,proto3,oneof"` // Backup or unknown watch type
+	Raw string `protobuf:"bytes,5,opt,name=raw,proto3,oneof"` // Backup or unknown watch type
 }
 
 func (*WatchResponse_Bangumi) isWatchResponse_Data() {}
@@ -584,6 +764,8 @@ func (*WatchResponse_Bangumi) isWatchResponse_Data() {}
 func (*WatchResponse_Manga) isWatchResponse_Data() {}
 
 func (*WatchResponse_Fikushon) isWatchResponse_Data() {}
+
+func (*WatchResponse_Watch) isWatchResponse_Data() {}
 
 func (*WatchResponse_Raw) isWatchResponse_Data() {}
 
@@ -598,7 +780,7 @@ type DownloadExtensionRequest struct {
 
 func (x *DownloadExtensionRequest) Reset() {
 	*x = DownloadExtensionRequest{}
-	mi := &file_proto_extension_proto_msgTypes[10]
+	mi := &file_proto_extension_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -610,7 +792,7 @@ func (x *DownloadExtensionRequest) String() string {
 func (*DownloadExtensionRequest) ProtoMessage() {}
 
 func (x *DownloadExtensionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_proto_msgTypes[10]
+	mi := &file_proto_extension_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -623,7 +805,7 @@ func (x *DownloadExtensionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DownloadExtensionRequest.ProtoReflect.Descriptor instead.
 func (*DownloadExtensionRequest) Descriptor() ([]byte, []int) {
-	return file_proto_extension_proto_rawDescGZIP(), []int{10}
+	return file_proto_extension_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *DownloadExtensionRequest) GetRepoUrl() string {
@@ -649,7 +831,7 @@ type DownloadExtensionResponse struct {
 
 func (x *DownloadExtensionResponse) Reset() {
 	*x = DownloadExtensionResponse{}
-	mi := &file_proto_extension_proto_msgTypes[11]
+	mi := &file_proto_extension_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -661,7 +843,7 @@ func (x *DownloadExtensionResponse) String() string {
 func (*DownloadExtensionResponse) ProtoMessage() {}
 
 func (x *DownloadExtensionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_proto_msgTypes[11]
+	mi := &file_proto_extension_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -674,7 +856,7 @@ func (x *DownloadExtensionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DownloadExtensionResponse.ProtoReflect.Descriptor instead.
 func (*DownloadExtensionResponse) Descriptor() ([]byte, []int) {
-	return file_proto_extension_proto_rawDescGZIP(), []int{11}
+	return file_proto_extension_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *DownloadExtensionResponse) GetMessage() string {
@@ -693,7 +875,7 @@ type RemoveExtensionRequest struct {
 
 func (x *RemoveExtensionRequest) Reset() {
 	*x = RemoveExtensionRequest{}
-	mi := &file_proto_extension_proto_msgTypes[12]
+	mi := &file_proto_extension_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -705,7 +887,7 @@ func (x *RemoveExtensionRequest) String() string {
 func (*RemoveExtensionRequest) ProtoMessage() {}
 
 func (x *RemoveExtensionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_proto_msgTypes[12]
+	mi := &file_proto_extension_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -718,7 +900,7 @@ func (x *RemoveExtensionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveExtensionRequest.ProtoReflect.Descriptor instead.
 func (*RemoveExtensionRequest) Descriptor() ([]byte, []int) {
-	return file_proto_extension_proto_rawDescGZIP(), []int{12}
+	return file_proto_extension_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *RemoveExtensionRequest) GetPkg() string {
@@ -737,7 +919,7 @@ type RemoveExtensionResponse struct {
 
 func (x *RemoveExtensionResponse) Reset() {
 	*x = RemoveExtensionResponse{}
-	mi := &file_proto_extension_proto_msgTypes[13]
+	mi := &file_proto_extension_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -749,7 +931,7 @@ func (x *RemoveExtensionResponse) String() string {
 func (*RemoveExtensionResponse) ProtoMessage() {}
 
 func (x *RemoveExtensionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_proto_msgTypes[13]
+	mi := &file_proto_extension_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -762,7 +944,7 @@ func (x *RemoveExtensionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveExtensionResponse.ProtoReflect.Descriptor instead.
 func (*RemoveExtensionResponse) Descriptor() ([]byte, []int) {
-	return file_proto_extension_proto_rawDescGZIP(), []int{13}
+	return file_proto_extension_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *RemoveExtensionResponse) GetMessage() string {
@@ -781,7 +963,7 @@ type GetExtensionSettingsRequest struct {
 
 func (x *GetExtensionSettingsRequest) Reset() {
 	*x = GetExtensionSettingsRequest{}
-	mi := &file_proto_extension_proto_msgTypes[14]
+	mi := &file_proto_extension_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -793,7 +975,7 @@ func (x *GetExtensionSettingsRequest) String() string {
 func (*GetExtensionSettingsRequest) ProtoMessage() {}
 
 func (x *GetExtensionSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_proto_msgTypes[14]
+	mi := &file_proto_extension_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -806,7 +988,7 @@ func (x *GetExtensionSettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetExtensionSettingsRequest.ProtoReflect.Descriptor instead.
 func (*GetExtensionSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_proto_extension_proto_rawDescGZIP(), []int{14}
+	return file_proto_extension_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetExtensionSettingsRequest) GetPkg() string {
@@ -825,7 +1007,7 @@ type GetExtensionSettingsResponse struct {
 
 func (x *GetExtensionSettingsResponse) Reset() {
 	*x = GetExtensionSettingsResponse{}
-	mi := &file_proto_extension_proto_msgTypes[15]
+	mi := &file_proto_extension_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -837,7 +1019,7 @@ func (x *GetExtensionSettingsResponse) String() string {
 func (*GetExtensionSettingsResponse) ProtoMessage() {}
 
 func (x *GetExtensionSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_proto_msgTypes[15]
+	mi := &file_proto_extension_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -850,7 +1032,7 @@ func (x *GetExtensionSettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetExtensionSettingsResponse.ProtoReflect.Descriptor instead.
 func (*GetExtensionSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_proto_extension_proto_rawDescGZIP(), []int{15}
+	return file_proto_extension_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetExtensionSettingsResponse) GetSettings() []*ExtensionSetting {
@@ -870,7 +1052,7 @@ type SaveExtensionSettingsRequest struct {
 
 func (x *SaveExtensionSettingsRequest) Reset() {
 	*x = SaveExtensionSettingsRequest{}
-	mi := &file_proto_extension_proto_msgTypes[16]
+	mi := &file_proto_extension_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -882,7 +1064,7 @@ func (x *SaveExtensionSettingsRequest) String() string {
 func (*SaveExtensionSettingsRequest) ProtoMessage() {}
 
 func (x *SaveExtensionSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_proto_msgTypes[16]
+	mi := &file_proto_extension_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -895,7 +1077,7 @@ func (x *SaveExtensionSettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveExtensionSettingsRequest.ProtoReflect.Descriptor instead.
 func (*SaveExtensionSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_proto_extension_proto_rawDescGZIP(), []int{16}
+	return file_proto_extension_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *SaveExtensionSettingsRequest) GetPkg() string {
@@ -921,7 +1103,7 @@ type SaveExtensionSettingsResponse struct {
 
 func (x *SaveExtensionSettingsResponse) Reset() {
 	*x = SaveExtensionSettingsResponse{}
-	mi := &file_proto_extension_proto_msgTypes[17]
+	mi := &file_proto_extension_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -933,7 +1115,7 @@ func (x *SaveExtensionSettingsResponse) String() string {
 func (*SaveExtensionSettingsResponse) ProtoMessage() {}
 
 func (x *SaveExtensionSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_extension_proto_msgTypes[17]
+	mi := &file_proto_extension_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -946,7 +1128,7 @@ func (x *SaveExtensionSettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveExtensionSettingsResponse.ProtoReflect.Descriptor instead.
 func (*SaveExtensionSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_proto_extension_proto_rawDescGZIP(), []int{17}
+	return file_proto_extension_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *SaveExtensionSettingsResponse) GetMessage() string {
@@ -988,12 +1170,22 @@ const file_proto_extension_proto_rawDesc = "" +
 	"\x04data\x18\x01 \x01(\v2\x15.miru.ExtensionDetailR\x04data\"2\n" +
 	"\fWatchRequest\x12\x10\n" +
 	"\x03pkg\x18\x01 \x01(\tR\x03pkg\x12\x10\n" +
-	"\x03url\x18\x02 \x01(\tR\x03url\"\xd3\x01\n" +
-	"\rWatchResponse\x127\n" +
+	"\x03url\x18\x02 \x01(\tR\x03url\"3\n" +
+	"\rMirrorRequest\x12\x10\n" +
+	"\x03pkg\x18\x01 \x01(\tR\x03pkg\x12\x10\n" +
+	"\x03url\x18\x02 \x01(\tR\x03url\"\xd4\x01\n" +
+	"\x0eMirrorResponse\x127\n" +
 	"\abangumi\x18\x01 \x01(\v2\x1b.miru.ExtensionBangumiWatchH\x00R\abangumi\x121\n" +
 	"\x05manga\x18\x02 \x01(\v2\x19.miru.ExtensionMangaWatchH\x00R\x05manga\x12:\n" +
 	"\bfikushon\x18\x03 \x01(\v2\x1c.miru.ExtensionFikushonWatchH\x00R\bfikushon\x12\x12\n" +
 	"\x03raw\x18\x04 \x01(\tH\x00R\x03rawB\x06\n" +
+	"\x04data\"\x81\x02\n" +
+	"\rWatchResponse\x127\n" +
+	"\abangumi\x18\x01 \x01(\v2\x1b.miru.ExtensionBangumiWatchH\x00R\abangumi\x121\n" +
+	"\x05manga\x18\x02 \x01(\v2\x19.miru.ExtensionMangaWatchH\x00R\x05manga\x12:\n" +
+	"\bfikushon\x18\x03 \x01(\v2\x1c.miru.ExtensionFikushonWatchH\x00R\bfikushon\x12,\n" +
+	"\x05watch\x18\x04 \x01(\v2\x14.miru.ExtensionWatchH\x00R\x05watch\x12\x12\n" +
+	"\x03raw\x18\x05 \x01(\tH\x00R\x03rawB\x06\n" +
 	"\x04data\"G\n" +
 	"\x18DownloadExtensionRequest\x12\x19\n" +
 	"\brepo_url\x18\x01 \x01(\tR\arepoUrl\x12\x10\n" +
@@ -1012,13 +1204,14 @@ const file_proto_extension_proto_rawDesc = "" +
 	"\x03pkg\x18\x01 \x01(\tR\x03pkg\x122\n" +
 	"\bsettings\x18\x02 \x03(\v2\x16.miru.ExtensionSettingR\bsettings\"9\n" +
 	"\x1dSaveExtensionSettingsResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage2\x91\x05\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage2\xc6\x05\n" +
 	"\x10ExtensionService\x123\n" +
 	"\x06Search\x12\x13.miru.SearchRequest\x1a\x14.miru.SearchResponse\x12E\n" +
 	"\fCreateFilter\x12\x19.miru.CreateFilterRequest\x1a\x1a.miru.CreateFilterResponse\x123\n" +
 	"\x06Latest\x12\x13.miru.LatestRequest\x1a\x14.miru.LatestResponse\x123\n" +
 	"\x06Detail\x12\x13.miru.DetailRequest\x1a\x14.miru.DetailResponse\x120\n" +
-	"\x05Watch\x12\x12.miru.WatchRequest\x1a\x13.miru.WatchResponse\x12T\n" +
+	"\x05Watch\x12\x12.miru.WatchRequest\x1a\x13.miru.WatchResponse\x123\n" +
+	"\x06Mirror\x12\x13.miru.MirrorRequest\x1a\x14.miru.MirrorResponse\x12T\n" +
 	"\x11DownloadExtension\x12\x1e.miru.DownloadExtensionRequest\x1a\x1f.miru.DownloadExtensionResponse\x12N\n" +
 	"\x0fRemoveExtension\x12\x1c.miru.RemoveExtensionRequest\x1a\x1d.miru.RemoveExtensionResponse\x12]\n" +
 	"\x14GetExtensionSettings\x12!.miru.GetExtensionSettingsRequest\x1a\".miru.GetExtensionSettingsResponse\x12`\n" +
@@ -1036,7 +1229,7 @@ func file_proto_extension_proto_rawDescGZIP() []byte {
 	return file_proto_extension_proto_rawDescData
 }
 
-var file_proto_extension_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_proto_extension_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_proto_extension_proto_goTypes = []any{
 	(*SearchRequest)(nil),                 // 0: miru.SearchRequest
 	(*CreateFilterRequest)(nil),           // 1: miru.CreateFilterRequest
@@ -1047,58 +1240,67 @@ var file_proto_extension_proto_goTypes = []any{
 	(*DetailRequest)(nil),                 // 6: miru.DetailRequest
 	(*DetailResponse)(nil),                // 7: miru.DetailResponse
 	(*WatchRequest)(nil),                  // 8: miru.WatchRequest
-	(*WatchResponse)(nil),                 // 9: miru.WatchResponse
-	(*DownloadExtensionRequest)(nil),      // 10: miru.DownloadExtensionRequest
-	(*DownloadExtensionResponse)(nil),     // 11: miru.DownloadExtensionResponse
-	(*RemoveExtensionRequest)(nil),        // 12: miru.RemoveExtensionRequest
-	(*RemoveExtensionResponse)(nil),       // 13: miru.RemoveExtensionResponse
-	(*GetExtensionSettingsRequest)(nil),   // 14: miru.GetExtensionSettingsRequest
-	(*GetExtensionSettingsResponse)(nil),  // 15: miru.GetExtensionSettingsResponse
-	(*SaveExtensionSettingsRequest)(nil),  // 16: miru.SaveExtensionSettingsRequest
-	(*SaveExtensionSettingsResponse)(nil), // 17: miru.SaveExtensionSettingsResponse
-	nil,                                   // 18: miru.CreateFilterResponse.FiltersEntry
-	(*ExtensionListItem)(nil),             // 19: miru.ExtensionListItem
-	(*ExtensionDetail)(nil),               // 20: miru.ExtensionDetail
-	(*ExtensionBangumiWatch)(nil),         // 21: miru.ExtensionBangumiWatch
-	(*ExtensionMangaWatch)(nil),           // 22: miru.ExtensionMangaWatch
-	(*ExtensionFikushonWatch)(nil),        // 23: miru.ExtensionFikushonWatch
-	(*ExtensionSetting)(nil),              // 24: miru.ExtensionSetting
-	(*ExtensionFilter)(nil),               // 25: miru.ExtensionFilter
+	(*MirrorRequest)(nil),                 // 9: miru.MirrorRequest
+	(*MirrorResponse)(nil),                // 10: miru.MirrorResponse
+	(*WatchResponse)(nil),                 // 11: miru.WatchResponse
+	(*DownloadExtensionRequest)(nil),      // 12: miru.DownloadExtensionRequest
+	(*DownloadExtensionResponse)(nil),     // 13: miru.DownloadExtensionResponse
+	(*RemoveExtensionRequest)(nil),        // 14: miru.RemoveExtensionRequest
+	(*RemoveExtensionResponse)(nil),       // 15: miru.RemoveExtensionResponse
+	(*GetExtensionSettingsRequest)(nil),   // 16: miru.GetExtensionSettingsRequest
+	(*GetExtensionSettingsResponse)(nil),  // 17: miru.GetExtensionSettingsResponse
+	(*SaveExtensionSettingsRequest)(nil),  // 18: miru.SaveExtensionSettingsRequest
+	(*SaveExtensionSettingsResponse)(nil), // 19: miru.SaveExtensionSettingsResponse
+	nil,                                   // 20: miru.CreateFilterResponse.FiltersEntry
+	(*ExtensionListItem)(nil),             // 21: miru.ExtensionListItem
+	(*ExtensionDetail)(nil),               // 22: miru.ExtensionDetail
+	(*ExtensionBangumiWatch)(nil),         // 23: miru.ExtensionBangumiWatch
+	(*ExtensionMangaWatch)(nil),           // 24: miru.ExtensionMangaWatch
+	(*ExtensionFikushonWatch)(nil),        // 25: miru.ExtensionFikushonWatch
+	(*ExtensionWatch)(nil),                // 26: miru.ExtensionWatch
+	(*ExtensionSetting)(nil),              // 27: miru.ExtensionSetting
+	(*ExtensionFilter)(nil),               // 28: miru.ExtensionFilter
 }
 var file_proto_extension_proto_depIdxs = []int32{
-	18, // 0: miru.CreateFilterResponse.filters:type_name -> miru.CreateFilterResponse.FiltersEntry
-	19, // 1: miru.SearchResponse.items:type_name -> miru.ExtensionListItem
-	19, // 2: miru.LatestResponse.items:type_name -> miru.ExtensionListItem
-	20, // 3: miru.DetailResponse.data:type_name -> miru.ExtensionDetail
-	21, // 4: miru.WatchResponse.bangumi:type_name -> miru.ExtensionBangumiWatch
-	22, // 5: miru.WatchResponse.manga:type_name -> miru.ExtensionMangaWatch
-	23, // 6: miru.WatchResponse.fikushon:type_name -> miru.ExtensionFikushonWatch
-	24, // 7: miru.GetExtensionSettingsResponse.settings:type_name -> miru.ExtensionSetting
-	24, // 8: miru.SaveExtensionSettingsRequest.settings:type_name -> miru.ExtensionSetting
-	25, // 9: miru.CreateFilterResponse.FiltersEntry.value:type_name -> miru.ExtensionFilter
-	0,  // 10: miru.ExtensionService.Search:input_type -> miru.SearchRequest
-	1,  // 11: miru.ExtensionService.CreateFilter:input_type -> miru.CreateFilterRequest
-	4,  // 12: miru.ExtensionService.Latest:input_type -> miru.LatestRequest
-	6,  // 13: miru.ExtensionService.Detail:input_type -> miru.DetailRequest
-	8,  // 14: miru.ExtensionService.Watch:input_type -> miru.WatchRequest
-	10, // 15: miru.ExtensionService.DownloadExtension:input_type -> miru.DownloadExtensionRequest
-	12, // 16: miru.ExtensionService.RemoveExtension:input_type -> miru.RemoveExtensionRequest
-	14, // 17: miru.ExtensionService.GetExtensionSettings:input_type -> miru.GetExtensionSettingsRequest
-	16, // 18: miru.ExtensionService.SaveExtensionSettings:input_type -> miru.SaveExtensionSettingsRequest
-	3,  // 19: miru.ExtensionService.Search:output_type -> miru.SearchResponse
-	2,  // 20: miru.ExtensionService.CreateFilter:output_type -> miru.CreateFilterResponse
-	5,  // 21: miru.ExtensionService.Latest:output_type -> miru.LatestResponse
-	7,  // 22: miru.ExtensionService.Detail:output_type -> miru.DetailResponse
-	9,  // 23: miru.ExtensionService.Watch:output_type -> miru.WatchResponse
-	11, // 24: miru.ExtensionService.DownloadExtension:output_type -> miru.DownloadExtensionResponse
-	13, // 25: miru.ExtensionService.RemoveExtension:output_type -> miru.RemoveExtensionResponse
-	15, // 26: miru.ExtensionService.GetExtensionSettings:output_type -> miru.GetExtensionSettingsResponse
-	17, // 27: miru.ExtensionService.SaveExtensionSettings:output_type -> miru.SaveExtensionSettingsResponse
-	19, // [19:28] is the sub-list for method output_type
-	10, // [10:19] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	20, // 0: miru.CreateFilterResponse.filters:type_name -> miru.CreateFilterResponse.FiltersEntry
+	21, // 1: miru.SearchResponse.items:type_name -> miru.ExtensionListItem
+	21, // 2: miru.LatestResponse.items:type_name -> miru.ExtensionListItem
+	22, // 3: miru.DetailResponse.data:type_name -> miru.ExtensionDetail
+	23, // 4: miru.MirrorResponse.bangumi:type_name -> miru.ExtensionBangumiWatch
+	24, // 5: miru.MirrorResponse.manga:type_name -> miru.ExtensionMangaWatch
+	25, // 6: miru.MirrorResponse.fikushon:type_name -> miru.ExtensionFikushonWatch
+	23, // 7: miru.WatchResponse.bangumi:type_name -> miru.ExtensionBangumiWatch
+	24, // 8: miru.WatchResponse.manga:type_name -> miru.ExtensionMangaWatch
+	25, // 9: miru.WatchResponse.fikushon:type_name -> miru.ExtensionFikushonWatch
+	26, // 10: miru.WatchResponse.watch:type_name -> miru.ExtensionWatch
+	27, // 11: miru.GetExtensionSettingsResponse.settings:type_name -> miru.ExtensionSetting
+	27, // 12: miru.SaveExtensionSettingsRequest.settings:type_name -> miru.ExtensionSetting
+	28, // 13: miru.CreateFilterResponse.FiltersEntry.value:type_name -> miru.ExtensionFilter
+	0,  // 14: miru.ExtensionService.Search:input_type -> miru.SearchRequest
+	1,  // 15: miru.ExtensionService.CreateFilter:input_type -> miru.CreateFilterRequest
+	4,  // 16: miru.ExtensionService.Latest:input_type -> miru.LatestRequest
+	6,  // 17: miru.ExtensionService.Detail:input_type -> miru.DetailRequest
+	8,  // 18: miru.ExtensionService.Watch:input_type -> miru.WatchRequest
+	9,  // 19: miru.ExtensionService.Mirror:input_type -> miru.MirrorRequest
+	12, // 20: miru.ExtensionService.DownloadExtension:input_type -> miru.DownloadExtensionRequest
+	14, // 21: miru.ExtensionService.RemoveExtension:input_type -> miru.RemoveExtensionRequest
+	16, // 22: miru.ExtensionService.GetExtensionSettings:input_type -> miru.GetExtensionSettingsRequest
+	18, // 23: miru.ExtensionService.SaveExtensionSettings:input_type -> miru.SaveExtensionSettingsRequest
+	3,  // 24: miru.ExtensionService.Search:output_type -> miru.SearchResponse
+	2,  // 25: miru.ExtensionService.CreateFilter:output_type -> miru.CreateFilterResponse
+	5,  // 26: miru.ExtensionService.Latest:output_type -> miru.LatestResponse
+	7,  // 27: miru.ExtensionService.Detail:output_type -> miru.DetailResponse
+	11, // 28: miru.ExtensionService.Watch:output_type -> miru.WatchResponse
+	10, // 29: miru.ExtensionService.Mirror:output_type -> miru.MirrorResponse
+	13, // 30: miru.ExtensionService.DownloadExtension:output_type -> miru.DownloadExtensionResponse
+	15, // 31: miru.ExtensionService.RemoveExtension:output_type -> miru.RemoveExtensionResponse
+	17, // 32: miru.ExtensionService.GetExtensionSettings:output_type -> miru.GetExtensionSettingsResponse
+	19, // 33: miru.ExtensionService.SaveExtensionSettings:output_type -> miru.SaveExtensionSettingsResponse
+	24, // [24:34] is the sub-list for method output_type
+	14, // [14:24] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_proto_extension_proto_init() }
@@ -1107,10 +1309,17 @@ func file_proto_extension_proto_init() {
 		return
 	}
 	file_proto_extension_model_proto_init()
-	file_proto_extension_proto_msgTypes[9].OneofWrappers = []any{
+	file_proto_extension_proto_msgTypes[10].OneofWrappers = []any{
+		(*MirrorResponse_Bangumi)(nil),
+		(*MirrorResponse_Manga)(nil),
+		(*MirrorResponse_Fikushon)(nil),
+		(*MirrorResponse_Raw)(nil),
+	}
+	file_proto_extension_proto_msgTypes[11].OneofWrappers = []any{
 		(*WatchResponse_Bangumi)(nil),
 		(*WatchResponse_Manga)(nil),
 		(*WatchResponse_Fikushon)(nil),
+		(*WatchResponse_Watch)(nil),
 		(*WatchResponse_Raw)(nil),
 	}
 	type x struct{}
@@ -1119,7 +1328,7 @@ func file_proto_extension_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_extension_proto_rawDesc), len(file_proto_extension_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   19,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -37,15 +37,16 @@ var jsRoot string
 var ExtPath string
 
 type ExtApi struct {
-	Ext           *Ext
-	service       *ExtBaseService
-	asyncCallBack func(api *ExtApi, pkg string, evalStr string) (any, error)
-	latestEval    string
-	searchEval    string
-	detailEval    string
-	watchEval     string
+	Ext              *Ext
+	service          *ExtBaseService
+	asyncCallBack    func(api *ExtApi, pkg string, evalStr string) (any, error)
+	latestEval       string
+	searchEval       string
+	detailEval       string
+	watchEval        string
+	mirrorEval       string
 	createFilterEval string
-	lock          sync.Mutex
+	lock             sync.Mutex
 }
 
 type Job struct {

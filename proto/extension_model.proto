@@ -40,6 +40,16 @@ message ExtensionEpisode {
   optional string description = 4;
 }
 
+message ExtensionMirror {
+  string name = 1;
+  string url = 2;
+}
+
+message ExtensionMirrorGroup {
+  string title = 1;
+  repeated ExtensionMirror mirrors = 2;
+}
+
 message ExtensionBangumiWatchSubtitle {
   optional string language = 1;
   string title = 2;
@@ -91,6 +101,14 @@ message ExtensionFikushonWatch {
   repeated string content = 1;
   string title = 2;
   optional string subtitle = 3;
+}
+
+
+//V2
+message ExtensionWatch {
+  repeated ExtensionMirrorGroup mirrors = 1;
+  optional string default_group = 2;
+  optional int32 default_index = 3;
 }
 
 message GithubExtension {

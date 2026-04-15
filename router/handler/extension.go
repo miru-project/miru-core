@@ -45,6 +45,20 @@ func Watch(pkg string, url string) (*result.Result[any], *jsExtension.ExtApi) {
 	return handleResult(res, e), api
 }
 
+// handle Mirror when receiving a request
+func Mirror(pkg string, url string) *result.Result[string] {
+	res, e := jsExtension.Mirror(pkg, url)
+	if e != nil {
+		return result.NewErrorResult(e.Error(), 500, "")
+	}
+	if obj, ok := res.(map[string]any); ok {
+		if link, ok := obj["url"].(string); ok {
+			return result.NewSuccessResult(link)
+		}
+	}
+	return result.NewSuccessResult(res.(string))
+}
+
 // handle Detail when receiving a request
 func Detail(pkg string, url string) *result.Result[*proto.ExtensionDetail] {
 
