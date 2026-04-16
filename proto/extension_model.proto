@@ -106,7 +106,7 @@ message ExtensionFikushonWatch {
 
 //V2
 message ExtensionWatch {
-  repeated ExtensionMirrorGroup mirrors = 1;
+  repeated ExtensionMirrorGroup groups = 1;
   optional string default_group = 2;
   optional int32 default_index = 3;
 }

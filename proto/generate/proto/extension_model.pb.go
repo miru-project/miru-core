@@ -1045,7 +1045,7 @@ func (x *ExtensionFikushonWatch) GetSubtitle() string {
 // V2
 type ExtensionWatch struct {
 	state         protoimpl.MessageState  `protogen:"open.v1"`
-	Mirrors       []*ExtensionMirrorGroup `protobuf:"bytes,1,rep,name=mirrors,proto3" json:"mirrors,omitempty"`
+	Groups        []*ExtensionMirrorGroup `protobuf:"bytes,1,rep,name=groups,proto3" json:"groups,omitempty"`
 	DefaultGroup  *string                 `protobuf:"bytes,2,opt,name=default_group,json=defaultGroup,proto3,oneof" json:"default_group,omitempty"`
 	DefaultIndex  *int32                  `protobuf:"varint,3,opt,name=default_index,json=defaultIndex,proto3,oneof" json:"default_index,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1082,9 +1082,9 @@ func (*ExtensionWatch) Descriptor() ([]byte, []int) {
 	return file_proto_extension_model_proto_rawDescGZIP(), []int{15}
 }
 
-func (x *ExtensionWatch) GetMirrors() []*ExtensionMirrorGroup {
+func (x *ExtensionWatch) GetGroups() []*ExtensionMirrorGroup {
 	if x != nil {
-		return x.Mirrors
+		return x.Groups
 	}
 	return nil
 }
@@ -1572,9 +1572,9 @@ const file_proto_extension_model_proto_rawDesc = "" +
 	"\acontent\x18\x01 \x03(\tR\acontent\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x1f\n" +
 	"\bsubtitle\x18\x03 \x01(\tH\x00R\bsubtitle\x88\x01\x01B\v\n" +
-	"\t_subtitle\"\xbe\x01\n" +
-	"\x0eExtensionWatch\x124\n" +
-	"\amirrors\x18\x01 \x03(\v2\x1a.miru.ExtensionMirrorGroupR\amirrors\x12(\n" +
+	"\t_subtitle\"\xbc\x01\n" +
+	"\x0eExtensionWatch\x122\n" +
+	"\x06groups\x18\x01 \x03(\v2\x1a.miru.ExtensionMirrorGroupR\x06groups\x12(\n" +
 	"\rdefault_group\x18\x02 \x01(\tH\x00R\fdefaultGroup\x88\x01\x01\x12(\n" +
 	"\rdefault_index\x18\x03 \x01(\x05H\x01R\fdefaultIndex\x88\x01\x01B\x10\n" +
 	"\x0e_default_groupB\x10\n" +
@@ -1684,7 +1684,7 @@ var file_proto_extension_model_proto_depIdxs = []int32{
 	25, // 11: miru.ExtensionBangumiWatch.headers:type_name -> miru.ExtensionBangumiWatch.HeadersEntry
 	12, // 12: miru.ExtensionBangumiWatch.torrent:type_name -> miru.ExtensionBangumiWatchTorrent
 	26, // 13: miru.ExtensionMangaWatch.headers:type_name -> miru.ExtensionMangaWatch.HeadersEntry
-	7,  // 14: miru.ExtensionWatch.mirrors:type_name -> miru.ExtensionMirrorGroup
+	7,  // 14: miru.ExtensionWatch.groups:type_name -> miru.ExtensionMirrorGroup
 	17, // 15: miru.ExtensionRepo.extensions:type_name -> miru.GithubExtension
 	0,  // 16: miru.ExtensionSetting.type:type_name -> miru.ExtensionSettingType
 	10, // 17: miru.ExtensionBangumiWatchTorrentFileTree.DirEntry.value:type_name -> miru.ExtensionBangumiWatchTorrentFileTree
