@@ -130,6 +130,12 @@ func safeSprint(v any) string {
 	if v == nil {
 		return ""
 	}
+	if s, ok := v.(*string); ok {
+		if s == nil {
+			return ""
+		}
+		return *s
+	}
 	return fmt.Sprint(v)
 }
 
