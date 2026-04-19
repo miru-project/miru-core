@@ -270,7 +270,12 @@ func (ext *Ext) ParseExtMetadata(content string, fileName string) error {
 		case "description":
 			ext.Description = value
 		case "apiVersion":
-			ext.ApiVersion = value
+			switch value {
+			case "2":
+				ext.ApiVersion = value
+			default:
+				ext.ApiVersion = "1"
+			}
 		case "type":
 			ext.WatchType = value
 		case "tags":

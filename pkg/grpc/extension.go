@@ -60,7 +60,18 @@ func (s *MiruCoreServer) Watch(ctx context.Context, req *proto.WatchRequest) (*p
 	watchResp := &proto.WatchResponse{}
 
 	// If it's V1, we return the specialized watch objects
-	if api.Ext.ApiVersion == "1" {
+	switch api.Ext.ApiVersion {
+	case "2":
+		// V2 returns the generic ExtensionWatch which contains mirrors
+		data, err := jsExtension.Unmarshal[proto.ExtensionWatch](res.Data)
+		if err != nil {
+			// Fallback to raw if unmarshal fails
+			jsonData, _ := json.Marshal(res.Data)
+			watchResp.Data = &proto.WatchResponse_Raw{Raw: string(jsonData)}
+		} else {
+			watchResp.Data = &proto.WatchResponse_Watch{Watch: data}
+		}
+	default:
 		switch api.Ext.WatchType {
 		case "bangumi":
 			data, err := jsExtension.Unmarshal[proto.ExtensionBangumiWatch](res.Data)
@@ -80,16 +91,6 @@ func (s *MiruCoreServer) Watch(ctx context.Context, req *proto.WatchRequest) (*p
 				return nil, err
 			}
 			watchResp.Data = &proto.WatchResponse_Fikushon{Fikushon: data}
-		}
-	} else {
-		// V2 returns the generic ExtensionWatch which contains mirrors
-		data, err := jsExtension.Unmarshal[proto.ExtensionWatch](res.Data)
-		if err != nil {
-			// Fallback to raw if unmarshal fails
-			jsonData, _ := json.Marshal(res.Data)
-			watchResp.Data = &proto.WatchResponse_Raw{Raw: string(jsonData)}
-		} else {
-			watchResp.Data = &proto.WatchResponse_Watch{Watch: data}
 		}
 	}
 

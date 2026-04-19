@@ -117,20 +117,16 @@ func Proxy(ctx *fasthttp.RequestCtx) {
 	res := &ctx.Response
 
 	targetURL := ctx.UserValue("path").(string)
+	if decoded, err := url.PathUnescape(targetURL); err == nil {
+		targetURL = decoded
+	}
+
 	if targetURL == "" {
 		ctx.Error("Empty target URL", fasthttp.StatusBadRequest)
 		return
 	}
 
-	query := ctx.QueryArgs().String()
-	if query != "" {
-		if strings.Contains(targetURL, "?") {
-			targetURL += "&" + query
-		} else {
-			targetURL += "?" + query
-		}
-	}
-
+	req.Header.Del("Host")
 	req.SetRequestURI(targetURL)
 
 	// Inject Anilist Token if target is Anilist and no auth header is present

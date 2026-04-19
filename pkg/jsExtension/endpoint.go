@@ -1,10 +1,12 @@
 package jsExtension
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/url"
 	"path/filepath"
+	"reflect"
 
 	"github.com/go-viper/mapstructure/v2"
 	"github.com/miru-project/miru-core/pkg/torrent"
@@ -25,6 +27,12 @@ func Unmarshal[T any](input any) (*T, error) {
 		Metadata: nil,
 		Result:   &result,
 		TagName:  "json",
+		DecodeHook: func(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
+			if f.Kind() == reflect.Slice && f.Elem().Kind() == reflect.Uint8 && t.Kind() == reflect.String {
+				return base64.StdEncoding.EncodeToString(data.([]uint8)), nil
+			}
+			return data, nil
+		},
 	}
 	decoder, err := mapstructure.NewDecoder(config)
 	if err != nil {
@@ -149,12 +157,11 @@ func Watch(pkg string, watchLink string) (any, error, *ExtApi) {
 	}
 
 	switch api.Ext.ApiVersion {
-	case "1":
+	case "2":
+		return o, nil, api
+	default:
 		resolved, err := handleMediaType(api, pkg, o)
 		return resolved, err, api
-	// Every extension will be treat as V2 if the `@ApiVersion` is not "1"
-	default:
-		return o, nil, api
 	}
 }
 
