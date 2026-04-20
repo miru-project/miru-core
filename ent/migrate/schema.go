@@ -75,16 +75,6 @@ var (
 			},
 		},
 	}
-	// ExtensionsColumns holds the columns for the "extensions" table.
-	ExtensionsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-	}
-	// ExtensionsTable holds the schema information for the "extensions" table.
-	ExtensionsTable = &schema.Table{
-		Name:       "extensions",
-		Columns:    ExtensionsColumns,
-		PrimaryKey: []*schema.Column{ExtensionsColumns[0]},
-	}
 	// ExtensionRepoSettingsColumns holds the columns for the "extension_repo_settings" table.
 	ExtensionRepoSettingsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -199,7 +189,7 @@ var (
 		{Name: "tracking_id", Type: field.TypeString},
 		{Name: "data", Type: field.TypeString, Size: 2147483647},
 		{Name: "media_type", Type: field.TypeString},
-		{Name: "provider", Type: field.TypeEnum, Enums: []string{"TMDB", "Anilist"}},
+		{Name: "provider", Type: field.TypeEnum, Enums: []string{"anilist", "tmdb", "myanimelist", "kitsu"}},
 	}
 	// TracksTable holds the schema information for the "tracks" table.
 	TracksTable = &schema.Table{
@@ -211,6 +201,56 @@ var (
 				Name:    "track_provider_tracking_id",
 				Unique:  true,
 				Columns: []*schema.Column{TracksColumns[4], TracksColumns[1]},
+			},
+		},
+	}
+	// TrackersColumns holds the columns for the "trackers" table.
+	TrackersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "tracker_id", Type: field.TypeString},
+		{Name: "provider", Type: field.TypeEnum, Enums: []string{"anilist", "myanimelist", "kitsu", "tmdb"}},
+		{Name: "status", Type: field.TypeString},
+		{Name: "score", Type: field.TypeInt, Nullable: true},
+		{Name: "progress", Type: field.TypeInt},
+		{Name: "total_progress", Type: field.TypeInt, Nullable: true},
+		{Name: "start_date", Type: field.TypeInt64, Nullable: true},
+		{Name: "finish_date", Type: field.TypeInt64, Nullable: true},
+	}
+	// TrackersTable holds the schema information for the "trackers" table.
+	TrackersTable = &schema.Table{
+		Name:       "trackers",
+		Columns:    TrackersColumns,
+		PrimaryKey: []*schema.Column{TrackersColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "tracker_tracker_id_provider",
+				Unique:  true,
+				Columns: []*schema.Column{TrackersColumns[1], TrackersColumns[2]},
+			},
+		},
+	}
+	// DetailTrackersColumns holds the columns for the "detail_trackers" table.
+	DetailTrackersColumns = []*schema.Column{
+		{Name: "detail_id", Type: field.TypeInt},
+		{Name: "tracker_id", Type: field.TypeInt},
+	}
+	// DetailTrackersTable holds the schema information for the "detail_trackers" table.
+	DetailTrackersTable = &schema.Table{
+		Name:       "detail_trackers",
+		Columns:    DetailTrackersColumns,
+		PrimaryKey: []*schema.Column{DetailTrackersColumns[0], DetailTrackersColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "detail_trackers_detail_id",
+				Columns:    []*schema.Column{DetailTrackersColumns[0]},
+				RefColumns: []*schema.Column{DetailsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "detail_trackers_tracker_id",
+				Columns:    []*schema.Column{DetailTrackersColumns[1]},
+				RefColumns: []*schema.Column{TrackersColumns[0]},
+				OnDelete:   schema.Cascade,
 			},
 		},
 	}
@@ -244,18 +284,21 @@ var (
 		AppSettingsTable,
 		DetailsTable,
 		DownloadsTable,
-		ExtensionsTable,
 		ExtensionRepoSettingsTable,
 		ExtensionSettingsTable,
 		FavoritesTable,
 		FavoriteGroupsTable,
 		HistoriesTable,
 		TracksTable,
+		TrackersTable,
+		DetailTrackersTable,
 		FavoriteGroupFavoritesTable,
 	}
 )
 
 func init() {
+	DetailTrackersTable.ForeignKeys[0].RefTable = DetailsTable
+	DetailTrackersTable.ForeignKeys[1].RefTable = TrackersTable
 	FavoriteGroupFavoritesTable.ForeignKeys[0].RefTable = FavoriteGroupsTable
 	FavoriteGroupFavoritesTable.ForeignKeys[1].RefTable = FavoritesTable
 }

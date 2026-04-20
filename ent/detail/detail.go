@@ -4,6 +4,7 @@ package detail
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -29,8 +30,15 @@ const (
 	FieldHeaders = "headers"
 	// FieldTrackIds holds the string denoting the track_ids field in the database.
 	FieldTrackIds = "track_ids"
+	// EdgeTrackers holds the string denoting the trackers edge name in mutations.
+	EdgeTrackers = "trackers"
 	// Table holds the table name of the detail in the database.
 	Table = "details"
+	// TrackersTable is the table that holds the trackers relation/edge. The primary key declared below.
+	TrackersTable = "detail_trackers"
+	// TrackersInverseTable is the table name for the Tracker entity.
+	// It exists in this package in order to avoid circular dependency with the "tracker" package.
+	TrackersInverseTable = "trackers"
 )
 
 // Columns holds all SQL columns for detail fields.
@@ -46,6 +54,12 @@ var Columns = []string{
 	FieldHeaders,
 	FieldTrackIds,
 }
+
+var (
+	// TrackersPrimaryKey and TrackersColumn2 are the table columns denoting the
+	// primary key for the trackers relation (M2M).
+	TrackersPrimaryKey = []string{"detail_id", "tracker_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -109,4 +123,25 @@ func ByEpisodes(opts ...sql.OrderTermOption) OrderOption {
 // ByHeaders orders the results by the headers field.
 func ByHeaders(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldHeaders, opts...).ToFunc()
+}
+
+// ByTrackersCount orders the results by trackers count.
+func ByTrackersCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newTrackersStep(), opts...)
+	}
+}
+
+// ByTrackers orders the results by trackers terms.
+func ByTrackers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTrackersStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newTrackersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TrackersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, TrackersTable, TrackersPrimaryKey...),
+	)
 }

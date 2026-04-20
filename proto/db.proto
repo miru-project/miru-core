@@ -137,10 +137,37 @@ message PutTrackRequest {
 }
 message PutTrackResponse { Track track = 1; }
 
+// Tracker (New)
+message UpsertTrackerRequest {
+  string package = 1;
+  string detail_url = 2;
+  Tracker tracker = 3;
+}
+message UpsertTrackerResponse { Tracker tracker = 1; }
+
+message DeleteTrackerRequest {
+  string package = 1;
+  string detail_url = 2;
+  string provider = 3;
+}
+message DeleteTrackerResponse { string message = 1; }
+
+message DeleteTrackerByTrackerIdRequest {
+  string tracker_id = 1;
+  string provider = 2;
+}
+message DeleteTrackerByTrackerIdResponse { string message = 1; }
+
 service DbService {
   // Detail
   rpc GetDetail(GetDetailRequest) returns (GetDetailResponse);
   rpc UpsertDetail(UpsertDetailRequest) returns (UpsertDetailResponse);
+
+  // Tracker
+  rpc UpsertTracker(UpsertTrackerRequest) returns (UpsertTrackerResponse);
+  rpc DeleteTracker(DeleteTrackerRequest) returns (DeleteTrackerResponse);
+  rpc DeleteTrackerByTrackerId(DeleteTrackerByTrackerIdRequest)
+      returns (DeleteTrackerByTrackerIdResponse);
 
   // Favorite
   rpc GetAllFavorite(GetAllFavoriteRequest) returns (GetAllFavoriteResponse);

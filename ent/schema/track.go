@@ -21,7 +21,7 @@ func (Track) Fields() []ent.Field {
 		field.String("media_type").
 			Comment("Media Type (movie/tv)"),
 		field.Enum("provider").
-			Values("TMDB", "Anilist").
+			Values("anilist", "tmdb", "myanimelist", "kitsu").
 			Comment("Tracking Provider"),
 	}
 }

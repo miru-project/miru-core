@@ -14,6 +14,7 @@ import (
 	"github.com/miru-project/miru-core/ent/favoritegroup"
 	"github.com/miru-project/miru-core/ent/history"
 	"github.com/miru-project/miru-core/ent/schema"
+	"github.com/miru-project/miru-core/ent/tracker"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -194,6 +195,16 @@ func init() {
 	historyDescID := historyFields[0].Descriptor()
 	// history.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	history.IDValidator = historyDescID.Validators[0].(func(int) error)
+	trackerFields := schema.Tracker{}.Fields()
+	_ = trackerFields
+	// trackerDescTrackerID is the schema descriptor for tracker_id field.
+	trackerDescTrackerID := trackerFields[0].Descriptor()
+	// tracker.TrackerIDValidator is a validator for the "tracker_id" field. It is called by the builders before save.
+	tracker.TrackerIDValidator = trackerDescTrackerID.Validators[0].(func(string) error)
+	// trackerDescStatus is the schema descriptor for status field.
+	trackerDescStatus := trackerFields[2].Descriptor()
+	// tracker.StatusValidator is a validator for the "status" field. It is called by the builders before save.
+	tracker.StatusValidator = trackerDescStatus.Validators[0].(func(string) error)
 }
 
 const (

@@ -4,6 +4,7 @@ package detail
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/miru-project/miru-core/ent/predicate"
 )
 
@@ -610,6 +611,29 @@ func TrackIdsIsNil() predicate.Detail {
 // TrackIdsNotNil applies the NotNil predicate on the "track_ids" field.
 func TrackIdsNotNil() predicate.Detail {
 	return predicate.Detail(sql.FieldNotNull(FieldTrackIds))
+}
+
+// HasTrackers applies the HasEdge predicate on the "trackers" edge.
+func HasTrackers() predicate.Detail {
+	return predicate.Detail(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, TrackersTable, TrackersPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasTrackersWith applies the HasEdge predicate on the "trackers" edge with a given conditions (other predicates).
+func HasTrackersWith(preds ...predicate.Tracker) predicate.Detail {
+	return predicate.Detail(func(s *sql.Selector) {
+		step := newTrackersStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

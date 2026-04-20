@@ -18,13 +18,13 @@ import (
 	"github.com/miru-project/miru-core/ent/appsetting"
 	"github.com/miru-project/miru-core/ent/detail"
 	"github.com/miru-project/miru-core/ent/download"
-	"github.com/miru-project/miru-core/ent/extension"
 	"github.com/miru-project/miru-core/ent/extensionreposetting"
 	"github.com/miru-project/miru-core/ent/extensionsetting"
 	"github.com/miru-project/miru-core/ent/favorite"
 	"github.com/miru-project/miru-core/ent/favoritegroup"
 	"github.com/miru-project/miru-core/ent/history"
 	"github.com/miru-project/miru-core/ent/track"
+	"github.com/miru-project/miru-core/ent/tracker"
 )
 
 // Client is the client that holds all ent builders.
@@ -38,8 +38,6 @@ type Client struct {
 	Detail *DetailClient
 	// Download is the client for interacting with the Download builders.
 	Download *DownloadClient
-	// Extension is the client for interacting with the Extension builders.
-	Extension *ExtensionClient
 	// ExtensionRepoSetting is the client for interacting with the ExtensionRepoSetting builders.
 	ExtensionRepoSetting *ExtensionRepoSettingClient
 	// ExtensionSetting is the client for interacting with the ExtensionSetting builders.
@@ -52,6 +50,8 @@ type Client struct {
 	History *HistoryClient
 	// Track is the client for interacting with the Track builders.
 	Track *TrackClient
+	// Tracker is the client for interacting with the Tracker builders.
+	Tracker *TrackerClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -66,13 +66,13 @@ func (c *Client) init() {
 	c.AppSetting = NewAppSettingClient(c.config)
 	c.Detail = NewDetailClient(c.config)
 	c.Download = NewDownloadClient(c.config)
-	c.Extension = NewExtensionClient(c.config)
 	c.ExtensionRepoSetting = NewExtensionRepoSettingClient(c.config)
 	c.ExtensionSetting = NewExtensionSettingClient(c.config)
 	c.Favorite = NewFavoriteClient(c.config)
 	c.FavoriteGroup = NewFavoriteGroupClient(c.config)
 	c.History = NewHistoryClient(c.config)
 	c.Track = NewTrackClient(c.config)
+	c.Tracker = NewTrackerClient(c.config)
 }
 
 type (
@@ -168,13 +168,13 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		AppSetting:           NewAppSettingClient(cfg),
 		Detail:               NewDetailClient(cfg),
 		Download:             NewDownloadClient(cfg),
-		Extension:            NewExtensionClient(cfg),
 		ExtensionRepoSetting: NewExtensionRepoSettingClient(cfg),
 		ExtensionSetting:     NewExtensionSettingClient(cfg),
 		Favorite:             NewFavoriteClient(cfg),
 		FavoriteGroup:        NewFavoriteGroupClient(cfg),
 		History:              NewHistoryClient(cfg),
 		Track:                NewTrackClient(cfg),
+		Tracker:              NewTrackerClient(cfg),
 	}, nil
 }
 
@@ -197,13 +197,13 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		AppSetting:           NewAppSettingClient(cfg),
 		Detail:               NewDetailClient(cfg),
 		Download:             NewDownloadClient(cfg),
-		Extension:            NewExtensionClient(cfg),
 		ExtensionRepoSetting: NewExtensionRepoSettingClient(cfg),
 		ExtensionSetting:     NewExtensionSettingClient(cfg),
 		Favorite:             NewFavoriteClient(cfg),
 		FavoriteGroup:        NewFavoriteGroupClient(cfg),
 		History:              NewHistoryClient(cfg),
 		Track:                NewTrackClient(cfg),
+		Tracker:              NewTrackerClient(cfg),
 	}, nil
 }
 
@@ -233,8 +233,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.AppSetting, c.Detail, c.Download, c.Extension, c.ExtensionRepoSetting,
-		c.ExtensionSetting, c.Favorite, c.FavoriteGroup, c.History, c.Track,
+		c.AppSetting, c.Detail, c.Download, c.ExtensionRepoSetting, c.ExtensionSetting,
+		c.Favorite, c.FavoriteGroup, c.History, c.Track, c.Tracker,
 	} {
 		n.Use(hooks...)
 	}
@@ -244,8 +244,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.AppSetting, c.Detail, c.Download, c.Extension, c.ExtensionRepoSetting,
-		c.ExtensionSetting, c.Favorite, c.FavoriteGroup, c.History, c.Track,
+		c.AppSetting, c.Detail, c.Download, c.ExtensionRepoSetting, c.ExtensionSetting,
+		c.Favorite, c.FavoriteGroup, c.History, c.Track, c.Tracker,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -260,8 +260,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Detail.mutate(ctx, m)
 	case *DownloadMutation:
 		return c.Download.mutate(ctx, m)
-	case *ExtensionMutation:
-		return c.Extension.mutate(ctx, m)
 	case *ExtensionRepoSettingMutation:
 		return c.ExtensionRepoSetting.mutate(ctx, m)
 	case *ExtensionSettingMutation:
@@ -274,6 +272,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.History.mutate(ctx, m)
 	case *TrackMutation:
 		return c.Track.mutate(ctx, m)
+	case *TrackerMutation:
+		return c.Tracker.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -520,6 +520,22 @@ func (c *DetailClient) GetX(ctx context.Context, id int) *Detail {
 	return obj
 }
 
+// QueryTrackers queries the trackers edge of a Detail.
+func (c *DetailClient) QueryTrackers(_m *Detail) *TrackerQuery {
+	query := (&TrackerClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(detail.Table, detail.FieldID, id),
+			sqlgraph.To(tracker.Table, tracker.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, detail.TrackersTable, detail.TrackersPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *DetailClient) Hooks() []Hook {
 	return c.hooks.Detail
@@ -675,139 +691,6 @@ func (c *DownloadClient) mutate(ctx context.Context, m *DownloadMutation) (Value
 		return (&DownloadDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Download mutation op: %q", m.Op())
-	}
-}
-
-// ExtensionClient is a client for the Extension schema.
-type ExtensionClient struct {
-	config
-}
-
-// NewExtensionClient returns a client for the Extension from the given config.
-func NewExtensionClient(c config) *ExtensionClient {
-	return &ExtensionClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `extension.Hooks(f(g(h())))`.
-func (c *ExtensionClient) Use(hooks ...Hook) {
-	c.hooks.Extension = append(c.hooks.Extension, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `extension.Intercept(f(g(h())))`.
-func (c *ExtensionClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Extension = append(c.inters.Extension, interceptors...)
-}
-
-// Create returns a builder for creating a Extension entity.
-func (c *ExtensionClient) Create() *ExtensionCreate {
-	mutation := newExtensionMutation(c.config, OpCreate)
-	return &ExtensionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Extension entities.
-func (c *ExtensionClient) CreateBulk(builders ...*ExtensionCreate) *ExtensionCreateBulk {
-	return &ExtensionCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *ExtensionClient) MapCreateBulk(slice any, setFunc func(*ExtensionCreate, int)) *ExtensionCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &ExtensionCreateBulk{err: fmt.Errorf("calling to ExtensionClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*ExtensionCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &ExtensionCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Extension.
-func (c *ExtensionClient) Update() *ExtensionUpdate {
-	mutation := newExtensionMutation(c.config, OpUpdate)
-	return &ExtensionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *ExtensionClient) UpdateOne(_m *Extension) *ExtensionUpdateOne {
-	mutation := newExtensionMutation(c.config, OpUpdateOne, withExtension(_m))
-	return &ExtensionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *ExtensionClient) UpdateOneID(id int) *ExtensionUpdateOne {
-	mutation := newExtensionMutation(c.config, OpUpdateOne, withExtensionID(id))
-	return &ExtensionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Extension.
-func (c *ExtensionClient) Delete() *ExtensionDelete {
-	mutation := newExtensionMutation(c.config, OpDelete)
-	return &ExtensionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *ExtensionClient) DeleteOne(_m *Extension) *ExtensionDeleteOne {
-	return c.DeleteOneID(_m.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ExtensionClient) DeleteOneID(id int) *ExtensionDeleteOne {
-	builder := c.Delete().Where(extension.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &ExtensionDeleteOne{builder}
-}
-
-// Query returns a query builder for Extension.
-func (c *ExtensionClient) Query() *ExtensionQuery {
-	return &ExtensionQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeExtension},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a Extension entity by its id.
-func (c *ExtensionClient) Get(ctx context.Context, id int) (*Extension, error) {
-	return c.Query().Where(extension.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *ExtensionClient) GetX(ctx context.Context, id int) *Extension {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *ExtensionClient) Hooks() []Hook {
-	return c.hooks.Extension
-}
-
-// Interceptors returns the client interceptors.
-func (c *ExtensionClient) Interceptors() []Interceptor {
-	return c.inters.Extension
-}
-
-func (c *ExtensionClient) mutate(ctx context.Context, m *ExtensionMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&ExtensionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&ExtensionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&ExtensionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&ExtensionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown Extension mutation op: %q", m.Op())
 	}
 }
 
@@ -1643,14 +1526,163 @@ func (c *TrackClient) mutate(ctx context.Context, m *TrackMutation) (Value, erro
 	}
 }
 
+// TrackerClient is a client for the Tracker schema.
+type TrackerClient struct {
+	config
+}
+
+// NewTrackerClient returns a client for the Tracker from the given config.
+func NewTrackerClient(c config) *TrackerClient {
+	return &TrackerClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `tracker.Hooks(f(g(h())))`.
+func (c *TrackerClient) Use(hooks ...Hook) {
+	c.hooks.Tracker = append(c.hooks.Tracker, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `tracker.Intercept(f(g(h())))`.
+func (c *TrackerClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Tracker = append(c.inters.Tracker, interceptors...)
+}
+
+// Create returns a builder for creating a Tracker entity.
+func (c *TrackerClient) Create() *TrackerCreate {
+	mutation := newTrackerMutation(c.config, OpCreate)
+	return &TrackerCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Tracker entities.
+func (c *TrackerClient) CreateBulk(builders ...*TrackerCreate) *TrackerCreateBulk {
+	return &TrackerCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *TrackerClient) MapCreateBulk(slice any, setFunc func(*TrackerCreate, int)) *TrackerCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &TrackerCreateBulk{err: fmt.Errorf("calling to TrackerClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*TrackerCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &TrackerCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Tracker.
+func (c *TrackerClient) Update() *TrackerUpdate {
+	mutation := newTrackerMutation(c.config, OpUpdate)
+	return &TrackerUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TrackerClient) UpdateOne(_m *Tracker) *TrackerUpdateOne {
+	mutation := newTrackerMutation(c.config, OpUpdateOne, withTracker(_m))
+	return &TrackerUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TrackerClient) UpdateOneID(id int) *TrackerUpdateOne {
+	mutation := newTrackerMutation(c.config, OpUpdateOne, withTrackerID(id))
+	return &TrackerUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Tracker.
+func (c *TrackerClient) Delete() *TrackerDelete {
+	mutation := newTrackerMutation(c.config, OpDelete)
+	return &TrackerDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TrackerClient) DeleteOne(_m *Tracker) *TrackerDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TrackerClient) DeleteOneID(id int) *TrackerDeleteOne {
+	builder := c.Delete().Where(tracker.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TrackerDeleteOne{builder}
+}
+
+// Query returns a query builder for Tracker.
+func (c *TrackerClient) Query() *TrackerQuery {
+	return &TrackerQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTracker},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Tracker entity by its id.
+func (c *TrackerClient) Get(ctx context.Context, id int) (*Tracker, error) {
+	return c.Query().Where(tracker.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TrackerClient) GetX(ctx context.Context, id int) *Tracker {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryDetails queries the details edge of a Tracker.
+func (c *TrackerClient) QueryDetails(_m *Tracker) *DetailQuery {
+	query := (&DetailClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(tracker.Table, tracker.FieldID, id),
+			sqlgraph.To(detail.Table, detail.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, tracker.DetailsTable, tracker.DetailsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *TrackerClient) Hooks() []Hook {
+	return c.hooks.Tracker
+}
+
+// Interceptors returns the client interceptors.
+func (c *TrackerClient) Interceptors() []Interceptor {
+	return c.inters.Tracker
+}
+
+func (c *TrackerClient) mutate(ctx context.Context, m *TrackerMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TrackerCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TrackerUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TrackerUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TrackerDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Tracker mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		AppSetting, Detail, Download, Extension, ExtensionRepoSetting, ExtensionSetting,
-		Favorite, FavoriteGroup, History, Track []ent.Hook
+		AppSetting, Detail, Download, ExtensionRepoSetting, ExtensionSetting, Favorite,
+		FavoriteGroup, History, Track, Tracker []ent.Hook
 	}
 	inters struct {
-		AppSetting, Detail, Download, Extension, ExtensionRepoSetting, ExtensionSetting,
-		Favorite, FavoriteGroup, History, Track []ent.Interceptor
+		AppSetting, Detail, Download, ExtensionRepoSetting, ExtensionSetting, Favorite,
+		FavoriteGroup, History, Track, Tracker []ent.Interceptor
 	}
 )

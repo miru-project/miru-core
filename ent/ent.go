@@ -15,13 +15,13 @@ import (
 	"github.com/miru-project/miru-core/ent/appsetting"
 	"github.com/miru-project/miru-core/ent/detail"
 	"github.com/miru-project/miru-core/ent/download"
-	"github.com/miru-project/miru-core/ent/extension"
 	"github.com/miru-project/miru-core/ent/extensionreposetting"
 	"github.com/miru-project/miru-core/ent/extensionsetting"
 	"github.com/miru-project/miru-core/ent/favorite"
 	"github.com/miru-project/miru-core/ent/favoritegroup"
 	"github.com/miru-project/miru-core/ent/history"
 	"github.com/miru-project/miru-core/ent/track"
+	"github.com/miru-project/miru-core/ent/tracker"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -85,13 +85,13 @@ func checkColumn(t, c string) error {
 			appsetting.Table:           appsetting.ValidColumn,
 			detail.Table:               detail.ValidColumn,
 			download.Table:             download.ValidColumn,
-			extension.Table:            extension.ValidColumn,
 			extensionreposetting.Table: extensionreposetting.ValidColumn,
 			extensionsetting.Table:     extensionsetting.ValidColumn,
 			favorite.Table:             favorite.ValidColumn,
 			favoritegroup.Table:        favoritegroup.ValidColumn,
 			history.Table:              history.ValidColumn,
 			track.Table:                track.ValidColumn,
+			tracker.Table:              tracker.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

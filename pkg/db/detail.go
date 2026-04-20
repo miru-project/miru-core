@@ -15,6 +15,7 @@ func GetDetailByPackageAndUrl(pkg, url string) (*ent.Detail, error) {
 	client := ext.EntClient()
 	return client.Detail.Query().
 		Where(detail.Package(pkg), detail.DetailUrl(url)).
+		WithTrackers().
 		First(context.Background())
 }
 
@@ -48,6 +49,7 @@ func UpsertDetail(d *ent.Detail) (*ent.Detail, error) {
 		SetNillableEpisodes(d.Episodes).
 		SetNillableHeaders(d.Headers).
 		SetDownloaded(d.Downloaded).
+		SetTrackIds(d.TrackIds).
 		OnConflict(
 			sql.ConflictColumns(detail.FieldPackage, detail.FieldDetailUrl),
 			sql.ResolveWithNewValues(),

@@ -15,9 +15,6 @@ type Detail func(*sql.Selector)
 // Download is the predicate function for download builders.
 type Download func(*sql.Selector)
 
-// Extension is the predicate function for extension builders.
-type Extension func(*sql.Selector)
-
 // ExtensionRepoSetting is the predicate function for extensionreposetting builders.
 type ExtensionRepoSetting func(*sql.Selector)
 
@@ -35,3 +32,6 @@ type History func(*sql.Selector)
 
 // Track is the predicate function for track builders.
 type Track func(*sql.Selector)
+
+// Tracker is the predicate function for tracker builders.
+type Tracker func(*sql.Selector)

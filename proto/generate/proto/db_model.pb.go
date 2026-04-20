@@ -35,6 +35,7 @@ type Detail struct {
 	Episodes      *string           `protobuf:"bytes,8,opt,name=episodes,proto3,oneof" json:"episodes,omitempty"`
 	Headers       *string           `protobuf:"bytes,9,opt,name=headers,proto3,oneof" json:"headers,omitempty"`
 	TrackIds      map[string]string `protobuf:"bytes,10,rep,name=track_ids,json=trackIds,proto3" json:"track_ids,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Trackers      []*Tracker        `protobuf:"bytes,11,rep,name=trackers,proto3" json:"trackers,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -139,6 +140,122 @@ func (x *Detail) GetTrackIds() map[string]string {
 	return nil
 }
 
+func (x *Detail) GetTrackers() []*Tracker {
+	if x != nil {
+		return x.Trackers
+	}
+	return nil
+}
+
+// DB - Tracker
+type Tracker struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int32                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	TrackerId     string                 `protobuf:"bytes,2,opt,name=tracker_id,json=trackerId,proto3" json:"tracker_id,omitempty"`
+	Provider      string                 `protobuf:"bytes,3,opt,name=provider,proto3" json:"provider,omitempty"`
+	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
+	Score         *int32                 `protobuf:"varint,5,opt,name=score,proto3,oneof" json:"score,omitempty"`
+	Progress      int32                  `protobuf:"varint,6,opt,name=progress,proto3" json:"progress,omitempty"`
+	StartDate     *int64                 `protobuf:"varint,7,opt,name=start_date,json=startDate,proto3,oneof" json:"start_date,omitempty"`
+	FinishDate    *int64                 `protobuf:"varint,8,opt,name=finish_date,json=finishDate,proto3,oneof" json:"finish_date,omitempty"`
+	TotalProgress *int32                 `protobuf:"varint,9,opt,name=total_progress,json=totalProgress,proto3,oneof" json:"total_progress,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Tracker) Reset() {
+	*x = Tracker{}
+	mi := &file_proto_db_model_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Tracker) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Tracker) ProtoMessage() {}
+
+func (x *Tracker) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_db_model_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Tracker.ProtoReflect.Descriptor instead.
+func (*Tracker) Descriptor() ([]byte, []int) {
+	return file_proto_db_model_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Tracker) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Tracker) GetTrackerId() string {
+	if x != nil {
+		return x.TrackerId
+	}
+	return ""
+}
+
+func (x *Tracker) GetProvider() string {
+	if x != nil {
+		return x.Provider
+	}
+	return ""
+}
+
+func (x *Tracker) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *Tracker) GetScore() int32 {
+	if x != nil && x.Score != nil {
+		return *x.Score
+	}
+	return 0
+}
+
+func (x *Tracker) GetProgress() int32 {
+	if x != nil {
+		return x.Progress
+	}
+	return 0
+}
+
+func (x *Tracker) GetStartDate() int64 {
+	if x != nil && x.StartDate != nil {
+		return *x.StartDate
+	}
+	return 0
+}
+
+func (x *Tracker) GetFinishDate() int64 {
+	if x != nil && x.FinishDate != nil {
+		return *x.FinishDate
+	}
+	return 0
+}
+
+func (x *Tracker) GetTotalProgress() int32 {
+	if x != nil && x.TotalProgress != nil {
+		return *x.TotalProgress
+	}
+	return 0
+}
+
 // DB - Favorite
 type Favorite struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -155,7 +272,7 @@ type Favorite struct {
 
 func (x *Favorite) Reset() {
 	*x = Favorite{}
-	mi := &file_proto_db_model_proto_msgTypes[1]
+	mi := &file_proto_db_model_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -167,7 +284,7 @@ func (x *Favorite) String() string {
 func (*Favorite) ProtoMessage() {}
 
 func (x *Favorite) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_db_model_proto_msgTypes[1]
+	mi := &file_proto_db_model_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -180,7 +297,7 @@ func (x *Favorite) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Favorite.ProtoReflect.Descriptor instead.
 func (*Favorite) Descriptor() ([]byte, []int) {
-	return file_proto_db_model_proto_rawDescGZIP(), []int{1}
+	return file_proto_db_model_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Favorite) GetId() int32 {
@@ -244,7 +361,7 @@ type FavoriteGroup struct {
 
 func (x *FavoriteGroup) Reset() {
 	*x = FavoriteGroup{}
-	mi := &file_proto_db_model_proto_msgTypes[2]
+	mi := &file_proto_db_model_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -256,7 +373,7 @@ func (x *FavoriteGroup) String() string {
 func (*FavoriteGroup) ProtoMessage() {}
 
 func (x *FavoriteGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_db_model_proto_msgTypes[2]
+	mi := &file_proto_db_model_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -269,7 +386,7 @@ func (x *FavoriteGroup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FavoriteGroup.ProtoReflect.Descriptor instead.
 func (*FavoriteGroup) Descriptor() ([]byte, []int) {
-	return file_proto_db_model_proto_rawDescGZIP(), []int{2}
+	return file_proto_db_model_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *FavoriteGroup) GetId() int32 {
@@ -322,7 +439,7 @@ type History struct {
 
 func (x *History) Reset() {
 	*x = History{}
-	mi := &file_proto_db_model_proto_msgTypes[3]
+	mi := &file_proto_db_model_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -334,7 +451,7 @@ func (x *History) String() string {
 func (*History) ProtoMessage() {}
 
 func (x *History) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_db_model_proto_msgTypes[3]
+	mi := &file_proto_db_model_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -347,7 +464,7 @@ func (x *History) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use History.ProtoReflect.Descriptor instead.
 func (*History) Descriptor() ([]byte, []int) {
-	return file_proto_db_model_proto_rawDescGZIP(), []int{3}
+	return file_proto_db_model_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *History) GetId() int32 {
@@ -455,7 +572,7 @@ type Track struct {
 
 func (x *Track) Reset() {
 	*x = Track{}
-	mi := &file_proto_db_model_proto_msgTypes[4]
+	mi := &file_proto_db_model_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -467,7 +584,7 @@ func (x *Track) String() string {
 func (*Track) ProtoMessage() {}
 
 func (x *Track) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_db_model_proto_msgTypes[4]
+	mi := &file_proto_db_model_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -480,7 +597,7 @@ func (x *Track) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Track.ProtoReflect.Descriptor instead.
 func (*Track) Descriptor() ([]byte, []int) {
-	return file_proto_db_model_proto_rawDescGZIP(), []int{4}
+	return file_proto_db_model_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *Track) GetId() int32 {
@@ -522,7 +639,7 @@ var File_proto_db_model_proto protoreflect.FileDescriptor
 
 const file_proto_db_model_proto_rawDesc = "" +
 	"\n" +
-	"\x14proto/db_model.proto\x12\x04miru\"\xac\x03\n" +
+	"\x14proto/db_model.proto\x12\x04miru\"\xd7\x03\n" +
 	"\x06Detail\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x19\n" +
 	"\x05title\x18\x02 \x01(\tH\x00R\x05title\x88\x01\x01\x12\x19\n" +
@@ -537,7 +654,8 @@ const file_proto_db_model_proto_rawDesc = "" +
 	"\bepisodes\x18\b \x01(\tH\x03R\bepisodes\x88\x01\x01\x12\x1d\n" +
 	"\aheaders\x18\t \x01(\tH\x04R\aheaders\x88\x01\x01\x127\n" +
 	"\ttrack_ids\x18\n" +
-	" \x03(\v2\x1a.miru.Detail.TrackIdsEntryR\btrackIds\x1a;\n" +
+	" \x03(\v2\x1a.miru.Detail.TrackIdsEntryR\btrackIds\x12)\n" +
+	"\btrackers\x18\v \x03(\v2\r.miru.TrackerR\btrackers\x1a;\n" +
 	"\rTrackIdsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\b\n" +
@@ -546,7 +664,24 @@ const file_proto_db_model_proto_rawDesc = "" +
 	"\x05_descB\v\n" +
 	"\t_episodesB\n" +
 	"\n" +
-	"\b_headers\"\x9a\x01\n" +
+	"\b_headers\"\xd5\x02\n" +
+	"\aTracker\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x1d\n" +
+	"\n" +
+	"tracker_id\x18\x02 \x01(\tR\ttrackerId\x12\x1a\n" +
+	"\bprovider\x18\x03 \x01(\tR\bprovider\x12\x16\n" +
+	"\x06status\x18\x04 \x01(\tR\x06status\x12\x19\n" +
+	"\x05score\x18\x05 \x01(\x05H\x00R\x05score\x88\x01\x01\x12\x1a\n" +
+	"\bprogress\x18\x06 \x01(\x05R\bprogress\x12\"\n" +
+	"\n" +
+	"start_date\x18\a \x01(\x03H\x01R\tstartDate\x88\x01\x01\x12$\n" +
+	"\vfinish_date\x18\b \x01(\x03H\x02R\n" +
+	"finishDate\x88\x01\x01\x12*\n" +
+	"\x0etotal_progress\x18\t \x01(\x05H\x03R\rtotalProgress\x88\x01\x01B\b\n" +
+	"\x06_scoreB\r\n" +
+	"\v_start_dateB\x0e\n" +
+	"\f_finish_dateB\x11\n" +
+	"\x0f_total_progress\"\x9a\x01\n" +
 	"\bFavorite\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x18\n" +
 	"\apackage\x18\x02 \x01(\tR\apackage\x12\x10\n" +
@@ -598,23 +733,25 @@ func file_proto_db_model_proto_rawDescGZIP() []byte {
 	return file_proto_db_model_proto_rawDescData
 }
 
-var file_proto_db_model_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_proto_db_model_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_proto_db_model_proto_goTypes = []any{
 	(*Detail)(nil),        // 0: miru.Detail
-	(*Favorite)(nil),      // 1: miru.Favorite
-	(*FavoriteGroup)(nil), // 2: miru.FavoriteGroup
-	(*History)(nil),       // 3: miru.History
-	(*Track)(nil),         // 4: miru.Track
-	nil,                   // 5: miru.Detail.TrackIdsEntry
+	(*Tracker)(nil),       // 1: miru.Tracker
+	(*Favorite)(nil),      // 2: miru.Favorite
+	(*FavoriteGroup)(nil), // 3: miru.FavoriteGroup
+	(*History)(nil),       // 4: miru.History
+	(*Track)(nil),         // 5: miru.Track
+	nil,                   // 6: miru.Detail.TrackIdsEntry
 }
 var file_proto_db_model_proto_depIdxs = []int32{
-	5, // 0: miru.Detail.track_ids:type_name -> miru.Detail.TrackIdsEntry
-	1, // 1: miru.FavoriteGroup.favorites:type_name -> miru.Favorite
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	6, // 0: miru.Detail.track_ids:type_name -> miru.Detail.TrackIdsEntry
+	1, // 1: miru.Detail.trackers:type_name -> miru.Tracker
+	2, // 2: miru.FavoriteGroup.favorites:type_name -> miru.Favorite
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_proto_db_model_proto_init() }
@@ -623,13 +760,14 @@ func file_proto_db_model_proto_init() {
 		return
 	}
 	file_proto_db_model_proto_msgTypes[0].OneofWrappers = []any{}
+	file_proto_db_model_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_db_model_proto_rawDesc), len(file_proto_db_model_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

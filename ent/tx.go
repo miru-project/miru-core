@@ -18,8 +18,6 @@ type Tx struct {
 	Detail *DetailClient
 	// Download is the client for interacting with the Download builders.
 	Download *DownloadClient
-	// Extension is the client for interacting with the Extension builders.
-	Extension *ExtensionClient
 	// ExtensionRepoSetting is the client for interacting with the ExtensionRepoSetting builders.
 	ExtensionRepoSetting *ExtensionRepoSettingClient
 	// ExtensionSetting is the client for interacting with the ExtensionSetting builders.
@@ -32,6 +30,8 @@ type Tx struct {
 	History *HistoryClient
 	// Track is the client for interacting with the Track builders.
 	Track *TrackClient
+	// Tracker is the client for interacting with the Tracker builders.
+	Tracker *TrackerClient
 
 	// lazily loaded.
 	client     *Client
@@ -166,13 +166,13 @@ func (tx *Tx) init() {
 	tx.AppSetting = NewAppSettingClient(tx.config)
 	tx.Detail = NewDetailClient(tx.config)
 	tx.Download = NewDownloadClient(tx.config)
-	tx.Extension = NewExtensionClient(tx.config)
 	tx.ExtensionRepoSetting = NewExtensionRepoSettingClient(tx.config)
 	tx.ExtensionSetting = NewExtensionSettingClient(tx.config)
 	tx.Favorite = NewFavoriteClient(tx.config)
 	tx.FavoriteGroup = NewFavoriteGroupClient(tx.config)
 	tx.History = NewHistoryClient(tx.config)
 	tx.Track = NewTrackClient(tx.config)
+	tx.Tracker = NewTrackerClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

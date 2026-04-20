@@ -21,6 +21,9 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	DbService_GetDetail_FullMethodName                       = "/miru.DbService/GetDetail"
 	DbService_UpsertDetail_FullMethodName                    = "/miru.DbService/UpsertDetail"
+	DbService_UpsertTracker_FullMethodName                   = "/miru.DbService/UpsertTracker"
+	DbService_DeleteTracker_FullMethodName                   = "/miru.DbService/DeleteTracker"
+	DbService_DeleteTrackerByTrackerId_FullMethodName        = "/miru.DbService/DeleteTrackerByTrackerId"
 	DbService_GetAllFavorite_FullMethodName                  = "/miru.DbService/GetAllFavorite"
 	DbService_GetFavoriteByPackageAndUrl_FullMethodName      = "/miru.DbService/GetFavoriteByPackageAndUrl"
 	DbService_PutFavoriteByIndex_FullMethodName              = "/miru.DbService/PutFavoriteByIndex"
@@ -49,6 +52,10 @@ type DbServiceClient interface {
 	// Detail
 	GetDetail(ctx context.Context, in *GetDetailRequest, opts ...grpc.CallOption) (*GetDetailResponse, error)
 	UpsertDetail(ctx context.Context, in *UpsertDetailRequest, opts ...grpc.CallOption) (*UpsertDetailResponse, error)
+	// Tracker
+	UpsertTracker(ctx context.Context, in *UpsertTrackerRequest, opts ...grpc.CallOption) (*UpsertTrackerResponse, error)
+	DeleteTracker(ctx context.Context, in *DeleteTrackerRequest, opts ...grpc.CallOption) (*DeleteTrackerResponse, error)
+	DeleteTrackerByTrackerId(ctx context.Context, in *DeleteTrackerByTrackerIdRequest, opts ...grpc.CallOption) (*DeleteTrackerByTrackerIdResponse, error)
 	// Favorite
 	GetAllFavorite(ctx context.Context, in *GetAllFavoriteRequest, opts ...grpc.CallOption) (*GetAllFavoriteResponse, error)
 	GetFavoriteByPackageAndUrl(ctx context.Context, in *GetFavoriteByPackageAndUrlRequest, opts ...grpc.CallOption) (*GetFavoriteByPackageAndUrlResponse, error)
@@ -96,6 +103,36 @@ func (c *dbServiceClient) UpsertDetail(ctx context.Context, in *UpsertDetailRequ
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UpsertDetailResponse)
 	err := c.cc.Invoke(ctx, DbService_UpsertDetail_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dbServiceClient) UpsertTracker(ctx context.Context, in *UpsertTrackerRequest, opts ...grpc.CallOption) (*UpsertTrackerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpsertTrackerResponse)
+	err := c.cc.Invoke(ctx, DbService_UpsertTracker_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dbServiceClient) DeleteTracker(ctx context.Context, in *DeleteTrackerRequest, opts ...grpc.CallOption) (*DeleteTrackerResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteTrackerResponse)
+	err := c.cc.Invoke(ctx, DbService_DeleteTracker_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *dbServiceClient) DeleteTrackerByTrackerId(ctx context.Context, in *DeleteTrackerByTrackerIdRequest, opts ...grpc.CallOption) (*DeleteTrackerByTrackerIdResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteTrackerByTrackerIdResponse)
+	err := c.cc.Invoke(ctx, DbService_DeleteTrackerByTrackerId_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -299,6 +336,10 @@ type DbServiceServer interface {
 	// Detail
 	GetDetail(context.Context, *GetDetailRequest) (*GetDetailResponse, error)
 	UpsertDetail(context.Context, *UpsertDetailRequest) (*UpsertDetailResponse, error)
+	// Tracker
+	UpsertTracker(context.Context, *UpsertTrackerRequest) (*UpsertTrackerResponse, error)
+	DeleteTracker(context.Context, *DeleteTrackerRequest) (*DeleteTrackerResponse, error)
+	DeleteTrackerByTrackerId(context.Context, *DeleteTrackerByTrackerIdRequest) (*DeleteTrackerByTrackerIdResponse, error)
 	// Favorite
 	GetAllFavorite(context.Context, *GetAllFavoriteRequest) (*GetAllFavoriteResponse, error)
 	GetFavoriteByPackageAndUrl(context.Context, *GetFavoriteByPackageAndUrlRequest) (*GetFavoriteByPackageAndUrlResponse, error)
@@ -337,6 +378,15 @@ func (UnimplementedDbServiceServer) GetDetail(context.Context, *GetDetailRequest
 }
 func (UnimplementedDbServiceServer) UpsertDetail(context.Context, *UpsertDetailRequest) (*UpsertDetailResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpsertDetail not implemented")
+}
+func (UnimplementedDbServiceServer) UpsertTracker(context.Context, *UpsertTrackerRequest) (*UpsertTrackerResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpsertTracker not implemented")
+}
+func (UnimplementedDbServiceServer) DeleteTracker(context.Context, *DeleteTrackerRequest) (*DeleteTrackerResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteTracker not implemented")
+}
+func (UnimplementedDbServiceServer) DeleteTrackerByTrackerId(context.Context, *DeleteTrackerByTrackerIdRequest) (*DeleteTrackerByTrackerIdResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteTrackerByTrackerId not implemented")
 }
 func (UnimplementedDbServiceServer) GetAllFavorite(context.Context, *GetAllFavoriteRequest) (*GetAllFavoriteResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAllFavorite not implemented")
@@ -448,6 +498,60 @@ func _DbService_UpsertDetail_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(DbServiceServer).UpsertDetail(ctx, req.(*UpsertDetailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DbService_UpsertTracker_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpsertTrackerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DbServiceServer).UpsertTracker(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DbService_UpsertTracker_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DbServiceServer).UpsertTracker(ctx, req.(*UpsertTrackerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DbService_DeleteTracker_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteTrackerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DbServiceServer).DeleteTracker(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DbService_DeleteTracker_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DbServiceServer).DeleteTracker(ctx, req.(*DeleteTrackerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DbService_DeleteTrackerByTrackerId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteTrackerByTrackerIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DbServiceServer).DeleteTrackerByTrackerId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DbService_DeleteTrackerByTrackerId_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DbServiceServer).DeleteTrackerByTrackerId(ctx, req.(*DeleteTrackerByTrackerIdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -808,6 +912,18 @@ var DbService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpsertDetail",
 			Handler:    _DbService_UpsertDetail_Handler,
+		},
+		{
+			MethodName: "UpsertTracker",
+			Handler:    _DbService_UpsertTracker_Handler,
+		},
+		{
+			MethodName: "DeleteTracker",
+			Handler:    _DbService_DeleteTracker_Handler,
+		},
+		{
+			MethodName: "DeleteTrackerByTrackerId",
+			Handler:    _DbService_DeleteTrackerByTrackerId_Handler,
 		},
 		{
 			MethodName: "GetAllFavorite",

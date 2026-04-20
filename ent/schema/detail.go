@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 )
@@ -66,7 +67,9 @@ func (Detail) Fields() []ent.Field {
 
 // Edges of the Detail.
 func (Detail) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.To("trackers", Tracker.Type),
+	}
 }
 
 // Indexes of the Detail.

@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/miru-project/miru-core/ent/detail"
+	"github.com/miru-project/miru-core/ent/tracker"
 )
 
 // DetailCreate is the builder for creating a Detail entity.
@@ -119,6 +120,21 @@ func (_c *DetailCreate) SetTrackIds(v map[string]string) *DetailCreate {
 func (_c *DetailCreate) SetID(v int) *DetailCreate {
 	_c.mutation.SetID(v)
 	return _c
+}
+
+// AddTrackerIDs adds the "trackers" edge to the Tracker entity by IDs.
+func (_c *DetailCreate) AddTrackerIDs(ids ...int) *DetailCreate {
+	_c.mutation.AddTrackerIDs(ids...)
+	return _c
+}
+
+// AddTrackers adds the "trackers" edges to the Tracker entity.
+func (_c *DetailCreate) AddTrackers(v ...*Tracker) *DetailCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddTrackerIDs(ids...)
 }
 
 // Mutation returns the DetailMutation object of the builder.
@@ -249,6 +265,22 @@ func (_c *DetailCreate) createSpec() (*Detail, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.TrackIds(); ok {
 		_spec.SetField(detail.FieldTrackIds, field.TypeJSON, value)
 		_node.TrackIds = value
+	}
+	if nodes := _c.mutation.TrackersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   detail.TrackersTable,
+			Columns: detail.TrackersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tracker.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

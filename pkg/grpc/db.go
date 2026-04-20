@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/miru-project/miru-core/ent"
+	"github.com/miru-project/miru-core/ent/tracker"
 	"github.com/miru-project/miru-core/pkg/db"
 	"github.com/miru-project/miru-core/proto/generate/proto"
 )
@@ -268,4 +269,45 @@ func (s *MiruCoreServer) PutTrack(ctx context.Context, req *proto.PutTrackReques
 		return nil, err
 	}
 	return &proto.PutTrackResponse{Track: toProtoTrack(t)}, nil
+}
+
+// Tracker
+func (s *MiruCoreServer) UpsertTracker(ctx context.Context, req *proto.UpsertTrackerRequest) (*proto.UpsertTrackerResponse, error) {
+	t := &ent.Tracker{
+		TrackerID: req.Tracker.TrackerId,
+		Provider:  tracker.Provider(req.Tracker.Provider),
+		Status:    req.Tracker.Status,
+		Progress:  int(req.Tracker.Progress),
+	}
+	if req.Tracker.Score != nil {
+		score := int(*req.Tracker.Score)
+		t.Score = &score
+	}
+	t.StartDate = req.Tracker.StartDate
+	t.FinishDate = req.Tracker.FinishDate
+	if req.Tracker.TotalProgress != nil {
+		totalProgress := int(*req.Tracker.TotalProgress)
+		t.TotalProgress = &totalProgress
+	}
+	saved, err := db.UpsertTracker(req.DetailUrl, req.Package, t)
+	if err != nil {
+		return nil, err
+	}
+	return &proto.UpsertTrackerResponse{Tracker: toProtoTracker(saved)}, nil
+}
+
+func (s *MiruCoreServer) DeleteTracker(ctx context.Context, req *proto.DeleteTrackerRequest) (*proto.DeleteTrackerResponse, error) {
+	err := db.DeleteTracker(req.DetailUrl, req.Package, req.Provider)
+	if err != nil {
+		return nil, err
+	}
+	return &proto.DeleteTrackerResponse{Message: "Success"}, nil
+}
+
+func (s *MiruCoreServer) DeleteTrackerByTrackerId(ctx context.Context, req *proto.DeleteTrackerByTrackerIdRequest) (*proto.DeleteTrackerByTrackerIdResponse, error) {
+	err := db.DeleteTrackerByTrackerId(req.TrackerId, req.Provider)
+	if err != nil {
+		return nil, err
+	}
+	return &proto.DeleteTrackerByTrackerIdResponse{Message: "Success"}, nil
 }

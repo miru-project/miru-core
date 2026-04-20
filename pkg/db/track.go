@@ -45,3 +45,14 @@ func PutTrack(trackingID string, data string, mediaType string, provider string)
 		SetProvider(track.Provider(provider)).
 		Save(ctx)
 }
+
+// DeleteTrack deletes a track cache by its Tracking ID and Provider.
+func DeleteTrack(trackingID string, provider string) error {
+	client := ext.EntClient()
+	ctx := context.Background()
+
+	_, err := client.Track.Delete().
+		Where(track.TrackingID(trackingID), track.ProviderEQ(track.Provider(provider))).
+		Exec(ctx)
+	return err
+}

@@ -49,8 +49,10 @@ type Provider string
 
 // Provider values.
 const (
-	ProviderTMDB    Provider = "TMDB"
-	ProviderAnilist Provider = "Anilist"
+	ProviderAnilist     Provider = "anilist"
+	ProviderTmdb        Provider = "tmdb"
+	ProviderMyanimelist Provider = "myanimelist"
+	ProviderKitsu       Provider = "kitsu"
 )
 
 func (pr Provider) String() string {
@@ -60,7 +62,7 @@ func (pr Provider) String() string {
 // ProviderValidator is a validator for the "provider" field enum values. It is called by the builders before save.
 func ProviderValidator(pr Provider) error {
 	switch pr {
-	case ProviderTMDB, ProviderAnilist:
+	case ProviderAnilist, ProviderTmdb, ProviderMyanimelist, ProviderKitsu:
 		return nil
 	default:
 		return fmt.Errorf("track: invalid enum value for provider field: %q", pr)

@@ -17,53 +17,53 @@ import (
 	"github.com/miru-project/miru-core/ent/tracker"
 )
 
-// DetailQuery is the builder for querying Detail entities.
-type DetailQuery struct {
+// TrackerQuery is the builder for querying Tracker entities.
+type TrackerQuery struct {
 	config
-	ctx          *QueryContext
-	order        []detail.OrderOption
-	inters       []Interceptor
-	predicates   []predicate.Detail
-	withTrackers *TrackerQuery
+	ctx         *QueryContext
+	order       []tracker.OrderOption
+	inters      []Interceptor
+	predicates  []predicate.Tracker
+	withDetails *DetailQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the DetailQuery builder.
-func (_q *DetailQuery) Where(ps ...predicate.Detail) *DetailQuery {
+// Where adds a new predicate for the TrackerQuery builder.
+func (_q *TrackerQuery) Where(ps ...predicate.Tracker) *TrackerQuery {
 	_q.predicates = append(_q.predicates, ps...)
 	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (_q *DetailQuery) Limit(limit int) *DetailQuery {
+func (_q *TrackerQuery) Limit(limit int) *TrackerQuery {
 	_q.ctx.Limit = &limit
 	return _q
 }
 
 // Offset to start from.
-func (_q *DetailQuery) Offset(offset int) *DetailQuery {
+func (_q *TrackerQuery) Offset(offset int) *TrackerQuery {
 	_q.ctx.Offset = &offset
 	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (_q *DetailQuery) Unique(unique bool) *DetailQuery {
+func (_q *TrackerQuery) Unique(unique bool) *TrackerQuery {
 	_q.ctx.Unique = &unique
 	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (_q *DetailQuery) Order(o ...detail.OrderOption) *DetailQuery {
+func (_q *TrackerQuery) Order(o ...tracker.OrderOption) *TrackerQuery {
 	_q.order = append(_q.order, o...)
 	return _q
 }
 
-// QueryTrackers chains the current query on the "trackers" edge.
-func (_q *DetailQuery) QueryTrackers() *TrackerQuery {
-	query := (&TrackerClient{config: _q.config}).Query()
+// QueryDetails chains the current query on the "details" edge.
+func (_q *TrackerQuery) QueryDetails() *DetailQuery {
+	query := (&DetailClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -73,9 +73,9 @@ func (_q *DetailQuery) QueryTrackers() *TrackerQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(detail.Table, detail.FieldID, selector),
-			sqlgraph.To(tracker.Table, tracker.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, detail.TrackersTable, detail.TrackersPrimaryKey...),
+			sqlgraph.From(tracker.Table, tracker.FieldID, selector),
+			sqlgraph.To(detail.Table, detail.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, tracker.DetailsTable, tracker.DetailsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -83,21 +83,21 @@ func (_q *DetailQuery) QueryTrackers() *TrackerQuery {
 	return query
 }
 
-// First returns the first Detail entity from the query.
-// Returns a *NotFoundError when no Detail was found.
-func (_q *DetailQuery) First(ctx context.Context) (*Detail, error) {
+// First returns the first Tracker entity from the query.
+// Returns a *NotFoundError when no Tracker was found.
+func (_q *TrackerQuery) First(ctx context.Context) (*Tracker, error) {
 	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{detail.Label}
+		return nil, &NotFoundError{tracker.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (_q *DetailQuery) FirstX(ctx context.Context) *Detail {
+func (_q *TrackerQuery) FirstX(ctx context.Context) *Tracker {
 	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -105,22 +105,22 @@ func (_q *DetailQuery) FirstX(ctx context.Context) *Detail {
 	return node
 }
 
-// FirstID returns the first Detail ID from the query.
-// Returns a *NotFoundError when no Detail ID was found.
-func (_q *DetailQuery) FirstID(ctx context.Context) (id int, err error) {
+// FirstID returns the first Tracker ID from the query.
+// Returns a *NotFoundError when no Tracker ID was found.
+func (_q *TrackerQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{detail.Label}
+		err = &NotFoundError{tracker.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *DetailQuery) FirstIDX(ctx context.Context) int {
+func (_q *TrackerQuery) FirstIDX(ctx context.Context) int {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -128,10 +128,10 @@ func (_q *DetailQuery) FirstIDX(ctx context.Context) int {
 	return id
 }
 
-// Only returns a single Detail entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one Detail entity is found.
-// Returns a *NotFoundError when no Detail entities are found.
-func (_q *DetailQuery) Only(ctx context.Context) (*Detail, error) {
+// Only returns a single Tracker entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one Tracker entity is found.
+// Returns a *NotFoundError when no Tracker entities are found.
+func (_q *TrackerQuery) Only(ctx context.Context) (*Tracker, error) {
 	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
@@ -140,14 +140,14 @@ func (_q *DetailQuery) Only(ctx context.Context) (*Detail, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{detail.Label}
+		return nil, &NotFoundError{tracker.Label}
 	default:
-		return nil, &NotSingularError{detail.Label}
+		return nil, &NotSingularError{tracker.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (_q *DetailQuery) OnlyX(ctx context.Context) *Detail {
+func (_q *TrackerQuery) OnlyX(ctx context.Context) *Tracker {
 	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -155,10 +155,10 @@ func (_q *DetailQuery) OnlyX(ctx context.Context) *Detail {
 	return node
 }
 
-// OnlyID is like Only, but returns the only Detail ID in the query.
-// Returns a *NotSingularError when more than one Detail ID is found.
+// OnlyID is like Only, but returns the only Tracker ID in the query.
+// Returns a *NotSingularError when more than one Tracker ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *DetailQuery) OnlyID(ctx context.Context) (id int, err error) {
+func (_q *TrackerQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
@@ -167,15 +167,15 @@ func (_q *DetailQuery) OnlyID(ctx context.Context) (id int, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{detail.Label}
+		err = &NotFoundError{tracker.Label}
 	default:
-		err = &NotSingularError{detail.Label}
+		err = &NotSingularError{tracker.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *DetailQuery) OnlyIDX(ctx context.Context) int {
+func (_q *TrackerQuery) OnlyIDX(ctx context.Context) int {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -183,18 +183,18 @@ func (_q *DetailQuery) OnlyIDX(ctx context.Context) int {
 	return id
 }
 
-// All executes the query and returns a list of Details.
-func (_q *DetailQuery) All(ctx context.Context) ([]*Detail, error) {
+// All executes the query and returns a list of Trackers.
+func (_q *TrackerQuery) All(ctx context.Context) ([]*Tracker, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*Detail, *DetailQuery]()
-	return withInterceptors[[]*Detail](ctx, _q, qr, _q.inters)
+	qr := querierAll[[]*Tracker, *TrackerQuery]()
+	return withInterceptors[[]*Tracker](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (_q *DetailQuery) AllX(ctx context.Context) []*Detail {
+func (_q *TrackerQuery) AllX(ctx context.Context) []*Tracker {
 	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
@@ -202,20 +202,20 @@ func (_q *DetailQuery) AllX(ctx context.Context) []*Detail {
 	return nodes
 }
 
-// IDs executes the query and returns a list of Detail IDs.
-func (_q *DetailQuery) IDs(ctx context.Context) (ids []int, err error) {
+// IDs executes the query and returns a list of Tracker IDs.
+func (_q *TrackerQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
-	if err = _q.Select(detail.FieldID).Scan(ctx, &ids); err != nil {
+	if err = _q.Select(tracker.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *DetailQuery) IDsX(ctx context.Context) []int {
+func (_q *TrackerQuery) IDsX(ctx context.Context) []int {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -224,16 +224,16 @@ func (_q *DetailQuery) IDsX(ctx context.Context) []int {
 }
 
 // Count returns the count of the given query.
-func (_q *DetailQuery) Count(ctx context.Context) (int, error) {
+func (_q *TrackerQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, _q, querierCount[*DetailQuery](), _q.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*TrackerQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (_q *DetailQuery) CountX(ctx context.Context) int {
+func (_q *TrackerQuery) CountX(ctx context.Context) int {
 	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -242,7 +242,7 @@ func (_q *DetailQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (_q *DetailQuery) Exist(ctx context.Context) (bool, error) {
+func (_q *TrackerQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
 	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
@@ -255,7 +255,7 @@ func (_q *DetailQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (_q *DetailQuery) ExistX(ctx context.Context) bool {
+func (_q *TrackerQuery) ExistX(ctx context.Context) bool {
 	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -263,33 +263,33 @@ func (_q *DetailQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the DetailQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the TrackerQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (_q *DetailQuery) Clone() *DetailQuery {
+func (_q *TrackerQuery) Clone() *TrackerQuery {
 	if _q == nil {
 		return nil
 	}
-	return &DetailQuery{
-		config:       _q.config,
-		ctx:          _q.ctx.Clone(),
-		order:        append([]detail.OrderOption{}, _q.order...),
-		inters:       append([]Interceptor{}, _q.inters...),
-		predicates:   append([]predicate.Detail{}, _q.predicates...),
-		withTrackers: _q.withTrackers.Clone(),
+	return &TrackerQuery{
+		config:      _q.config,
+		ctx:         _q.ctx.Clone(),
+		order:       append([]tracker.OrderOption{}, _q.order...),
+		inters:      append([]Interceptor{}, _q.inters...),
+		predicates:  append([]predicate.Tracker{}, _q.predicates...),
+		withDetails: _q.withDetails.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
 }
 
-// WithTrackers tells the query-builder to eager-load the nodes that are connected to
-// the "trackers" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *DetailQuery) WithTrackers(opts ...func(*TrackerQuery)) *DetailQuery {
-	query := (&TrackerClient{config: _q.config}).Query()
+// WithDetails tells the query-builder to eager-load the nodes that are connected to
+// the "details" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *TrackerQuery) WithDetails(opts ...func(*DetailQuery)) *TrackerQuery {
+	query := (&DetailClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	_q.withTrackers = query
+	_q.withDetails = query
 	return _q
 }
 
@@ -299,19 +299,19 @@ func (_q *DetailQuery) WithTrackers(opts ...func(*TrackerQuery)) *DetailQuery {
 // Example:
 //
 //	var v []struct {
-//		Title string `json:"title,omitempty"`
+//		TrackerID string `json:"tracker_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.Detail.Query().
-//		GroupBy(detail.FieldTitle).
+//	client.Tracker.Query().
+//		GroupBy(tracker.FieldTrackerID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (_q *DetailQuery) GroupBy(field string, fields ...string) *DetailGroupBy {
+func (_q *TrackerQuery) GroupBy(field string, fields ...string) *TrackerGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &DetailGroupBy{build: _q}
+	grbuild := &TrackerGroupBy{build: _q}
 	grbuild.flds = &_q.ctx.Fields
-	grbuild.label = detail.Label
+	grbuild.label = tracker.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -322,26 +322,26 @@ func (_q *DetailQuery) GroupBy(field string, fields ...string) *DetailGroupBy {
 // Example:
 //
 //	var v []struct {
-//		Title string `json:"title,omitempty"`
+//		TrackerID string `json:"tracker_id,omitempty"`
 //	}
 //
-//	client.Detail.Query().
-//		Select(detail.FieldTitle).
+//	client.Tracker.Query().
+//		Select(tracker.FieldTrackerID).
 //		Scan(ctx, &v)
-func (_q *DetailQuery) Select(fields ...string) *DetailSelect {
+func (_q *TrackerQuery) Select(fields ...string) *TrackerSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
-	sbuild := &DetailSelect{DetailQuery: _q}
-	sbuild.label = detail.Label
+	sbuild := &TrackerSelect{TrackerQuery: _q}
+	sbuild.label = tracker.Label
 	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a DetailSelect configured with the given aggregations.
-func (_q *DetailQuery) Aggregate(fns ...AggregateFunc) *DetailSelect {
+// Aggregate returns a TrackerSelect configured with the given aggregations.
+func (_q *TrackerQuery) Aggregate(fns ...AggregateFunc) *TrackerSelect {
 	return _q.Select().Aggregate(fns...)
 }
 
-func (_q *DetailQuery) prepareQuery(ctx context.Context) error {
+func (_q *TrackerQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -353,7 +353,7 @@ func (_q *DetailQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range _q.ctx.Fields {
-		if !detail.ValidColumn(f) {
+		if !tracker.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -367,19 +367,19 @@ func (_q *DetailQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (_q *DetailQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Detail, error) {
+func (_q *TrackerQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Tracker, error) {
 	var (
-		nodes       = []*Detail{}
+		nodes       = []*Tracker{}
 		_spec       = _q.querySpec()
 		loadedTypes = [1]bool{
-			_q.withTrackers != nil,
+			_q.withDetails != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*Detail).scanValues(nil, columns)
+		return (*Tracker).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &Detail{config: _q.config}
+		node := &Tracker{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -393,20 +393,20 @@ func (_q *DetailQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Detai
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withTrackers; query != nil {
-		if err := _q.loadTrackers(ctx, query, nodes,
-			func(n *Detail) { n.Edges.Trackers = []*Tracker{} },
-			func(n *Detail, e *Tracker) { n.Edges.Trackers = append(n.Edges.Trackers, e) }); err != nil {
+	if query := _q.withDetails; query != nil {
+		if err := _q.loadDetails(ctx, query, nodes,
+			func(n *Tracker) { n.Edges.Details = []*Detail{} },
+			func(n *Tracker, e *Detail) { n.Edges.Details = append(n.Edges.Details, e) }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (_q *DetailQuery) loadTrackers(ctx context.Context, query *TrackerQuery, nodes []*Detail, init func(*Detail), assign func(*Detail, *Tracker)) error {
+func (_q *TrackerQuery) loadDetails(ctx context.Context, query *DetailQuery, nodes []*Tracker, init func(*Tracker), assign func(*Tracker, *Detail)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[int]*Detail)
-	nids := make(map[int]map[*Detail]struct{})
+	byID := make(map[int]*Tracker)
+	nids := make(map[int]map[*Tracker]struct{})
 	for i, node := range nodes {
 		edgeIDs[i] = node.ID
 		byID[node.ID] = node
@@ -415,11 +415,11 @@ func (_q *DetailQuery) loadTrackers(ctx context.Context, query *TrackerQuery, no
 		}
 	}
 	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(detail.TrackersTable)
-		s.Join(joinT).On(s.C(tracker.FieldID), joinT.C(detail.TrackersPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(detail.TrackersPrimaryKey[0]), edgeIDs...))
+		joinT := sql.Table(tracker.DetailsTable)
+		s.Join(joinT).On(s.C(detail.FieldID), joinT.C(tracker.DetailsPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(tracker.DetailsPrimaryKey[1]), edgeIDs...))
 		columns := s.SelectedColumns()
-		s.Select(joinT.C(detail.TrackersPrimaryKey[0]))
+		s.Select(joinT.C(tracker.DetailsPrimaryKey[1]))
 		s.AppendSelect(columns...)
 		s.SetDistinct(false)
 	})
@@ -441,7 +441,7 @@ func (_q *DetailQuery) loadTrackers(ctx context.Context, query *TrackerQuery, no
 				outValue := int(values[0].(*sql.NullInt64).Int64)
 				inValue := int(values[1].(*sql.NullInt64).Int64)
 				if nids[inValue] == nil {
-					nids[inValue] = map[*Detail]struct{}{byID[outValue]: {}}
+					nids[inValue] = map[*Tracker]struct{}{byID[outValue]: {}}
 					return assign(columns[1:], values[1:])
 				}
 				nids[inValue][byID[outValue]] = struct{}{}
@@ -449,14 +449,14 @@ func (_q *DetailQuery) loadTrackers(ctx context.Context, query *TrackerQuery, no
 			}
 		})
 	})
-	neighbors, err := withInterceptors[[]*Tracker](ctx, query, qr, query.inters)
+	neighbors, err := withInterceptors[[]*Detail](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
 		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected "trackers" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "details" node returned %v`, n.ID)
 		}
 		for kn := range nodes {
 			assign(kn, n)
@@ -465,7 +465,7 @@ func (_q *DetailQuery) loadTrackers(ctx context.Context, query *TrackerQuery, no
 	return nil
 }
 
-func (_q *DetailQuery) sqlCount(ctx context.Context) (int, error) {
+func (_q *TrackerQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
@@ -474,8 +474,8 @@ func (_q *DetailQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (_q *DetailQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(detail.Table, detail.Columns, sqlgraph.NewFieldSpec(detail.FieldID, field.TypeInt))
+func (_q *TrackerQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(tracker.Table, tracker.Columns, sqlgraph.NewFieldSpec(tracker.FieldID, field.TypeInt))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -484,9 +484,9 @@ func (_q *DetailQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, detail.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, tracker.FieldID)
 		for i := range fields {
-			if fields[i] != detail.FieldID {
+			if fields[i] != tracker.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
@@ -514,12 +514,12 @@ func (_q *DetailQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (_q *DetailQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (_q *TrackerQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(_q.driver.Dialect())
-	t1 := builder.Table(detail.Table)
+	t1 := builder.Table(tracker.Table)
 	columns := _q.ctx.Fields
 	if len(columns) == 0 {
-		columns = detail.Columns
+		columns = tracker.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if _q.sql != nil {
@@ -546,28 +546,28 @@ func (_q *DetailQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	return selector
 }
 
-// DetailGroupBy is the group-by builder for Detail entities.
-type DetailGroupBy struct {
+// TrackerGroupBy is the group-by builder for Tracker entities.
+type TrackerGroupBy struct {
 	selector
-	build *DetailQuery
+	build *TrackerQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (_g *DetailGroupBy) Aggregate(fns ...AggregateFunc) *DetailGroupBy {
+func (_g *TrackerGroupBy) Aggregate(fns ...AggregateFunc) *TrackerGroupBy {
 	_g.fns = append(_g.fns, fns...)
 	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_g *DetailGroupBy) Scan(ctx context.Context, v any) error {
+func (_g *TrackerGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
 	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*DetailQuery, *DetailGroupBy](ctx, _g.build, _g, _g.build.inters, v)
+	return scanWithInterceptors[*TrackerQuery, *TrackerGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (_g *DetailGroupBy) sqlScan(ctx context.Context, root *DetailQuery, v any) error {
+func (_g *TrackerGroupBy) sqlScan(ctx context.Context, root *TrackerQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(_g.fns))
 	for _, fn := range _g.fns {
@@ -594,28 +594,28 @@ func (_g *DetailGroupBy) sqlScan(ctx context.Context, root *DetailQuery, v any) 
 	return sql.ScanSlice(rows, v)
 }
 
-// DetailSelect is the builder for selecting fields of Detail entities.
-type DetailSelect struct {
-	*DetailQuery
+// TrackerSelect is the builder for selecting fields of Tracker entities.
+type TrackerSelect struct {
+	*TrackerQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (_s *DetailSelect) Aggregate(fns ...AggregateFunc) *DetailSelect {
+func (_s *TrackerSelect) Aggregate(fns ...AggregateFunc) *TrackerSelect {
 	_s.fns = append(_s.fns, fns...)
 	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_s *DetailSelect) Scan(ctx context.Context, v any) error {
+func (_s *TrackerSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
 	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*DetailQuery, *DetailSelect](ctx, _s.DetailQuery, _s, _s.inters, v)
+	return scanWithInterceptors[*TrackerQuery, *TrackerSelect](ctx, _s.TrackerQuery, _s, _s.inters, v)
 }
 
-func (_s *DetailSelect) sqlScan(ctx context.Context, root *DetailQuery, v any) error {
+func (_s *TrackerSelect) sqlScan(ctx context.Context, root *TrackerQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(_s.fns))
 	for _, fn := range _s.fns {

@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/miru-project/miru-core/ent/detail"
 	"github.com/miru-project/miru-core/ent/predicate"
+	"github.com/miru-project/miru-core/ent/tracker"
 )
 
 // DetailUpdate is the builder for updating Detail entities.
@@ -186,9 +187,45 @@ func (_u *DetailUpdate) ClearTrackIds() *DetailUpdate {
 	return _u
 }
 
+// AddTrackerIDs adds the "trackers" edge to the Tracker entity by IDs.
+func (_u *DetailUpdate) AddTrackerIDs(ids ...int) *DetailUpdate {
+	_u.mutation.AddTrackerIDs(ids...)
+	return _u
+}
+
+// AddTrackers adds the "trackers" edges to the Tracker entity.
+func (_u *DetailUpdate) AddTrackers(v ...*Tracker) *DetailUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTrackerIDs(ids...)
+}
+
 // Mutation returns the DetailMutation object of the builder.
 func (_u *DetailUpdate) Mutation() *DetailMutation {
 	return _u.mutation
+}
+
+// ClearTrackers clears all "trackers" edges to the Tracker entity.
+func (_u *DetailUpdate) ClearTrackers() *DetailUpdate {
+	_u.mutation.ClearTrackers()
+	return _u
+}
+
+// RemoveTrackerIDs removes the "trackers" edge to Tracker entities by IDs.
+func (_u *DetailUpdate) RemoveTrackerIDs(ids ...int) *DetailUpdate {
+	_u.mutation.RemoveTrackerIDs(ids...)
+	return _u
+}
+
+// RemoveTrackers removes "trackers" edges to Tracker entities.
+func (_u *DetailUpdate) RemoveTrackers(v ...*Tracker) *DetailUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTrackerIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -302,6 +339,51 @@ func (_u *DetailUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.TrackIdsCleared() {
 		_spec.ClearField(detail.FieldTrackIds, field.TypeJSON)
+	}
+	if _u.mutation.TrackersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   detail.TrackersTable,
+			Columns: detail.TrackersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tracker.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTrackersIDs(); len(nodes) > 0 && !_u.mutation.TrackersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   detail.TrackersTable,
+			Columns: detail.TrackersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tracker.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TrackersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   detail.TrackersTable,
+			Columns: detail.TrackersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tracker.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -481,9 +563,45 @@ func (_u *DetailUpdateOne) ClearTrackIds() *DetailUpdateOne {
 	return _u
 }
 
+// AddTrackerIDs adds the "trackers" edge to the Tracker entity by IDs.
+func (_u *DetailUpdateOne) AddTrackerIDs(ids ...int) *DetailUpdateOne {
+	_u.mutation.AddTrackerIDs(ids...)
+	return _u
+}
+
+// AddTrackers adds the "trackers" edges to the Tracker entity.
+func (_u *DetailUpdateOne) AddTrackers(v ...*Tracker) *DetailUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddTrackerIDs(ids...)
+}
+
 // Mutation returns the DetailMutation object of the builder.
 func (_u *DetailUpdateOne) Mutation() *DetailMutation {
 	return _u.mutation
+}
+
+// ClearTrackers clears all "trackers" edges to the Tracker entity.
+func (_u *DetailUpdateOne) ClearTrackers() *DetailUpdateOne {
+	_u.mutation.ClearTrackers()
+	return _u
+}
+
+// RemoveTrackerIDs removes the "trackers" edge to Tracker entities by IDs.
+func (_u *DetailUpdateOne) RemoveTrackerIDs(ids ...int) *DetailUpdateOne {
+	_u.mutation.RemoveTrackerIDs(ids...)
+	return _u
+}
+
+// RemoveTrackers removes "trackers" edges to Tracker entities.
+func (_u *DetailUpdateOne) RemoveTrackers(v ...*Tracker) *DetailUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveTrackerIDs(ids...)
 }
 
 // Where appends a list predicates to the DetailUpdate builder.
@@ -627,6 +745,51 @@ func (_u *DetailUpdateOne) sqlSave(ctx context.Context) (_node *Detail, err erro
 	}
 	if _u.mutation.TrackIdsCleared() {
 		_spec.ClearField(detail.FieldTrackIds, field.TypeJSON)
+	}
+	if _u.mutation.TrackersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   detail.TrackersTable,
+			Columns: detail.TrackersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tracker.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedTrackersIDs(); len(nodes) > 0 && !_u.mutation.TrackersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   detail.TrackersTable,
+			Columns: detail.TrackersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tracker.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.TrackersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   detail.TrackersTable,
+			Columns: detail.TrackersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(tracker.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Detail{config: _u.config}
 	_spec.Assign = _node.assignValues

@@ -19,6 +19,20 @@ message Detail {
   optional string episodes = 8;
   optional string headers = 9;
   map<string, string> track_ids = 10;
+  repeated Tracker trackers = 11;
+}
+
+// DB - Tracker
+message Tracker {
+  int32 id = 1;
+  string tracker_id = 2;
+  string provider = 3;
+  string status = 4;
+  optional int32 score = 5;
+  int32 progress = 6;
+  optional int64 start_date = 7;
+  optional int64 finish_date = 8;
+  optional int32 total_progress = 9;
 }
 
 // DB - Favorite

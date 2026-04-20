@@ -35,8 +35,29 @@ type Detail struct {
 	// JSON encoded string of headers
 	Headers *string `json:"headers,omitempty"`
 	// Map of provider to tracking ID
-	TrackIds     map[string]string `json:"track_ids,omitempty"`
+	TrackIds map[string]string `json:"track_ids,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the DetailQuery when eager-loading is set.
+	Edges        DetailEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// DetailEdges holds the relations/edges for other nodes in the graph.
+type DetailEdges struct {
+	// Trackers holds the value of the trackers edge.
+	Trackers []*Tracker `json:"trackers,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// TrackersOrErr returns the Trackers value or an error if the edge
+// was not loaded in eager-loading.
+func (e DetailEdges) TrackersOrErr() ([]*Tracker, error) {
+	if e.loadedTypes[0] {
+		return e.Trackers, nil
+	}
+	return nil, &NotLoadedError{edge: "trackers"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -145,6 +166,11 @@ func (_m *Detail) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Detail) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryTrackers queries the "trackers" edge of the Detail entity.
+func (_m *Detail) QueryTrackers() *TrackerQuery {
+	return NewDetailClient(_m.config).QueryTrackers(_m)
 }
 
 // Update returns a builder for updating this Detail.

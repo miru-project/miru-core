@@ -45,18 +45,6 @@ func (f DownloadFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DownloadMutation", m)
 }
 
-// The ExtensionFunc type is an adapter to allow the use of ordinary
-// function as Extension mutator.
-type ExtensionFunc func(context.Context, *ent.ExtensionMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f ExtensionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.ExtensionMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ExtensionMutation", m)
-}
-
 // The ExtensionRepoSettingFunc type is an adapter to allow the use of ordinary
 // function as ExtensionRepoSetting mutator.
 type ExtensionRepoSettingFunc func(context.Context, *ent.ExtensionRepoSettingMutation) (ent.Value, error)
@@ -127,6 +115,18 @@ func (f TrackFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TrackMutation", m)
+}
+
+// The TrackerFunc type is an adapter to allow the use of ordinary
+// function as Tracker mutator.
+type TrackerFunc func(context.Context, *ent.TrackerMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TrackerFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TrackerMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TrackerMutation", m)
 }
 
 // Condition is a hook condition function.

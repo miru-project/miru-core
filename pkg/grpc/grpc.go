@@ -223,9 +223,43 @@ func toProtoHistory(h *ent.History) *proto.History {
 	}
 }
 
+func toProtoTracker(t *ent.Tracker) *proto.Tracker {
+	if t == nil {
+		return &proto.Tracker{}
+	}
+	tracker := &proto.Tracker{
+		Id:        int32(t.ID),
+		TrackerId: t.TrackerID,
+		Provider:  string(t.Provider),
+		Status:    t.Status,
+		Progress:  int32(t.Progress),
+	}
+	if t.TotalProgress != nil {
+		totalProgress := int32(*t.TotalProgress)
+		tracker.TotalProgress = &totalProgress
+	}
+	if t.Score != nil {
+		score := int32(*t.Score)
+		tracker.Score = &score
+	}
+	if t.StartDate != nil {
+		tracker.StartDate = t.StartDate
+	}
+	if t.FinishDate != nil {
+		tracker.FinishDate = t.FinishDate
+	}
+	return tracker
+}
+
 func toProtoDetail(d *ent.Detail) *proto.Detail {
 	if d == nil {
 		return &proto.Detail{}
+	}
+	var trackers []*proto.Tracker
+	if d.Edges.Trackers != nil {
+		for _, t := range d.Edges.Trackers {
+			trackers = append(trackers, toProtoTracker(t))
+		}
 	}
 	return &proto.Detail{
 		Id:         int32(d.ID),
@@ -238,6 +272,7 @@ func toProtoDetail(d *ent.Detail) *proto.Detail {
 		Episodes:   d.Episodes,
 		Headers:    d.Headers,
 		TrackIds:   d.TrackIds,
+		Trackers:   trackers,
 	}
 }
 
