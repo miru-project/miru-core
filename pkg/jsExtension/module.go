@@ -1,22 +1,67 @@
 package jsExtension
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/console"
 	"github.com/dop251/goja_nodejs/require"
 	"github.com/dop251/goja_nodejs/url"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
+	"github.com/miru-project/miru-core/pkg/event"
 	"github.com/miru-project/miru-core/pkg/logger"
 	log "github.com/miru-project/miru-core/pkg/logger"
+	"github.com/miru-project/miru-core/proto/generate/proto"
 )
+
+type DevPrinter struct {
+	Pkg string
+}
+
+func (p *DevPrinter) Log(s string) {
+	event.SendDevLog(&proto.DevLogEvent{
+		Package:   p.Pkg,
+		Message:   s,
+		Level:     "info",
+		Timestamp: time.Now().UnixMilli(),
+	})
+	log.Println(fmt.Sprintf("[%s] %s", p.Pkg, s))
+}
+
+func (p *DevPrinter) Warn(s string) {
+	event.SendDevLog(&proto.DevLogEvent{
+		Package:   p.Pkg,
+		Message:   s,
+		Level:     "warn",
+		Timestamp: time.Now().UnixMilli(),
+	})
+	log.Println(fmt.Sprintf("[%s] WARN: %s", p.Pkg, s))
+}
+
+func (p *DevPrinter) Error(s string) {
+	event.SendDevLog(&proto.DevLogEvent{
+		Package:   p.Pkg,
+		Message:   s,
+		Level:     "error",
+		Timestamp: time.Now().UnixMilli(),
+	})
+	log.Println(fmt.Sprintf("[%s] ERROR: %s", p.Pkg, s))
+}
 
 func initModule() {
 	linkeDom := string(errorhandle.HandleFatal(fs.ReadFile("assets/linkedom/worker.js")))
 	linkeDomProgram, e := goja.Compile("linkedom.js", linkeDom, true)
 	vm := goja.New()
 	vm.RunProgram(linkeDomProgram)
-	parseHtml := vm.Get("parseHTML").Export().(func(goja.FunctionCall) goja.Value)
-	logger.Println(parseHtml)
+	
+	parseHtmlVal := vm.Get("parseHTML")
+	if parseHtmlVal != nil && !goja.IsUndefined(parseHtmlVal) {
+		if fn, ok := parseHtmlVal.Export().(func(goja.FunctionCall) goja.Value); ok {
+			logger.Println(fn)
+		}
+	}
+	
 	if e != nil {
 		log.Println("Error executing linkedom:", e)
 	}
@@ -26,8 +71,10 @@ func initModule() {
 	cryptoJs := string(errorhandle.HandleFatal(fs.ReadFile("assets/crypto-js/crypto-js.js")))
 	RegisterJSModule("crypto-js", cryptoJs, func(vm *goja.Runtime, module *goja.Object) {
 		initCrypto(vm)
-		obj := module.Get("exports").(*goja.Object)
-		obj.Set("CryptoJS", vm.Get("CryptoJS"))
+		exports := module.Get("exports")
+		if obj, ok := exports.(*goja.Object); ok {
+			obj.Set("CryptoJS", vm.Get("CryptoJS"))
+		}
 	})
 
 	md5 := string(errorhandle.HandleFatal(fs.ReadFile("assets/md5/md5.min.js")))
@@ -44,10 +91,16 @@ func initModule() {
 }
 
 // Init nodeJs module
-func (ser *ExtBaseService) addModule(module *require.RequireModule, vm *goja.Runtime, job *Job) {
+func (api *ExtApi) addModule(module *require.RequireModule, vm *goja.Runtime, job *Job) {
 	initCrypto(vm)
 	url.Enable(vm)
-	console.Enable(vm)
+	consoleObj := vm.NewObject()
+	exportsObj := vm.NewObject()
+	consoleObj.Set("exports", exportsObj)
+	console.RequireWithPrinter(&DevPrinter{Pkg: api.Ext.Pkg})(vm, consoleObj)
+	
+	vm.Set("console", exportsObj)
+	
 	vm.Set("require", module.Require)
-	ser.initFetch(vm, job)
+	api.initFetch(vm, job)
 }

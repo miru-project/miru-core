@@ -6,12 +6,15 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"
 	"github.com/miru-project/miru-core/pkg/db"
+	"github.com/miru-project/miru-core/pkg/event"
 	log "github.com/miru-project/miru-core/pkg/logger"
 	"github.com/miru-project/miru-core/pkg/network"
+	"github.com/miru-project/miru-core/proto/generate/proto"
 )
 
 func AsyncCallBack(api *ExtApi, pkg string, evalStr string) (any, error) {
@@ -83,7 +86,7 @@ func (api *ExtApi) initRuntimeV1(pkg string) {
 		var job = Job{loop: loop}
 		// Run the program for the  first time
 		reg := sharedRegistry.Enable(vm)
-		api.service.addModule(reg, vm, &job)
+		api.addModule(reg, vm, &job)
 		// eval base runtime
 		if _, e := vm.RunProgram(baseV1); e != nil {
 			log.Println("Error running base script:", e)
@@ -119,7 +122,7 @@ func (api *ExtApi) registerFunction(vm *goja.Runtime, job Job) {
 	// })
 	api.setFunction(vm, "registerSetting", func(call goja.FunctionCall) goja.Value {
 
-		val := call.Argument(0).ToObject(vm).Export()
+		val := call.Argument(0).Export()
 		value, ok := val.(map[string]any)
 		if !ok {
 			panic(vm.ToValue(errors.New("invalid setting object need map")))
@@ -165,7 +168,7 @@ func (api *ExtApi) registerFunction(vm *goja.Runtime, job Job) {
 
 	api.setFunction(vm, "setCookies", func(call goja.FunctionCall) any {
 		url := call.Argument(0).ToString().String()
-		cookiesInterface := call.Argument(1).ToObject(vm).Export()
+		cookiesInterface := call.Argument(1).Export()
 		cookies, ok := cookiesInterface.([]any)
 		if !ok {
 			panic(vm.ToValue(errors.New("invalid cookies format, expected array of strings")))
@@ -193,21 +196,57 @@ func (api *ExtApi) registerFunction(vm *goja.Runtime, job Job) {
 
 		url := call.Argument(0).ToString().String()
 		url = strings.ReplaceAll(url, "&amp;", "&")
-		opt := call.Argument(1).ToObject(vm).Export()
+		
+		// Safe export of options
+		var opt any
+		if len(call.Arguments) > 1 {
+			opt = call.Argument(1).Export()
+		}
+		
 		var requestOptions network.RequestOptions
-		jsonData, e := json.Marshal(opt)
-		if e != nil {
-			panic("Error marshalling options to JSON:" + e.Error())
+		if opt != nil {
+			jsonData, e := json.Marshal(opt)
+			if e != nil {
+				panic("Error marshalling options to JSON:" + e.Error())
+			}
+
+			if err := json.Unmarshal(jsonData, &requestOptions); err != nil {
+				panic("Error unmarshalling JSON:" + err.Error())
+			}
 		}
 
-		if err := json.Unmarshal(jsonData, &requestOptions); err != nil {
-			panic("Error unmarshalling JSON:" + err.Error())
-		}
-
+		start := time.Now()
 		res, err := network.Request[string](url, &requestOptions, network.ReadAll)
-		if err != nil {
-			panic(vm.ToValue(err))
+		duration := time.Since(start).Milliseconds()
+
+		// Capture event for dev mode if anyone is listening
+		if event.GlobalBus.HasSubscribers() {
+			status := 0
+			var resHeaders string
+			if res.Res != nil {
+				status = res.Res.StatusCode()
+				resHeaders = res.Res.Header.String()
+			}
+
+			go func(s int, h string, b string) {
+				event.SendDevNetwork(&proto.DevNetworkEvent{
+					Package:         pkg,
+					Url:             url,
+					Method:          requestOptions.Method,
+					Status:          int32(s),
+					Duration:        duration,
+					Timestamp:       time.Now().UnixMilli(),
+					RequestHeaders:  fmt.Sprintf("%v", requestOptions.Headers),
+					RequestBody:     requestOptions.RequestBody,
+					ResponseHeaders: h,
+					ResponseBody:    b,
+				})
+			}(status, resHeaders, res.Body)
 		}
-		return vm.ToValue(res.Body)
+
+		if err != nil {
+			panic(err.Error())
+		}
+		return res.Body
 	})
 }

@@ -64,6 +64,8 @@ type WatchEventsResponse struct {
 	//	*WatchEventsResponse_DownloadEvent
 	//	*WatchEventsResponse_ExtensionEvent
 	//	*WatchEventsResponse_HistoryEvent
+	//	*WatchEventsResponse_DevLogEvent
+	//	*WatchEventsResponse_DevNetworkEvent
 	Event         isWatchEventsResponse_Event `protobuf_oneof:"event"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -133,6 +135,24 @@ func (x *WatchEventsResponse) GetHistoryEvent() *HistoryEvent {
 	return nil
 }
 
+func (x *WatchEventsResponse) GetDevLogEvent() *DevLogEvent {
+	if x != nil {
+		if x, ok := x.Event.(*WatchEventsResponse_DevLogEvent); ok {
+			return x.DevLogEvent
+		}
+	}
+	return nil
+}
+
+func (x *WatchEventsResponse) GetDevNetworkEvent() *DevNetworkEvent {
+	if x != nil {
+		if x, ok := x.Event.(*WatchEventsResponse_DevNetworkEvent); ok {
+			return x.DevNetworkEvent
+		}
+	}
+	return nil
+}
+
 type isWatchEventsResponse_Event interface {
 	isWatchEventsResponse_Event()
 }
@@ -149,11 +169,23 @@ type WatchEventsResponse_HistoryEvent struct {
 	HistoryEvent *HistoryEvent `protobuf:"bytes,3,opt,name=history_event,json=historyEvent,proto3,oneof"`
 }
 
+type WatchEventsResponse_DevLogEvent struct {
+	DevLogEvent *DevLogEvent `protobuf:"bytes,4,opt,name=dev_log_event,json=devLogEvent,proto3,oneof"`
+}
+
+type WatchEventsResponse_DevNetworkEvent struct {
+	DevNetworkEvent *DevNetworkEvent `protobuf:"bytes,5,opt,name=dev_network_event,json=devNetworkEvent,proto3,oneof"`
+}
+
 func (*WatchEventsResponse_DownloadEvent) isWatchEventsResponse_Event() {}
 
 func (*WatchEventsResponse_ExtensionEvent) isWatchEventsResponse_Event() {}
 
 func (*WatchEventsResponse_HistoryEvent) isWatchEventsResponse_Event() {}
+
+func (*WatchEventsResponse_DevLogEvent) isWatchEventsResponse_Event() {}
+
+func (*WatchEventsResponse_DevNetworkEvent) isWatchEventsResponse_Event() {}
 
 type DownloadEvent struct {
 	state          protoimpl.MessageState      `protogen:"open.v1"`
@@ -287,16 +319,202 @@ func (x *HistoryEvent) GetHistory() []*History {
 	return nil
 }
 
+type DevLogEvent struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Package       string                 `protobuf:"bytes,1,opt,name=package,proto3" json:"package,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	Level         string                 `protobuf:"bytes,3,opt,name=level,proto3" json:"level,omitempty"`
+	Timestamp     int64                  `protobuf:"varint,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DevLogEvent) Reset() {
+	*x = DevLogEvent{}
+	mi := &file_proto_events_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DevLogEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DevLogEvent) ProtoMessage() {}
+
+func (x *DevLogEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_events_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DevLogEvent.ProtoReflect.Descriptor instead.
+func (*DevLogEvent) Descriptor() ([]byte, []int) {
+	return file_proto_events_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *DevLogEvent) GetPackage() string {
+	if x != nil {
+		return x.Package
+	}
+	return ""
+}
+
+func (x *DevLogEvent) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *DevLogEvent) GetLevel() string {
+	if x != nil {
+		return x.Level
+	}
+	return ""
+}
+
+func (x *DevLogEvent) GetTimestamp() int64 {
+	if x != nil {
+		return x.Timestamp
+	}
+	return 0
+}
+
+type DevNetworkEvent struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Package         string                 `protobuf:"bytes,1,opt,name=package,proto3" json:"package,omitempty"`
+	Url             string                 `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+	Method          string                 `protobuf:"bytes,3,opt,name=method,proto3" json:"method,omitempty"`
+	Status          int32                  `protobuf:"varint,4,opt,name=status,proto3" json:"status,omitempty"`
+	Duration        int64                  `protobuf:"varint,5,opt,name=duration,proto3" json:"duration,omitempty"`
+	Timestamp       int64                  `protobuf:"varint,6,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	RequestHeaders  string                 `protobuf:"bytes,7,opt,name=request_headers,json=requestHeaders,proto3" json:"request_headers,omitempty"`
+	RequestBody     string                 `protobuf:"bytes,8,opt,name=request_body,json=requestBody,proto3" json:"request_body,omitempty"`
+	ResponseHeaders string                 `protobuf:"bytes,9,opt,name=response_headers,json=responseHeaders,proto3" json:"response_headers,omitempty"`
+	ResponseBody    string                 `protobuf:"bytes,10,opt,name=response_body,json=responseBody,proto3" json:"response_body,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *DevNetworkEvent) Reset() {
+	*x = DevNetworkEvent{}
+	mi := &file_proto_events_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DevNetworkEvent) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DevNetworkEvent) ProtoMessage() {}
+
+func (x *DevNetworkEvent) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_events_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DevNetworkEvent.ProtoReflect.Descriptor instead.
+func (*DevNetworkEvent) Descriptor() ([]byte, []int) {
+	return file_proto_events_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *DevNetworkEvent) GetPackage() string {
+	if x != nil {
+		return x.Package
+	}
+	return ""
+}
+
+func (x *DevNetworkEvent) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+func (x *DevNetworkEvent) GetMethod() string {
+	if x != nil {
+		return x.Method
+	}
+	return ""
+}
+
+func (x *DevNetworkEvent) GetStatus() int32 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
+
+func (x *DevNetworkEvent) GetDuration() int64 {
+	if x != nil {
+		return x.Duration
+	}
+	return 0
+}
+
+func (x *DevNetworkEvent) GetTimestamp() int64 {
+	if x != nil {
+		return x.Timestamp
+	}
+	return 0
+}
+
+func (x *DevNetworkEvent) GetRequestHeaders() string {
+	if x != nil {
+		return x.RequestHeaders
+	}
+	return ""
+}
+
+func (x *DevNetworkEvent) GetRequestBody() string {
+	if x != nil {
+		return x.RequestBody
+	}
+	return ""
+}
+
+func (x *DevNetworkEvent) GetResponseHeaders() string {
+	if x != nil {
+		return x.ResponseHeaders
+	}
+	return ""
+}
+
+func (x *DevNetworkEvent) GetResponseBody() string {
+	if x != nil {
+		return x.ResponseBody
+	}
+	return ""
+}
+
 var File_proto_events_proto protoreflect.FileDescriptor
 
 const file_proto_events_proto_rawDesc = "" +
 	"\n" +
 	"\x12proto/events.proto\x12\x04miru\x1a\x12proto/common.proto\x1a\x14proto/db_model.proto\"\x14\n" +
-	"\x12WatchEventsRequest\"\xd8\x01\n" +
+	"\x12WatchEventsRequest\"\xd6\x02\n" +
 	"\x13WatchEventsResponse\x12<\n" +
 	"\x0edownload_event\x18\x01 \x01(\v2\x13.miru.DownloadEventH\x00R\rdownloadEvent\x12?\n" +
 	"\x0fextension_event\x18\x02 \x01(\v2\x14.miru.ExtensionEventH\x00R\x0eextensionEvent\x129\n" +
-	"\rhistory_event\x18\x03 \x01(\v2\x12.miru.HistoryEventH\x00R\fhistoryEventB\a\n" +
+	"\rhistory_event\x18\x03 \x01(\v2\x12.miru.HistoryEventH\x00R\fhistoryEvent\x127\n" +
+	"\rdev_log_event\x18\x04 \x01(\v2\x11.miru.DevLogEventH\x00R\vdevLogEvent\x12C\n" +
+	"\x11dev_network_event\x18\x05 \x01(\v2\x15.miru.DevNetworkEventH\x00R\x0fdevNetworkEventB\a\n" +
 	"\x05event\"\xbc\x01\n" +
 	"\rDownloadEvent\x12P\n" +
 	"\x0fdownload_status\x18\x01 \x03(\v2'.miru.DownloadEvent.DownloadStatusEntryR\x0edownloadStatus\x1aY\n" +
@@ -306,7 +524,24 @@ const file_proto_events_proto_rawDesc = "" +
 	"\x0eExtensionEvent\x12:\n" +
 	"\x0eextension_meta\x18\x01 \x03(\v2\x13.miru.ExtensionMetaR\rextensionMeta\"7\n" +
 	"\fHistoryEvent\x12'\n" +
-	"\ahistory\x18\x01 \x03(\v2\r.miru.HistoryR\ahistory2T\n" +
+	"\ahistory\x18\x01 \x03(\v2\r.miru.HistoryR\ahistory\"u\n" +
+	"\vDevLogEvent\x12\x18\n" +
+	"\apackage\x18\x01 \x01(\tR\apackage\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x12\x14\n" +
+	"\x05level\x18\x03 \x01(\tR\x05level\x12\x1c\n" +
+	"\ttimestamp\x18\x04 \x01(\x03R\ttimestamp\"\xc3\x02\n" +
+	"\x0fDevNetworkEvent\x12\x18\n" +
+	"\apackage\x18\x01 \x01(\tR\apackage\x12\x10\n" +
+	"\x03url\x18\x02 \x01(\tR\x03url\x12\x16\n" +
+	"\x06method\x18\x03 \x01(\tR\x06method\x12\x16\n" +
+	"\x06status\x18\x04 \x01(\x05R\x06status\x12\x1a\n" +
+	"\bduration\x18\x05 \x01(\x03R\bduration\x12\x1c\n" +
+	"\ttimestamp\x18\x06 \x01(\x03R\ttimestamp\x12'\n" +
+	"\x0frequest_headers\x18\a \x01(\tR\x0erequestHeaders\x12!\n" +
+	"\frequest_body\x18\b \x01(\tR\vrequestBody\x12)\n" +
+	"\x10response_headers\x18\t \x01(\tR\x0fresponseHeaders\x12#\n" +
+	"\rresponse_body\x18\n" +
+	" \x01(\tR\fresponseBody2T\n" +
 	"\fEventService\x12D\n" +
 	"\vWatchEvents\x12\x18.miru.WatchEventsRequest\x1a\x19.miru.WatchEventsResponse0\x01B)Z'github.com/miru-project/miru-core/protob\x06proto3"
 
@@ -322,33 +557,37 @@ func file_proto_events_proto_rawDescGZIP() []byte {
 	return file_proto_events_proto_rawDescData
 }
 
-var file_proto_events_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_proto_events_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_proto_events_proto_goTypes = []any{
 	(*WatchEventsRequest)(nil),  // 0: miru.WatchEventsRequest
 	(*WatchEventsResponse)(nil), // 1: miru.WatchEventsResponse
 	(*DownloadEvent)(nil),       // 2: miru.DownloadEvent
 	(*ExtensionEvent)(nil),      // 3: miru.ExtensionEvent
 	(*HistoryEvent)(nil),        // 4: miru.HistoryEvent
-	nil,                         // 5: miru.DownloadEvent.DownloadStatusEntry
-	(*ExtensionMeta)(nil),       // 6: miru.ExtensionMeta
-	(*History)(nil),             // 7: miru.History
-	(*DownloadProgress)(nil),    // 8: miru.DownloadProgress
+	(*DevLogEvent)(nil),         // 5: miru.DevLogEvent
+	(*DevNetworkEvent)(nil),     // 6: miru.DevNetworkEvent
+	nil,                         // 7: miru.DownloadEvent.DownloadStatusEntry
+	(*ExtensionMeta)(nil),       // 8: miru.ExtensionMeta
+	(*History)(nil),             // 9: miru.History
+	(*DownloadProgress)(nil),    // 10: miru.DownloadProgress
 }
 var file_proto_events_proto_depIdxs = []int32{
-	2, // 0: miru.WatchEventsResponse.download_event:type_name -> miru.DownloadEvent
-	3, // 1: miru.WatchEventsResponse.extension_event:type_name -> miru.ExtensionEvent
-	4, // 2: miru.WatchEventsResponse.history_event:type_name -> miru.HistoryEvent
-	5, // 3: miru.DownloadEvent.download_status:type_name -> miru.DownloadEvent.DownloadStatusEntry
-	6, // 4: miru.ExtensionEvent.extension_meta:type_name -> miru.ExtensionMeta
-	7, // 5: miru.HistoryEvent.history:type_name -> miru.History
-	8, // 6: miru.DownloadEvent.DownloadStatusEntry.value:type_name -> miru.DownloadProgress
-	0, // 7: miru.EventService.WatchEvents:input_type -> miru.WatchEventsRequest
-	1, // 8: miru.EventService.WatchEvents:output_type -> miru.WatchEventsResponse
-	8, // [8:9] is the sub-list for method output_type
-	7, // [7:8] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	2,  // 0: miru.WatchEventsResponse.download_event:type_name -> miru.DownloadEvent
+	3,  // 1: miru.WatchEventsResponse.extension_event:type_name -> miru.ExtensionEvent
+	4,  // 2: miru.WatchEventsResponse.history_event:type_name -> miru.HistoryEvent
+	5,  // 3: miru.WatchEventsResponse.dev_log_event:type_name -> miru.DevLogEvent
+	6,  // 4: miru.WatchEventsResponse.dev_network_event:type_name -> miru.DevNetworkEvent
+	7,  // 5: miru.DownloadEvent.download_status:type_name -> miru.DownloadEvent.DownloadStatusEntry
+	8,  // 6: miru.ExtensionEvent.extension_meta:type_name -> miru.ExtensionMeta
+	9,  // 7: miru.HistoryEvent.history:type_name -> miru.History
+	10, // 8: miru.DownloadEvent.DownloadStatusEntry.value:type_name -> miru.DownloadProgress
+	0,  // 9: miru.EventService.WatchEvents:input_type -> miru.WatchEventsRequest
+	1,  // 10: miru.EventService.WatchEvents:output_type -> miru.WatchEventsResponse
+	10, // [10:11] is the sub-list for method output_type
+	9,  // [9:10] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_proto_events_proto_init() }
@@ -362,6 +601,8 @@ func file_proto_events_proto_init() {
 		(*WatchEventsResponse_DownloadEvent)(nil),
 		(*WatchEventsResponse_ExtensionEvent)(nil),
 		(*WatchEventsResponse_HistoryEvent)(nil),
+		(*WatchEventsResponse_DevLogEvent)(nil),
+		(*WatchEventsResponse_DevNetworkEvent)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -369,7 +610,7 @@ func file_proto_events_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_events_proto_rawDesc), len(file_proto_events_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -5,9 +5,13 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"time"
 
 	"github.com/dop251/goja"
+	"github.com/miru-project/miru-core/pkg/event"
+	"github.com/miru-project/miru-core/pkg/logger"
 	"github.com/miru-project/miru-core/pkg/network"
+	"github.com/miru-project/miru-core/proto/generate/proto"
 )
 
 func createRequestCtor(vm *goja.Runtime) func(call goja.ConstructorCall) *goja.Object {
@@ -141,14 +145,15 @@ func createAbortControllerCtor(vm *goja.Runtime) func(call goja.ConstructorCall)
 	}
 }
 
-func (ser *ExtBaseService) initFetch(vm *goja.Runtime, job *Job) {
+func (api *ExtApi) initFetch(vm *goja.Runtime, job *Job) {
+	pkg := api.Ext.Pkg
 	vm.Set("Request", createRequestCtor(vm))
 	vm.Set("Response", createResponseCtor(vm))
 	vm.Set("AbortSignal", createAbortSignalCtor())
 	vm.Set("AbortController", createAbortControllerCtor(vm))
 
-	// fetch(resource, options)
-	ser.createSingleChannel(vm, "fetch", job, func(call goja.FunctionCall, resolve func(any) error) any {
+	// __fetch(resource, options) - internal Go function
+	api.service.createSingleChannel(vm, "__fetch", job, func(call goja.FunctionCall, resolve func(any) error) any {
 		var fetchUrl string
 		requestOptions := network.RequestOptions{
 			Headers: make(map[string]string),
@@ -156,88 +161,110 @@ func (ser *ExtBaseService) initFetch(vm *goja.Runtime, job *Job) {
 		}
 
 		arg0 := call.Argument(0)
-		var optsVal *goja.Object
+		var optsVal any
 
 		if arg0.ExportType().Kind() == reflect.String {
 			fetchUrl = arg0.String()
 			if len(call.Arguments) > 1 && !goja.IsUndefined(call.Argument(1)) {
-				optsVal = call.Argument(1).ToObject(vm)
+				optsVal = call.Argument(1).Export()
 			}
 		} else if obj, ok := arg0.Export().(map[string]any); ok {
 			if u, ok := obj["url"].(string); ok {
 				fetchUrl = u
 			}
-			optsVal = arg0.ToObject(vm)
+			optsVal = arg0.Export()
 		} else {
 			panic("Miru_core(fetch): resource is not String or Object")
 		}
 
 		if optsVal != nil {
-			if v := optsVal.Get("method"); v != nil && !goja.IsUndefined(v) {
-				requestOptions.Method = v.String()
-			}
-			if v := optsVal.Get("headers"); v != nil && !goja.IsUndefined(v) {
-				if m, ok := v.Export().(map[string]interface{}); ok {
-					for k, val := range m {
+			if m, ok := optsVal.(map[string]any); ok {
+				if v, ok := m["method"].(string); ok {
+					requestOptions.Method = v
+				}
+				if v, ok := m["headers"].(map[string]any); ok {
+					for k, val := range v {
 						requestOptions.Headers[k] = fmt.Sprint(val)
 					}
 				}
-			}
-			if v := optsVal.Get("body"); v != nil && !goja.IsUndefined(v) {
-				requestOptions.RequestBody = v.String()
-			}
-			if v := optsVal.Get("timeout"); v != nil && !goja.IsUndefined(v) {
-				requestOptions.Timeout = int(v.ToInteger())
-			}
-		}
-
-		res, err := network.Request[string](fetchUrl, &requestOptions, network.ReadAll)
-		if err != nil {
-			panic(vm.ToValue(err))
-		}
-
-		// Create a Response object similar to browser's Response
-		responseObj := vm.NewObject()
-		responseObj.Set("status", res.Res.StatusCode())
-		responseObj.Set("statusText", http.StatusText(res.Res.StatusCode()))
-		responseObj.Set("ok", res.Res.StatusCode() >= 200 && res.Res.StatusCode() < 300)
-		responseObj.Set("data", res.Body)
-
-		// Add JSON method
-		responseObj.Set("json", func() *goja.Promise {
-			p, resolve, reject := vm.NewPromise()
-			go func() {
-				var jsonData interface{}
-				err := json.Unmarshal([]byte(res.Body), &jsonData)
-				if err != nil {
-					job.loop.RunOnLoop(func(vm *goja.Runtime) {
-						reject(vm.ToValue(err.Error()))
-					})
-					return
+				if v, ok := m["body"].(string); ok {
+					requestOptions.RequestBody = v
 				}
-				job.loop.RunOnLoop(func(vm *goja.Runtime) {
-					resolve(vm.ToValue(jsonData))
+				if v, ok := m["timeout"].(float64); ok {
+					requestOptions.Timeout = int(v)
+				} else if v, ok := m["timeout"].(int64); ok {
+					requestOptions.Timeout = int(v)
+				}
+			}
+		}
+
+		start := time.Now()
+		res, err := network.Request[string](fetchUrl, &requestOptions, network.ReadAll)
+		duration := time.Since(start).Milliseconds()
+
+		// Capture event for dev mode if anyone is listening
+		if event.GlobalBus.HasSubscribers() {
+			status := 0
+			var resHeaders string
+			if res.Res != nil {
+				status = res.Res.StatusCode()
+				resHeaders = res.Res.Header.String()
+			}
+
+			go func(s int, h string, b string) {
+				event.SendDevNetwork(&proto.DevNetworkEvent{
+					Package:        pkg,
+					Url:            fetchUrl,
+					Method:         requestOptions.Method,
+					Status:         int32(s),
+					Duration:       duration,
+					Timestamp:      time.Now().UnixMilli(),
+					RequestHeaders: fmt.Sprintf("%v", requestOptions.Headers),
+					RequestBody:    requestOptions.RequestBody,
+					ResponseHeaders: h,
+					ResponseBody:    b,
 				})
-			}()
-			return p
-		})
+			}(status, resHeaders, res.Body)
+		}
 
-		// Add text method
-		responseObj.Set("text", func() *goja.Promise {
-			p, resolve, _ := vm.NewPromise()
-			job.loop.RunOnLoop(func(vm *goja.Runtime) {
-				resolve(vm.ToValue(res.Body))
+		if err != nil {
+			panic(err.Error())
+		}
+
+		headers := make(map[string]string)
+		var status int
+		if res.Res != nil {
+			status = res.Res.StatusCode()
+			res.Res.Header.VisitAll(func(key, value []byte) {
+				headers[string(key)] = string(value)
 			})
-			return p
-		})
+		}
 
-		// Add headers
-		headers := vm.NewObject()
-		res.Res.Header.VisitAll(func(key, value []byte) {
-			headers.Set(string(key), string(value))
-		})
-		responseObj.Set("headers", headers)
-
-		return responseObj
+		return map[string]any{
+			"status":     status,
+			"statusText": http.StatusText(status),
+			"ok":         status >= 200 && status < 300,
+			"headers":    headers,
+			"data":       res.Body,
+			"_isFetch":   true,
+		}
 	})
+
+	// Define global fetch in JS
+	_, err := vm.RunString(`
+		globalThis.fetch = async (url, options) => {
+			const res = await __fetch(url, options);
+			if (res && res._isFetch) {
+				return new Response(res.data, {
+					status: res.status,
+					statusText: res.statusText,
+					headers: res.headers
+				});
+			}
+			return res;
+		};
+	`)
+	if err != nil {
+		logger.Println("Error setting global fetch:", err)
+	}
 }

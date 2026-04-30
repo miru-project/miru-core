@@ -73,6 +73,18 @@ func (s *MiruCoreServer) WatchEvents(req *proto.WatchEventsRequest, stream proto
 						},
 					},
 				}
+			case event.DevLog:
+				resp = &proto.WatchEventsResponse{
+					Event: &proto.WatchEventsResponse_DevLogEvent{
+						DevLogEvent: e.Data.(*proto.DevLogEvent),
+					},
+				}
+			case event.DevNetwork:
+				resp = &proto.WatchEventsResponse{
+					Event: &proto.WatchEventsResponse_DevNetworkEvent{
+						DevNetworkEvent: e.Data.(*proto.DevNetworkEvent),
+					},
+				}
 			}
 
 			if resp != nil {

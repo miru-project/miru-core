@@ -10,6 +10,8 @@ const (
 	DownloadStatusUpdate EventType = "download_status_update"
 	ExtensionUpdate      EventType = "extension_update"
 	HistoryUpdate        EventType = "history_update"
+	DevLog               EventType = "dev_log"
+	DevNetwork           EventType = "dev_network"
 )
 
 type Event struct {
@@ -53,6 +55,12 @@ func (b *Bus) Publish(e Event) {
 	}
 }
 
+func (b *Bus) HasSubscribers() bool {
+	b.lock.RLock()
+	defer b.lock.RUnlock()
+	return len(b.subscribers) > 0
+}
+
 func SendDownloadUpdate(data any) {
 	GlobalBus.Publish(Event{
 		Type: DownloadStatusUpdate,
@@ -63,6 +71,20 @@ func SendDownloadUpdate(data any) {
 func SendExtensionUpdate(data any) {
 	GlobalBus.Publish(Event{
 		Type: ExtensionUpdate,
+		Data: data,
+	})
+}
+
+func SendDevLog(data any) {
+	GlobalBus.Publish(Event{
+		Type: DevLog,
+		Data: data,
+	})
+}
+
+func SendDevNetwork(data any) {
+	GlobalBus.Publish(Event{
+		Type: DevNetwork,
 		Data: data,
 	})
 }

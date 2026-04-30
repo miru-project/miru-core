@@ -35,7 +35,6 @@ func (api *ExtApi) initRuntimeV2(pkg string) {
 	if api == nil || api.service.program == nil {
 		ApiPkgCache.SetError(pkg, fmt.Sprintf("extension %s not found", pkg))
 	}
-	ser := api.service
 	loop.RunOnLoop(func(vm *goja.Runtime) {
 
 		defer func() {
@@ -51,7 +50,7 @@ func (api *ExtApi) initRuntimeV2(pkg string) {
 		var job = Job{loop: loop}
 		// Run the program for the  first time
 		reg := sharedRegistry.Enable(vm)
-		ser.addModule(reg, vm, &job)
+		api.addModule(reg, vm, &job)
 		// eval base runtime
 		if _, e := vm.RunProgram(baseV2); e != nil {
 			log.Println("Error running base script:", e)

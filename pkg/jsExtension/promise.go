@@ -39,9 +39,13 @@ func await(promise *goja.Promise) (any, error) {
 
 		state := promise.State()
 		log.Println(state)
-		switch promise.Result().(type) {
+		resVal := promise.Result()
+		if resVal == nil {
+			return dataOut, errors.New("Js exception: null result")
+		}
+		switch resVal.(type) {
 		case *goja.Object:
-			res := promise.Result().(*goja.Object)
+			res := resVal.(*goja.Object)
 			err := res.GetOwnPropertyNames()
 			errStr := "Js exception:"
 			for _, v := range err {
@@ -108,5 +112,15 @@ func handlePromise(o goja.Value, res chan PromiseResult, e error) {
 		return
 	}
 	// Because it eval async funcion the value become a promise and send to channel
-	res <- PromiseResult{promise: o.Export().(*goja.Promise)}
+	outVal := o.Export()
+	if outVal == nil {
+		res <- PromiseResult{promise: &goja.Promise{}}
+		return
+	}
+	p, ok := outVal.(*goja.Promise)
+	if !ok {
+		res <- PromiseResult{err: fmt.Errorf("result is not a promise: %v", outVal)}
+		return
+	}
+	res <- PromiseResult{promise: p}
 }
