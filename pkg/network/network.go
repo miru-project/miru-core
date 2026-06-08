@@ -1,7 +1,10 @@
 package network
 
 import (
+	"compress/gzip"
+	"compress/zlib"
 	"context"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
@@ -9,6 +12,8 @@ import (
 	"time"
 
 	"github.com/Danny-Dasilva/CycleTLS/cycletls"
+	"github.com/andybalholm/brotli"
+	"github.com/klauspost/compress/zstd"
 	"github.com/miru-project/miru-core/pkg/logger"
 	"github.com/valyala/fasthttp"
 )
@@ -208,8 +213,34 @@ func ReadAll(res *fasthttp.Response) ([]byte, error) {
 		return res.BodyInflate()
 	case "br":
 		return res.BodyUnbrotli()
+	case "zstd":
+		return res.BodyUnzstd()
 	default:
 		return res.Body(), nil
+	}
+}
+
+// GetDecompressedReader returns an io.Reader that automatically decompresses the response body
+// based on the Content-Encoding header. Supports gzip, deflate, brotli, and zstd.
+func GetDecompressedReader(res *fasthttp.Response) (io.Reader, error) {
+	contentEncoding := string(res.Header.Peek("Content-Encoding"))
+	bodyStream := res.BodyStream()
+
+	switch contentEncoding {
+	case "gzip":
+		return gzip.NewReader(bodyStream)
+	case "deflate":
+		return zlib.NewReader(bodyStream)
+	case "br":
+		return brotli.NewReader(bodyStream), nil
+	case "zstd":
+		decoder, err := zstd.NewReader(bodyStream)
+		if err != nil {
+			return nil, err
+		}
+		return decoder, nil
+	default:
+		return bodyStream, nil
 	}
 }
 

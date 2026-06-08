@@ -91,8 +91,7 @@ func (s *MiruCoreServer) HelloMiru(ctx context.Context, req *proto.HelloMiruRequ
 }
 
 func StartServer() {
-	grpcPort, _ := strconv.Atoi(config.Global.Port)
-	grpcPort++ // Use next port for gRPC
+	grpcPort, _ := strconv.Atoi(config.Global.GRPCPort)
 	lis, err := net.Listen("tcp", config.Global.Address+":"+strconv.Itoa(grpcPort))
 	if err != nil {
 		logger.Printf("failed to listen for gRPC: %v", err)

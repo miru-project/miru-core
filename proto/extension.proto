@@ -22,14 +22,20 @@ message CreateFilterResponse {
   map<string, ExtensionFilter> filters = 1;
 }
 
-message SearchResponse { repeated ExtensionListItem items = 1; }
+message SearchResponse {
+  repeated ExtensionListItem items = 1;
+  string raw = 2; // Raw JSON matching JS function return
+}
 
 message LatestRequest {
   string pkg = 1;
   int32 page = 2;
 }
 
-message LatestResponse { repeated ExtensionListItem items = 1; }
+message LatestResponse {
+  repeated ExtensionListItem items = 1;
+  string raw = 2; // Raw JSON matching JS function return
+}
 
 message DetailRequest {
   string pkg = 1;
@@ -38,6 +44,7 @@ message DetailRequest {
 
 message DetailResponse {
   ExtensionDetail data = 1;
+  string raw = 2; // Raw JSON matching JS function return
 }
 
 message WatchRequest {

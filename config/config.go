@@ -21,6 +21,7 @@ type Config struct {
 	CookieStoreLoc string `json:"cookieStoreLocation"`
 	Address        string `json:"address"`
 	Port           string `json:"port"`
+	GRPCPort       string `json:"gRPCPort"`
 	BTDataDir      string `json:"btDataDir"`
 }
 
@@ -89,6 +90,9 @@ func applyConfigDefaults(cfg *Config) {
 	}
 	if cfg.Port == "" {
 		cfg.Port = "3000"
+	}
+	if cfg.GRPCPort == "" {
+		cfg.GRPCPort = "3001"
 	}
 }
 

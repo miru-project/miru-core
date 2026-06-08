@@ -54,14 +54,14 @@ func initModule() {
 	linkeDomProgram, e := goja.Compile("linkedom.js", linkeDom, true)
 	vm := goja.New()
 	vm.RunProgram(linkeDomProgram)
-	
+
 	parseHtmlVal := vm.Get("parseHTML")
 	if parseHtmlVal != nil && !goja.IsUndefined(parseHtmlVal) {
-		if fn, ok := parseHtmlVal.Export().(func(goja.FunctionCall) goja.Value); ok {
-			logger.Println(fn)
+		if _, ok := parseHtmlVal.Export().(func(goja.FunctionCall) goja.Value); ok {
+			logger.Println("parseHTML loaded")
 		}
 	}
-	
+
 	if e != nil {
 		log.Println("Error executing linkedom:", e)
 	}
@@ -88,6 +88,9 @@ func initModule() {
 			obj.Set("JSEncrypt", exports)
 		}
 	})
+
+	// Register the zlib module as a require-able native module
+	RegisterZlibModule(sharedRegistry)
 }
 
 // Init nodeJs module
@@ -98,9 +101,7 @@ func (api *ExtApi) addModule(module *require.RequireModule, vm *goja.Runtime, jo
 	exportsObj := vm.NewObject()
 	consoleObj.Set("exports", exportsObj)
 	console.RequireWithPrinter(&DevPrinter{Pkg: api.Ext.Pkg})(vm, consoleObj)
-	
 	vm.Set("console", exportsObj)
-	
 	vm.Set("require", module.Require)
 	api.initFetch(vm, job)
 }

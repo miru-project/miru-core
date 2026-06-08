@@ -1,7 +1,6 @@
 package download
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -105,8 +104,12 @@ func (t *Mp4TaskParam) readAndSavePartial(res *fasthttp.Response) ([]byte, error
 	}
 	defer file.Close()
 
-	body := res.Body()
-	bodyReader := bytes.NewReader(body)
+	// Get decompressed reader to handle gzip, deflate, brotli, zstd
+	bodyReader, err := network.GetDecompressedReader(res)
+	if err != nil {
+		return nil, err
+	}
+	defer res.CloseBodyStream()
 
 	for {
 		select {

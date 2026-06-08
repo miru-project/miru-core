@@ -35,3 +35,4 @@ miru
 __debug_bin*
 miru_core.log
 .agent
+miru_cli
