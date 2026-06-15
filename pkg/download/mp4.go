@@ -97,7 +97,7 @@ func (t *Mp4TaskParam) readAndSavePartial(res *fasthttp.Response) ([]byte, error
 	if t.isResuming {
 		file, err = os.OpenFile(t.filePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	} else {
-		file, err = network.TouchFile(t.filePath)
+		file, err = network.TouchFile(network.SanitizeFilename(t.filePath))
 	}
 	if err != nil {
 		return nil, err

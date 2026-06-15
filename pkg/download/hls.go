@@ -181,7 +181,7 @@ func downloadSegment(param *HlsTaskParam, ctx context.Context) {
 		default:
 			// Define the file name
 			name := fmt.Sprintf("%d%s", i+completed, path.Ext(s.URI))
-			fileName := filepath.Join(param.filePath, name)
+			fileName := filepath.Join(param.filePath, network.SanitizeFilename(name))
 			status[taskId].CurrentDownloading = fileName
 
 			// Download the segment
@@ -194,7 +194,6 @@ func downloadSegment(param *HlsTaskParam, ctx context.Context) {
 
 			// Decypt segment if needed
 			if key != nil {
-
 				res.Body, e = hlsDecrypt(res.Body, *param.Key, *param.IV)
 				if e != nil {
 					log.Println("Error decrypting segment:", e)
@@ -214,7 +213,7 @@ func downloadSegment(param *HlsTaskParam, ctx context.Context) {
 			status[taskId].Progrss++
 			*status[taskId].Names = append(*status[taskId].Names, fileName)
 			status[taskId].SyncDB()
-			log.Println("Downloaded segment:", url)
+			log.Println("Downloaded segment:", url, "to", fileName)
 		}
 
 	}

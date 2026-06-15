@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 )
@@ -56,7 +57,10 @@ func (Download) Fields() []ent.Field {
 			Optional().
 			Comment("Final save path of the content"),
 		field.Time("date").
-			Default(time.Now).
+			Default(time.Now).SchemaType(map[string]string{
+			dialect.SQLite:   "DATETIME",
+			dialect.Postgres: "timestamp",
+		}).
 			Comment("Date when the download entry was created/updated"),
 	}
 }

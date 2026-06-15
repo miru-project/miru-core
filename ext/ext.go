@@ -11,7 +11,6 @@ import (
 	"github.com/miru-project/miru-core/config"
 	"github.com/miru-project/miru-core/ent"
 	_ "github.com/miru-project/miru-core/ent/runtime"
-
 	_ "github.com/sqlite3ent/sqlite3"
 )
 
@@ -35,7 +34,7 @@ func EntClient() *ent.Client {
 	case "sqlite3":
 		dsn = dbCfg.DBName
 		log.Println("Using SQLite3 database at:", dsn)
-		client, err = ent.Open(dialect.SQLite, fmt.Sprintf("file:%s?cache=shared&_fk=1", dsn))
+		client, err = ent.Open(dialect.SQLite, fmt.Sprintf("file:%s?cache=shared&_fk=1&_datetime_format=PRC", dsn))
 
 	// case "postgres":
 	// 	dsn = fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",

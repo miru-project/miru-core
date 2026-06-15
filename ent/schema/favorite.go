@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
@@ -43,7 +44,10 @@ func (Favorite) Fields() []ent.Field {
 			Comment("Cover image URL"),
 
 		field.Time("date").
-			Default(time.Now).
+			Default(time.Now).SchemaType(map[string]string{
+			dialect.SQLite:   "DATETIME",
+			dialect.Postgres: "timestamp",
+		}).
 			Comment("Date when the favorite was created/updated"),
 	}
 }

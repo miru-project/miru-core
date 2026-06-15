@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
@@ -27,6 +28,10 @@ func (FavoriteGroup) Fields() []ent.Field {
 
 		field.Time("date").
 			Default(time.Now).
+			SchemaType(map[string]string{
+				dialect.SQLite:   "DATETIME",
+				dialect.Postgres: "timestamp",
+			}).
 			Comment("Date when the group was created/updated"),
 	}
 }

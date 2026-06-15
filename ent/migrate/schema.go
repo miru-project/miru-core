@@ -60,7 +60,7 @@ var (
 		{Name: "media_type", Type: field.TypeString},
 		{Name: "status", Type: field.TypeString},
 		{Name: "save_path", Type: field.TypeString, Nullable: true},
-		{Name: "date", Type: field.TypeTime},
+		{Name: "date", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp", "sqlite3": "DATETIME"}},
 	}
 	// DownloadsTable holds the schema information for the "downloads" table.
 	DownloadsTable = &schema.Table{
@@ -120,7 +120,7 @@ var (
 		{Name: "type", Type: field.TypeString},
 		{Name: "title", Type: field.TypeString},
 		{Name: "cover", Type: field.TypeString, Nullable: true},
-		{Name: "date", Type: field.TypeTime},
+		{Name: "date", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp", "sqlite3": "DATETIME"}},
 	}
 	// FavoritesTable holds the schema information for the "favorites" table.
 	FavoritesTable = &schema.Table{
@@ -139,7 +139,7 @@ var (
 	FavoriteGroupsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString},
-		{Name: "date", Type: field.TypeTime},
+		{Name: "date", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp", "sqlite3": "DATETIME"}},
 	}
 	// FavoriteGroupsTable holds the schema information for the "favorite_groups" table.
 	FavoriteGroupsTable = &schema.Table{
@@ -168,7 +168,7 @@ var (
 		{Name: "episode_title", Type: field.TypeString},
 		{Name: "progress", Type: field.TypeInt},
 		{Name: "total_progress", Type: field.TypeInt},
-		{Name: "date", Type: field.TypeTime},
+		{Name: "date", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp", "sqlite3": "DATETIME"}},
 	}
 	// HistoriesTable holds the schema information for the "histories" table.
 	HistoriesTable = &schema.Table{

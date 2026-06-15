@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"entgo.io/ent"
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 )
@@ -65,7 +66,10 @@ func (History) Fields() []ent.Field {
 			Comment("Total progress available"),
 
 		field.Time("date").
-			Default(time.Now).
+			Default(time.Now).SchemaType(map[string]string{
+			dialect.SQLite:   "DATETIME",
+			dialect.Postgres: "timestamp",
+		}).
 			Comment("Date when the history entry was created/updated"),
 	}
 }
