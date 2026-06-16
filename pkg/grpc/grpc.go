@@ -147,7 +147,7 @@ func toProtoDownloadProgress(p *download.Progress) *proto.DownloadProgress {
 		Progress:           int32(p.Progrss),
 		Names:              names,
 		Total:              int32(p.Total),
-		Status:             string(p.Status),
+		Status:             download.StatusToProto(p.Status),
 		MediaType:          string(p.MediaType),
 		CurrentDownloading: p.CurrentDownloading,
 		TaskId:             int32(p.TaskID),

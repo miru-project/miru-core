@@ -50,7 +50,7 @@ func (s *MiruCoreServer) UpdateDownloadStatus(ctx context.Context, req *proto.Up
 	if !ok {
 		return nil, fmt.Errorf("task %d not found", req.TaskId)
 	}
-	p.Status = download.Status(req.Status)
+	p.Status = download.StatusFromProto(req.Status)
 	if req.SavePath != nil {
 		p.SavePath = *req.SavePath
 	}
@@ -102,7 +102,7 @@ func (s *MiruCoreServer) GetAllDownloads(ctx context.Context, req *proto.GetAllD
 			Key:       d.Key,
 			Title:     d.Title,
 			MediaType: d.MediaType,
-			Status:    d.Status,
+			Status:    download.StatusToProto(download.Status(d.Status)),
 			SavePath:  d.SavePath,
 			Date:      d.Date.Format(time.RFC3339),
 		}
@@ -132,7 +132,7 @@ func (s *MiruCoreServer) GetDownloadsByPackageAndDetailUrl(ctx context.Context, 
 			Key:       d.Key,
 			Title:     d.Title,
 			MediaType: d.MediaType,
-			Status:    d.Status,
+			Status:    download.StatusToProto(download.Status(d.Status)),
 			SavePath:  d.SavePath,
 			Date:      d.Date.Format(time.RFC3339),
 		}
@@ -160,7 +160,7 @@ func (s *MiruCoreServer) GetDownloadByPackageWatchUrlDetailUrl(ctx context.Conte
 		Key:       d.Key,
 		Title:     d.Title,
 		MediaType: d.MediaType,
-		Status:    d.Status,
+		Status:    download.StatusToProto(download.Status(d.Status)),
 		SavePath:  d.SavePath,
 		Date:      d.Date.Format(time.RFC3339),
 	}}, nil

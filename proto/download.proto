@@ -118,7 +118,7 @@ service DownloadService {
 
 message UpdateDownloadStatusRequest {
   int32 task_id = 1;
-  string status = 2;
+  DownloadStatus status = 2;
   optional string save_path = 3;
 }
 

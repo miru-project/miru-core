@@ -12,6 +12,7 @@ import (
 	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/pkg/db"
 	miruTorrent "github.com/miru-project/miru-core/pkg/torrent"
+	"github.com/miru-project/miru-core/proto/generate/proto"
 )
 
 var tasks = sync.Map{}
@@ -62,8 +63,47 @@ const (
 	Completed   Status = "Completed"
 	Failed      Status = "Failed"
 	Canceled    Status = "Canceled"
-	Converted   Status = "Converted"
+	Queued      Status = "Queued"
+	Converting  Status = "Converting"
 )
+
+func StatusToProto(s Status) proto.DownloadStatus {
+	switch s {
+	case Downloading:
+		return proto.DownloadStatus_DOWNLOADING
+	case Paused:
+		return proto.DownloadStatus_PAUSED
+	case Completed:
+		return proto.DownloadStatus_COMPLETED
+	case Failed:
+		return proto.DownloadStatus_FAILED
+	case Canceled:
+		return proto.DownloadStatus_CANCELLED
+	case Converting:
+		return proto.DownloadStatus_CONVERTING
+	default:
+		return proto.DownloadStatus_QUEUED
+	}
+}
+
+func StatusFromProto(s proto.DownloadStatus) Status {
+	switch s {
+	case proto.DownloadStatus_DOWNLOADING:
+		return Downloading
+	case proto.DownloadStatus_PAUSED:
+		return Paused
+	case proto.DownloadStatus_COMPLETED:
+		return Completed
+	case proto.DownloadStatus_FAILED:
+		return Failed
+	case proto.DownloadStatus_CANCELLED:
+		return Canceled
+	case proto.DownloadStatus_CONVERTING:
+		return Converting
+	default:
+		return Queued
+	}
+}
 
 func (t *TaskParam) GetTaskID() int {
 	return t.taskID
@@ -252,7 +292,7 @@ func Init() {
 			SavePath:  d.SavePath,
 		}
 		// status
-		if status[id].Status == Downloading {
+		if status[id].Status == Downloading || status[id].Status == Converting {
 			status[id].Status = Paused
 		}
 

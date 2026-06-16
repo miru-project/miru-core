@@ -218,7 +218,7 @@ func downloadSegment(param *HlsTaskParam, ctx context.Context) {
 
 	}
 
-	status[taskId].Status = Completed
+	status[taskId].Status = Converting
 	status[taskId].SyncDB()
 }
 

@@ -21,6 +21,116 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type DownloadStatus int32
+
+const (
+	DownloadStatus_DOWNLOADING DownloadStatus = 0
+	DownloadStatus_PAUSED      DownloadStatus = 1
+	DownloadStatus_COMPLETED   DownloadStatus = 2
+	DownloadStatus_FAILED      DownloadStatus = 3
+	DownloadStatus_CANCELLED   DownloadStatus = 4
+	DownloadStatus_QUEUED      DownloadStatus = 5
+	DownloadStatus_CONVERTING  DownloadStatus = 6
+)
+
+// Enum value maps for DownloadStatus.
+var (
+	DownloadStatus_name = map[int32]string{
+		0: "DOWNLOADING",
+		1: "PAUSED",
+		2: "COMPLETED",
+		3: "FAILED",
+		4: "CANCELLED",
+		5: "QUEUED",
+		6: "CONVERTING",
+	}
+	DownloadStatus_value = map[string]int32{
+		"DOWNLOADING": 0,
+		"PAUSED":      1,
+		"COMPLETED":   2,
+		"FAILED":      3,
+		"CANCELLED":   4,
+		"QUEUED":      5,
+		"CONVERTING":  6,
+	}
+)
+
+func (x DownloadStatus) Enum() *DownloadStatus {
+	p := new(DownloadStatus)
+	*p = x
+	return p
+}
+
+func (x DownloadStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DownloadStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_proto_common_proto_enumTypes[0].Descriptor()
+}
+
+func (DownloadStatus) Type() protoreflect.EnumType {
+	return &file_proto_common_proto_enumTypes[0]
+}
+
+func (x DownloadStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DownloadStatus.Descriptor instead.
+func (DownloadStatus) EnumDescriptor() ([]byte, []int) {
+	return file_proto_common_proto_rawDescGZIP(), []int{0}
+}
+
+type DownloadAction int32
+
+const (
+	DownloadAction_PAUSE  DownloadAction = 0
+	DownloadAction_RESUME DownloadAction = 1
+	DownloadAction_CANCEL DownloadAction = 2
+)
+
+// Enum value maps for DownloadAction.
+var (
+	DownloadAction_name = map[int32]string{
+		0: "PAUSE",
+		1: "RESUME",
+		2: "CANCEL",
+	}
+	DownloadAction_value = map[string]int32{
+		"PAUSE":  0,
+		"RESUME": 1,
+		"CANCEL": 2,
+	}
+)
+
+func (x DownloadAction) Enum() *DownloadAction {
+	p := new(DownloadAction)
+	*p = x
+	return p
+}
+
+func (x DownloadAction) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DownloadAction) Descriptor() protoreflect.EnumDescriptor {
+	return file_proto_common_proto_enumTypes[1].Descriptor()
+}
+
+func (DownloadAction) Type() protoreflect.EnumType {
+	return &file_proto_common_proto_enumTypes[1]
+}
+
+func (x DownloadAction) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DownloadAction.Descriptor instead.
+func (DownloadAction) EnumDescriptor() ([]byte, []int) {
+	return file_proto_common_proto_rawDescGZIP(), []int{1}
+}
+
 type ExtensionMeta struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
@@ -166,7 +276,7 @@ type DownloadProgress struct {
 	Progress           int32                  `protobuf:"varint,1,opt,name=progress,proto3" json:"progress,omitempty"`
 	Names              []string               `protobuf:"bytes,2,rep,name=names,proto3" json:"names,omitempty"`
 	Total              int32                  `protobuf:"varint,3,opt,name=total,proto3" json:"total,omitempty"`
-	Status             string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
+	Status             DownloadStatus         `protobuf:"varint,4,opt,name=status,proto3,enum=miru.DownloadStatus" json:"status,omitempty"`
 	MediaType          string                 `protobuf:"bytes,5,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
 	CurrentDownloading string                 `protobuf:"bytes,6,opt,name=current_downloading,json=currentDownloading,proto3" json:"current_downloading,omitempty"`
 	TaskId             int32                  `protobuf:"varint,7,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
@@ -228,11 +338,11 @@ func (x *DownloadProgress) GetTotal() int32 {
 	return 0
 }
 
-func (x *DownloadProgress) GetStatus() string {
+func (x *DownloadProgress) GetStatus() DownloadStatus {
 	if x != nil {
 		return x.Status
 	}
-	return ""
+	return DownloadStatus_DOWNLOADING
 }
 
 func (x *DownloadProgress) GetMediaType() string {
@@ -400,7 +510,7 @@ type Download struct {
 	Key           string                 `protobuf:"bytes,6,opt,name=key,proto3" json:"key,omitempty"`
 	Title         string                 `protobuf:"bytes,7,opt,name=title,proto3" json:"title,omitempty"`
 	MediaType     string                 `protobuf:"bytes,8,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
-	Status        string                 `protobuf:"bytes,9,opt,name=status,proto3" json:"status,omitempty"`
+	Status        DownloadStatus         `protobuf:"varint,9,opt,name=status,proto3,enum=miru.DownloadStatus" json:"status,omitempty"`
 	SavePath      string                 `protobuf:"bytes,10,opt,name=save_path,json=savePath,proto3" json:"save_path,omitempty"`
 	Date          string                 `protobuf:"bytes,11,opt,name=date,proto3" json:"date,omitempty"`
 	DownloadUrl   string                 `protobuf:"bytes,12,opt,name=download_url,json=downloadUrl,proto3" json:"download_url,omitempty"`
@@ -495,11 +605,11 @@ func (x *Download) GetMediaType() string {
 	return ""
 }
 
-func (x *Download) GetStatus() string {
+func (x *Download) GetStatus() DownloadStatus {
 	if x != nil {
 		return x.Status
 	}
-	return ""
+	return DownloadStatus_DOWNLOADING
 }
 
 func (x *Download) GetSavePath() string {
@@ -610,12 +720,12 @@ const file_proto_common_proto_rawDesc = "" +
 	" \x03(\tR\x04tags\x12\x10\n" +
 	"\x03api\x18\v \x01(\tR\x03api\x12\x14\n" +
 	"\x05error\x18\f \x01(\tR\x05error\x12\x12\n" +
-	"\x04type\x18\r \x01(\tR\x04type\"\x9d\x02\n" +
+	"\x04type\x18\r \x01(\tR\x04type\"\xb3\x02\n" +
 	"\x10DownloadProgress\x12\x1a\n" +
 	"\bprogress\x18\x01 \x01(\x05R\bprogress\x12\x14\n" +
 	"\x05names\x18\x02 \x03(\tR\x05names\x12\x14\n" +
-	"\x05total\x18\x03 \x01(\x05R\x05total\x12\x16\n" +
-	"\x06status\x18\x04 \x01(\tR\x06status\x12\x1d\n" +
+	"\x05total\x18\x03 \x01(\x05R\x05total\x12,\n" +
+	"\x06status\x18\x04 \x01(\x0e2\x14.miru.DownloadStatusR\x06status\x12\x1d\n" +
 	"\n" +
 	"media_type\x18\x05 \x01(\tR\tmediaType\x12/\n" +
 	"\x13current_downloading\x18\x06 \x01(\tR\x12currentDownloading\x12\x17\n" +
@@ -633,7 +743,7 @@ const file_proto_common_proto_rawDesc = "" +
 	"resolution\x18\x01 \x01(\tR\n" +
 	"resolution\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\x12\x14\n" +
-	"\x05codec\x18\x03 \x01(\tR\x05codec\"\xa7\x03\n" +
+	"\x05codec\x18\x03 \x01(\tR\x05codec\"\xbd\x03\n" +
 	"\bDownload\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x10\n" +
 	"\x03url\x18\x02 \x03(\tR\x03url\x125\n" +
@@ -643,8 +753,8 @@ const file_proto_common_proto_rawDesc = "" +
 	"\x03key\x18\x06 \x01(\tR\x03key\x12\x14\n" +
 	"\x05title\x18\a \x01(\tR\x05title\x12\x1d\n" +
 	"\n" +
-	"media_type\x18\b \x01(\tR\tmediaType\x12\x16\n" +
-	"\x06status\x18\t \x01(\tR\x06status\x12\x1b\n" +
+	"media_type\x18\b \x01(\tR\tmediaType\x12,\n" +
+	"\x06status\x18\t \x01(\x0e2\x14.miru.DownloadStatusR\x06status\x12\x1b\n" +
 	"\tsave_path\x18\n" +
 	" \x01(\tR\bsavePath\x12\x12\n" +
 	"\x04date\x18\v \x01(\tR\x04date\x12!\n" +
@@ -657,7 +767,25 @@ const file_proto_common_proto_rawDesc = "" +
 	"\rTorrentResult\x12\x1b\n" +
 	"\tinfo_hash\x18\x01 \x01(\tR\binfoHash\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
-	"\x05files\x18\x03 \x03(\tR\x05filesB)Z'github.com/miru-project/miru-core/protob\x06proto3"
+	"\x05files\x18\x03 \x03(\tR\x05files*s\n" +
+	"\x0eDownloadStatus\x12\x0f\n" +
+	"\vDOWNLOADING\x10\x00\x12\n" +
+	"\n" +
+	"\x06PAUSED\x10\x01\x12\r\n" +
+	"\tCOMPLETED\x10\x02\x12\n" +
+	"\n" +
+	"\x06FAILED\x10\x03\x12\r\n" +
+	"\tCANCELLED\x10\x04\x12\n" +
+	"\n" +
+	"\x06QUEUED\x10\x05\x12\x0e\n" +
+	"\n" +
+	"CONVERTING\x10\x06*3\n" +
+	"\x0eDownloadAction\x12\t\n" +
+	"\x05PAUSE\x10\x00\x12\n" +
+	"\n" +
+	"\x06RESUME\x10\x01\x12\n" +
+	"\n" +
+	"\x06CANCEL\x10\x02B)Z'github.com/miru-project/miru-core/protob\x06proto3"
 
 var (
 	file_proto_common_proto_rawDescOnce sync.Once
@@ -671,23 +799,28 @@ func file_proto_common_proto_rawDescGZIP() []byte {
 	return file_proto_common_proto_rawDescData
 }
 
+var file_proto_common_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_proto_common_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_proto_common_proto_goTypes = []any{
-	(*ExtensionMeta)(nil),       // 0: miru.ExtensionMeta
-	(*DownloadProgress)(nil),    // 1: miru.DownloadProgress
-	(*TorrentStats)(nil),        // 2: miru.TorrentStats
-	(*AvailableHlsVariant)(nil), // 3: miru.AvailableHlsVariant
-	(*Download)(nil),            // 4: miru.Download
-	(*TorrentResult)(nil),       // 5: miru.TorrentResult
-	nil,                         // 6: miru.Download.HeadersEntry
+	(DownloadStatus)(0),         // 0: miru.DownloadStatus
+	(DownloadAction)(0),         // 1: miru.DownloadAction
+	(*ExtensionMeta)(nil),       // 2: miru.ExtensionMeta
+	(*DownloadProgress)(nil),    // 3: miru.DownloadProgress
+	(*TorrentStats)(nil),        // 4: miru.TorrentStats
+	(*AvailableHlsVariant)(nil), // 5: miru.AvailableHlsVariant
+	(*Download)(nil),            // 6: miru.Download
+	(*TorrentResult)(nil),       // 7: miru.TorrentResult
+	nil,                         // 8: miru.Download.HeadersEntry
 }
 var file_proto_common_proto_depIdxs = []int32{
-	6, // 0: miru.Download.headers:type_name -> miru.Download.HeadersEntry
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0, // 0: miru.DownloadProgress.status:type_name -> miru.DownloadStatus
+	8, // 1: miru.Download.headers:type_name -> miru.Download.HeadersEntry
+	0, // 2: miru.Download.status:type_name -> miru.DownloadStatus
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_proto_common_proto_init() }
@@ -700,13 +833,14 @@ func file_proto_common_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_common_proto_rawDesc), len(file_proto_common_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      2,
 			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_proto_common_proto_goTypes,
 		DependencyIndexes: file_proto_common_proto_depIdxs,
+		EnumInfos:         file_proto_common_proto_enumTypes,
 		MessageInfos:      file_proto_common_proto_msgTypes,
 	}.Build()
 	File_proto_common_proto = out.File

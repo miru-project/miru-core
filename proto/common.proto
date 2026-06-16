@@ -4,6 +4,22 @@ package miru;
 
 option go_package = "github.com/miru-project/miru-core/proto";
 
+enum DownloadStatus {
+  DOWNLOADING = 0;
+  PAUSED = 1;
+  COMPLETED = 2;
+  FAILED = 3;
+  CANCELLED = 4;
+  QUEUED = 5;
+  CONVERTING = 6;
+}
+
+enum DownloadAction {
+  PAUSE = 0;
+  RESUME = 1;
+  CANCEL = 2;
+}
+
 message ExtensionMeta {
   string name = 1;
   string version = 2;
@@ -24,7 +40,7 @@ message DownloadProgress {
   int32 progress = 1;
   repeated string names = 2;
   int32 total = 3;
-  string status = 4;
+  DownloadStatus status = 4;
   string media_type = 5;
   string current_downloading = 6;
   int32 task_id = 7;
@@ -56,7 +72,7 @@ message Download {
   string key = 6;
   string title = 7;
   string media_type = 8;
-  string status = 9;
+  DownloadStatus status = 9;
   string save_path = 10;
   string date = 11;
   string download_url = 12;
