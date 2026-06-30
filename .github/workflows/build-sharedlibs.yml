@@ -224,7 +224,7 @@ jobs:
             mv "$TMP_DIR"/* "$sdk_root/ndk/$ndk_version/" || true
           fi
           rm -rf "$TMP_DIR" "$ndk_zip"
-          # Locate the NDK toolchain bin directory
+          # Store the NDK toolchain path in an env var for use in subsequent steps
           TOOLCHAIN_DIR=$(find "$sdk_root/ndk/$ndk_version/toolchains/llvm/prebuilt" -type d -name "bin" | head -1)
           if [ -z "$TOOLCHAIN_DIR" ]; then
             echo "ERROR: NDK toolchain bin directory not found"
@@ -232,20 +232,36 @@ jobs:
           fi
           echo "NDK toolchain found at: $TOOLCHAIN_DIR"
           echo "ANDROID_NDK_HOME=$sdk_root/ndk/$ndk_version" >> $GITHUB_ENV
-          echo "$TOOLCHAIN_DIR" >> $GITHUB_PATH
+          echo "NDK_TOOLCHAIN_DIR=$TOOLCHAIN_DIR" >> $GITHUB_ENV
 
       - name: Build .so (${{ matrix.arch.goarch }})
-        env:
-          CGO_ENABLED: '1'
-          GOOS: android
-          GOARCH: ${{ matrix.arch.goarch }}
-          CC: ${{ matrix.arch.cc }}
-          CXX: ${{ matrix.arch.cxx }}
         run: |
           echo "Building Android c-shared library for ${{ matrix.arch.goarch }}"
+          # Use the NDK toolchain path stored from the previous step
+          if [ -z "$NDK_TOOLCHAIN_DIR" ]; then
+            echo "ERROR: NDK_TOOLCHAIN_DIR is not set"
+            exit 1
+          fi
+          CC="$NDK_TOOLCHAIN_DIR/${{ matrix.arch.cc }}"
+          CXX="$NDK_TOOLCHAIN_DIR/${{ matrix.arch.cxx }}"
+          if [ ! -f "$CC" ]; then
+            echo "ERROR: C compiler not found at $CC"
+            exit 1
+          fi
+          echo "Using C compiler: $CC"
+          export CGO_ENABLED=1
+          export GOOS=android
+          export GOARCH=${{ matrix.arch.goarch }}
+          export CC
+          export CXX
           LD_FLAG="-s -w -checklinkname=0"
           GO_OUTPUT="binary/build/${{ matrix.arch.output }}"
           go build -tags nosqlite -o ${GO_OUTPUT} -ldflags="${LD_FLAG}" -trimpath -buildmode=c-shared main.go
+
+      - name: Verify built .so
+        run: |
+          ls -lh "binary/build/${{ matrix.arch.output }}"
+          file "binary/build/${{ matrix.arch.output }}"
 
       - name: Upload ${{ matrix.arch.output }} artifact
         uses: actions/upload-artifact@v4
