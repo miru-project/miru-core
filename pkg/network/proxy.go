@@ -36,13 +36,40 @@ func getProxyURL(option *RequestOptions) string {
 }
 
 var (
-	proxyClients = make(map[string]*fasthttp.Client)
-	proxyMutex   sync.RWMutex
-	tcpDialer    = &fasthttp.TCPDialer{
+	proxyClients      = make(map[string]*fasthttp.Client)
+	proxyClientTimers = make(map[string]*time.Timer)
+	proxyMutex        sync.RWMutex
+	tcpDialer         = &fasthttp.TCPDialer{
 		Concurrency:      4096,
 		DNSCacheDuration: 6 * time.Hour,
 	}
+	maxProxyClients = 8
+	proxyLastAccess = make(map[string]time.Time)
 )
+
+func evictOldestProxyClient() {
+	proxyMutex.Lock()
+	defer proxyMutex.Unlock()
+	if len(proxyClients) < maxProxyClients {
+		return
+	}
+	var oldestKey string
+	var oldestTime time.Time
+	for k, t := range proxyLastAccess {
+		if oldestKey == "" || t.Before(oldestTime) {
+			oldestKey = k
+			oldestTime = t
+		}
+	}
+	if oldestKey != "" {
+		delete(proxyClients, oldestKey)
+		delete(proxyLastAccess, oldestKey)
+		if t, ok := proxyClientTimers[oldestKey]; ok {
+			t.Stop()
+			delete(proxyClientTimers, oldestKey)
+		}
+	}
+}
 
 func PrepareProxy(option *RequestOptions, targetURL string) (*fasthttp.Client, error) {
 	proxy := getProxyURL(option)
@@ -56,6 +83,9 @@ func PrepareProxy(option *RequestOptions, targetURL string) (*fasthttp.Client, e
 	client, ok := proxyClients[proxy]
 	proxyMutex.RUnlock()
 	if ok {
+		proxyMutex.Lock()
+		proxyLastAccess[proxy] = time.Now()
+		proxyMutex.Unlock()
 		logger.Println("[Proxy] request to:", targetURL)
 		return client, nil
 	}
@@ -95,6 +125,8 @@ func PrepareProxy(option *RequestOptions, targetURL string) (*fasthttp.Client, e
 		dialFunc, _ = d.GetDialFunc(false)
 	}
 
+	evictOldestProxyClient()
+
 	client = &fasthttp.Client{
 		MaxIdemponentCallAttempts: 2,
 		MaxIdleConnDuration:       90 * time.Second,
@@ -106,6 +138,7 @@ func PrepareProxy(option *RequestOptions, targetURL string) (*fasthttp.Client, e
 
 	proxyMutex.Lock()
 	proxyClients[proxy] = client
+	proxyLastAccess[proxy] = time.Now()
 	proxyMutex.Unlock()
 
 	logger.Println("[Proxy] request to:", targetURL)

@@ -10,7 +10,7 @@ import (
 )
 
 func TestPutHistory_UniqueConstraint(t *testing.T) {
-	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1&_pragma=foreign_keys(1)")
 	defer client.Close()
 	ctx := context.Background()
 

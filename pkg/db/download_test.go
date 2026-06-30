@@ -8,14 +8,16 @@ import (
 	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/ent/download"
 	"github.com/miru-project/miru-core/ent/enttest"
+	_ "github.com/miru-project/miru-core/ext"
 	"github.com/stretchr/testify/assert"
+	_ "modernc.org/sqlite"
 )
 
 func TestUpsertDownload(t *testing.T) {
 	// We can't easily test the actual UpsertDownload function because it uses ext.EntClient()
 	// which relies on a global configuration. Instead, we test the logic it performs.
 
-	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1&_pragma=foreign_keys(1)")
 	defer client.Close()
 	ctx := context.Background()
 
@@ -82,7 +84,7 @@ func TestUpsertDownload(t *testing.T) {
 }
 
 func TestDeleteDownloadByID(t *testing.T) {
-	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1&_pragma=foreign_keys(1)")
 	defer client.Close()
 	ctx := context.Background()
 

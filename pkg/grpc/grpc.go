@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/miru-project/miru-core/config"
@@ -19,6 +20,7 @@ import (
 	"github.com/miru-project/miru-core/router/handler"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	pb "google.golang.org/protobuf/proto"
 )
 
 type MiruCoreServer struct {
@@ -32,7 +34,31 @@ type MiruCoreServer struct {
 	proto.UnimplementedEventServiceServer
 }
 
+var (
+	helloCache      *proto.HelloMiruResponse
+	helloCacheMutex sync.RWMutex
+	helloCacheTime  time.Time
+	helloCacheTTL   = 5 * time.Second
+)
+
+func invalidateHelloCache() {
+	helloCacheMutex.Lock()
+	helloCache = nil
+	helloCacheMutex.Unlock()
+}
+
 func (s *MiruCoreServer) HelloMiru(ctx context.Context, req *proto.HelloMiruRequest) (*proto.HelloMiruResponse, error) {
+	helloCacheMutex.RLock()
+	cached := helloCache
+	if cached != nil && time.Since(helloCacheTime) < helloCacheTTL {
+		helloCacheMutex.RUnlock()
+		b, _ := pb.Marshal(cached)
+		out := &proto.HelloMiruResponse{}
+		pb.Unmarshal(b, out)
+		return out, nil
+	}
+	helloCacheMutex.RUnlock()
+
 	res, err := handler.HelloMiru()
 	if err != nil {
 		return nil, err
@@ -87,6 +113,11 @@ func (s *MiruCoreServer) HelloMiru(ctx context.Context, req *proto.HelloMiruRequ
 		resp.Torrent = &proto.TorrentStats{}
 	}
 
+	helloCacheMutex.Lock()
+	helloCache = resp
+	helloCacheTime = time.Now()
+	helloCacheMutex.Unlock()
+
 	return resp, nil
 }
 
@@ -97,6 +128,8 @@ func StartServer() {
 		logger.Printf("failed to listen for gRPC: %v", err)
 		return
 	}
+
+	event.SetHelloCacheInvalidator(invalidateHelloCache)
 
 	s := grpc.NewServer()
 	srv := &MiruCoreServer{}

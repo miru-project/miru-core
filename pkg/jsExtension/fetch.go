@@ -204,41 +204,36 @@ func (api *ExtApi) initFetch(vm *goja.Runtime, job *Job) {
 
 		// Capture event for dev mode if anyone is listening
 		if event.GlobalBus.HasSubscribers() {
-			status := 0
-			var resHeaders string
-			if res.Res != nil {
-				status = res.Res.StatusCode()
-				resHeaders = res.Res.Header.String()
+			status := res.StatusCode
+			resHeaders := fmt.Sprintf("%v", res.Headers)
+
+			resBody := res.Body
+			if len(resBody) > 100<<10 {
+				resBody = resBody[:100<<10]
 			}
 
 			go func(s int, h string, b string) {
 				event.SendDevNetwork(&proto.DevNetworkEvent{
-					Package:        pkg,
-					Url:            fetchUrl,
-					Method:         requestOptions.Method,
-					Status:         int32(s),
-					Duration:       duration,
-					Timestamp:      time.Now().UnixMilli(),
-					RequestHeaders: fmt.Sprintf("%v", requestOptions.Headers),
-					RequestBody:    requestOptions.RequestBody,
+					Package:         pkg,
+					Url:             fetchUrl,
+					Method:          requestOptions.Method,
+					Status:          int32(s),
+					Duration:        duration,
+					Timestamp:       time.Now().UnixMilli(),
+					RequestHeaders:  fmt.Sprintf("%v", requestOptions.Headers),
+					RequestBody:     requestOptions.RequestBody,
 					ResponseHeaders: h,
 					ResponseBody:    b,
 				})
-			}(status, resHeaders, res.Body)
+			}(status, resHeaders, resBody)
 		}
 
 		if err != nil {
 			panic(err.Error())
 		}
 
-		headers := make(map[string]string)
-		var status int
-		if res.Res != nil {
-			status = res.Res.StatusCode()
-			res.Res.Header.VisitAll(func(key, value []byte) {
-				headers[string(key)] = string(value)
-			})
-		}
+		headers := res.Headers
+		status := res.StatusCode
 
 		return map[string]any{
 			"status":     status,

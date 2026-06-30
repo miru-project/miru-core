@@ -4,6 +4,7 @@ import (
 	"compress/gzip"
 	"compress/zlib"
 	"context"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -21,8 +22,10 @@ import (
 var defaultClient *fasthttp.Client
 
 type Response[T StringOrBytes] struct {
-	Res  *fasthttp.Response
-	Body T
+	Res        *fasthttp.Response
+	Body       T
+	StatusCode int
+	Headers    map[string]string
 }
 
 // Request makes an HTTP request and returns the response as type T.
@@ -73,8 +76,10 @@ func requestWithCycleTLS[T StringOrBytes](requrl string, option *RequestOptions)
 	jar.SetCookies(reqUrl, res.Cookies)
 
 	return Response[T]{
-		Res:  &fasthttp.Response{},
-		Body: any(res.Body).(T),
+		Res:        nil,
+		Body:       any(res.Body).(T),
+		StatusCode: res.Status,
+		Headers:    res.Headers,
 	}, nil
 }
 
@@ -152,10 +157,10 @@ func request[T StringOrBytes](reqUrl string, option *RequestOptions, readPrefere
 	req := fasthttp.AcquireRequest()
 	res := fasthttp.AcquireResponse()
 	defer fasthttp.ReleaseRequest(req)
-	defer fasthttp.ReleaseResponse(res)
 
 	client, err := prepareRequest(req, reqUrl, option)
 	if err != nil {
+		fasthttp.ReleaseResponse(res)
 		return Response[T]{Res: res}, err
 	}
 
@@ -166,17 +171,28 @@ func request[T StringOrBytes](reqUrl string, option *RequestOptions, readPrefere
 	}
 
 	if err != nil {
+		fasthttp.ReleaseResponse(res)
 		return Response[T]{Res: res}, err
 	}
 
 	// Read the response body
 	body, err := readPreference(res)
 	if err != nil {
+		fasthttp.ReleaseResponse(res)
 		return Response[T]{Res: res}, err
 	}
 
 	u, _ := url.Parse(reqUrl)
 	saveFasthttpCookies(u, res)
+
+	statusCode := res.StatusCode()
+	headers := make(map[string]string)
+	res.Header.VisitAll(func(key, value []byte) {
+		headers[string(key)] = string(value)
+	})
+
+	fasthttp.ReleaseResponse(res)
+	res = nil
 
 	var result T
 
@@ -188,8 +204,10 @@ func request[T StringOrBytes](reqUrl string, option *RequestOptions, readPrefere
 	}
 
 	return Response[T]{
-		Res:  res,
-		Body: result,
+		Res:        nil,
+		Body:       result,
+		StatusCode: statusCode,
+		Headers:    headers,
 	}, nil
 }
 
@@ -202,9 +220,29 @@ func checkRequestMethod(method string) string {
 	}
 }
 
+const DefaultMaxBodySize = 10 << 20
+
+var maxBodySize = DefaultMaxBodySize
+
+func SetMaxBodySize(n int) {
+	if n <= 0 {
+		maxBodySize = DefaultMaxBodySize
+		return
+	}
+	maxBodySize = n
+}
+
 // ReadAll reads the entire response body and returns it as a byte slice.
 func ReadAll(res *fasthttp.Response) ([]byte, error) {
-	// check if compressed
+	if cl := res.Header.ContentLength(); cl > maxBodySize {
+		return nil, fmt.Errorf("response body too large: %d bytes (limit %d)", cl, maxBodySize)
+	}
+
+	body := res.Body()
+	if len(body) > maxBodySize {
+		return nil, fmt.Errorf("response body too large: %d bytes (limit %d)", len(body), maxBodySize)
+	}
+
 	contentEncoding := string(res.Header.Peek("Content-Encoding"))
 	switch contentEncoding {
 	case "gzip":
@@ -216,7 +254,7 @@ func ReadAll(res *fasthttp.Response) ([]byte, error) {
 	case "zstd":
 		return res.BodyUnzstd()
 	default:
-		return res.Body(), nil
+		return body, nil
 	}
 }
 

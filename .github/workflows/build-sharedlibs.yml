@@ -167,3 +167,88 @@ jobs:
         with:
           name: miru-android-artifacts.aar
           path: binary/build/miru.aar
+
+  build-android-c-share:
+    name: Build Android c-shared libraries (.so)
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch:
+          - goarch: arm64
+            cc: aarch64-linux-android21-clang
+            cxx: aarch64-linux-android21-clang++
+            output: libmiru_arm64.so
+          - goarch: arm
+            cc: armv7a-linux-androideabi21-clang
+            cxx: armv7a-linux-androideabi21-clang++
+            output: libmiru_armeabi-v7a.so
+          - goarch: amd64
+            cc: x86_64-linux-android21-clang
+            cxx: x86_64-linux-android21-clang++
+            output: libmiru_x86_64.so
+          - goarch: "386"
+            cc: i686-linux-android21-clang
+            cxx: i686-linux-android21-clang++
+            output: libmiru_x86.so
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Prepare build dir
+        run: mkdir -p binary/build
+
+      - name: Install Android NDK
+        run: |
+          sdk_root="$HOME/Android/Sdk"
+          mkdir -p "$sdk_root"
+          ndk_version=27.3.13750724
+          ndk_zip="android-ndk-r27d-linux.zip"
+          ndk_url="https://dl.google.com/android/repository/android-ndk-r27d-linux.zip"
+          echo "Downloading NDK $ndk_version from $ndk_url"
+          wget -q "$ndk_url" -O "$ndk_zip" || {
+            echo "NDK download failed, aborting"
+            exit 1
+          }
+          mkdir -p "$sdk_root/ndk/$ndk_version"
+          unzip -q "$ndk_zip" -d "$sdk_root/ndk/$ndk_version/tmp_unzip"
+          TMP_DIR="$sdk_root/ndk/$ndk_version/tmp_unzip"
+          entries=("$TMP_DIR"/*)
+          if [ ${#entries[@]} -eq 1 ] && [ -d "${entries[0]}" ]; then
+            mv "${entries[0]}"/* "$sdk_root/ndk/$ndk_version/" || true
+          else
+            mv "$TMP_DIR"/* "$sdk_root/ndk/$ndk_version/" || true
+          fi
+          rm -rf "$TMP_DIR" "$ndk_zip"
+          # Locate the NDK toolchain bin directory
+          TOOLCHAIN_DIR=$(find "$sdk_root/ndk/$ndk_version/toolchains/llvm/prebuilt" -type d -name "bin" | head -1)
+          if [ -z "$TOOLCHAIN_DIR" ]; then
+            echo "ERROR: NDK toolchain bin directory not found"
+            exit 1
+          fi
+          echo "NDK toolchain found at: $TOOLCHAIN_DIR"
+          echo "ANDROID_NDK_HOME=$sdk_root/ndk/$ndk_version" >> $GITHUB_ENV
+          echo "$TOOLCHAIN_DIR" >> $GITHUB_PATH
+
+      - name: Build .so (${{ matrix.arch.goarch }})
+        env:
+          CGO_ENABLED: '1'
+          GOOS: android
+          GOARCH: ${{ matrix.arch.goarch }}
+          CC: ${{ matrix.arch.cc }}
+          CXX: ${{ matrix.arch.cxx }}
+        run: |
+          echo "Building Android c-shared library for ${{ matrix.arch.goarch }}"
+          LD_FLAG="-s -w -checklinkname=0"
+          GO_OUTPUT="binary/build/${{ matrix.arch.output }}"
+          go build -tags nosqlite -o ${GO_OUTPUT} -ldflags="${LD_FLAG}" -trimpath -buildmode=c-shared main.go
+
+      - name: Upload ${{ matrix.arch.output }} artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.arch.output }}
+          path: binary/build/${{ matrix.arch.output }}

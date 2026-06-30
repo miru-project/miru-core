@@ -221,12 +221,8 @@ func (api *ExtApi) registerFunction(vm *goja.Runtime, job Job) {
 
 		// Capture event for dev mode if anyone is listening
 		if event.GlobalBus.HasSubscribers() {
-			status := 0
-			var resHeaders string
-			if res.Res != nil {
-				status = res.Res.StatusCode()
-				resHeaders = res.Res.Header.String()
-			}
+			status := res.StatusCode
+			resHeaders := fmt.Sprintf("%v", res.Headers)
 
 			go func(s int, h string, b string) {
 				event.SendDevNetwork(&proto.DevNetworkEvent{

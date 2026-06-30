@@ -65,9 +65,12 @@ func (s *MiruCoreServer) Watch(ctx context.Context, req *proto.WatchRequest) (*p
 		// V2 returns the generic ExtensionWatch which contains mirrors
 		data, err := jsExtension.Unmarshal[proto.ExtensionWatch](res.Data)
 		if err != nil {
-			// Fallback to raw if unmarshal fails
-			jsonData, _ := json.Marshal(res.Data)
-			watchResp.Data = &proto.WatchResponse_Raw{Raw: string(jsonData)}
+			if s, ok := res.Data.(string); ok {
+				watchResp.Data = &proto.WatchResponse_Raw{Raw: s}
+			} else {
+				jsonData, _ := json.Marshal(res.Data)
+				watchResp.Data = &proto.WatchResponse_Raw{Raw: string(jsonData)}
+			}
 		} else {
 			watchResp.Data = &proto.WatchResponse_Watch{Watch: data}
 		}
@@ -129,9 +132,10 @@ func (s *MiruCoreServer) Mirror(ctx context.Context, req *proto.MirrorRequest) (
 		}
 		mirrorResp.Data = &proto.MirrorResponse_Fikushon{Fikushon: data}
 	default:
-		// Fallback to raw string
 		if val, ok := res.(string); ok {
 			mirrorResp.Data = &proto.MirrorResponse_Raw{Raw: val}
+		} else if b, ok := res.([]byte); ok {
+			mirrorResp.Data = &proto.MirrorResponse_Raw{Raw: string(b)}
 		} else {
 			jsonData, _ := json.Marshal(res)
 			mirrorResp.Data = &proto.MirrorResponse_Raw{Raw: string(jsonData)}

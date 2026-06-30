@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 
 	"github.com/andybalholm/brotli"
@@ -15,6 +16,20 @@ import (
 	"github.com/dop251/goja_nodejs/require"
 	"github.com/klauspost/compress/zstd"
 )
+
+const maxDecompressedSize = 50 << 20
+
+func boundedReadAll(r io.Reader) ([]byte, error) {
+	var buf bytes.Buffer
+	_, err := buf.ReadFrom(io.LimitReader(r, maxDecompressedSize+1))
+	if err != nil {
+		return nil, err
+	}
+	if buf.Len() > maxDecompressedSize {
+		return nil, fmt.Errorf("decompressed size exceeds %d bytes", maxDecompressedSize)
+	}
+	return buf.Bytes(), nil
+}
 
 // RegisterZlibModule registers the zlib module as a require-able native module
 // in the shared require registry, so it can be loaded via
@@ -104,7 +119,7 @@ func buildZlibObject(vm *goja.Runtime) *goja.Object {
 		r, err := gzip.NewReader(bytes.NewReader(data))
 		if err == nil {
 			defer r.Close()
-			result, readErr := io.ReadAll(r)
+			result, readErr := boundedReadAll(r)
 			if readErr == nil {
 				return bytesToUint8Array(vm, result)
 			}
@@ -143,7 +158,7 @@ func buildZlibObject(vm *goja.Runtime) *goja.Object {
 		}
 		defer fr.Close()
 
-		result, err := io.ReadAll(fr)
+		result, err := boundedReadAll(fr)
 		if err != nil {
 			panic(vm.ToValue(fmt.Sprintf("Error: zlib.gunzipSync: %v", err)))
 		}
@@ -185,7 +200,7 @@ func buildZlibObject(vm *goja.Runtime) *goja.Object {
 		}
 		defer r.Close()
 
-		result, err := io.ReadAll(r)
+		result, err := boundedReadAll(r)
 		if err != nil {
 			panic(vm.ToValue(fmt.Sprintf("Error: zlib.inflateSync: %v", err)))
 		}
@@ -223,7 +238,7 @@ func buildZlibObject(vm *goja.Runtime) *goja.Object {
 		data := jsValueToBytes(input)
 		r := brotli.NewReader(bytes.NewReader(data))
 
-		result, err := io.ReadAll(r)
+		result, err := boundedReadAll(r)
 		if err != nil {
 			panic(vm.ToValue(fmt.Sprintf("Error: zlib.brotliDecompressSync: %v", err)))
 		}
@@ -329,7 +344,7 @@ func jsValueToBytes(val goja.Value) []byte {
 func readTypedArrayBytes(obj *goja.Object, length int) []byte {
 	buf := make([]byte, length)
 	for i := 0; i < length; i++ {
-		idx := obj.Get(fmt.Sprintf("%d", i))
+		idx := obj.Get(strconv.Itoa(i))
 		if idx == nil || goja.IsUndefined(idx) {
 			continue
 		}
@@ -352,15 +367,17 @@ func bytesToUint8Array(vm *goja.Runtime, b []byte) goja.Value {
 		return empty
 	}
 
-	jsCode := fmt.Sprintf("new Uint8Array([")
+	var sb strings.Builder
+	sb.Grow(len(b)*4 + 20)
+	sb.WriteString("new Uint8Array([")
 	for i, c := range b {
 		if i > 0 {
-			jsCode += ","
+			sb.WriteByte(',')
 		}
-		jsCode += fmt.Sprintf("%d", c)
+		sb.WriteString(strconv.Itoa(int(c)))
 	}
-	jsCode += "])"
-	val, err := vm.RunString(jsCode)
+	sb.WriteString("])")
+	val, err := vm.RunString(sb.String())
 	if err != nil {
 		empty, _ := vm.RunString("new Uint8Array(0)")
 		return empty

@@ -4,6 +4,12 @@ import (
 	"sync"
 )
 
+var invalidateHelloMiruCache func()
+
+func SetHelloCacheInvalidator(fn func()) {
+	invalidateHelloMiruCache = fn
+}
+
 type EventType string
 
 const (
@@ -66,6 +72,9 @@ func SendDownloadUpdate(data any) {
 		Type: DownloadStatusUpdate,
 		Data: data,
 	})
+	if invalidateHelloMiruCache != nil {
+		invalidateHelloMiruCache()
+	}
 }
 
 func SendExtensionUpdate(data any) {
@@ -73,6 +82,19 @@ func SendExtensionUpdate(data any) {
 		Type: ExtensionUpdate,
 		Data: data,
 	})
+	if invalidateHelloMiruCache != nil {
+		invalidateHelloMiruCache()
+	}
+}
+
+func SendHistoryUpdate(data any) {
+	GlobalBus.Publish(Event{
+		Type: HistoryUpdate,
+		Data: data,
+	})
+	if invalidateHelloMiruCache != nil {
+		invalidateHelloMiruCache()
+	}
 }
 
 func SendDevLog(data any) {
