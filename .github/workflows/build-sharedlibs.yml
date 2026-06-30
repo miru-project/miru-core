@@ -225,14 +225,31 @@ jobs:
           fi
           rm -rf "$TMP_DIR" "$ndk_zip"
           # Store the NDK toolchain path in an env var for use in subsequent steps
-          TOOLCHAIN_DIR=$(find "$sdk_root/ndk/$ndk_version/toolchains/llvm/prebuilt" -type d -name "bin" | head -1)
-          if [ -z "$TOOLCHAIN_DIR" ]; then
+          # Explore the extracted NDK structure to find the correct bin directory
+          NDK_ROOT="$sdk_root/ndk/$ndk_version"
+          echo "ANDROID_NDK_HOME=$NDK_ROOT" >> $GITHUB_ENV
+          echo "NDK root contents:"
+          ls "$NDK_ROOT" 2>/dev/null || echo "  (empty)"
+          # The NDK puts clang compilers under toolchains/llvm/prebuilt/<host>/bin
+          PREBUILT_DIR="$NDK_ROOT/toolchains/llvm/prebuilt"
+          if [ -d "$PREBUILT_DIR" ]; then
+            echo "Prebuilt dir contents:"
+            ls "$PREBUILT_DIR" 2>/dev/null
+            HOST_DIR=$(ls "$PREBUILT_DIR" 2>/dev/null | head -1)
+            if [ -n "$HOST_DIR" ] && [ -d "$PREBUILT_DIR/$HOST_DIR/bin" ]; then
+              TOOLCHAIN_DIR="$PREBUILT_DIR/$HOST_DIR/bin"
+            fi
+          fi
+          if [ -z "$TOOLCHAIN_DIR" ] || [ ! -d "$TOOLCHAIN_DIR" ]; then
             echo "ERROR: NDK toolchain bin directory not found"
+            echo "Searching for bin directories under $NDK_ROOT:"
+            find "$NDK_ROOT" -maxdepth 7 -type d -name "bin" 2>/dev/null
             exit 1
           fi
           echo "NDK toolchain found at: $TOOLCHAIN_DIR"
-          echo "ANDROID_NDK_HOME=$sdk_root/ndk/$ndk_version" >> $GITHUB_ENV
           echo "NDK_TOOLCHAIN_DIR=$TOOLCHAIN_DIR" >> $GITHUB_ENV
+          echo "Available compilers:"
+          ls "$TOOLCHAIN_DIR"/*clang* 2>/dev/null || echo "  (no clang found)"
 
       - name: Build .so (${{ matrix.arch.goarch }})
         run: |
