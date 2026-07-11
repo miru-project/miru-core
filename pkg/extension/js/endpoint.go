@@ -1,14 +1,11 @@
-package jsExtension
+package js
 
 import (
-	"encoding/base64"
-	"errors"
 	"fmt"
 	"net/url"
 	"path/filepath"
-	"reflect"
 
-	"github.com/go-viper/mapstructure/v2"
+	"github.com/miru-project/miru-core/pkg/extension"
 	"github.com/miru-project/miru-core/pkg/torrent"
 	"github.com/miru-project/miru-core/proto/generate/proto"
 )
@@ -21,46 +18,6 @@ func GetExtensionMeta(pkg string) (*Ext, error) {
 	return api.Ext, nil
 }
 
-func Unmarshal[T any](input any) (*T, error) {
-	var result T
-	config := &mapstructure.DecoderConfig{
-		Metadata: nil,
-		Result:   &result,
-		TagName:  "json",
-		DecodeHook: func(f reflect.Type, t reflect.Type, data interface{}) (interface{}, error) {
-			if f.Kind() == reflect.Slice && f.Elem().Kind() == reflect.Uint8 && t.Kind() == reflect.String {
-				return base64.StdEncoding.EncodeToString(data.([]uint8)), nil
-			}
-			return data, nil
-		},
-	}
-	decoder, err := mapstructure.NewDecoder(config)
-	if err != nil {
-		return nil, err
-	}
-	err = decoder.Decode(input)
-	if err != nil {
-		return nil, err
-	}
-	return &result, nil
-}
-
-func UnmarshalList[T any](input any) ([]*T, error) {
-	items, ok := input.([]any)
-	if !ok {
-		return nil, errors.New("input is not a list")
-	}
-	result := make([]*T, len(items))
-	for i, item := range items {
-		u, err := Unmarshal[T](item)
-		if err != nil {
-			return nil, err
-		}
-		result[i] = u
-	}
-	return result, nil
-}
-
 // Extension latest should contain V1 and V2 api
 func Latest[T any](pkg string, page int) ([]*T, error) {
 	api, e := getPkgFromCache(pkg)
@@ -71,7 +28,7 @@ func Latest[T any](pkg string, page int) ([]*T, error) {
 	if err != nil {
 		return nil, err
 	}
-	return UnmarshalList[T](res)
+	return extension.UnmarshalList[T](res)
 }
 
 // Extension search should contain V1 and V2 api
@@ -84,7 +41,7 @@ func Search[T proto.ExtensionListItem](pkg string, page int, kw string, filter s
 	if err != nil {
 		return nil, err
 	}
-	return UnmarshalList[T](res)
+	return extension.UnmarshalList[T](res)
 }
 
 // handleMediaType handles magnet and torrent links for bangumi type
@@ -145,23 +102,23 @@ func handleMediaType(api *ExtApi, pkg string, o any) (any, error) {
 }
 
 // Extension watch should contain V1 and V2 api
-func Watch(pkg string, watchLink string) (any, error, *ExtApi) {
+func Watch(pkg string, watchLink string) (any, *extension.Extension, error) {
 	api, e := getPkgFromCache(pkg)
 	if e != nil {
-		return nil, e, nil
+		return nil, nil, e
 	}
 
 	o, e := api.asyncCallBack(api, pkg, fmt.Sprintf(api.watchEval, watchLink))
 	if e != nil {
-		return nil, e, api
+		return nil, nil, e
 	}
 
 	switch api.Ext.ApiVersion {
 	case "2":
-		return o, nil, api
+		return o, api.Ext, nil
 	default:
 		resolved, err := handleMediaType(api, pkg, o)
-		return resolved, err, api
+		return resolved, api.Ext, err
 	}
 }
 
@@ -174,7 +131,7 @@ func Detail[T proto.ExtensionDetail](pkg string, url string) (*T, error) {
 	if err != nil {
 		return nil, err
 	}
-	return Unmarshal[T](res)
+	return extension.Unmarshal[T](res)
 }
 
 func Mirror(pkg string, watchUrl string) (any, error) {
@@ -187,6 +144,18 @@ func Mirror(pkg string, watchUrl string) (any, error) {
 		return "", err
 	}
 	return handleMediaType(api, pkg, res)
+}
+
+// Unmarshal is retained as a package-level helper (delegating to the shared
+// runtime-agnostic implementation) for backwards compatibility with callers
+// inside this package and tests.
+func Unmarshal[T any](input any) (*T, error) {
+	return extension.Unmarshal[T](input)
+}
+
+// UnmarshalList is the list variant of Unmarshal.
+func UnmarshalList[T any](input any) ([]*T, error) {
+	return extension.UnmarshalList[T](input)
 }
 
 func CreateFilter(pkg string, filter string) (map[string]*proto.ExtensionFilter, error) {

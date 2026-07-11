@@ -1,6 +1,6 @@
-package jsExtension
+package extension
 
-type Ext struct {
+type Extension struct {
 	Name        string   `json:"name"`
 	Version     string   `json:"version"`
 	Author      string   `json:"author"`
@@ -15,4 +15,11 @@ type Ext struct {
 	Error       string   `json:"error,omitempty"`
 	Context     *string
 	WatchType   string `json:"type"`
+
+	// FileLang is the runtime language detected from the source file's
+	// extension (".js" -> LanguageJS, ".go" -> LanguageGolang). It is set by
+	// ParseExtensionMetadata and lets each runtime route an extension to the
+	// correct backend without re-deriving the language from the (metadata)
+	// Name field. The metadata @lang value is unrelated and lives in Lang.
+	FileLang Language `json:"-"`
 }

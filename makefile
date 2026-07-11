@@ -10,3 +10,7 @@ gen-ent:
 	go generate ./ent
 
 regenerate: gen-proto gen-ent 
+
+gen-deps:
+	go install github.com/open2b/scriggo/cmd/scriggo@latest
+	scriggo import -o pkg/extension/golang/packages.go 

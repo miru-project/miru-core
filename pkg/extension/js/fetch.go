@@ -1,4 +1,4 @@
-package jsExtension
+package js
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 
 	"github.com/dop251/goja"
 	"github.com/miru-project/miru-core/pkg/event"
-	"github.com/miru-project/miru-core/pkg/logger"
+	log "github.com/miru-project/miru-core/pkg/logger"
 	"github.com/miru-project/miru-core/pkg/network"
 	"github.com/miru-project/miru-core/proto/generate/proto"
 )
@@ -260,6 +260,6 @@ func (api *ExtApi) initFetch(vm *goja.Runtime, job *Job) {
 		};
 	`)
 	if err != nil {
-		logger.Println("Error setting global fetch:", err)
+		log.Println("Error setting global fetch:", err)
 	}
 }

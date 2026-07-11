@@ -7,10 +7,11 @@ import (
 	fasthttp_router "github.com/fasthttp/router"
 	"github.com/miru-project/miru-core/config"
 	"github.com/miru-project/miru-core/ext"
+	golang "github.com/miru-project/miru-core/pkg/extension/golang"
 	"github.com/miru-project/miru-core/pkg/db"
 	"github.com/miru-project/miru-core/pkg/download"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
-	jsext "github.com/miru-project/miru-core/pkg/jsExtension"
+	jsext "github.com/miru-project/miru-core/pkg/extension/js"
 	log "github.com/miru-project/miru-core/pkg/logger"
 	"github.com/miru-project/miru-core/pkg/network"
 	"github.com/miru-project/miru-core/pkg/torrent"
@@ -59,5 +60,14 @@ func Init() {
 	torrent.Init()
 	download.Init()
 	jsext.InitRuntime(config.Global.ExtensionPath, f)
+	// The Go/Scriggo extension runtime resolves packages by stat-ing
+	// <ExtensionDir>/<pkg>.go. Unlike js.ExtPath (set inside
+	// InitRuntime), golang.ExtensionDir is never initialized, so .go
+	// extensions could never be found. Set it here so .go extensions are
+	// discoverable and resolvable.
+	golang.ExtensionDir = config.Global.ExtensionPath
+	// Eagerly load Go/Scriggo extensions at startup (mirrors jsext.InitRuntime)
+	// so they are visibly loaded and any compile error surfaces early.
+	golang.LoadExtensions()
 	log.Println("Miru Core initialized successfully!")
 }

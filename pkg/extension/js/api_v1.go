@@ -1,4 +1,4 @@
-package jsExtension
+package js
 
 import (
 	log "github.com/miru-project/miru-core/pkg/logger"
@@ -21,7 +21,7 @@ func LoadApiV1(ext *Ext) {
 	api.initEvalV1String()
 	api.initRuntimeV1(ext.Pkg)
 	api.loadExtensionV1(ext.Pkg)
-	log.Println("Extension loaded (V1):", ext.Name, ext.Pkg)
+	log.Println("Extension loaded (V1) [JS]:", ext.Name, ext.Pkg)
 
 }
 

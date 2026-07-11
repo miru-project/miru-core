@@ -13,7 +13,7 @@ import (
 	"github.com/miru-project/miru-core/pkg/download"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 	"github.com/miru-project/miru-core/pkg/event"
-	"github.com/miru-project/miru-core/pkg/jsExtension"
+	"github.com/miru-project/miru-core/pkg/extension/js"
 	"github.com/miru-project/miru-core/pkg/logger"
 	"github.com/miru-project/miru-core/pkg/torrent"
 	"github.com/miru-project/miru-core/proto/generate/proto"
@@ -65,7 +65,7 @@ func (s *MiruCoreServer) HelloMiru(ctx context.Context, req *proto.HelloMiruRequ
 	}
 
 	data := res.Data.(map[string]any)
-	extMeta := data["extensionMeta"].([]*jsExtension.Ext)
+	extMeta := data["extensionMeta"].([]*js.Ext)
 	downloadStatus := data["downloadStatus"].(map[int]*download.Progress)
 
 	protoExtMeta := make([]*proto.ExtensionMeta, len(extMeta))
@@ -147,7 +147,7 @@ func StartServer() {
 	download.OnStatusUpdate = func(status map[int]*download.Progress) {
 		event.SendDownloadUpdate(status)
 	}
-	jsExtension.OnExtensionUpdate = func(exts []*jsExtension.ExtApi) {
+	js.OnExtensionUpdate = func(exts []*js.ExtApi) {
 		event.SendExtensionUpdate(exts)
 	}
 

@@ -4,11 +4,13 @@ go 1.26.4
 
 require (
 	entgo.io/ent v0.14.6
+	github.com/PuerkitoBio/goquery v1.12.0
 	github.com/dop251/goja v0.0.0-20260627200808-0b76000cabdb
 	github.com/dop251/goja_nodejs v0.0.0-20260212111938-1f56ff5bcf14
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/go-viper/mapstructure/v2 v2.5.0
 	github.com/grafov/m3u8 v0.12.1
+	github.com/open2b/scriggo v0.61.1
 	go.nhat.io/cookiejar v0.3.0
 )
 
@@ -20,7 +22,18 @@ require (
 	modernc.org/sqlite v1.53.0
 )
 
-require github.com/anacrolix/missinggo/v2 v2.10.0 // indirect
+require (
+	github.com/anacrolix/missinggo/v2 v2.10.0 // indirect
+	github.com/andybalholm/cascadia v1.3.3 // indirect
+	github.com/bdandy/go-errors v1.2.2 // indirect
+	github.com/bdandy/go-socks4 v1.2.3 // indirect
+	github.com/bogdanfinn/fhttp v0.6.8 // indirect
+	github.com/bogdanfinn/quic-go-utls v1.0.9-utls // indirect
+	github.com/bogdanfinn/tls-client v1.15.1 // direct
+	github.com/bogdanfinn/utls v1.7.7-barnius // indirect
+	github.com/bogdanfinn/websocket v1.5.5-barnius // indirect
+	github.com/tam7t/hpkp v0.0.0-20160821193359-2b70b4024ed5 // indirect
+)
 
 require (
 	github.com/RoaringBitmap/roaring v1.9.4 // indirect
@@ -159,3 +172,5 @@ require (
 	golang.org/x/text v0.38.0 // indirect
 	h12.io/socks v1.0.3 // indirect
 )
+
+replace github.com/open2b/scriggo => github.com/appdevelpo/scriggo v0.0.0-20260711075642-2f018f230f63

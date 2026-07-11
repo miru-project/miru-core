@@ -1,4 +1,4 @@
-package jsExtension
+package js
 
 import (
 	"fmt"
@@ -10,7 +10,6 @@ import (
 	"github.com/dop251/goja_nodejs/url"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 	"github.com/miru-project/miru-core/pkg/event"
-	"github.com/miru-project/miru-core/pkg/logger"
 	log "github.com/miru-project/miru-core/pkg/logger"
 	"github.com/miru-project/miru-core/proto/generate/proto"
 )
@@ -58,7 +57,7 @@ func initModule() {
 	parseHtmlVal := vm.Get("parseHTML")
 	if parseHtmlVal != nil && !goja.IsUndefined(parseHtmlVal) {
 		if _, ok := parseHtmlVal.Export().(func(goja.FunctionCall) goja.Value); ok {
-			logger.Println("parseHTML loaded")
+			log.Println("parseHTML loaded")
 		}
 	}
 

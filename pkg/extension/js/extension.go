@@ -1,21 +1,19 @@
-package jsExtension
+package js
 
 import (
 	"embed"
-	"errors"
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
 	"sync"
 	"time"
 
+	"github.com/miru-project/miru-core/pkg/extension"
 	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/dop251/goja"
 	"github.com/dop251/goja_nodejs/eventloop"
 	"github.com/dop251/goja_nodejs/require"
-	"github.com/fsnotify/fsnotify"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 )
 
@@ -35,6 +33,8 @@ var fs embed.FS
 var jsRoot string
 
 var ExtPath string
+
+type Ext = extension.Extension
 
 type ExtApi struct {
 	Ext              *Ext
@@ -74,7 +74,11 @@ func (j *Job) Done() {
 // Entry point of miru extension runtime
 func InitRuntime(extPath string, f embed.FS) {
 
-	exts := filterExts(extPath)
+	exts, invalid := extension.FilterExtensions(extPath)
+	for name, msg := range invalid {
+		ApiPkgCache.Store(name, &ExtApi{Ext: &Ext{Name: name}, service: nil})
+		log.Println("Extension load error:", name, msg)
+	}
 	fs = f
 	ExtPath = extPath
 
@@ -112,6 +116,15 @@ func InitRuntime(extPath string, f embed.FS) {
 
 	}()
 	for _, ext := range exts {
+		// FilterExtensions is runtime-agnostic: it returns every supported
+		// extension source file, including .go files that belong to the
+		// Golang/Scriggo runtime. This JS runtime must only compile and
+		// register .js extensions. Feeding a .go source to the goja compiler
+		// (e.g. the `package miruro` declaration) is exactly what produced
+		// errors such as `SyntaxError: example.v2.js: Unexpected identifier`.
+		if ext.FileLang != extension.LanguageJS {
+			continue
+		}
 		loadExtApi(ext)
 	}
 }
@@ -137,55 +150,37 @@ func compileExtension(ext *Ext) (*goja.Program, error) {
 	return compile, e
 }
 
-// Watch the extension directory for changes
+// WatchDir watches the extension directory and reloads JavaScript extensions
+// when their source changes. The underlying watch is provided by the shared
+// extension.WatchExtensions, which routes each event by file extension; the JS
+// runtime only acts on .js events.
 func WatchDir(dir string) {
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		log.Fatal("Failed to start fsnotiy: ", err)
-	}
-
-	go func() {
-		locked := false
-		for {
-			select {
-			case event := <-watcher.Events:
-
-				// Write or Modify event
-				if event.Has(fsnotify.Write|fsnotify.Create) && !locked {
-					log.Println("Modified file:", event.Name)
-					locked = true
-					ext := &Ext{Name: filepath.Base(event.Name)}
-					err := ext.filterExt(event.Name)
-					if err != nil {
-						log.Println("File is not a valid extension:", event.Name)
-						locked = false
-						continue
-					}
-
-					loadExtApi(ext)
-					locked = false
-				}
-
-				// Call when file is missing
-				if event.Has(fsnotify.Rename | fsnotify.Remove) {
-					log.Println("Removed file:", event.Name)
-					name := filepath.Base(event.Name)
-					pkg := strings.TrimSuffix(name, ".js")
-					ApiPkgCache.Delete(pkg)
-				}
-			case err := <-watcher.Errors:
-				if err != nil {
-					log.Println("Error:", err)
-				}
-			}
+	_, err := extension.WatchExtensions([]string{dir}, func(lang extension.Language, pkg string) {
+		if lang != extension.LanguageJS {
+			return
 		}
-	}()
-
-	err = watcher.Add(dir)
-	log.Println("Watching directory:", dir)
+		fileLoc := filepath.Join(dir, pkg+string(lang))
+		if _, statErr := os.Stat(fileLoc); os.IsNotExist(statErr) {
+			// Removed or renamed: evict from the cache.
+			ApiPkgCache.Delete(pkg)
+			return
+		}
+		f, readErr := os.ReadFile(fileLoc)
+		if readErr != nil {
+			log.Println("File is not a valid extension:", fileLoc)
+			return
+		}
+		ext, parseErr := extension.ParseExtensionMetadata(string(f), pkg+string(lang))
+		if parseErr != nil {
+			log.Println("File is not a valid extension:", fileLoc, parseErr)
+			return
+		}
+		loadExtApi(ext)
+	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Failed to start fsnotify: ", err)
 	}
+	log.Println("Watching directory:", dir)
 }
 
 // replaceClassExtendsDeclaration replaces `class X extends Extension` with `X = class extends Extension {`
@@ -194,122 +189,22 @@ func replaceClassExtendsDeclaration(jsCode string) string {
 	return re.ReplaceAllString(jsCode, "globalThis.Ext = class extends Extension {")
 }
 
-func filterExts(dir string) []*Ext {
-	_, err := os.Stat(dir)
-	if os.IsNotExist(err) {
-		if e := os.Mkdir(dir, os.ModePerm); e != nil {
-			log.Println("Failed to create directory:", dir)
-			return nil
-		}
-	}
-	files := errorhandle.HandleFatal(os.ReadDir(dir))
-	var exts []*Ext
-	for _, file := range files {
-
-		if file.IsDir() {
-			continue
-		}
-		name := file.Name()
-		ext := &Ext{Name: name}
-		if err := ext.filterExt(dir + "/" + name); err == nil {
-			exts = append(exts, ext)
-		} else {
-			ApiPkgCache.Store(name, &ExtApi{Ext: &Ext{Name: name}, service: nil})
-		}
-	}
-	return exts
-}
-
-func (ext *Ext) filterExt(fileLoc string) error {
-	name := filepath.Base(fileLoc)
-	re := regexp.MustCompile(`\w.+\.\w+\.js$`)
-	if !(re.MatchString(name)) {
-		return errors.New("invalid file name")
-	}
-	if _, e := os.Stat(fileLoc); os.IsNotExist(e) {
-		return e
-	}
-	f := errorhandle.HandleFatal(os.ReadFile(fileLoc))
-	err := ext.ParseExtMetadata(string(f), name)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-	return nil
-}
-
-func (ext *Ext) ParseExtMetadata(content string, fileName string) error {
-	err := error(nil)
-
-	// Regex to match @key value pattern
-
-	re := regexp.MustCompile(`@(\w+)\s+(.*)`)
-	matches := re.FindAllStringSubmatch(content, -1)
-
-	for _, match := range matches {
-		key := match[1]
-		value := strings.TrimSpace(match[2])
-
-		switch key {
-		case "name":
-			ext.Name = value
-		case "version":
-			ext.Version = value
-		case "author":
-			ext.Author = value
-		case "license":
-			ext.License = value
-		case "lang":
-			ext.Lang = value
-		case "icon":
-			ext.Icon = value
-		case "package":
-			ext.Pkg = value
-		case "webSite":
-			ext.Website = value
-		case "description":
-			ext.Description = value
-		case "apiVersion":
-			switch value {
-			case "2":
-				ext.ApiVersion = value
-			default:
-				ext.ApiVersion = "1"
-			}
-		case "type":
-			ext.WatchType = value
-		case "tags":
-			// Split tags by comma and trim whitespace
-			tagList := strings.Split(value, ",")
-			for i, tag := range tagList {
-				tagList[i] = strings.TrimSpace(tag)
-			}
-			ext.Tags = tagList
-		}
-	}
-
-	// make sure package name + .js equals file name
-
-	if ext.Pkg+".js" != fileName {
-		err = errors.New("package name does not match the file name \r\n file name:" + fileName + "\r\n package name:" + ext.Pkg)
-	}
-
-	// Save so that it can be accessed at initialization
-	ext.Context = &content
-	return err
-}
+// filterExts, filterExt and ParseExtMetadata have moved to the shared
+// pkg/extension package (see extension.FilterExtensions and
+// extension.ParseExtensionMetadata), which parses metadata universally for
+// both the JavaScript and Golang runtimes and routes by file extension.
 
 func getPkgFromCache(pkg string) (*ExtApi, error) {
 	api, ok := ApiPkgCache.Map.Load(pkg)
 	if ok {
 		return api.(*ExtApi), nil
 	}
-	ext := &Ext{Name: pkg + ".js"}
-	fileLoc, e := os.ReadFile(filepath.Join(ExtPath, pkg+".js"))
+	path := filepath.Join(ExtPath, pkg+string(extension.LanguageJS))
+	f, e := os.ReadFile(path)
 	if e != nil {
 		return nil, e
 	}
-	e = ext.filterExt(string(fileLoc))
+	ext, e := extension.ParseExtensionMetadata(string(f), pkg+string(extension.LanguageJS))
 	if e != nil {
 		return nil, e
 	}

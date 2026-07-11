@@ -1,4 +1,4 @@
-package jsExtension
+package js
 
 import (
 	"fmt"

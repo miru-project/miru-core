@@ -4,7 +4,7 @@ import (
 	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/pkg/download"
 	"github.com/miru-project/miru-core/pkg/event"
-	"github.com/miru-project/miru-core/pkg/jsExtension"
+	"github.com/miru-project/miru-core/pkg/extension/js"
 	"github.com/miru-project/miru-core/proto/generate/proto"
 )
 
@@ -33,7 +33,7 @@ func (s *MiruCoreServer) WatchEvents(req *proto.WatchEventsRequest, stream proto
 					},
 				}
 			case event.ExtensionUpdate:
-				exts := e.Data.([]*jsExtension.ExtApi)
+				exts := e.Data.([]*js.ExtApi)
 				protoExtMeta := make([]*proto.ExtensionMeta, len(exts))
 				for i, ea := range exts {
 					e := ea.Ext

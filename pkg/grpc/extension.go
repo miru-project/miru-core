@@ -7,7 +7,8 @@ import (
 	"strconv"
 
 	"github.com/miru-project/miru-core/pkg/db"
-	"github.com/miru-project/miru-core/pkg/jsExtension"
+	"github.com/miru-project/miru-core/pkg/extension/endpoint"
+	"github.com/miru-project/miru-core/pkg/extension/js"
 	"github.com/miru-project/miru-core/proto/generate/proto"
 	"github.com/miru-project/miru-core/router/handler"
 )
@@ -56,14 +57,17 @@ func (s *MiruCoreServer) Watch(ctx context.Context, req *proto.WatchRequest) (*p
 	if res.Code != 200 {
 		return nil, fmt.Errorf("watch failed with code %d: %s", res.Code, res.Message)
 	}
+	if api == nil {
+		return nil, fmt.Errorf("extension metadata not found for package %q", req.Pkg)
+	}
 
 	watchResp := &proto.WatchResponse{}
 
 	// If it's V1, we return the specialized watch objects
-	switch api.Ext.ApiVersion {
+	switch api.ApiVersion {
 	case "2":
 		// V2 returns the generic ExtensionWatch which contains mirrors
-		data, err := jsExtension.Unmarshal[proto.ExtensionWatch](res.Data)
+		data, err := endpoint.Unmarshal[proto.ExtensionWatch](res.Data)
 		if err != nil {
 			if s, ok := res.Data.(string); ok {
 				watchResp.Data = &proto.WatchResponse_Raw{Raw: s}
@@ -75,21 +79,21 @@ func (s *MiruCoreServer) Watch(ctx context.Context, req *proto.WatchRequest) (*p
 			watchResp.Data = &proto.WatchResponse_Watch{Watch: data}
 		}
 	default:
-		switch api.Ext.WatchType {
+		switch api.WatchType {
 		case "bangumi":
-			data, err := jsExtension.Unmarshal[proto.ExtensionBangumiWatch](res.Data)
+			data, err := endpoint.Unmarshal[proto.ExtensionBangumiWatch](res.Data)
 			if err != nil {
 				return nil, err
 			}
 			watchResp.Data = &proto.WatchResponse_Bangumi{Bangumi: data}
 		case "manga":
-			data, err := jsExtension.Unmarshal[proto.ExtensionMangaWatch](res.Data)
+			data, err := endpoint.Unmarshal[proto.ExtensionMangaWatch](res.Data)
 			if err != nil {
 				return nil, err
 			}
 			watchResp.Data = &proto.WatchResponse_Manga{Manga: data}
 		case "fikushon":
-			data, err := jsExtension.Unmarshal[proto.ExtensionFikushonWatch](res.Data)
+			data, err := endpoint.Unmarshal[proto.ExtensionFikushonWatch](res.Data)
 			if err != nil {
 				return nil, err
 			}
@@ -101,12 +105,17 @@ func (s *MiruCoreServer) Watch(ctx context.Context, req *proto.WatchRequest) (*p
 }
 
 func (s *MiruCoreServer) Mirror(ctx context.Context, req *proto.MirrorRequest) (*proto.MirrorResponse, error) {
-	res, err := jsExtension.Mirror(req.Pkg, req.Url)
+	rt, err := endpoint.GetRuntime(req.Pkg)
 	if err != nil {
 		return nil, err
 	}
 
-	api, err := jsExtension.GetExtensionMeta(req.Pkg)
+	res, err := rt.Mirror(req.Pkg, req.Url)
+	if err != nil {
+		return nil, err
+	}
+
+	api, err := rt.GetExtensionMeta(req.Pkg)
 	if err != nil {
 		return nil, err
 	}
@@ -114,19 +123,19 @@ func (s *MiruCoreServer) Mirror(ctx context.Context, req *proto.MirrorRequest) (
 	mirrorResp := &proto.MirrorResponse{}
 	switch api.WatchType {
 	case "bangumi":
-		data, err := jsExtension.Unmarshal[proto.ExtensionBangumiWatch](res)
+		data, err := endpoint.Unmarshal[proto.ExtensionBangumiWatch](res)
 		if err != nil {
 			return nil, err
 		}
 		mirrorResp.Data = &proto.MirrorResponse_Bangumi{Bangumi: data}
 	case "manga":
-		data, err := jsExtension.Unmarshal[proto.ExtensionMangaWatch](res)
+		data, err := endpoint.Unmarshal[proto.ExtensionMangaWatch](res)
 		if err != nil {
 			return nil, err
 		}
 		mirrorResp.Data = &proto.MirrorResponse_Manga{Manga: data}
 	case "fikushon":
-		data, err := jsExtension.Unmarshal[proto.ExtensionFikushonWatch](res)
+		data, err := endpoint.Unmarshal[proto.ExtensionFikushonWatch](res)
 		if err != nil {
 			return nil, err
 		}
@@ -146,7 +155,7 @@ func (s *MiruCoreServer) Mirror(ctx context.Context, req *proto.MirrorRequest) (
 }
 
 func (s *MiruCoreServer) DownloadExtension(ctx context.Context, req *proto.DownloadExtensionRequest) (*proto.DownloadExtensionResponse, error) {
-	err := jsExtension.DownloadExtension(req.RepoUrl, req.Pkg)
+	err := js.DownloadExtension(req.RepoUrl, req.Pkg)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +163,7 @@ func (s *MiruCoreServer) DownloadExtension(ctx context.Context, req *proto.Downl
 }
 
 func (s *MiruCoreServer) RemoveExtension(ctx context.Context, req *proto.RemoveExtensionRequest) (*proto.RemoveExtensionResponse, error) {
-	err := jsExtension.RemoveExtension(req.Pkg)
+	err := js.RemoveExtension(req.Pkg)
 	if err != nil {
 		return nil, err
 	}

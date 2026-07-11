@@ -1,4 +1,4 @@
-package jsExtension
+package js
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ func LoadApiV2(ext *Ext) {
 	api.initEvalV2String()
 	api.initRuntimeV2(ext.Pkg)
 	api.loadExtensionV2(ext.Pkg)
-	log.Println("Extension loaded (V2):", ext.Name, ext.Pkg)
+	log.Println("Extension loaded (V2) [JS]:", ext.Name, ext.Pkg)
 }
 
 func (api *ExtApi) initRuntimeV2(pkg string) {
