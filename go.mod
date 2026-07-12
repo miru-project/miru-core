@@ -27,7 +27,7 @@ require (
 	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/bdandy/go-errors v1.2.2 // indirect
 	github.com/bdandy/go-socks4 v1.2.3 // indirect
-	github.com/bogdanfinn/fhttp v0.6.8 // indirect
+	github.com/bogdanfinn/fhttp v0.6.8
 	github.com/bogdanfinn/quic-go-utls v1.0.9-utls // indirect
 	github.com/bogdanfinn/tls-client v1.15.1 // direct
 	github.com/bogdanfinn/utls v1.7.7-barnius // indirect
@@ -51,7 +51,6 @@ require (
 )
 
 require (
-	github.com/Masterminds/semver/v3 v3.5.0 // indirect
 	github.com/alecthomas/atomic v0.1.0-alpha2 // indirect
 	github.com/anacrolix/chansync v0.8.0 // indirect
 	github.com/anacrolix/dht/v2 v2.24.0 // indirect
@@ -79,15 +78,11 @@ require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/edsrzf/mmap-go v1.2.0 // indirect
 	github.com/felixge/fgprof v0.9.5 // indirect
-	github.com/gaukas/clienthellod v0.4.2 // indirect
-	github.com/gaukas/godicttls v0.0.4 // indirect
 	github.com/go-llsqlite/adapter v0.2.0 // indirect
 	github.com/go-llsqlite/crawshaw v0.6.0 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/google/btree v1.1.3 // indirect
-	github.com/google/gopacket v1.1.19 // indirect
 	github.com/huandu/xstrings v1.5.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/mattn/go-sqlite3 v1.14.47 // indirect
@@ -97,7 +92,6 @@ require (
 	github.com/multiformats/go-multihash v0.2.3 // indirect
 	github.com/multiformats/go-varint v0.1.0 // indirect
 	github.com/ncruces/go-strftime v1.0.0 // indirect
-	github.com/onsi/ginkgo/v2 v2.32.0 // indirect
 	github.com/pion/datachannel v1.6.2 // indirect
 	github.com/pion/interceptor v0.1.45 // indirect
 	github.com/pion/logging v0.2.4 // indirect
@@ -111,8 +105,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/protolambda/ctxlock v0.1.0 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
-	github.com/quic-go/quic-go v0.60.0 // indirect
-	github.com/refraction-networking/uquic v0.0.6 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/rs/dnscache v0.0.0-20230804202142-fc85eb664529 // indirect
 	github.com/savsgio/gotils v0.0.0-20250924091648-bce9a52d7761 // indirect
@@ -142,8 +134,6 @@ require (
 require (
 	ariga.io/atlas v1.2.3 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/Danny-Dasilva/CycleTLS/cycletls v1.0.30 //  direct
-	github.com/Danny-Dasilva/fhttp v0.0.0-20260106165651-41258808b131 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/anacrolix/torrent v1.61.0
 	github.com/andybalholm/brotli v1.2.1
@@ -159,7 +149,6 @@ require (
 	github.com/klauspost/compress v1.18.6
 	github.com/mattn/go-isatty v0.0.22 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
-	github.com/refraction-networking/utls v1.8.2 // indirect
 	github.com/studio-b12/gowebdav v0.12.0 // direct
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.71.0
@@ -170,7 +159,6 @@ require (
 	golang.org/x/net v0.56.0
 	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/text v0.38.0 // indirect
-	h12.io/socks v1.0.3 // indirect
 )
 
 replace github.com/open2b/scriggo => github.com/appdevelpo/scriggo v0.0.0-20260711075642-2f018f230f63

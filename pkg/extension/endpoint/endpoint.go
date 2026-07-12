@@ -72,6 +72,13 @@ func resolveExtensionRuntime(pkg string) Language {
 	return Unknown
 }
 
+// IsGolang reports whether pkg is backed by the Go (Scriggo) extension runtime.
+// The Golang runtime is v2-only, so callers (e.g. the gRPC handlers) use this
+// to route it to the V2 response shapes unconditionally.
+func IsGolang(pkg string) bool {
+	return resolveExtensionRuntime(pkg) == Golang
+}
+
 // GetRuntime returns the Runtime implementation that owns the given package,
 // selecting between the Golang and JavaScript backends.
 func GetRuntime(pkg string) (Runtime, error) {

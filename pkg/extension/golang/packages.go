@@ -3698,22 +3698,16 @@ func init() {
 		Declarations: decs,
 	}
 	// "github.com/miru-project/miru-core/pkg/extension/golang/runtime"
-	decs = make(native.Declarations, 7)
+	decs = make(native.Declarations, 8)
 	decs["ExtensionDetail"] = reflect.TypeFor[runtime_2.ExtensionDetail]()
 	decs["ExtensionEpisodeGroup"] = reflect.TypeFor[runtime_2.ExtensionEpisodeGroup]()
 	decs["ExtensionListItem"] = reflect.TypeFor[runtime_2.ExtensionListItem]()
 	decs["ExtensionMirror"] = reflect.TypeFor[runtime_2.ExtensionMirror]()
 	decs["ExtensionMirrorGroup"] = reflect.TypeFor[runtime_2.ExtensionMirrorGroup]()
 	decs["ExtensionWatch"] = reflect.TypeFor[runtime_2.ExtensionWatch]()
-	// Fetch is a GENERIC, site-agnostic browser-impersonating HTTP GET:
-	// Fetch(url, profile, headers) -> (body, statusCode, error). It carries no
-	// API-specific data -- the calling extension supplies the URL, the TLS
-	// profile name (e.g. "chrome_110") and its own headers. It is exposed
-	// because the Scriggo Go-subset compiler cannot emit the interface-method
-	// calls (HttpClient.Get / resp.Body.Close) an HTTP request requires, and
-	// TLS fingerprinting needs the tls-client "profiles" package; both are
-	// confined to this one host primitive.
 	decs["Fetch"] = runtime_2.Fetch
+	decs["ProxyURL"] = runtime_2.ProxyURL
+	decs["TLSConfig"] = reflect.TypeFor[runtime_2.TLSConfig]()
 	packages["github.com/miru-project/miru-core/pkg/extension/golang/runtime"] = native.Package{
 		Name:         "runtime",
 		Declarations: decs,

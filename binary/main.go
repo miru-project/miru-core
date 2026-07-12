@@ -1,8 +1,12 @@
 package binary
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
+	"sync/atomic"
+	"time"
 
 	fasthttp_router "github.com/fasthttp/router"
 	"github.com/miru-project/miru-core/config"
@@ -18,7 +22,98 @@ import (
 	"github.com/miru-project/miru-core/router"
 )
 
+// memoryMonitorSampleInterval is how often the program logs its memory usage
+// and GC behaviour while running.
+const memoryMonitorSampleInterval = 10 * time.Second
+
+// startMemoryMonitor launches a background goroutine that prints the process
+// heap/GC statistics every memoryMonitorSampleInterval seconds. It starts once
+// (guarded by startMemoryMonitorOnce) when the program boots so the output is
+// emitted for the whole lifetime of the app. Each sample also records the
+// cumulative number of GC cycles since the previous sample, which is the
+// closest signal to "GC triggering" available from runtime.MemStats.
+func startMemoryMonitor() {
+	var started int32
+	if !atomic.CompareAndSwapInt32(&started, 0, 1) {
+		return
+	}
+	go func() {
+		var prevNumGC uint32
+		var prevPauseTotalNs uint64
+		ticker := time.NewTicker(memoryMonitorSampleInterval)
+		defer ticker.Stop()
+		for range ticker.C {
+			var m runtime.MemStats
+			// Read the latest GC counters first so LastGC and the
+			// delta counters below reflect the most recent collections.
+			runtime.ReadMemStats(&m)
+
+			gcSinceLast := m.NumGC - prevNumGC
+			pauseSinceLastNs := m.PauseTotalNs - prevPauseTotalNs
+			prevNumGC = m.NumGC
+			prevPauseTotalNs = m.PauseTotalNs
+
+			lastGCAgo := time.Duration(0)
+			if m.LastGC != 0 {
+				lastGCAgo = time.Since(time.Unix(0, int64(m.LastGC)))
+			}
+			lastPause := time.Duration(0)
+			if m.NumGC > 0 {
+				lastPause = time.Duration(m.PauseNs[(m.NumGC+255)%256])
+			}
+
+			log.Printf(
+				"[mem] alloc=%s sys=%s heapInuse=%s heapIdle=%s heapReleased=%s "+
+					"heapObjects=%d frees(total)=%d numGC(total)=%d gcTriggered(last %ds)=%d "+
+					"lastGC=%s pause(last)=%s pause(last %ds)=%s nextGC=%s gcPause%%=%.4f",
+				formatBytes(m.Alloc),
+				formatBytes(m.Sys),
+				formatBytes(m.HeapInuse),
+				formatBytes(m.HeapIdle),
+				formatBytes(m.HeapReleased),
+				m.HeapObjects,
+				m.Frees,
+				m.NumGC,
+				int(memoryMonitorSampleInterval.Seconds()),
+				gcSinceLast,
+				lastGCAgo.Round(time.Millisecond),
+				lastPause,
+				int(memoryMonitorSampleInterval.Seconds()),
+				time.Duration(pauseSinceLastNs),
+				formatBytes(m.NextGC),
+				percent(pauseSinceLastNs, uint64(memoryMonitorSampleInterval)),
+			)
+		}
+	}()
+}
+
+// formatBytes renders a byte count in a human readable unit.
+func formatBytes(b uint64) string {
+	const unit = 1024
+	if b < unit {
+		return fmt.Sprintf("%d B", b)
+	}
+	div, exp := uint64(unit), 0
+	for n := b / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.2f %ciB", float64(b)/float64(div), "KMGTPE"[exp])
+}
+
+// percent returns x as a percentage of total, guarded against divide-by-zero.
+func percent(x, total uint64) float64 {
+	if total == 0 {
+		return 0
+	}
+	return float64(x) / float64(total) * 100
+}
+
 func InitProgram(configPath *string) {
+
+	// Start the memory/GC monitor as early as possible so it tracks the whole
+	// lifetime of the program.
+	startMemoryMonitor()
 
 	// Initialize logger
 	log.InitLog(filepath.Dir(*configPath))

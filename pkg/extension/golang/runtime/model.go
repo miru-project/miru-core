@@ -1,82 +1,157 @@
 package runtime
 
 import (
-	"io"
+	"os"
+	"strings"
 
-	tls_client "github.com/bogdanfinn/tls-client"
-	tls_profiles "github.com/bogdanfinn/tls-client/profiles"
+	"github.com/miru-project/miru-core/config"
+	"github.com/miru-project/miru-core/pkg/network"
 )
 
-// Fetch performs a single browser-impersonating HTTP GET and returns the raw
-// response body together with its HTTP status code.
+// TLSConfig is the TLS/impersonation configuration that a Scriggo (Go)
+// extension can build directly and pass to Fetch, e.g.
 //
-// It is deliberately GENERIC and site-agnostic: the caller supplies the URL,
-// a TLS-impersonation profile name (e.g. "chrome_110"), and the exact request
-// headers to send. The host holds NO API-specific knowledge here -- no domain,
-// no hard-coded headers, no protocol. Every site-specific concern (which
-// domain, which headers, request signing, response decoding) lives inside the
-// extension that calls Fetch.
+//	&runtime.TLSConfig{Profile: "chrome_133"}
+//
+// It is a concrete struct (not a type alias) so the Scriggo Go-subset compiler
+// can resolve and construct it without pulling the host "network" package into
+// the extension playground. Fetch converts it to the underlying network.TLSConfig.
+type TLSConfig struct {
+	// Profile is a tls-client fingerprint name, e.g. "chrome_133". An empty
+	// Profile falls back to the tls-client library default.
+	Profile string `json:"profile"`
+	// UserAgent overrides the browser-impersonation User-Agent when non-empty.
+	UserAgent string `json:"userAgent,omitempty"`
+	// DisableRedirect stops the client from following redirects.
+	DisableRedirect bool `json:"disableRedirect,omitempty"`
+	// InsecureSkipVerify disables TLS certificate verification.
+	InsecureSkipVerify bool `json:"insecureSkipVerify,omitempty"`
+}
+
+// toNetwork converts a runtime.TLSConfig into the network-layer TLSConfig that
+// performs the actual browser-impersonating request.
+func (c *TLSConfig) toNetwork() *network.TLSConfig {
+	if c == nil {
+		return nil
+	}
+	return &network.TLSConfig{
+		Profile:            c.Profile,
+		UserAgent:          c.UserAgent,
+		DisableRedirect:    c.DisableRedirect,
+		InsecureSkipVerify: c.InsecureSkipVerify,
+	}
+}
+
+// Fetch performs a single HTTP request and returns the raw response body
+// together with its HTTP status code. On failure errStr is non-empty and holds
+// the error message; an empty errStr means success.
+//
+// It is deliberately GENERIC and site-agnostic: the caller supplies the URL, the
+// request method, the exact request headers, an optional request body, and an
+// optional TLS configuration. The host holds NO API-specific knowledge here --
+// no domain, no hard-coded headers, no protocol. Every site-specific concern
+// (which domain, which headers, request signing, response decoding) lives
+// inside the extension that calls Fetch.
 //
 // This thin primitive has to live in the host (rather than the extension)
 // because of two hard limits of the Scriggo Go-subset that runs extensions:
 //
 //  1. Scriggo cannot emit interface-method calls, so an extension cannot call
-//     HttpClient.Get / resp.Body.Close itself (the compiler aborts with
-//     "internal error: not implemented").
+//     the underlying http client / resp.Body.Close itself (the compiler aborts
+//     with "internal error: not implemented").
 //  2. Defeating TLS-fingerprint bot walls (Cloudflare) needs a browser JA3/h2
 //     fingerprint from the tls-client "profiles" package, which is only
 //     reachable through that same interface.
 //
-// Both un-emittable pieces are confined to this one generic function; the
-// extension reaches it as a plain function call, which Scriggo supports.
+// Both un-emittable pieces are confined to this one primitive; the extension
+// reaches it as a plain function call, which Scriggo supports.
 //
-// profile is looked up in the tls-client profile table; an unknown or empty
-// profile falls back to the library default. headers is a simple
-// map[string]string (one value per header) so it is trivial to build from the
-// Scriggo subset.
-func Fetch(url string, profile string, headers map[string]string) (string, int, error) {
-	clientProfile, ok := tls_profiles.MappedTLSClients[profile]
-	if !ok {
-		clientProfile = tls_profiles.DefaultClientProfile
+// The error is returned as a string (not the Go error interface) on purpose:
+// Scriggo's playground cannot marshal a Go error interface value back from a
+// called host function, so returning error would panic at the call boundary.
+//
+// When tls is non-nil the request is routed through the browser-impersonating
+// tls-client (using the configured Profile, e.g. "chrome_133"; an empty Profile
+// falls back to the library default). When tls is nil the request goes through
+// the default fasthttp client. Both transports share the same persistent cookie
+// jar, so cookies survive across calls and across both transports.
+func Fetch(url, method string, headers map[string]string, body string, tls *TLSConfig) (respBody string, status int, errStr string) {
+	opts := &network.RequestOptions{
+		Headers: headers,
+		Method:  method,
+	}
+	if body != "" {
+		opts.RequestBody = body
+	}
+	if tls != nil {
+		opts.TLSConfig = tls.toNetwork()
 	}
 
-	defaultHeaders := make(map[string][]string, len(headers))
-	for k, v := range headers {
-		defaultHeaders[k] = []string{v}
+	// Delegate to the non-generic FetchString: Scriggo's reflect-based callable
+	// cannot invoke a generic function, so the request must be performed through
+	// a non-generic entry point.
+	res, err := network.FetchString(url, opts, network.ReadAll)
+	if err != nil {
+		return "", 0, err.Error()
 	}
+	return res.Body, res.StatusCode, ""
+}
 
-	client, err := tls_client.NewHttpClient(
-		tls_client.NewNoopLogger(),
-		tls_client.WithTimeoutSeconds(30),
-		tls_client.WithNotFollowRedirects(),
-		tls_client.WithCookieJar(tls_client.NewCookieJar()),
-		tls_client.WithClientProfile(clientProfile),
-		tls_client.WithDefaultHeaders(defaultHeaders),
-	)
-	if err != nil {
-		return "", 0, err
-	}
+// ProxyURL converts a raw media/stream URL into a host-relative proxy path that
+// the miru backend will fetch server-side on behalf of the client. The target
+// URL, the per-request headers (e.g. a Referer the browser cannot set on a
+// cross-origin fetch because it is a forbidden header), and an optional
+// tls-client fingerprint profile are all encoded into the returned URL, so the
+// client simply requests that URL from the backend's /proxy endpoint.
+//
+// This exists as a host primitive for the same reason Fetch does: the backend
+// proxy URL format (network.BuildProxyURL) lives in the host, and the Scriggo
+// Go-subset that runs extensions cannot reference the host "network" package
+// directly. The extension instead calls this plain function and hands the
+// result back as a mirror/latest/detail/media URL.
+//
+// The returned value is an ABSOLUTE url (host included) rooted at the miru-core
+// origin, because a browser player cannot request a relative "/proxy/..." path
+// and (for HLS) every rewritten child segment/key must point back at the same
+// origin. The host comes from the backend configuration (config.Global); a
+// sane fallback is used if config has not been loaded.
+//
+// When tlsProfile is non-empty the backend routes the upstream fetch through the
+// browser-impersonating tls-client -- required for TLS-fingerprinting CDNs
+// (e.g. Cloudflare-fronted Miruro source CDNs) that block Go's crypto/tls
+// ClientHello.
+func ProxyURL(target string, headers map[string]string, tlsProfile string) string {
+	return network.BuildProxyURL(proxyOrigin(), target, headers, tlsProfile)
+}
 
-	resp, err := client.Get(url)
-	if err != nil {
-		return "", 0, err
+// proxyOrigin returns the origin the player reaches miru-core at, derived from
+// the loaded config. It falls back to a local default so extensions can still
+// build usable (browser-resolvable) proxy URLs when config is not yet loaded
+// (e.g. unit tests, or a deployment that sets the real host via MIRU_HOST).
+func proxyOrigin() string {
+	if h := strings.TrimSpace(os.Getenv("MIRU_HOST")); h != "" {
+		return h
 	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", resp.StatusCode, err
+	addr := config.Global.Address
+	if addr == "" {
+		addr = "127.0.0.1"
 	}
-	return string(body), resp.StatusCode, nil
+	port := config.Global.Port
+	if port == "" {
+		port = "3000"
+	}
+	return "http://" + addr + ":" + port
 }
 
 // ExtensionListItem represents a search result item.
 type ExtensionListItem struct {
-	Title  string            `json:"title"`
-	URL    string            `json:"url"`
-	Cover  string            `json:"cover"`
-	Update string            `json:"update"`
-	Image  string            `json:"image,omitempty"`
-	Type   string            `json:"type,omitempty"`
+	Title   string            `json:"title"`
+	URL     string            `json:"url"`
+	Cover   string            `json:"cover"`
+	Update  string            `json:"update"`
+	Image   string            `json:"image,omitempty"`
+	Type    string            `json:"type,omitempty"`
+	Headers map[string]string `json:"headers,omitempty"`
 }
 
 // ExtensionDetail represents detailed content information.
@@ -89,6 +164,7 @@ type ExtensionDetail struct {
 	Description string                  `json:"description,omitempty"`
 	Desc        string                  `json:"desc,omitempty"`
 	Chapters    []ExtensionEpisodeGroup `json:"chapters,omitempty"`
+	Headers     map[string]string       `json:"headers,omitempty"`
 }
 
 // ExtensionEpisodeGroup represents a group of episodes.
@@ -99,21 +175,22 @@ type ExtensionEpisodeGroup struct {
 
 // ExtensionWatch represents watch/stream information.
 type ExtensionWatch struct {
-	Title  string                `json:"title"`
-	URL    string                `json:"url"`
-	Type   string                `json:"type"`
-	Pages  []string              `json:"pages,omitempty"`
+	Title  string                 `json:"title"`
+	URL    string                 `json:"url"`
+	Type   string                 `json:"type"`
+	Pages  []string               `json:"pages,omitempty"`
 	Groups []ExtensionMirrorGroup `json:"groups,omitempty"`
 }
 
 // ExtensionMirrorGroup represents a group of mirrors.
 type ExtensionMirrorGroup struct {
-	Title   string              `json:"title"`
-	Mirrors []ExtensionMirror   `json:"mirrors,omitempty"`
+	Title   string            `json:"title"`
+	Mirrors []ExtensionMirror `json:"mirrors,omitempty"`
 }
 
 // ExtensionMirror represents a mirror/alternative URL.
 type ExtensionMirror struct {
-	Name string `json:"name"`
-	URL  string `json:"url"`
+	Name    string            `json:"name"`
+	URL     string            `json:"url"`
+	Headers map[string]string `json:"headers,omitempty"`
 }

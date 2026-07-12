@@ -1,6 +1,7 @@
 package network
 
 import (
+	"encoding/base64"
 	"net/url"
 	"strings"
 	"sync"
@@ -149,9 +150,22 @@ func Proxy(ctx *fasthttp.RequestCtx) {
 	req := &ctx.Request
 	res := &ctx.Response
 
-	targetURL := ctx.UserValue("path").(string)
-	if decoded, err := url.PathUnescape(targetURL); err == nil {
-		targetURL = decoded
+	// Resolve the target URL. Prefer the base64url __u query param (the
+	// header/tls-aware streaming mode built by BuildProxyPath) so a target's own
+	// query string survives; fall back to the legacy wildcard path.
+	targetURL := ""
+	if enc := string(ctx.QueryArgs().Peek(proxyURLParam)); enc != "" {
+		if dec, err := base64.RawURLEncoding.DecodeString(enc); err == nil {
+			targetURL = string(dec)
+		}
+	}
+	if targetURL == "" {
+		if p, ok := ctx.UserValue("path").(string); ok {
+			targetURL = p
+		}
+		if decoded, err := url.PathUnescape(targetURL); err == nil {
+			targetURL = decoded
+		}
 	}
 
 	if targetURL == "" {
@@ -159,8 +173,25 @@ func Proxy(ctx *fasthttp.RequestCtx) {
 		return
 	}
 
+	// Extra headers the client wants applied server-side (e.g. a Referer the
+	// browser cannot set on a cross-origin fetch).
+	extraHeaders := decodeProxyHeaders(string(ctx.QueryArgs().Peek(proxyHeadersParam)))
+
+	// When requested, route the upstream fetch through the browser-impersonating
+	// tls-client (required for TLS-fingerprinting CDNs) and rewrite HLS manifests
+	// so segments stay proxied.
+	if string(ctx.QueryArgs().Peek(proxyTLSParam)) == "1" {
+		proxyViaTLS(ctx, targetURL, extraHeaders, string(ctx.QueryArgs().Peek(proxyProfileParam)))
+		return
+	}
+
 	req.Header.Del("Host")
 	req.SetRequestURI(targetURL)
+
+	// Apply any explicitly requested headers before forwarding.
+	for k, v := range extraHeaders {
+		req.Header.Set(k, v)
+	}
 
 	// Inject Anilist Token if target is Anilist and no auth header is present
 	if strings.Contains(targetURL, "anilist.co") && string(req.Header.Peek("Authorization")) == "" {

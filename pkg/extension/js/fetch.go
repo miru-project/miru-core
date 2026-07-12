@@ -195,6 +195,21 @@ func (api *ExtApi) initFetch(vm *goja.Runtime, job *Job) {
 				} else if v, ok := m["timeout"].(int64); ok {
 					requestOptions.Timeout = int(v)
 				}
+				if tlsCfg, ok := m["tls_config"].(map[string]any); ok {
+					requestOptions.TLSConfig = &network.TLSConfig{}
+					if v, ok := tlsCfg["profile"].(string); ok {
+						requestOptions.TLSConfig.Profile = v
+					}
+					if v, ok := tlsCfg["userAgent"].(string); ok {
+						requestOptions.TLSConfig.UserAgent = v
+					}
+					if v, ok := tlsCfg["disableRedirect"].(bool); ok {
+						requestOptions.TLSConfig.DisableRedirect = v
+					}
+					if v, ok := tlsCfg["insecureSkipVerify"].(bool); ok {
+						requestOptions.TLSConfig.InsecureSkipVerify = v
+					}
+				}
 			}
 		}
 

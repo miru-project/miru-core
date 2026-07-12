@@ -43,6 +43,10 @@ message ExtensionEpisode {
 message ExtensionMirror {
   string name = 1;
   string url = 2;
+  // Headers the client must send when fetching the mirror stream (e.g.
+  // Referer/User-Agent required by the source CDN). Populated by the golang
+  // (V2) runtime from the resolved stream's referer and the browser UA.
+  map<string, string> headers = 3;
 }
 
 message ExtensionMirrorGroup {

@@ -69,12 +69,3 @@ func initCookieJar() {
 		cookiejar.WithPublicSuffixList(publicsuffix.List),
 	)
 }
-
-func getHeadersFromJar(url *url.URL) string {
-	cookies := jar.Cookies(url)
-	var cookieStrs []string
-	for _, cookie := range cookies {
-		cookieStrs = append(cookieStrs, cookie.Name+"="+cookie.Value)
-	}
-	return strings.Join(cookieStrs, "; ")
-}

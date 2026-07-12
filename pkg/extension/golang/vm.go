@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 
 	"github.com/miru-project/miru-core/pkg/extension"
 	"github.com/open2b/scriggo"
@@ -13,6 +14,18 @@ import (
 )
 
 var packages native.Packages
+
+// withStackTrace annotates a Scriggo VM / extension Go error with a goroutine
+// stack trace so failures surfaced to callers (and ultimately the gRPC layer)
+// are debuggable. Without this, extension errors arrive as bare strings (for
+// example "expected a map or struct, got slice") with no context about where
+// in the Go runtime they originated.
+func withStackTrace(where string, err error) error {
+	if err == nil {
+		return nil
+	}
+	return fmt.Errorf("%s: %w\n%s", where, err, debug.Stack())
+}
 
 // VM is the Scriggo/Go-subset extension runtime.
 type VM interface {
@@ -109,7 +122,7 @@ func (r *Runtime) Call(name string, args ...Value) (Value, error) {
 	}
 	res, err := r.program.program.Call(name, toAny(args)...)
 	if err != nil {
-		return nil, err
+		return nil, withStackTrace("scriggo call "+name, err)
 	}
 	if len(res) == 0 {
 		return nil, nil
@@ -151,7 +164,7 @@ func (v *ScriggoVM) Compile(name string, source any) (*Program, error) {
 		p, err := scriggo.Build(fsys, &scriggo.BuildOptions{Packages: packages})
 		os.RemoveAll(dir)
 		if err != nil {
-			return nil, fmt.Errorf("compile %s: %w", name, err)
+			return nil, withStackTrace("scriggo build", err)
 		}
 		return &Program{program: p}, nil
 	default:
@@ -172,7 +185,7 @@ func (v *ScriggoVM) Compile(name string, source any) (*Program, error) {
 	fsys := os.DirFS(dir)
 	p, err := scriggo.Build(fsys, &scriggo.BuildOptions{Packages: packages})
 	if err != nil {
-		return nil, fmt.Errorf("compile %s: %w", name, err)
+		return nil, withStackTrace("scriggo build", err)
 	}
 	return &Program{program: p}, nil
 }
@@ -196,7 +209,7 @@ func (v *ScriggoVM) CompileEntry(name string, source string, entryPoint string) 
 	fsys := os.DirFS(dir)
 	p, err := scriggo.Build(fsys, &scriggo.BuildOptions{Packages: packages, EntryPoint: entryPoint})
 	if err != nil {
-		return nil, fmt.Errorf("compile %s: %w", name, err)
+		return nil, withStackTrace("scriggo build", err)
 	}
 	return &Program{program: p}, nil
 }
@@ -213,7 +226,7 @@ func (v *ScriggoVM) Run(p *Program, opts *scriggo.RunOptions) (Value, error) {
 	}
 
 	if err := p.program.Run(options); err != nil {
-		return nil, fmt.Errorf("scriggo run: %w", err)
+		return nil, withStackTrace("scriggo run", err)
 	}
 
 	return nil, nil

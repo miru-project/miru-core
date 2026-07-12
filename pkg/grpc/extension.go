@@ -61,6 +61,14 @@ func (s *MiruCoreServer) Watch(ctx context.Context, req *proto.WatchRequest) (*p
 		return nil, fmt.Errorf("extension metadata not found for package %q", req.Pkg)
 	}
 
+	// Golang (Scriggo) extensions are v2-only: they always emit the generic
+	// proto.ExtensionWatch shape, never the v1 per-type watch objects. Force the
+	// V2 branch so a missing @apiVersion in the extension metadata cannot route
+	// them into the v1 watch-type switch.
+	if endpoint.IsGolang(req.Pkg) {
+		api.ApiVersion = "2"
+	}
+
 	watchResp := &proto.WatchResponse{}
 
 	// If it's V1, we return the specialized watch objects
@@ -118,6 +126,19 @@ func (s *MiruCoreServer) Mirror(ctx context.Context, req *proto.MirrorRequest) (
 	api, err := rt.GetExtensionMeta(req.Pkg)
 	if err != nil {
 		return nil, err
+	}
+
+	// Golang (Scriggo) extensions are v2-only and emit a flat
+	// []*proto.ExtensionMirror list (the Mirror step that follows Watch).
+	// Ship it as raw JSON. The watch-type switch below is the legacy v1 JS path.
+	if endpoint.IsGolang(req.Pkg) {
+		b, err := json.Marshal(res)
+		if err != nil {
+			return nil, err
+		}
+		return &proto.MirrorResponse{
+			Data: &proto.MirrorResponse_Raw{Raw: string(b)},
+		}, nil
 	}
 
 	mirrorResp := &proto.MirrorResponse{}

@@ -64,7 +64,7 @@ func callExtension(pkg, fn string, args ...any) (any, error) {
 
 	res, err := prog.program.Call(fn, args...)
 	if err != nil {
-		return nil, err
+		return nil, withStackTrace("extension "+pkg+"."+fn, err)
 	}
 	if len(res) >= 2 {
 		if e, ok := res[1].(error); ok && e != nil {
@@ -249,6 +249,27 @@ func anyField(rv reflect.Value, name string) any {
 	return f.Interface()
 }
 
+// mapStrField reads a map[string]string field by name (e.g. a mirror's
+// Headers). Templates return nil when the field is absent, so extensions that
+// don't set headers simply produce an empty map.
+func mapStrField(rv reflect.Value, name string) map[string]string {
+	f := fieldByName(rv, name)
+	if !f.IsValid() || f.Kind() != reflect.Map {
+		return nil
+	}
+	out := make(map[string]string, f.Len())
+	for _, k := range f.MapKeys() {
+		if k.Kind() != reflect.String {
+			continue
+		}
+		v := f.MapIndex(k)
+		if v.Kind() == reflect.String {
+			out[k.String()] = v.String()
+		}
+	}
+	return out
+}
+
 func toExtensionListItems(v any) []*proto.ExtensionListItem {
 	if v == nil {
 		return nil
@@ -261,10 +282,11 @@ func toExtensionListItems(v any) []*proto.ExtensionListItem {
 	for i := 0; i < rv.Len(); i++ {
 		elem := rv.Index(i)
 		items = append(items, &proto.ExtensionListItem{
-			Title:  strField(elem, "Title"),
-			Url:    strField(elem, "URL"),
-			Cover:  strField(elem, "Cover"),
-			Update: strField(elem, "Update"),
+			Title:   strField(elem, "Title"),
+			Url:     strField(elem, "URL"),
+			Cover:   strField(elem, "Cover"),
+			Update:  strField(elem, "Update"),
+			Headers: mapStrField(elem, "Headers"),
 		})
 	}
 	return items
@@ -331,6 +353,7 @@ func toDetail(v any) *proto.ExtensionDetail {
 		Cover:    &cover,
 		Desc:     &desc,
 		Episodes: toEpisodeGroups(anyField(rv, "Chapters")),
+		Headers:  mapStrField(rv, "Headers"),
 	}
 }
 
@@ -365,8 +388,9 @@ func toMirrors(v any) []*proto.ExtensionMirror {
 	for i := 0; i < rv.Len(); i++ {
 		elem := rv.Index(i)
 		mirrors = append(mirrors, &proto.ExtensionMirror{
-			Name: strField(elem, "Name"),
-			Url:  strField(elem, "URL"),
+			Name:    strField(elem, "Name"),
+			Url:     strField(elem, "URL"),
+			Headers: mapStrField(elem, "Headers"),
 		})
 	}
 	return mirrors
