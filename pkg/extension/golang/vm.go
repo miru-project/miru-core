@@ -143,46 +143,21 @@ func NewScriggoVM(scriggoFile *Scriggofile) *ScriggoVM {
 }
 
 // Compile compiles extension source code using Scriggo.
+//
+// It builds directly from the source in memory. scriggo.Files is an fs.FS
+// backed by a map, and scriggo.Build compiles entirely in memory, so there is
+// no need to materialize a temporary directory or file on disk.
 func (v *ScriggoVM) Compile(name string, source any) (*Program, error) {
-	var src string
+	var fsys scriggo.Files
 	switch s := source.(type) {
 	case string:
-		src = s
+		fsys = scriggo.Files{"main.go": []byte(s)}
 	case scriggo.Files:
-		dir, err := os.MkdirTemp("", "scriggo-"+name)
-		if err != nil {
-			return nil, fmt.Errorf("create temp dir: %w", err)
-		}
-		for fname, content := range s {
-			fpath := filepath.Join(dir, fname)
-			if err := os.WriteFile(fpath, content, 0644); err != nil {
-				os.RemoveAll(dir)
-				return nil, fmt.Errorf("write file %s: %w", fname, err)
-			}
-		}
-		fsys := os.DirFS(dir)
-		p, err := scriggo.Build(fsys, &scriggo.BuildOptions{Packages: packages})
-		os.RemoveAll(dir)
-		if err != nil {
-			return nil, withStackTrace("scriggo build", err)
-		}
-		return &Program{program: p}, nil
+		fsys = s
 	default:
 		return nil, fmt.Errorf("unsupported source type %T", source)
 	}
 
-	dir, err := os.MkdirTemp("", "scriggo-"+name)
-	if err != nil {
-		return nil, fmt.Errorf("create temp dir: %w", err)
-	}
-	defer os.RemoveAll(dir)
-
-	fpath := filepath.Join(dir, "main.go")
-	if err := os.WriteFile(fpath, []byte(src), 0644); err != nil {
-		return nil, fmt.Errorf("write main.go: %w", err)
-	}
-
-	fsys := os.DirFS(dir)
 	p, err := scriggo.Build(fsys, &scriggo.BuildOptions{Packages: packages})
 	if err != nil {
 		return nil, withStackTrace("scriggo build", err)
@@ -194,20 +169,12 @@ func (v *ScriggoVM) Compile(name string, source any) (*Program, error) {
 // Scriggo. The entryPoint argument names the function run by the Run method
 // (for example "Load"); the other functions of the program can still be looked
 // up and called later with Program.Call.
+//
+// It builds directly from the source in memory. scriggo.Files is an fs.FS
+// backed by a map and scriggo.Build compiles entirely in memory, so no
+// temporary directory or file is written to disk.
 func (v *ScriggoVM) CompileEntry(name string, source string, entryPoint string) (*Program, error) {
-	dir, err := os.MkdirTemp("", "scriggo-"+name)
-	if err != nil {
-		return nil, fmt.Errorf("create temp dir: %w", err)
-	}
-	defer os.RemoveAll(dir)
-
-	fpath := filepath.Join(dir, "main.go")
-	if err := os.WriteFile(fpath, []byte(source), 0644); err != nil {
-		return nil, fmt.Errorf("write main.go: %w", err)
-	}
-
-	fsys := os.DirFS(dir)
-	p, err := scriggo.Build(fsys, &scriggo.BuildOptions{Packages: packages, EntryPoint: entryPoint})
+	p, err := scriggo.Build(scriggo.Files{"main.go": []byte(source)}, &scriggo.BuildOptions{Packages: packages, EntryPoint: entryPoint})
 	if err != nil {
 		return nil, withStackTrace("scriggo build", err)
 	}
