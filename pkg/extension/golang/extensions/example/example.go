@@ -1,70 +1,39 @@
 // ==MiruExtension==
 // @name         Example
 // @version      v0.1.0
-// @author       AUTHOR_NAME
+// @author       Miru
 // @lang         all
 // @license      MIT
-// @icon         YOUR_LINK_TO_ICON
-// @package      example.org
+// @icon         https://example.com/icon.png
+// @package      example
 // @type         bangumi
-// @webSite      WEB_LINK
+// @webSite      https://example.com
 // @nsfw         false
 // ==/MiruExtension==
 
+// Package example is the canonical Miru Go extension. It is authored the
+// ordinary way: a freshly `go mod init`'d project `go get`s the SDK and imports
+// it directly,
+//
+//	import sdk "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
+//
+// and refers to the model types explicitly as sdk.ExtensionListItem,
+// sdk.ExtensionDetail, and so on. This same file serves both roles:
+//
+//   - as a normal Go package you can import and call directly (the "native"
+//     stage), and
+//   - as the source the host compiles with the Scriggo VM and drives by entry
+//     point name (the "VM" stage).
+//
+// Because the extension imports the SDK itself, the host compiles it as-is --
+// no source rewriting or injected imports are performed.
 package example
 
-// ExtensionListItem represents a search result item.
-type ExtensionListItem struct {
-	Title  string
-	URL    string
-	Cover  string
-	Update string
-	Image  string
-	Type   string
-}
-
-// ExtensionDetail represents detailed content information.
-type ExtensionDetail struct {
-	Title       string
-	URL         string
-	Cover       string
-	Image       string
-	Type        string
-	Description string
-	Desc        string
-	Chapters    []ExtensionEpisodeGroup
-}
-
-// ExtensionEpisodeGroup represents a group of episodes.
-type ExtensionEpisodeGroup struct {
-	Title string
-	URLs  []string
-}
-
-// ExtensionWatch represents watch/stream information.
-type ExtensionWatch struct {
-	Title  string
-	URL    string
-	Type   string
-	Pages  []string
-	Groups []ExtensionMirrorGroup
-}
-
-// ExtensionMirrorGroup represents a group of mirrors.
-type ExtensionMirrorGroup struct {
-	Title   string
-	Mirrors []ExtensionMirror
-}
-
-// ExtensionMirror represents a mirror/alternative URL.
-type ExtensionMirror struct {
-	Name string
-	URL  string
-}
+import sdk "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
 
 // Search searches for content by keyword.
-func Search(pkg, kw string, page int, filter string) ([]ExtensionListItem, error) {
-	results := []ExtensionListItem{
+func Search(pkg, kw string, page int, filter string) ([]sdk.ExtensionListItem, error) {
+	results := []sdk.ExtensionListItem{
 		{
 			Title:  "Example Result 1",
 			URL:    "https://example.com/1",
@@ -86,8 +55,8 @@ func Search(pkg, kw string, page int, filter string) ([]ExtensionListItem, error
 }
 
 // Latest returns the latest content for a package.
-func Latest(pkg string, page int) ([]ExtensionListItem, error) {
-	results := []ExtensionListItem{
+func Latest(pkg string, page int) ([]sdk.ExtensionListItem, error) {
+	results := []sdk.ExtensionListItem{
 		{
 			Title:  "Latest Example 1",
 			URL:    "https://example.com/latest/1",
@@ -101,8 +70,8 @@ func Latest(pkg string, page int) ([]ExtensionListItem, error) {
 }
 
 // Detail returns detailed information about a content item.
-func Detail(pkg, url string) (*ExtensionDetail, error) {
-	return &ExtensionDetail{
+func Detail(pkg, url string) (*sdk.ExtensionDetail, error) {
+	return &sdk.ExtensionDetail{
 		Title: "Example Detail",
 		Desc:  "Example description",
 		URL:   url,
@@ -110,14 +79,14 @@ func Detail(pkg, url string) (*ExtensionDetail, error) {
 }
 
 // Watch returns watch/stream information for a content item.
-func Watch(pkg, url string) (*ExtensionWatch, error) {
-	return &ExtensionWatch{
+func Watch(pkg, url string) (*sdk.ExtensionWatch, error) {
+	return &sdk.ExtensionWatch{
 		Title: "Example Watch",
 		URL:   url,
-		Groups: []ExtensionMirrorGroup{
+		Groups: []sdk.ExtensionMirrorGroup{
 			{
 				Title: "Group 1",
-				Mirrors: []ExtensionMirror{
+				Mirrors: []sdk.ExtensionMirror{
 					{
 						Name: "Mirror 1",
 						URL:  url,
@@ -129,8 +98,8 @@ func Watch(pkg, url string) (*ExtensionWatch, error) {
 }
 
 // Mirror returns mirror/alternative URLs for a content item.
-func Mirror(pkg, url string) ([]ExtensionMirror, error) {
-	return []ExtensionMirror{
+func Mirror(pkg, url string) ([]sdk.ExtensionMirror, error) {
+	return []sdk.ExtensionMirror{
 		{
 			Name: "Mirror 1",
 			URL:  url,

@@ -143,10 +143,10 @@ func TestParseExtensionMetadata(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "Example", meta.Name)
 	assert.Equal(t, "v0.1.0", meta.Version)
-	assert.Equal(t, "AUTHOR_NAME", meta.Author)
+	assert.Equal(t, "Miru", meta.Author)
 	assert.Equal(t, "MIT", meta.License)
 	assert.Equal(t, "all", meta.Lang)
-	assert.Equal(t, "example.org", meta.Pkg)
+	assert.Equal(t, "example", meta.Pkg)
 	assert.Equal(t, "bangumi", meta.WatchType)
 	assert.Equal(t, "v0.1.0", meta.Version)
 }

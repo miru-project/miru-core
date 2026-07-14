@@ -163,13 +163,14 @@ import (
 	_ "weak"
 	goquery "github.com/PuerkitoBio/goquery"
 	runtime_2 "github.com/miru-project/miru-core/pkg/extension/golang/runtime"
+	sdk "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
 	tls_client "github.com/bogdanfinn/tls-client"
 )
 
 import "github.com/open2b/scriggo/native"
 
 func init() {
-	packages = make(native.Packages, 152)
+	packages = make(native.Packages, 153)
 	var decs native.Declarations
 	// "archive/tar"
 	decs = make(native.Declarations, 31)
@@ -3698,7 +3699,7 @@ func init() {
 		Declarations: decs,
 	}
 	// "github.com/miru-project/miru-core/pkg/extension/golang/runtime"
-	decs = make(native.Declarations, 8)
+	decs = make(native.Declarations, 9)
 	decs["ExtensionDetail"] = reflect.TypeFor[runtime_2.ExtensionDetail]()
 	decs["ExtensionEpisodeGroup"] = reflect.TypeFor[runtime_2.ExtensionEpisodeGroup]()
 	decs["ExtensionListItem"] = reflect.TypeFor[runtime_2.ExtensionListItem]()
@@ -3710,6 +3711,21 @@ func init() {
 	decs["TLSConfig"] = reflect.TypeFor[runtime_2.TLSConfig]()
 	packages["github.com/miru-project/miru-core/pkg/extension/golang/runtime"] = native.Package{
 		Name:         "runtime",
+		Declarations: decs,
+	}
+	// "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
+	decs = make(native.Declarations, 9)
+	decs["ExtensionDetail"] = reflect.TypeFor[sdk.ExtensionDetail]()
+	decs["ExtensionEpisodeGroup"] = reflect.TypeFor[sdk.ExtensionEpisodeGroup]()
+	decs["ExtensionListItem"] = reflect.TypeFor[sdk.ExtensionListItem]()
+	decs["ExtensionMirror"] = reflect.TypeFor[sdk.ExtensionMirror]()
+	decs["ExtensionMirrorGroup"] = reflect.TypeFor[sdk.ExtensionMirrorGroup]()
+	decs["ExtensionWatch"] = reflect.TypeFor[sdk.ExtensionWatch]()
+	decs["Fetch"] = &sdk.Fetch
+	decs["ProxyURL"] = &sdk.ProxyURL
+	decs["TLSConfig"] = reflect.TypeFor[sdk.TLSConfig]()
+	packages["github.com/miru-project/miru-core/pkg/extension/golang/sdk"] = native.Package{
+		Name:         "sdk",
 		Declarations: decs,
 	}
 	// "go/ast"
