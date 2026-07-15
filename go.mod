@@ -161,4 +161,4 @@ require (
 	golang.org/x/text v0.38.0 // indirect
 )
 
-replace github.com/open2b/scriggo => github.com/appdevelpo/scriggo v0.0.0-20260711075642-2f018f230f63
+replace github.com/open2b/scriggo => github.com/appdevelpo/scriggo v0.0.0

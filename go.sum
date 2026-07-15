@@ -95,8 +95,8 @@ github.com/andybalholm/cascadia v1.3.3/go.mod h1:xNd9bqTn98Ln4DwST8/nG+H0yuB8Hmg
 github.com/apache/thrift v0.12.0/go.mod h1:cp2SuWMxlEZw2r+iP2GNCdIi4C1qmUzdZFSVb+bacwQ=
 github.com/apparentlymart/go-textseg/v15 v15.0.0 h1:uYvfpb3DyLSCGWnctWKGj857c6ew1u1fNQOlOtuGxQY=
 github.com/apparentlymart/go-textseg/v15 v15.0.0/go.mod h1:K8XmNZdhEBkdlyDdvbmmsvpAG721bKi0joRfFdHIWJ4=
-github.com/appdevelpo/scriggo v0.0.0-20260711075642-2f018f230f63 h1:nema0LCL1Kv0yyoH59j63fsoSqo2o86Vc+eJ3hW3NdQ=
-github.com/appdevelpo/scriggo v0.0.0-20260711075642-2f018f230f63/go.mod h1:PVtwsdvWBi9AriTyrMmGedPLjMECP01A8US/0TMy61A=
+github.com/appdevelpo/scriggo v0.0.0 h1:2fxkbDQxZPGav8BzRF9RlJj8c78+63k3RW/TrKaueOM=
+github.com/appdevelpo/scriggo v0.0.0/go.mod h1:PVtwsdvWBi9AriTyrMmGedPLjMECP01A8US/0TMy61A=
 github.com/bahlo/generic-list-go v0.2.0 h1:5sz/EEAK+ls5wF+NeqDpk5+iNdMDXrh3z3nPnH1Wvgk=
 github.com/bahlo/generic-list-go v0.2.0/go.mod h1:2KvAjgMlE5NNynlg/5iLrrCCZ2+5xWbdbCW3pNTGyYg=
 github.com/bdandy/go-errors v1.2.2 h1:WdFv/oukjTJCLa79UfkGmwX7ZxONAihKu4V0mLIs11Q=

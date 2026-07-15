@@ -15,14 +15,28 @@ import (
 
 var packages native.Packages
 
-// withStackTrace annotates a Scriggo VM / extension Go error with a goroutine
-// stack trace so failures surfaced to callers (and ultimately the gRPC layer)
-// are debuggable. Without this, extension errors arrive as bare strings (for
+// withStackTrace annotates a Scriggo VM / extension Go error with a stack trace
+// so failures surfaced to callers (and ultimately the gRPC layer) are
+// debuggable. Without this, extension errors arrive as bare strings (for
 // example "expected a map or struct, got slice") with no context about where
-// in the Go runtime they originated.
+// they originated.
+//
+// When the error is a *scriggo.PanicError (an unrecovered panic inside the
+// extension), the Scriggo interpreter call stack is used instead of the host Go
+// stack: it lists the extension's own inner function call chain (for example
+// Search -> fetchList -> parseItem), which is what an extension author needs to
+// locate the failing call. The host goroutine stack (debug.Stack) is only a
+// wrapper around the interpreter and is therefore not helpful here. For any
+// other error the host goroutine stack is attached as before.
 func withStackTrace(where string, err error) error {
 	if err == nil {
 		return nil
+	}
+	var panicErr *scriggo.PanicError
+	if errors.As(err, &panicErr) {
+		if stack := panicErr.Stack(); stack != "" {
+			return fmt.Errorf("%s: %w\n%s", where, err, stack)
+		}
 	}
 	return fmt.Errorf("%s: %w\n%s", where, err, debug.Stack())
 }
@@ -31,11 +45,6 @@ func withStackTrace(where string, err error) error {
 type VM interface {
 	// Compile compiles extension source code.
 	Compile(name string, source any) (*Program, error)
-	// CompileEntry compiles extension source code with a custom entry point.
-	// The entryPoint argument names the function run by the Run method (for
-	// example "Load"); the other functions of the program can still be looked
-	// up and called later with Program.Call.
-	CompileEntry(name, source, entryPoint string) (*Program, error)
 	// Run executes a compiled program.
 	Run(*Program, *scriggo.RunOptions) (Value, error)
 }
@@ -91,14 +100,9 @@ func (r *Runtime) LoadExtension(ext *extension.Extension) error {
 		return fmt.Errorf("read extension source %s: %w", extPath, err)
 	}
 
-	prog, err := r.vm.CompileEntry(ext.Name, string(source), "Load")
+	prog, err := r.vm.Compile(ext.Name, string(source))
 	if err != nil {
 		return fmt.Errorf("compile extension %s: %w", ext.Name, err)
-	}
-
-	// Run the Load entry point once to initialize/extend the runtime.
-	if _, err := r.vm.Run(prog, nil); err != nil {
-		return fmt.Errorf("run extension %s: %w", ext.Name, err)
 	}
 
 	apiVersion := ext.ApiVersion
@@ -106,6 +110,16 @@ func (r *Runtime) LoadExtension(ext *extension.Extension) error {
 		apiVersion = "1"
 	}
 	log.Printf("Extension loaded (V%s) [GO]: %s %s", apiVersion, ext.Name, ext.Pkg)
+
+	// Run the Load entry point once. Load takes no arguments, exactly mirroring
+	// the JavaScript runtime's load() hook. Any cross-function state an
+	// extension wants to seed here is written with sdk.SaveCache, keyed by the
+	// extension's own package name (which the author already knows). Extensions
+	// that do not declare Load are skipped and loaded lazily on the first
+	// request instead.
+	if _, err := prog.program.Call("Load"); err != nil {
+		return err
+	}
 
 	r.program = prog
 	return nil
@@ -159,22 +173,6 @@ func (v *ScriggoVM) Compile(name string, source any) (*Program, error) {
 	}
 
 	p, err := scriggo.Build(fsys, &scriggo.BuildOptions{Packages: packages})
-	if err != nil {
-		return nil, withStackTrace("scriggo build", err)
-	}
-	return &Program{program: p}, nil
-}
-
-// CompileEntry compiles extension source code with a custom entry point using
-// Scriggo. The entryPoint argument names the function run by the Run method
-// (for example "Load"); the other functions of the program can still be looked
-// up and called later with Program.Call.
-//
-// It builds directly from the source in memory. scriggo.Files is an fs.FS
-// backed by a map and scriggo.Build compiles entirely in memory, so no
-// temporary directory or file is written to disk.
-func (v *ScriggoVM) CompileEntry(name string, source string, entryPoint string) (*Program, error) {
-	p, err := scriggo.Build(scriggo.Files{"main.go": []byte(source)}, &scriggo.BuildOptions{Packages: packages, EntryPoint: entryPoint})
 	if err != nil {
 		return nil, withStackTrace("scriggo build", err)
 	}

@@ -108,7 +108,6 @@ func Add(a, b int) int {
 	assert.Error(t, err)
 }
 
-
 func TestExampleExtensionSearchOutput(t *testing.T) {
 	ExtensionDir = filepath.Join("extensions", "example")
 	items, err := Search("example", 1, "test", "")

@@ -175,6 +175,9 @@ func WatchDir(dir string) {
 			log.Println("File is not a valid extension:", fileLoc, parseErr)
 			return
 		}
+		// Drop any cached cross-function variables for this package so stale
+		// values from the previous version do not leak into the reloaded one.
+		deleteExtVarCache(pkg)
 		loadExtApi(ext)
 	})
 	if err != nil {

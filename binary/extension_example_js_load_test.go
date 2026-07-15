@@ -104,7 +104,7 @@ func TestExampleJSExtensionLoadsViaEntryPoint(t *testing.T) {
 
 	// Load the directory via the JS runtime (f is the embedded assets FS from
 	// lib.go). The JS runtime must only compile .js files.
-	jsext.InitRuntime(dir, f)
+	jsext.InitRuntime(dir, jsext.AssetsFS)
 
 	// loadExtApi runs asynchronously inside InitRuntime; give the goja compile
 	// + event-loop bootstrap a moment to finish before we query.
@@ -147,12 +147,12 @@ func TestLoadExtensionsFromSharedFolder(t *testing.T) {
 	dir := t.TempDir()
 
 	// A real Go extension, copied verbatim from the shipped source.
-	goSrc, err := os.ReadFile(filepath.Join("..", "pkg", "extension", "golang", "extensions", "miruro", "example.v2.go"))
+	goSrc, err := os.ReadFile(filepath.Join("..", "pkg", "extension", "golang", "extensions", "miruro", "examplev2.go"))
 	if err != nil {
-		t.Fatalf("read example.v2.go: %v", err)
+		t.Fatalf("read examplev2.go: %v", err)
 	}
-	if err := os.WriteFile(filepath.Join(dir, "example.v2.go"), goSrc, 0644); err != nil {
-		t.Fatalf("write example.v2.go: %v", err)
+	if err := os.WriteFile(filepath.Join(dir, "examplev2.go"), goSrc, 0644); err != nil {
+		t.Fatalf("write examplev2.go: %v", err)
 	}
 
 	// A JS extension in the same directory.
@@ -167,19 +167,19 @@ func TestLoadExtensionsFromSharedFolder(t *testing.T) {
 	golang.LoadExtensions()
 
 	// JS runtime: load from the same folder; it must ignore the .go file.
-	jsext.InitRuntime(dir, f)
+	jsext.InitRuntime(dir, jsext.AssetsFS)
 	time.Sleep(500 * time.Millisecond)
 
-	// JS side: example loaded, example.v2 strictly NOT compiled as JS.
+	// JS side: example loaded, examplev2 strictly NOT compiled as JS.
 	api := jsext.ApiPkgCache.Load("example")
 	assert.NotNil(t, api, "the JS extension must be loaded by the JS runtime")
-	_, miruroInJS := jsext.ApiPkgCache.Map.Load("example.v2")
-	assert.False(t, miruroInJS, "example.v2.go must be skipped by the JS runtime")
+	_, miruroInJS := jsext.ApiPkgCache.Map.Load("examplev2")
+	assert.False(t, miruroInJS, "examplev2.go must be skipped by the JS runtime")
 
-	// GO side: example.v2.go from the given folder compiles and loads via the
+	// GO side: examplev2.go from the given folder compiles and loads via the
 	// Go runtime (deterministic, no network).
-	ext, perr := golang.ParseExtensionMetadata("example.v2")
-	assert.NoError(t, perr, "example.v2.go metadata must parse")
+	ext, perr := golang.ParseExtensionMetadata("examplev2")
+	assert.NoError(t, perr, "examplev2.go metadata must parse")
 	rt := golang.NewRuntime(golang.NewScriggoVM(nil))
-	assert.NoError(t, rt.LoadExtension(ext), "example.v2.go must load as a Go extension")
+	assert.NoError(t, rt.LoadExtension(ext), "examplev2.go must load as a Go extension")
 }

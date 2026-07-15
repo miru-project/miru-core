@@ -1,3 +1,9 @@
+// ################# These lines reserve for go fmt.sprintf ################# //
+const pkg = '%s';
+const name = '%s';
+const website = '%s';
+// ################# These lines reserve for go fmt.sprintf ################# //
+
 class V1Element {
   constructor(document) {
     this.document = document;
@@ -228,3 +234,50 @@ class Extension {
 //   const data = await callback();
 //   return typeof data === "object" ? JSON.stringify(data, 0, 2) : data;
 // }
+
+// Miru object exposed to V1 extensions. It is the SAME surface as the V2
+// runtime's Miru object, so an extension can use Miru.load/saveCache/getCache/
+// request/rawRequest identically on both API versions. Because the goja VM is
+// disposed after every execution, state that an extension wants to share
+// between load() and latest()/search()/... must live outside the VM; saveCache/
+// getCache delegate to the native functions registered by the host (values are
+// always strings). pkg/name/website are injected by the host (the sprintf
+// placeholders at the top of this file).
+const settingKeys = [];
+const Miru = {
+  pkg: pkg,
+  name: name,
+  website: website,
+  request: async (url, options) => {
+    options = options || {};
+    options.headers = options.headers || {};
+    const miruUrl = options.headers["Miru-Url"] || website;
+    options.method = options.method || "get";
+    if (options.headers["Miru-Url"]) {
+      delete options.headers["Miru-Url"];
+    }
+    const res = await jsRequest(miruUrl + url, options);
+    try {
+      return JSON.parse(res);
+    } catch (e) {
+      return res;
+    }
+  },
+  rawRequest: async (url, options) => {
+    options = options || {};
+    options.headers = options.headers || {};
+    options.method = options.method || "GET";
+    const message = await jsRequest(url, options);
+    try {
+      return JSON.parse(message);
+    } catch (e) {
+      return message;
+    }
+  },
+  saveCache: (key, value) => {
+    return saveCache(key, String(value));
+  },
+  getCache: (key) => {
+    return getCache(key);
+  },
+}

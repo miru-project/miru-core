@@ -3699,7 +3699,8 @@ func init() {
 		Declarations: decs,
 	}
 	// "github.com/miru-project/miru-core/pkg/extension/golang/runtime"
-	decs = make(native.Declarations, 9)
+	decs = make(native.Declarations, 12)
+	decs["DeleteCache"] = runtime_2.DeleteCache
 	decs["ExtensionDetail"] = reflect.TypeFor[runtime_2.ExtensionDetail]()
 	decs["ExtensionEpisodeGroup"] = reflect.TypeFor[runtime_2.ExtensionEpisodeGroup]()
 	decs["ExtensionListItem"] = reflect.TypeFor[runtime_2.ExtensionListItem]()
@@ -3707,14 +3708,16 @@ func init() {
 	decs["ExtensionMirrorGroup"] = reflect.TypeFor[runtime_2.ExtensionMirrorGroup]()
 	decs["ExtensionWatch"] = reflect.TypeFor[runtime_2.ExtensionWatch]()
 	decs["Fetch"] = runtime_2.Fetch
+	decs["GetCache"] = runtime_2.GetCache
 	decs["ProxyURL"] = runtime_2.ProxyURL
+	decs["SaveCache"] = runtime_2.SaveCache
 	decs["TLSConfig"] = reflect.TypeFor[runtime_2.TLSConfig]()
 	packages["github.com/miru-project/miru-core/pkg/extension/golang/runtime"] = native.Package{
 		Name:         "runtime",
 		Declarations: decs,
 	}
 	// "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
-	decs = make(native.Declarations, 9)
+	decs = make(native.Declarations, 11)
 	decs["ExtensionDetail"] = reflect.TypeFor[sdk.ExtensionDetail]()
 	decs["ExtensionEpisodeGroup"] = reflect.TypeFor[sdk.ExtensionEpisodeGroup]()
 	decs["ExtensionListItem"] = reflect.TypeFor[sdk.ExtensionListItem]()
@@ -3722,7 +3725,9 @@ func init() {
 	decs["ExtensionMirrorGroup"] = reflect.TypeFor[sdk.ExtensionMirrorGroup]()
 	decs["ExtensionWatch"] = reflect.TypeFor[sdk.ExtensionWatch]()
 	decs["Fetch"] = &sdk.Fetch
+	decs["GetCache"] = &sdk.GetCache
 	decs["ProxyURL"] = &sdk.ProxyURL
+	decs["SaveCache"] = &sdk.SaveCache
 	decs["TLSConfig"] = reflect.TypeFor[sdk.TLSConfig]()
 	packages["github.com/miru-project/miru-core/pkg/extension/golang/sdk"] = native.Package{
 		Name:         "sdk",

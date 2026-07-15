@@ -62,6 +62,19 @@ const Miru = {
     }
   },
 
+  // Cross-function / cross-call variable store. Because the goja VM is disposed
+  // after every execution, long-lived state that an extension wants to share
+  // between its functions (e.g. a value computed once in load() and read later
+  // by latest()/search()/detail()) must live outside the VM. These delegate to
+  // the native saveCache/getCache functions registered by the host. Values are
+  // always strings.
+  saveCache: (key, value) => {
+    return saveCache(key, String(value));
+  },
+  getCache: (key) => {
+    return getCache(key);
+  },
+
 }
 var latest = () => {
   throw new Error("not implement latest");

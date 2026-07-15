@@ -1,14 +1,10 @@
 package binary
 
 import (
-	"embed"
 	"fmt"
 
 	_ "golang.org/x/mobile/bind"
 )
-
-//go:embed assets/*
-var f embed.FS
 
 type (
 	AndroidLib struct{}

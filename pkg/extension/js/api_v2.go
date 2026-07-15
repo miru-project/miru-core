@@ -1,12 +1,7 @@
 package js
 
 import (
-	"fmt"
-
 	log "github.com/miru-project/miru-core/pkg/logger"
-
-	"github.com/dop251/goja"
-	"github.com/dop251/goja_nodejs/eventloop"
 )
 
 func LoadApiV2(ext *Ext) {
@@ -20,55 +15,13 @@ func LoadApiV2(ext *Ext) {
 	ApiPkgCache.SetError(ext.Pkg, "")
 
 	api.initEvalV2String()
-	api.initRuntimeV2(ext.Pkg)
+	// Run the extension's load() hook once. AsyncCallBack spins up a fresh goja
+	// VM for this call and disposes it afterwards; only the compiled program in
+	// api.service.program survives, which is exactly what the extension API
+	// requires. Any state load() wants to keep across calls must go through
+	// Miru.saveCache / Miru.getCache.
 	api.loadExtensionV2(ext.Pkg)
 	log.Println("Extension loaded (V2) [JS]:", ext.Name, ext.Pkg)
-}
-
-func (api *ExtApi) initRuntimeV2(pkg string) {
-
-	ApiPkgCache.Store(pkg, api)
-	loop := eventloop.NewEventLoop(
-		eventloop.WithRegistry(sharedRegistry),
-	)
-
-	if api == nil || api.service.program == nil {
-		ApiPkgCache.SetError(pkg, fmt.Sprintf("extension %s not found", pkg))
-	}
-	loop.RunOnLoop(func(vm *goja.Runtime) {
-
-		defer func() {
-			if r := recover(); r != nil {
-				if err, ok := r.(error); ok {
-					ApiPkgCache.SetError(pkg, err.Error())
-					return
-				}
-				log.Print("Unknown panic:", r)
-			}
-		}()
-
-		var job = Job{loop: loop}
-		// Run the program for the  first time
-		reg := sharedRegistry.Enable(vm)
-		api.addModule(reg, vm, &job)
-		// eval base runtime
-		if _, e := vm.RunProgram(baseV2); e != nil {
-			log.Println("Error running base script:", e)
-			panic(e)
-		}
-		// eval extension program
-		if _, e := vm.RunProgram(api.service.program); e != nil {
-			log.Println("Error running extension script:", e)
-			panic(e)
-		}
-
-		api.registerFunction(vm, job)
-
-	})
-	loop.Start()
-	defer loop.Stop()
-
-	extMemMap.Store(pkg, loop)
 }
 
 func (api *ExtApi) loadExtensionV2(pkg string) {

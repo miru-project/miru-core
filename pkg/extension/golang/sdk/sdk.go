@@ -22,6 +22,22 @@
 // declared by the author inside their own extension package, returning these
 // types; the host compiles the extension with Scriggo and calls the functions
 // by name.
+//
+// # Load hook
+//
+// An extension may additionally declare a Load entry point:
+//
+//	func Load() {
+//	    // runs once at startup (mirrors the JavaScript runtime's load())
+//	}
+//
+// Load takes no arguments, exactly like the JavaScript runtime's load() hook.
+// It is invoked by the host exactly once, when the extension is first loaded,
+// and is the place to do one-time setup. Because every request (Search /
+// Latest / ...) compiles and runs a FRESH Scriggo VM, any state Load (or any
+// other function) wants to share across calls must be stored through SaveCache
+// / GetCache -- keyed by the extension's own package name, which the author
+// already knows -- see below.
 package sdk
 
 import "github.com/miru-project/miru-core/pkg/extension/golang/runtime"
@@ -56,3 +72,15 @@ var Fetch = runtime.Fetch
 // the Miru backend fetches server-side on behalf of the client. tlsProfile
 // optionally selects a tls-client fingerprint profile.
 var ProxyURL = runtime.ProxyURL
+
+// SaveCache stores a cross-function variable for this package. It is the Go
+// counterpart of the JavaScript Miru.saveCache. The store is keyed by package
+// name then variable key (matching the JavaScript layout). Values are plain Go
+// values (strings, numbers, slices, maps, structs); avoid storing a value that
+// would break the Scriggo VM when passed back into a function call -- e.g. a
+// function value or a channel tied to a goroutine that has exited.
+var SaveCache = runtime.SaveCache
+
+// GetCache reads a cross-function variable previously stored with SaveCache.
+// The second return value reports whether the key was present.
+var GetCache = runtime.GetCache

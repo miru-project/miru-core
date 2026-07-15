@@ -19,7 +19,10 @@ func LoadApiV1(ext *Ext) {
 	ApiPkgCache.SetError(ext.Pkg, "")
 
 	api.initEvalV1String()
-	api.initRuntimeV1(ext.Pkg)
+	// Run the extension's load() hook once. AsyncCallBack spins up a fresh goja
+	// VM for this call and disposes it afterwards; only the compiled program in
+	// api.service.program survives. Any state load() wants to keep across calls
+	// must go through Miru.saveCache / Miru.getCache.
 	api.loadExtensionV1(ext.Pkg)
 	log.Println("Extension loaded (V1) [JS]:", ext.Name, ext.Pkg)
 

@@ -61,7 +61,7 @@ func TestJSExtensionLoadsAndServes(t *testing.T) {
 	}
 
 	// f is the embedded assets FS (runtime_v1.js etc.) defined in lib.go.
-	jsext.InitRuntime(dir, f)
+	jsext.InitRuntime(dir, jsext.AssetsFS)
 
 	// loadExtApi runs asynchronously inside InitRuntime; give the goja compile
 	// + event-loop bootstrap a moment to finish before we query.

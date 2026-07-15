@@ -11,10 +11,10 @@ import (
 	fasthttp_router "github.com/fasthttp/router"
 	"github.com/miru-project/miru-core/config"
 	"github.com/miru-project/miru-core/ext"
-	golang "github.com/miru-project/miru-core/pkg/extension/golang"
 	"github.com/miru-project/miru-core/pkg/db"
 	"github.com/miru-project/miru-core/pkg/download"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
+	golang "github.com/miru-project/miru-core/pkg/extension/golang"
 	jsext "github.com/miru-project/miru-core/pkg/extension/js"
 	log "github.com/miru-project/miru-core/pkg/logger"
 	"github.com/miru-project/miru-core/pkg/network"
@@ -154,7 +154,7 @@ func Init() {
 	db.Initialize()
 	torrent.Init()
 	download.Init()
-	jsext.InitRuntime(config.Global.ExtensionPath, f)
+	jsext.InitRuntime(config.Global.ExtensionPath, jsext.AssetsFS)
 	// The Go/Scriggo extension runtime resolves packages by stat-ing
 	// <ExtensionDir>/<pkg>.go. Unlike js.ExtPath (set inside
 	// InitRuntime), golang.ExtensionDir is never initialized, so .go

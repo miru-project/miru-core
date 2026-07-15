@@ -17,6 +17,14 @@ import (
 	"github.com/miru-project/miru-core/proto/generate/proto"
 )
 
+// AsyncCallBack runs an extension function (evalStr) on a FRESH goja event
+// loop and returns its (awaited) result. The loop -- i.e. the goja VM -- is
+// created here, used for this single call, and then stopped so it can be
+// garbage collected. Nothing about the VM survives between calls: only the
+// compiled program (api.service.program) is retained in the ExtApi, exactly as
+// the extension API requires. Any state an extension wants to keep across calls
+// must be stored through saveCache/getCache (Miru.saveCache / Miru.getCache),
+// which live outside the VM in extVarCache.
 func AsyncCallBack(api *ExtApi, pkg string, evalStr string) (any, error) {
 	// Lock to prevent multiple calls to the same extension
 	api.lock.Lock()
@@ -24,26 +32,59 @@ func AsyncCallBack(api *ExtApi, pkg string, evalStr string) (any, error) {
 
 	ApiPkgCache.Store(pkg, api)
 
-	var loop *eventloop.EventLoop
-
-	// check extension does  contain eventloop runtime
-	lop, eventLoopIsExist := extMemMap.Load(pkg)
-	if eventLoopIsExist {
-		loop = lop.(*eventloop.EventLoop)
-	} else {
-		api.initRuntimeV1(pkg)
-		lop, _ = extMemMap.Load(pkg)
-		loop = lop.(*eventloop.EventLoop)
+	if api.service == nil || api.service.program == nil {
+		return nil, fmt.Errorf("extension %s not loaded", pkg)
 	}
-	loop.Stop()
+
+	// Spin up a brand new event loop / goja VM for this call. It is disposed at
+	// the end of this function (loop.Stop()).
+	loop := eventloop.NewEventLoop(eventloop.WithRegistry(sharedRegistry))
 	res := make(chan PromiseResult)
 	defer close(res)
+
 	loop.RunOnLoop(func(vm *goja.Runtime) {
+		defer func() {
+			if r := recover(); r != nil {
+				if err, ok := r.(error); ok {
+					ApiPkgCache.SetError(pkg, err.Error())
+					res <- PromiseResult{err: err}
+					return
+				}
+				log.Print("Unknown panic:", r)
+			}
+		}()
+
+		var job = Job{loop: loop}
+		// Run the program for the  first time
+		reg := sharedRegistry.Enable(vm)
+		api.addModule(reg, vm, &job)
+		// eval base runtime (v1 or v2)
+		base := baseV1
+		if api.Ext.ApiVersion == "2" {
+			base = baseV2
+		}
+		if _, e := vm.RunProgram(base); e != nil {
+			panic(e)
+		}
+		// eval the compiled extension program
+		if _, e := vm.RunProgram(api.service.program); e != nil {
+			panic(e)
+		}
+		// Initialize the V1 Ext class instance.
+		if api.Ext.ApiVersion != "2" {
+			if _, e := vm.RunString(fmt.Sprintf(`ext = new globalThis.Ext("%s");`, api.Ext.Website)); e != nil {
+				panic(e)
+			}
+		}
+		api.registerFunction(vm, job)
+
 		o, e := vm.RunString(evalStr)
 		handlePromise(o, res, e)
 	})
 	loop.Start()
-	defer loop.StopNoWait()
+	// Stop (and therefore dispose) the loop once the call has completed.
+	defer loop.Stop()
+
 	result := <-res
 	// handle error from PromiseResult{err: e}
 	if result.err != nil {
@@ -59,60 +100,6 @@ func (api *ExtApi) setFunction(vm *goja.Runtime, name string, fn any) {
 	if e := vm.Set(name, fn); e != nil {
 		log.Println("Error setting function:", api.Ext.Pkg, name, e)
 	}
-}
-
-func (api *ExtApi) initRuntimeV1(pkg string) {
-
-	ApiPkgCache.Store(pkg, api)
-	loop := eventloop.NewEventLoop(
-		eventloop.WithRegistry(sharedRegistry),
-	)
-
-	if api == nil || api.service.program == nil {
-		ApiPkgCache.SetError(pkg, fmt.Sprintf("extension %s not found", pkg))
-	}
-	loop.RunOnLoop(func(vm *goja.Runtime) {
-
-		defer func() {
-			if r := recover(); r != nil {
-				if err, ok := r.(error); ok {
-					ApiPkgCache.SetError(pkg, err.Error())
-					return
-				}
-				log.Print("Unknown panic:", r)
-			}
-		}()
-
-		var job = Job{loop: loop}
-		// Run the program for the  first time
-		reg := sharedRegistry.Enable(vm)
-		api.addModule(reg, vm, &job)
-		// eval base runtime
-		if _, e := vm.RunProgram(baseV1); e != nil {
-			log.Println("Error running base script:", e)
-			panic(e)
-		}
-		// eval extension program
-		if _, e := vm.RunProgram(api.service.program); e != nil {
-			log.Println("Error running extension script:", e)
-			panic(e)
-		}
-		// Initialize the Ext class
-		_, e := vm.RunString(fmt.Sprintf(`
-			ext = new globalThis.Ext("%s");
-			`, api.Ext.Website))
-
-		if e != nil {
-			panic(e)
-		}
-
-		api.registerFunction(vm, job)
-
-	})
-	loop.Start()
-	defer loop.Stop()
-
-	extMemMap.Store(pkg, loop)
 }
 
 func (api *ExtApi) registerFunction(vm *goja.Runtime, job Job) {
@@ -244,5 +231,23 @@ func (api *ExtApi) registerFunction(vm *goja.Runtime, job Job) {
 			panic(err.Error())
 		}
 		return res.Body
+	})
+
+	// Cross-function / cross-call variable store. Because the goja VM is
+	// disposed after every execution, an extension keeps state between calls by
+	// writing here (outside the VM). Miru.saveCache / Miru.getCache in
+	// runtime_v2.js (and the V1 runtime) delegate to these native functions.
+	api.setFunction(vm, "saveCache", func(call goja.FunctionCall) goja.Value {
+		key := call.Argument(0).ToString().String()
+		value := call.Argument(1).ToString().String()
+		saveExtVar(pkg, key, value)
+		return vm.ToValue(nil)
+	})
+	api.setFunction(vm, "getCache", func(call goja.FunctionCall) goja.Value {
+		key := call.Argument(0).ToString().String()
+		if v, ok := getExtVar(pkg, key); ok {
+			return vm.ToValue(v)
+		}
+		return goja.Undefined()
 	})
 }
