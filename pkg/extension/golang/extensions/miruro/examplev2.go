@@ -18,6 +18,7 @@
 package examplev2
 
 import (
+	runtime "github.com/miru-project/miru-core/pkg/extension/golang/runtime"
 	sdk "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
 )
 
@@ -46,10 +47,20 @@ func Detail(pkg, url string) (*sdk.ExtensionDetail, error) {
 	return &sdk.ExtensionDetail{Title: "Example Detail", URL: url}, nil
 }
 
+// Watch returns the V2 mirror list (proto.ExtensionWatch) -- NOT the final
+// link. The frontend lets the user pick a mirror, then calls Mirror() to
+// resolve it. This matches the JavaScript V2 watch() contract.
 func Watch(pkg, url string) (*sdk.ExtensionWatch, error) {
 	return &sdk.ExtensionWatch{URL: url}, nil
 }
 
-func Mirror(pkg, url string) ([]sdk.ExtensionMirror, error) {
-	return []sdk.ExtensionMirror{{Name: "Mirror 1", URL: url}}, nil
+// Mirror resolves the chosen mirror (the URL the user picked from the Watch
+// list) into the final watchable resource. Under the V2 layout Watch() only
+// yields the list of mirrors; the actual stream link is produced here. This
+// extension declares a bangumi type, so the resolved shape is an
+// ExtensionBangumiWatchMirror. The Type field carries the CONTENT type
+// (hls|mp4|torrent|magnet) -- never the extension type -- mirroring what V1
+// watch() returned.
+func Mirror(pkg, url string) (*runtime.ExtensionBangumiWatchMirror, error) {
+	return &runtime.ExtensionBangumiWatchMirror{Type: runtime.HLS, URL: url}, nil
 }

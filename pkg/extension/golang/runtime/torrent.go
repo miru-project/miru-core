@@ -11,7 +11,7 @@ import (
 
 // AddMagnet resolves a magnet: link the same way the JavaScript runtime's
 // handleMediaType did: it adds the magnet to the host torrent client, waits for
-// its metainfo, and returns the resolved Torrent (mirroring the proto
+// its metainfo, and returns the resolved TorrentHandle (mirroring the proto
 // ExtensionBangumiWatchTorrent so the gRPC WatchResponse can hand it to the
 // frontend). The error is returned as a string (not the Go error interface)
 // because Scriggo's playground cannot marshal an error value back from a host
@@ -19,10 +19,10 @@ import (
 //
 // title is the human-readable download name (may be empty; the torrent's own
 // name is used when absent). pkg is the calling extension's package name.
-func AddMagnet(magnet, title, pkg string) (Torrent, string) {
+func AddMagnet(magnet, title, pkg string) (TorrentHandle, string) {
 	res, err := torrent.AddMagnet(magnet, title, pkg)
 	if err != nil {
-		return Torrent{}, err.Error()
+		return TorrentHandle{}, err.Error()
 	}
 	return toRuntimeTorrent(res), ""
 }
@@ -31,11 +31,11 @@ func AddMagnet(magnet, title, pkg string) (Torrent, string) {
 // handleMediaType did. See AddMagnet for the full contract. When link is a
 // relative path it is resolved against the extension's Website (mirroring the
 // JS behaviour) before being fetched.
-func AddTorrent(link, title, pkg, website string) (Torrent, string) {
+func AddTorrent(link, title, pkg, website string) (TorrentHandle, string) {
 	resolved := resolveTorrentURL(link, website)
 	res, err := torrent.AddTorrent(resolved, title, pkg)
 	if err != nil {
-		return Torrent{}, err.Error()
+		return TorrentHandle{}, err.Error()
 	}
 	return toRuntimeTorrent(res), ""
 }
@@ -58,11 +58,11 @@ func resolveTorrentURL(link, website string) string {
 	return base.String()
 }
 
-// toRuntimeTorrent converts the host torrent result into the SDK Torrent model,
+// toRuntimeTorrent converts the host torrent result into the SDK TorrentHandle model,
 // rebuilding the file tree from the flat metainfo file list so the frontend can
 // read it and pick which files to download.
-func toRuntimeTorrent(res result.TorrentDetailResult) Torrent {
-	out := Torrent{
+func toRuntimeTorrent(res result.TorrentDetailResult) TorrentHandle {
+	out := TorrentHandle{
 		InfoHash: res.InfoHash,
 		Files:    res.Files,
 	}

@@ -120,6 +120,9 @@ func TestGojaExtensionWatch(t *testing.T) {
 	assert.NotNil(t, result)
 }
 
+// TestGojaExtensionMirror confirms the V1 contract: V1 extensions have NO mirror
+// step (watch() returns the link directly), so calling Mirror() on a V1 package
+// is rejected. The V2 runtime is the one that supports watch()->mirror().
 func TestGojaExtensionMirror(t *testing.T) {
 	ext := &extension.Extension{
 		Name:       "Test Extension",
@@ -140,7 +143,6 @@ func TestGojaExtensionMirror(t *testing.T) {
 	ApiPkgCache.Store(ext.Pkg, api)
 	ApiPkgCache.SetError(ext.Pkg, "")
 
-	result, err := Mirror(ext.Pkg, "https://example.com/1")
-	assert.NoError(t, err)
-	assert.NotNil(t, result)
+	_, err := Mirror(ext.Pkg, "https://example.com/1")
+	assert.Error(t, err, "V1 extensions must not support Mirror()")
 }

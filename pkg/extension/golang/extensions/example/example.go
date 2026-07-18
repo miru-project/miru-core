@@ -29,7 +29,10 @@
 // no source rewriting or injected imports are performed.
 package example
 
-import sdk "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
+import (
+	runtime "github.com/miru-project/miru-core/pkg/extension/golang/runtime"
+	sdk "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
+)
 
 // Search searches for content by keyword.
 func Search(pkg, kw string, page int, filter string) ([]sdk.ExtensionListItem, error) {
@@ -80,35 +83,40 @@ func Detail(pkg, url string) (*sdk.ExtensionDetail, error) {
 
 // Watch returns watch/stream information for a content item. This example
 // declares the combined "all" extension type, so it returns the
-// ExtensionAllWatch carrying a manga page list, a fikushon (novel) chapter, and
+// ExtensionAllMirror carrying a manga page list, a fikushon (novel) chapter, and
 // a bangumi (anime) stream -- all from a single watch call.
-func Watch(pkg, url string) (*sdk.ExtensionAllWatch, error) {
-	return &sdk.ExtensionAllWatch{
-		Manga: &sdk.ExtensionMangaWatch{
+func Watch(pkg, url string) (*sdk.ExtensionAllMirror, error) {
+	return &sdk.ExtensionAllMirror{
+		Manga: &runtime.ExtensionMangaWatchMirror{
 			URLs: []string{
 				"https://example.com/manga/1.jpg",
 				"https://example.com/manga/2.jpg",
 			},
 		},
-		Fikushon: &sdk.ExtensionFikushonWatch{
+		Fikushon: &runtime.ExtensionFikushonWatchMirror{
 			Title: "Chapter 1",
 			Content: []string{
 				"Paragraph one of the novel.",
 				"Paragraph two of the novel.",
 			},
 		},
-		Bangumi: &sdk.ExtensionBangumiWatch{
-			Type: "bangumi",
+		Bangumi: &runtime.ExtensionBangumiWatchMirror{
+			Type: runtime.HLS,
 			URL:  url,
 		},
 	}, nil
 }
 
-// Mirror returns mirror/alternative URLs for a content item.
-func Mirror(pkg, url string) ([]sdk.ExtensionMirror, error) {
-	return []sdk.ExtensionMirror{
-		{
-			Name: "Mirror 1",
+// Mirror resolves the chosen source into the final watchable resource. Because the
+// Golang (Scriggo) V2 runtime treats Watch() as a list of mirrors for the user
+// to pick from and Mirror() as the step that yields the actual stream link
+// (mirroring the JavaScript V2 layout), this returns the resolved per-type watch
+// for the selected mirror rather than a list of candidates. The example declares
+// an "all" type, so the resolved shape is bundled inside ExtensionAllMirror.
+func Mirror(pkg, url string) (*sdk.ExtensionAllMirror, error) {
+	return &sdk.ExtensionAllMirror{
+		Bangumi: &runtime.ExtensionBangumiWatchMirror{
+			Type: runtime.HLS,
 			URL:  url,
 		},
 	}, nil

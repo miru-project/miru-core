@@ -195,30 +195,44 @@ type ExtensionMirror struct {
 	Headers map[string]string `json:"headers,omitempty"`
 }
 
-// ExtensionMangaWatch is the per-type watch shape for manga extensions. A Golang
+// ExtensionMangaWatchMirror is the per-type watch shape for manga extensions. A Golang
 // extension that declares @type manga returns this from its Watch entry point.
-type ExtensionMangaWatch struct {
+type ExtensionMangaWatchMirror struct {
 	URLs    []string          `json:"urls"`
 	Headers map[string]string `json:"headers,omitempty"`
 }
 
-// ExtensionFikushonWatch is the per-type watch shape for novel/fiction
+// ExtensionFikushonWatchMirror is the per-type watch shape for novel/fiction
 // (fikushon) extensions. A Golang extension that declares @type fikushon returns
 // this from its Watch entry point.
-type ExtensionFikushonWatch struct {
+type ExtensionFikushonWatchMirror struct {
 	Content  []string `json:"content"`
 	Title    string   `json:"title"`
 	Subtitle string   `json:"subtitle,omitempty"`
 }
 
-// ExtensionBangumiWatchSubtitle is a single subtitle track for a bangumi watch.
-type ExtensionBangumiWatchSubtitle struct {
+// ExtensionBangumiWatchMirrorSubtitle is a single subtitle track for a bangumi watch.
+type ExtensionBangumiWatchMirrorSubtitle struct {
 	Language *string `json:"language,omitempty"`
 	Title    string  `json:"title"`
 	URL      string  `json:"url"`
 }
 
-// ExtensionBangumiWatch is the per-type watch shape for bangumi (anime) video
+// BangumiWatchType is the CONTENT type of a bangumi (anime) stream/mirror --
+// hls, mp4, torrent, or magnet. It mirrors the dart ExtensionWatchBangumiType
+// enum and the V1 watch() vocabulary, and is never the extension type
+// ("bangumi"). The host uses it to pick a player/handler uniformly across V1
+// watch() and V2 mirror().
+type BangumiWatchType string
+
+const (
+	HLS     BangumiWatchType = "hls"
+	MP4     BangumiWatchType = "mp4"
+	Torrent BangumiWatchType = "torrent"
+	Magnet  BangumiWatchType = "magnet"
+)
+
+// ExtensionBangumiWatchMirror is the per-type watch shape for bangumi (anime) video
 // extensions. A Golang extension that declares @type bangumi returns this from
 // its Watch entry point.
 //
@@ -226,13 +240,15 @@ type ExtensionBangumiWatchSubtitle struct {
 // JavaScript handleMediaType behaviour) and fills Torrent; an author may also
 // resolve one explicitly via sdk.AddMagnet / sdk.AddTorrent and set Torrent
 // themselves. The frontend reads Torrent to decide which files to download.
-type ExtensionBangumiWatch struct {
-	Type       string                          `json:"type"`
-	URL        string                          `json:"url"`
-	Subtitles  []ExtensionBangumiWatchSubtitle `json:"subtitles,omitempty"`
-	Headers    map[string]string               `json:"headers,omitempty"`
-	AudioTrack string                          `json:"audioTrack,omitempty"`
-	Torrent    *Torrent                        `json:"torrent,omitempty"`
+//
+// Type carries the CONTENT type (BangumiWatchType), never the extension type.
+type ExtensionBangumiWatchMirror struct {
+	Type       BangumiWatchType                      `json:"type"`
+	URL        string                                `json:"url"`
+	Subtitles  []ExtensionBangumiWatchMirrorSubtitle `json:"subtitles,omitempty"`
+	Headers    map[string]string                     `json:"headers,omitempty"`
+	AudioTrack string                                `json:"audioTrack,omitempty"`
+	Torrent    *TorrentHandle                        `json:"torrent,omitempty"`
 }
 
 // TorrentFileTreeFile is a single file node in a torrent's file tree.
@@ -262,21 +278,22 @@ type TorrentDetail struct {
 	FileTree    *TorrentFileTree `json:"fileTree,omitempty"`
 }
 
-// Torrent is the resolved torrent handle an extension (or the host) attaches to
-// a bangumi watch. It mirrors the proto ExtensionBangumiWatchTorrent message so
-// the gRPC WatchResponse can carry it straight to the frontend.
-type Torrent struct {
+// TorrentHandle is the resolved torrent handle an extension (or the host)
+// attaches to a bangumi watch. It mirrors the proto ExtensionBangumiWatchTorrent
+// message so the gRPC WatchResponse can carry it straight to the frontend. The
+// JSON tag stays "torrent" so the proto field mapping is unchanged.
+type TorrentHandle struct {
 	InfoHash string         `json:"infoHash"`
 	Detail   *TorrentDetail `json:"detail,omitempty"`
 	Files    []string       `json:"files,omitempty"`
 }
 
-// ExtensionAllWatch bundles the three per-type watch shapes (manga, fikushon and
+// ExtensionAllMirror bundles the three per-type watch shapes (manga, fikushon and
 // bangumi) behind a single "all" extension type. A Golang extension that
 // declares @type all returns this from its Watch entry point so the client can
 // render any of the three media kinds from one watch call.
-type ExtensionAllWatch struct {
-	Manga    *ExtensionMangaWatch    `json:"manga,omitempty"`
-	Fikushon *ExtensionFikushonWatch `json:"fikushon,omitempty"`
-	Bangumi  *ExtensionBangumiWatch  `json:"bangumi,omitempty"`
+type ExtensionAllMirror struct {
+	Manga    *ExtensionMangaWatchMirror    `json:"manga,omitempty"`
+	Fikushon *ExtensionFikushonWatchMirror `json:"fikushon,omitempty"`
+	Bangumi  *ExtensionBangumiWatchMirror  `json:"bangumi,omitempty"`
 }

@@ -63,26 +63,21 @@ func (s *MiruCoreServer) Watch(ctx context.Context, req *proto.WatchRequest) (*p
 
 	watchResp := &proto.WatchResponse{}
 
-	// Golang (Scriggo) extensions already emit a fully-typed proto watch value
-	// (the endpoint converted the script struct). Route by the concrete type so
-	// a V2 ExtensionWatch stays on the generic V2 path while a per-type struct
-	// (manga/fikushon/bangumi/all) is emitted as its oneof variant. This lets
-	// Golang support the per-type watches without forcing them through the V1
-	// switch keyed on the declared @type.
+	// Golang (Scriggo) extensions are V2-only: Watch() emits either the generic
+	// proto.ExtensionWatch (the source/group list) or the combined
+	// proto.ExtensionAllWatch. Route the typed result to the matching oneof
+	// variant. A standalone per-type watch (bangumi/manga/fikushon) is never
+	// returned by the golang runtime -- those shapes only appear as members of
+	// proto.ExtensionAllWatch -- so any other concrete type is a server-side
+	// bug and surfaces as an error.
 	if endpoint.IsGolang(req.Pkg) {
 		switch d := res.Data.(type) {
 		case *proto.ExtensionWatch:
 			watchResp.Data = &proto.WatchResponse_Watch{Watch: d}
-		case *proto.ExtensionBangumiWatch:
-			watchResp.Data = &proto.WatchResponse_Bangumi{Bangumi: d}
-		case *proto.ExtensionMangaWatch:
-			watchResp.Data = &proto.WatchResponse_Manga{Manga: d}
-		case *proto.ExtensionFikushonWatch:
-			watchResp.Data = &proto.WatchResponse_Fikushon{Fikushon: d}
 		case *proto.ExtensionAllWatch:
 			watchResp.Data = &proto.WatchResponse_All{All: d}
 		default:
-			return nil, fmt.Errorf("watch result for golang extension %q does not conform to any known watch shape (got %T)", req.Pkg, res.Data)
+			return nil, fmt.Errorf("watch result for golang extension %q does not conform to the V2 watch contract (got %T); golang extensions must return proto.ExtensionWatch or proto.ExtensionAllWatch", req.Pkg, res.Data)
 		}
 		return watchResp, nil
 	}
@@ -147,16 +142,44 @@ func (s *MiruCoreServer) Mirror(ctx context.Context, req *proto.MirrorRequest) (
 		return nil, err
 	}
 
-	// Golang (Scriggo) extensions are v2-only and emit a flat
-	// []*proto.ExtensionMirror list (the Mirror step that follows Watch).
-	// MirrorResponse carries no raw/any fallback, so a golang mirror list --
-	// which does not map onto any of the typed oneof members -- does not
-	// conform. The frontend resolves mirrors from the Watch result instead.
+	mirrorResp := &proto.MirrorResponse{}
+
+	// Golang (Scriggo) extensions are v2-only: Watch() yields the mirror list
+	// and Mirror() resolves the chosen mirror to the final per-type watch (exactly
+	// like the JavaScript V2 runtime). Route it into the matching MirrorResponse
+	// oneof variant by the declared @type, the same switch the JS path uses.
 	if endpoint.IsGolang(req.Pkg) {
-		return nil, fmt.Errorf("mirror result for extension %q (golang runtime) does not conform to any known watch type; resolve mirrors from the Watch response instead", req.Pkg)
+		switch api.WatchType {
+		case extension.WatchTypeBangumi:
+			data, err := endpoint.Unmarshal[proto.ExtensionBangumiWatch](res)
+			if err != nil {
+				return nil, err
+			}
+			mirrorResp.Data = &proto.MirrorResponse_Bangumi{Bangumi: data}
+		case extension.WatchTypeManga:
+			data, err := endpoint.Unmarshal[proto.ExtensionMangaWatch](res)
+			if err != nil {
+				return nil, err
+			}
+			mirrorResp.Data = &proto.MirrorResponse_Manga{Manga: data}
+		case extension.WatchTypeFikushon:
+			data, err := endpoint.Unmarshal[proto.ExtensionFikushonWatch](res)
+			if err != nil {
+				return nil, err
+			}
+			mirrorResp.Data = &proto.MirrorResponse_Fikushon{Fikushon: data}
+		case extension.WatchTypeAll:
+			data, err := endpoint.Unmarshal[proto.ExtensionAllWatch](res)
+			if err != nil {
+				return nil, err
+			}
+			mirrorResp.Data = &proto.MirrorResponse_All{All: data}
+		default:
+			return nil, fmt.Errorf("mirror result for extension %q (golang runtime) does not conform to any known watch type (got %q)", req.Pkg, api.WatchType)
+		}
+		return mirrorResp, nil
 	}
 
-	mirrorResp := &proto.MirrorResponse{}
 	switch api.WatchType {
 	case extension.WatchTypeBangumi:
 		data, err := endpoint.Unmarshal[proto.ExtensionBangumiWatch](res)

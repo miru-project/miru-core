@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/miru-project/miru-core/pkg/extension"
+	"github.com/miru-project/miru-core/proto/generate/proto"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -154,11 +155,18 @@ func TestExampleExtensionWatchOutput(t *testing.T) {
 
 func TestExampleExtensionMirrorOutput(t *testing.T) {
 	ExtensionDir = filepath.Join("extensions", "example")
-	mirrors, err := Mirror("example", "https://example.com/1")
+	res, err := Mirror("example", "https://example.com/1")
 	if err != nil {
 		t.Fatalf("Mirror failed: %v", err)
 	}
-	if mirrors == nil {
+	if res == nil {
 		t.Errorf("expected mirror result, got nil")
+	}
+	all, ok := res.(*proto.ExtensionAllWatch)
+	if !ok {
+		t.Fatalf("expected *proto.ExtensionAllWatch, got %T", res)
+	}
+	if all.Bangumi == nil || all.Bangumi.Url != "https://example.com/1" {
+		t.Errorf("expected bangumi mirror url to be set, got %+v", all.Bangumi)
 	}
 }

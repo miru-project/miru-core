@@ -66,6 +66,10 @@ import (
 	expvar "expvar"
 	flag "flag"
 	fmt "fmt"
+	goquery "github.com/PuerkitoBio/goquery"
+	tls_client "github.com/bogdanfinn/tls-client"
+	runtime_2 "github.com/miru-project/miru-core/pkg/extension/golang/runtime"
+	sdk "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
 	ast "go/ast"
 	build "go/build"
 	constraint "go/build/constraint"
@@ -161,10 +165,6 @@ import (
 	utf8 "unicode/utf8"
 	_ "unique"
 	_ "weak"
-	goquery "github.com/PuerkitoBio/goquery"
-	runtime_2 "github.com/miru-project/miru-core/pkg/extension/golang/runtime"
-	sdk "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
-	tls_client "github.com/bogdanfinn/tls-client"
 )
 
 import "github.com/open2b/scriggo/native"
@@ -3703,14 +3703,18 @@ func init() {
 	decs["AddMagnet"] = runtime_2.AddMagnet
 	decs["AddTorrent"] = runtime_2.AddTorrent
 	decs["DeleteCache"] = runtime_2.DeleteCache
-	decs["ExtensionAllWatch"] = reflect.TypeFor[runtime_2.ExtensionAllWatch]()
-	decs["ExtensionBangumiWatch"] = reflect.TypeFor[runtime_2.ExtensionBangumiWatch]()
-	decs["ExtensionBangumiWatchSubtitle"] = reflect.TypeFor[runtime_2.ExtensionBangumiWatchSubtitle]()
+	decs["ExtensionAllMirror"] = reflect.TypeFor[runtime_2.ExtensionAllMirror]()
+	decs["ExtensionBangumiWatchMirror"] = reflect.TypeFor[runtime_2.ExtensionBangumiWatchMirror]()
+	decs["ExtensionBangumiWatchMirrorSubtitle"] = reflect.TypeFor[runtime_2.ExtensionBangumiWatchMirrorSubtitle]()
+	decs["BangumiWatchType"] = reflect.TypeFor[runtime_2.BangumiWatchType]()
+	decs["HLS"] = runtime_2.HLS
+	decs["MP4"] = runtime_2.MP4
+	decs["Magnet"] = runtime_2.Magnet
 	decs["ExtensionDetail"] = reflect.TypeFor[runtime_2.ExtensionDetail]()
 	decs["ExtensionEpisodeGroup"] = reflect.TypeFor[runtime_2.ExtensionEpisodeGroup]()
-	decs["ExtensionFikushonWatch"] = reflect.TypeFor[runtime_2.ExtensionFikushonWatch]()
+	decs["ExtensionFikushonWatchMirror"] = reflect.TypeFor[runtime_2.ExtensionFikushonWatchMirror]()
 	decs["ExtensionListItem"] = reflect.TypeFor[runtime_2.ExtensionListItem]()
-	decs["ExtensionMangaWatch"] = reflect.TypeFor[runtime_2.ExtensionMangaWatch]()
+	decs["ExtensionMangaWatchMirror"] = reflect.TypeFor[runtime_2.ExtensionMangaWatchMirror]()
 	decs["ExtensionMirror"] = reflect.TypeFor[runtime_2.ExtensionMirror]()
 	decs["ExtensionMirrorGroup"] = reflect.TypeFor[runtime_2.ExtensionMirrorGroup]()
 	decs["ExtensionWatch"] = reflect.TypeFor[runtime_2.ExtensionWatch]()
@@ -3719,7 +3723,10 @@ func init() {
 	decs["ProxyURL"] = runtime_2.ProxyURL
 	decs["SaveCache"] = runtime_2.SaveCache
 	decs["TLSConfig"] = reflect.TypeFor[runtime_2.TLSConfig]()
-	decs["Torrent"] = reflect.TypeFor[runtime_2.Torrent]()
+	// Torrent is the CONTENT type constant ("torrent"); the resolved handle
+	// struct lives under TorrentHandle so the two do not collide in the VM.
+	decs["Torrent"] = runtime_2.Torrent
+	decs["TorrentHandle"] = reflect.TypeFor[runtime_2.TorrentHandle]()
 	decs["TorrentDetail"] = reflect.TypeFor[runtime_2.TorrentDetail]()
 	decs["TorrentFileTree"] = reflect.TypeFor[runtime_2.TorrentFileTree]()
 	decs["TorrentFileTreeFile"] = reflect.TypeFor[runtime_2.TorrentFileTreeFile]()
@@ -3728,17 +3735,21 @@ func init() {
 		Declarations: decs,
 	}
 	// "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
-	decs = make(native.Declarations, 22)
+	decs = make(native.Declarations, 19)
 	decs["AddMagnet"] = &sdk.AddMagnet
 	decs["AddTorrent"] = &sdk.AddTorrent
-	decs["ExtensionAllWatch"] = reflect.TypeFor[sdk.ExtensionAllWatch]()
-	decs["ExtensionBangumiWatch"] = reflect.TypeFor[sdk.ExtensionBangumiWatch]()
-	decs["ExtensionBangumiWatchSubtitle"] = reflect.TypeFor[sdk.ExtensionBangumiWatchSubtitle]()
+	decs["ExtensionAllMirror"] = reflect.TypeFor[sdk.ExtensionAllMirror]()
+	decs["ExtensionBangumiWatchMirror"] = reflect.TypeFor[sdk.ExtensionBangumiWatchMirror]()
+	decs["ExtensionMangaWatchMirror"] = reflect.TypeFor[sdk.ExtensionMangaWatchMirror]()
+	decs["ExtensionFikushonWatchMirror"] = reflect.TypeFor[sdk.ExtensionFikushonWatchMirror]()
+	decs["ExtensionBangumiWatchMirrorSubtitle"] = reflect.TypeFor[sdk.ExtensionBangumiWatchMirrorSubtitle]()
+	decs["BangumiWatchType"] = reflect.TypeFor[sdk.BangumiWatchType]()
+	decs["HLS"] = sdk.HLS
+	decs["MP4"] = sdk.MP4
+	decs["Magnet"] = sdk.Magnet
 	decs["ExtensionDetail"] = reflect.TypeFor[sdk.ExtensionDetail]()
 	decs["ExtensionEpisodeGroup"] = reflect.TypeFor[sdk.ExtensionEpisodeGroup]()
-	decs["ExtensionFikushonWatch"] = reflect.TypeFor[sdk.ExtensionFikushonWatch]()
 	decs["ExtensionListItem"] = reflect.TypeFor[sdk.ExtensionListItem]()
-	decs["ExtensionMangaWatch"] = reflect.TypeFor[sdk.ExtensionMangaWatch]()
 	decs["ExtensionMirror"] = reflect.TypeFor[sdk.ExtensionMirror]()
 	decs["ExtensionMirrorGroup"] = reflect.TypeFor[sdk.ExtensionMirrorGroup]()
 	decs["ExtensionWatch"] = reflect.TypeFor[sdk.ExtensionWatch]()
@@ -3747,7 +3758,11 @@ func init() {
 	decs["ProxyURL"] = &sdk.ProxyURL
 	decs["SaveCache"] = &sdk.SaveCache
 	decs["TLSConfig"] = reflect.TypeFor[sdk.TLSConfig]()
+	// sdk.Torrent aliases the handle struct; the content constant is exposed via
+	// the runtime package (runtime.Torrent == "torrent"). Expose TorrentHandle too
+	// so sdk authors can build a handle directly.
 	decs["Torrent"] = reflect.TypeFor[sdk.Torrent]()
+	decs["TorrentHandle"] = reflect.TypeFor[sdk.Torrent]()
 	packages["github.com/miru-project/miru-core/pkg/extension/golang/sdk"] = native.Package{
 		Name:         "sdk",
 		Declarations: decs,

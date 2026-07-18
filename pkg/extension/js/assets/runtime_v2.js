@@ -88,11 +88,61 @@ var createFilter = () => {
 var detail = () => {
   throw new Error("not implement detail");
 }
+// V2 watch() MUST return a LIST OF MIRRORS, NOT the final link. The host maps
+// the returned value into proto.ExtensionWatch and the frontend lets the user
+// pick one mirror, then calls mirror(url) to resolve it.
+//
+// Accepted shapes (host accepts both):
+//   - { groups: [{ title, mirrors: [{ name, url, headers }] }] }   (array form)
+//   - { groups: { "Server 1": [{ name, url, headers }], ... } }    (object form,
+//     keyed by group title -- recommended, see example below)
+//
+// Example:
+//   var watch = (url) => {
+//     const groups = {
+//       "Server 1": [{ name: "Mirror 1", url: "https://.../1", headers: {} }],
+//       "Server 2": [{ name: "Mirror 2", url: "https://.../2", headers: {} }],
+//     };
+//     return {
+//       groups: Object.keys(groups).map((title) => ({
+//         title: title,
+//         mirrors: groups[title],
+//       })),
+//     };
+//   };
 var watch = () => {
   throw new Error("not implement watch");
 }
+
+// V2 mirror(url) receives the mirror URL the user picked from watch() and MUST
+// return the FINAL per-type watch object for that mirror (one of the proto
+// watch shapes dictated by the extension's @type). This is exactly the shape
+// that V1 watch() returned -- "V2 mirror is like V1 watch on all resources".
+// For bangumi that is:
+//   { type: "hls" | "mp4" | "torrent" | "magnet", url, headers: { ... } }
+// NOTE the `type` field is the CONTENT type (hls/mp4/torrent/magnet), NEVER
+// the extension type ("bangumi"). The host routes the result into the matching
+// MirrorResponse variant.
+//
+// DEFAULT BEHAVIOUR: if an extension does NOT define mirror(), the host
+// simply echoes the chosen mirror URL back as the link itself (a pass-through).
+// Define mirror() to do real work -- decode the URL, add headers, resolve to
+// a torrent, etc. -- when you need more than the raw mirror link.
+//
+// Example:
+//   var mirror = (url) => {
+//     const decoded = decode_url(url);
+//     return {
+//       type: "hls",
+//       url: decoded,
+//       headers: {
+//         "User-Agent": "Mozilla/5.0 ...",
+//         "Referer": "https://example.com/",
+//       },
+//     };
+//   };
 var mirror = (url) => {
-  return url;
+  throw new Error("not implement mirror");
 }
 var checkUpdate = () => {
   throw new Error("not implement checkUpdate");

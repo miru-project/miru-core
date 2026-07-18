@@ -51,29 +51,52 @@ type (
 	ExtensionDetail = runtime.ExtensionDetail
 	// ExtensionEpisodeGroup groups a set of episode URLs under a title.
 	ExtensionEpisodeGroup = runtime.ExtensionEpisodeGroup
-	// ExtensionWatch is stream/watch information for a content item.
+	// ExtensionWatch is stream/watch information for a content item. It is the
+	// only standalone watch shape a Go (Scriggo) V2 extension may return from
+	// Watch(); the resolved stream is fetched via Mirror().
 	ExtensionWatch = runtime.ExtensionWatch
 	// ExtensionMirrorGroup groups alternative mirrors under a title.
 	ExtensionMirrorGroup = runtime.ExtensionMirrorGroup
 	// ExtensionMirror is a single alternative mirror URL.
 	ExtensionMirror = runtime.ExtensionMirror
-	// ExtensionMangaWatch is the per-type watch shape for manga extensions.
-	ExtensionMangaWatch = runtime.ExtensionMangaWatch
-	// ExtensionFikushonWatch is the per-type watch shape for novel/fiction.
-	ExtensionFikushonWatch = runtime.ExtensionFikushonWatch
-	// ExtensionBangumiWatchSubtitle is a single subtitle track for a bangumi watch.
-	ExtensionBangumiWatchSubtitle = runtime.ExtensionBangumiWatchSubtitle
-	// ExtensionBangumiWatch is the per-type watch shape for bangumi extensions.
-	// When URL is a magnet/torrent link the host resolves it (mirroring the JS
-	// handleMediaType behaviour) and fills Torrent; an author may also resolve
-	// one explicitly via AddMagnet / AddTorrent and set Torrent themselves.
-	ExtensionBangumiWatch = runtime.ExtensionBangumiWatch
-	// ExtensionAllWatch bundles manga + fikushon + bangumi behind @type all.
-	ExtensionAllWatch = runtime.ExtensionAllWatch
+	// ExtensionBangumiWatchMirrorSubtitle is a single subtitle track for a bangumi mirror.
+	ExtensionBangumiWatchMirrorSubtitle = runtime.ExtensionBangumiWatchMirrorSubtitle
+	// ExtensionBangumiWatchMirror is the per-type mirror shape for bangumi
+	// (anime) video extensions. A Go (Scriggo) V2 extension that declares
+	// @type bangumi returns this from its Mirror() entry point.
+	ExtensionBangumiWatchMirror = runtime.ExtensionBangumiWatchMirror
+	// ExtensionMangaWatchMirror is the per-type mirror shape for manga
+	// extensions. A Go (Scriggo) V2 extension that declares @type manga returns
+	// this from its Mirror() entry point.
+	ExtensionMangaWatchMirror = runtime.ExtensionMangaWatchMirror
+	// ExtensionFikushonWatchMirror is the per-type mirror shape for novel/
+	// fiction (fikushon) extensions. A Go (Scriggo) V2 extension that declares
+	// @type fikushon returns this from its Mirror() entry point.
+	ExtensionFikushonWatchMirror = runtime.ExtensionFikushonWatchMirror
+	// ExtensionAllMirror bundles manga + fikushon + bangumi behind @type all. It
+	// is the only other shape a Go (Scriggo) V2 extension may return from
+	// Watch(). Its members use the per-type runtime types, which are NOT exposed
+	// as standalone Watch() return values in the V2 runtime.
+	ExtensionAllMirror = runtime.ExtensionAllMirror
 	// TLSConfig configures browser-impersonating (tls-client) requests.
 	TLSConfig = runtime.TLSConfig
 	// Torrent is the resolved torrent handle attached to a bangumi watch.
-	Torrent = runtime.Torrent
+	Torrent = runtime.TorrentHandle
+)
+
+// BangumiWatchType is the content type of a bangumi stream/mirror
+// (hls/mp4/torrent/magnet). It is the runtime.BangumiWatchType type alias.
+type BangumiWatchType = runtime.BangumiWatchType
+
+// Content-type constants for a bangumi stream/mirror. These mirror what V1
+// watch() and V2 mirror() emit as the per-type watch "type" field, and the
+// dart ExtensionWatchBangumiType enum (hls/mp4/torrent/magnet). Note: the
+// "torrent" content value is the string literal "torrent" -- the sdk alias
+// Torrent above is the resolved torrent HANDLE, not this content type.
+var (
+	HLS    = runtime.HLS
+	MP4    = runtime.MP4
+	Magnet = runtime.Magnet
 )
 
 // Fetch performs a single HTTP request and returns the raw response body, the

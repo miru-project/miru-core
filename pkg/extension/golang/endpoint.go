@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/miru-project/miru-core/pkg/extension"
-	"github.com/miru-project/miru-core/pkg/extension/golang/runtime"
 	"github.com/miru-project/miru-core/proto/generate/proto"
 )
 
@@ -108,13 +107,13 @@ func Detail(pkg string, url string) (*proto.ExtensionDetail, error) {
 // *extension.Extension carries the ApiVersion/WatchType used by callers to
 // pick a response shape.
 //
-// The Golang backend is not locked to a single watch shape: it routes the watch
-// result to the right proto message by the *concrete struct the extension
-// returned*. A legacy extension that returns the V2 ExtensionWatch shape stays
-// on the generic V2 path, while an extension that returns one of the per-type
-// shapes (manga/fikushon/bangumi/all) gets that oneof variant. This lets Golang
-// support the per-type watches (and the combined "all" type) without breaking
-// extensions that still emit the V2 ExtensionWatch.
+// The Golang (Scriggo) V2 backend emits exactly two watch shapes from Watch():
+// the generic V2 ExtensionWatch (the source/group list, resolved via Mirror),
+// or the combined ExtensionAllMirror (carrying the manga/fikushon/bangumi members
+// behind @type all). A standalone per-type watch (manga/fikushon/bangumi) is not
+// a valid Watch() return for golang extensions; those shapes only appear as
+// members of ExtensionAllMirror. toWatchValue routes the result to the right proto
+// message based on the concrete script struct.
 func Watch(pkg string, url string) (any, *extension.Extension, error) {
 	res, err := callExtension(pkg, "Watch", pkg, url)
 	if err != nil {
@@ -124,78 +123,12 @@ func Watch(pkg string, url string) (any, *extension.Extension, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	// Mirror the JavaScript handleMediaType: for bangumi (or the bangumi member
-	// of an "all" extension) resolve a magnet:/torrent URL into a Torrent and
-	// attach it so the frontend can read the file tree. The extension may also
-	// have resolved one itself (via sdk.AddMagnet / sdk.AddTorrent); in that
-	// case we leave its Torrent untouched.
-	resolveBangumiTorrent(pkg, meta, res)
+	// The extension returns the final per-type watch already (just like the JS
+	// V1 watch() shape { type, url }). Torrent/magnet links are passed through
+	// untouched -- resolving the torrent (fetching metainfo, building the file
+	// tree) is the FRONTEND's job, not the host's. See runtime_v1.js and the JS
+	// V1 watch() contract.
 	return toWatchValue(res), meta, nil
-}
-
-// resolveBangumiTorrent attaches a resolved Torrent to any bangumi-shaped watch
-// result whose URL is a magnet:/torrent link and that does not already carry a
-// Torrent. It handles both a top-level *ExtensionBangumiWatch and the bangumi
-// member of a *ExtensionAllWatch.
-func resolveBangumiTorrent(pkg string, meta *extension.Extension, res any) {
-	if res == nil {
-		return
-	}
-	rv := reflect.ValueOf(res)
-	for rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {
-		if rv.IsNil() {
-			return
-		}
-		rv = rv.Elem()
-	}
-	if rv.Kind() != reflect.Struct {
-		return
-	}
-	switch rv.Type().Name() {
-	case "ExtensionBangumiWatch":
-		attachTorrentIfNeeded(pkg, meta, rv)
-	case "ExtensionAllWatch":
-		bangumi := fieldByName(rv, "Bangumi")
-		if bangumi.IsValid() && bangumi.Kind() == reflect.Ptr && !bangumi.IsNil() {
-			attachTorrentIfNeeded(pkg, meta, bangumi.Elem())
-		}
-	}
-}
-
-// attachTorrentIfNeeded resolves a magnet:/torrent URL on a bangumi watch struct
-// and sets its Torrent field when the field is currently nil.
-func attachTorrentIfNeeded(pkg string, meta *extension.Extension, rw reflect.Value) {
-	torrentField := fieldByName(rw, "Torrent")
-	if torrentField.IsValid() && !torrentField.IsNil() {
-		return // author already resolved one
-	}
-	urlField := fieldByName(rw, "URL")
-	if !urlField.IsValid() || urlField.Kind() != reflect.String {
-		return
-	}
-	link := urlField.String()
-	if !isTorrentLink(link) {
-		return
-	}
-	website := ""
-	if meta != nil {
-		website = meta.Website
-	}
-	var (
-		t   runtime.Torrent
-		err string
-	)
-	if strings.HasPrefix(link, "magnet:") {
-		t, err = runtime.AddMagnet(link, "", pkg)
-	} else {
-		t, err = runtime.AddTorrent(link, "", pkg, website)
-	}
-	if err != "" {
-		return // leave the raw link for the frontend to resolve
-	}
-	if torrentField.IsValid() && torrentField.CanSet() {
-		torrentField.Set(reflect.ValueOf(&t))
-	}
 }
 
 // isTorrentLink reports whether a watch URL refers to a torrent resource that
@@ -211,16 +144,15 @@ func isTorrentLink(link string) bool {
 }
 
 // toWatchValue converts a script Watch return value into the appropriate proto
-// watch message. It inspects the concrete (script) type the extension returned:
+// watch message. The Go (Scriggo) V2 runtime only emits two watch shapes:
 //
-//   - *ExtensionMangaWatch    -> proto.ExtensionMangaWatch
-//   - *ExtensionFikushonWatch -> proto.ExtensionFikushonWatch
-//   - *ExtensionBangumiWatch  -> proto.ExtensionBangumiWatch
-//   - *ExtensionAllWatch      -> proto.ExtensionAllWatch
+//   - *ExtensionAllMirror -> proto.ExtensionAllWatch (the @type all bundle)
 //   - anything else (incl. the V2 *ExtensionWatch) -> proto.ExtensionWatch
 //
-// The match is by the script type's name so the generic V2 shape keeps using
-// the legacy V2 conversion while the per-type shapes get their own.
+// A standalone per-type watch (*ExtensionMangaWatchMirror / *ExtensionFikushonWatchMirror /
+// *ExtensionBangumiWatchMirror) is NOT a valid Watch() return for golang extensions;
+// those shapes only occur as members of ExtensionAllMirror (built from the
+// internal runtime types). The match is by the script type's name.
 func toWatchValue(res any) any {
 	if res == nil {
 		return toWatch(res)
@@ -236,26 +168,95 @@ func toWatchValue(res any) any {
 		return toWatch(res)
 	}
 	switch rv.Type().Name() {
-	case "ExtensionMangaWatch":
-		return toMangaWatch(res)
-	case "ExtensionFikushonWatch":
-		return toFikushonWatch(res)
-	case "ExtensionBangumiWatch":
-		return toBangumiWatch(res)
-	case "ExtensionAllWatch":
+	case "ExtensionAllMirror":
 		return toAllWatch(res)
 	default:
 		return toWatch(res)
 	}
 }
 
-// Mirror returns mirror/alternative URLs for a content item.
+// toMirrorValue converts a script Mirror() return value into the final proto
+// per-type watch. Under the V2 layout the user has already picked a mirror from
+// the Watch list, so Mirror() yields the actual stream link (and any torrent that
+// needs resolving) rather than another list.
+//
+// The script may return either:
+//   - a per-type watch struct (ExtensionBangumiWatchMirror / ExtensionMangaWatchMirror /
+//     ExtensionFikushonWatchMirror / ExtensionAllMirror) -- converted directly, or
+//   - a single ExtensionMirror (or a bare URL string) -- the chosen source; we
+//     wrap it into the per-type watch dictated by the extension's declared @type.
+//
+// The concrete output shape follows meta.WatchType exactly, so the gRPC Mirror
+// handler can route it into the matching MirrorResponse oneof variant (same as
+// the JavaScript V2 runtime).
+func toMirrorValue(res any, meta *extension.Extension) any {
+	if res == nil {
+		return toPerTypeWatch(meta, "", nil)
+	}
+	rv := reflect.ValueOf(res)
+	for rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {
+		if rv.IsNil() {
+			return toPerTypeWatch(meta, "", nil)
+		}
+		rv = rv.Elem()
+	}
+	// A per-type watch struct: hand it to the matching converter.
+	if rv.Kind() == reflect.Struct {
+		switch rv.Type().Name() {
+		case "ExtensionBangumiWatchMirror":
+			if meta.WatchType == extension.WatchTypeAll {
+				// An "all" extension may return the same per-type shape a
+				// single-type extension returns; nest it into the matching
+				// all member (e.g. a torrent link lands in Bangumi) so the
+				// content is not dropped.
+				return allWatchOf("bangumi", res)
+			}
+			return toBangumiWatch(res)
+		case "ExtensionMangaWatchMirror":
+			if meta.WatchType == extension.WatchTypeAll {
+				return allWatchOf("manga", res)
+			}
+			return toMangaWatch(res)
+		case "ExtensionFikushonWatchMirror":
+			if meta.WatchType == extension.WatchTypeAll {
+				return allWatchOf("fikushon", res)
+			}
+			return toFikushonWatch(res)
+		case "ExtensionAllMirror":
+			return toAllWatch(res)
+		}
+	}
+	// A single ExtensionMirror object: take its URL as the chosen source.
+	if rv.Kind() == reflect.Struct && rv.Type().Name() == "ExtensionMirror" {
+		return toPerTypeWatch(meta, strField(rv, "URL"), nil)
+	}
+	// A bare URL string: the chosen source directly.
+	if s, ok := res.(string); ok {
+		return toPerTypeWatch(meta, s, nil)
+	}
+	// Fallback: treat as a generic watch (a list of mirrors is not valid here).
+	return toWatch(res)
+}
+
+// Mirror resolves the chosen source (the mirror URL the user picked from the
+// Watch list) into the final watchable resource. Under the V2 layout Watch()
+// only yields the list of mirrors; the actual stream link -- and any torrent
+// that needs resolving -- is produced here, mirroring the JavaScript V2 step.
+// The returned value is a proto per-type watch (bangumi/manga/fikushon/all)
+// whose concrete shape follows the extension's declared @type.
 func Mirror(pkg string, url string) (any, error) {
 	res, err := callExtension(pkg, "Mirror", pkg, url)
 	if err != nil {
 		return nil, err
 	}
-	return toMirrors(res), nil
+	meta, err := GetExtensionMeta(pkg)
+	if err != nil {
+		return nil, err
+	}
+	// Mirror returns the final per-type watch (the JS V1 watch() shape
+	// { type, url }). Torrent/magnet links pass through untouched -- the
+	// frontend resolves them, exactly like the JS V1 watch() contract.
+	return toMirrorValue(res, meta), nil
 }
 
 // ---------------------------------------------------------------------------
@@ -563,7 +564,60 @@ func derefStruct(v any) reflect.Value {
 	return rv
 }
 
-// toMangaWatch converts a script ExtensionMangaWatch into the proto equivalent.
+// toPerTypeWatch builds the proto per-type watch dictated by the extension's
+// declared @type from a single resolved URL (the mirror the user picked). It is
+// used when a Mirror() script returns a bare URL / ExtensionMirror rather than a
+// full watch struct. The concrete shape follows meta.WatchType so the gRPC Mirror
+// handler routes it into the matching MirrorResponse oneof variant.
+// contentTypeFromURL derives the V2 content type (hls|mp4|torrent|magnet) from a
+// resolved watch URL so the per-type watch's Type field always carries a CONTENT
+// type, never the extension type. This is the same vocabulary V1 watch() used
+// (e.g. a stream URL is "hls", a magnet:/torrent link is "magnet"/"torrent").
+func contentTypeFromURL(url string) string {
+	switch {
+	case strings.HasPrefix(url, "magnet:"):
+		return "magnet"
+	case isTorrentLink(url):
+		return "torrent"
+	case strings.HasSuffix(strings.ToLower(url), ".mp4"):
+		return "mp4"
+	default:
+		return "hls"
+	}
+}
+
+// toPerTypeWatch builds the proto per-type watch dictated by the extension's
+// declared @type from a single resolved URL (the mirror the user picked). It is
+// used when a Mirror() script returns a bare URL / ExtensionMirror rather than a
+// full watch struct. The concrete shape follows meta.WatchType so the gRPC Mirror
+// handler routes it into the matching MirrorResponse oneof variant.
+//
+// The per-type watch's Type field carries the CONTENT type (hls|mp4|torrent|
+// magnet) derived from the URL -- never the extension type ("bangumi"). This is
+// exactly what V1 watch() produced, and what V2 mirror() must produce so the
+// frontend can pick a player/handler uniformly.
+func toPerTypeWatch(meta *extension.Extension, url string, headers map[string]string) any {
+	cType := contentTypeFromURL(url)
+	switch meta.WatchType {
+	case extension.WatchTypeBangumi:
+		return &proto.ExtensionBangumiWatch{Type: cType, Url: url, Headers: headers}
+	case extension.WatchTypeManga:
+		return &proto.ExtensionMangaWatch{Urls: []string{url}, Headers: headers}
+	case extension.WatchTypeFikushon:
+		return &proto.ExtensionFikushonWatch{Content: []string{url}}
+	case extension.WatchTypeAll:
+		// A single URL with no declared sub-shape is ambiguous for "all"; expose
+		// it as the bangumi member so the frontend still receives a usable resource.
+		return &proto.ExtensionAllWatch{Bangumi: &proto.ExtensionBangumiWatch{Type: cType, Url: url, Headers: headers}}
+	default:
+		// Unknown @type: fall back to a generic watch carrying the URL.
+		return &proto.ExtensionWatch{Groups: []*proto.ExtensionMirrorGroup{
+			{Mirrors: []*proto.ExtensionMirror{{Name: url, Url: url, Headers: headers}}},
+		}}
+	}
+}
+
+// toMangaWatch converts a script ExtensionMangaWatchMirror into the proto equivalent.
 func toMangaWatch(v any) *proto.ExtensionMangaWatch {
 	rv := derefStruct(v)
 	if !rv.IsValid() {
@@ -575,7 +629,7 @@ func toMangaWatch(v any) *proto.ExtensionMangaWatch {
 	}
 }
 
-// toFikushonWatch converts a script ExtensionFikushonWatch into the proto
+// toFikushonWatch converts a script ExtensionFikushonWatchMirror into the proto
 // equivalent.
 func toFikushonWatch(v any) *proto.ExtensionFikushonWatch {
 	rv := derefStruct(v)
@@ -589,7 +643,7 @@ func toFikushonWatch(v any) *proto.ExtensionFikushonWatch {
 	}
 }
 
-// toBangumiWatch converts a script ExtensionBangumiWatch into the proto
+// toBangumiWatch converts a script ExtensionBangumiWatchMirror into the proto
 // equivalent, descending into its subtitles. Torrent resolution is a frontend
 // concern, so no torrent metadata is carried here.
 func toBangumiWatch(v any) *proto.ExtensionBangumiWatch {
@@ -701,7 +755,7 @@ func toBangumiSubtitles(v any) []*proto.ExtensionBangumiWatchSubtitle {
 	return out
 }
 
-// toAllWatch converts a script ExtensionAllWatch into the proto equivalent,
+// toAllWatch converts a script ExtensionAllMirror into the proto equivalent,
 // delegating each member to its own converter.
 func toAllWatch(v any) *proto.ExtensionAllWatch {
 	rv := derefStruct(v)
@@ -712,5 +766,24 @@ func toAllWatch(v any) *proto.ExtensionAllWatch {
 		Manga:    toMangaWatch(anyField(rv, "Manga")),
 		Fikushon: toFikushonWatch(anyField(rv, "Fikushon")),
 		Bangumi:  toBangumiWatch(anyField(rv, "Bangumi")),
+	}
+}
+
+// allWatchOf wraps a single per-type watch result into an "all" watch, used when
+// an @type all extension returns a bare per-type shape (the same struct a
+// single-type extension would return). The content is nested into the matching
+// member so it is not dropped -- e.g. a torrent/magnet link (a bangumi-shaped
+// result) lands in the Bangumi member and the frontend still receives
+// { type: "torrent"|"magnet", url } to resolve/stream itself.
+func allWatchOf(kind string, res any) *proto.ExtensionAllWatch {
+	switch kind {
+	case "bangumi":
+		return &proto.ExtensionAllWatch{Bangumi: toBangumiWatch(res)}
+	case "manga":
+		return &proto.ExtensionAllWatch{Manga: toMangaWatch(res)}
+	case "fikushon":
+		return &proto.ExtensionAllWatch{Fikushon: toFikushonWatch(res)}
+	default:
+		return &proto.ExtensionAllWatch{Bangumi: toBangumiWatch(res)}
 	}
 }

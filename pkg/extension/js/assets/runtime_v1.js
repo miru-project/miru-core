@@ -195,6 +195,16 @@ class Extension {
     throw new Error("not implement detail");
   }
 
+  // V1 watch(url) returns the FINAL watchable resource DIRECTLY (no mirror
+  // step). The returned shape follows the extension's @type: for bangumi a
+  // per-type object { type: "hls"|"mp4"|"torrent"|"magnet", url, headers },
+  // for manga a list of page URLs, for fikushon a list of text content, for
+  // all a combined object. NOTE the bangumi `type` is the CONTENT type
+  // (hls/mp4/torrent/magnet), never the extension type ("bangumi"). This is
+  // exactly the shape V2 mirror() produces -- V1 watch() and V2 mirror() are
+  // the same final-link step, just reached differently. The host resolves any
+  // magnet:/torrent link into a downloadable handle. V1 has no mirror()
+  // function.
   watch(url) {
     throw new Error("not implement watch");
   }

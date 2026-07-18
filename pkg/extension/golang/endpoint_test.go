@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/miru-project/miru-core/pkg/extension"
+	"github.com/miru-project/miru-core/proto/generate/proto"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -46,9 +47,15 @@ func TestWatchEndpoint(t *testing.T) {
 
 func TestMirrorEndpoint(t *testing.T) {
 	ExtensionDir = filepath.Join("extensions", "example")
-	mirrors, err := Mirror("example", "https://example.com/1")
+	// Under the V2 layout Mirror() resolves the chosen source into the final
+	// per-type watch, not a list of candidates.
+	res, err := Mirror("example", "https://example.com/1")
 	assert.NoError(t, err)
-	assert.NotNil(t, mirrors)
+	assert.NotNil(t, res)
+	all, ok := res.(*proto.ExtensionAllWatch)
+	assert.True(t, ok, "expected *proto.ExtensionAllWatch, got %T", res)
+	assert.NotNil(t, all.Bangumi)
+	assert.Equal(t, "https://example.com/1", all.Bangumi.Url)
 }
 
 func TestStdLibMD5(t *testing.T) {
