@@ -6,7 +6,7 @@
 // @license      MIT
 // @icon         https://example.com/icon.png
 // @package      example
-// @type         bangumi
+// @type         all
 // @webSite      https://example.com
 // @nsfw         false
 // ==/MiruExtension==
@@ -78,21 +78,28 @@ func Detail(pkg, url string) (*sdk.ExtensionDetail, error) {
 	}, nil
 }
 
-// Watch returns watch/stream information for a content item.
-func Watch(pkg, url string) (*sdk.ExtensionWatch, error) {
-	return &sdk.ExtensionWatch{
-		Title: "Example Watch",
-		URL:   url,
-		Groups: []sdk.ExtensionMirrorGroup{
-			{
-				Title: "Group 1",
-				Mirrors: []sdk.ExtensionMirror{
-					{
-						Name: "Mirror 1",
-						URL:  url,
-					},
-				},
+// Watch returns watch/stream information for a content item. This example
+// declares the combined "all" extension type, so it returns the
+// ExtensionAllWatch carrying a manga page list, a fikushon (novel) chapter, and
+// a bangumi (anime) stream -- all from a single watch call.
+func Watch(pkg, url string) (*sdk.ExtensionAllWatch, error) {
+	return &sdk.ExtensionAllWatch{
+		Manga: &sdk.ExtensionMangaWatch{
+			URLs: []string{
+				"https://example.com/manga/1.jpg",
+				"https://example.com/manga/2.jpg",
 			},
+		},
+		Fikushon: &sdk.ExtensionFikushonWatch{
+			Title: "Chapter 1",
+			Content: []string{
+				"Paragraph one of the novel.",
+				"Paragraph two of the novel.",
+			},
+		},
+		Bangumi: &sdk.ExtensionBangumiWatch{
+			Type: "bangumi",
+			URL:  url,
 		},
 	}, nil
 }

@@ -83,7 +83,7 @@ func (s *MiruCoreServer) HelloMiru(ctx context.Context, req *proto.HelloMiruRequ
 			Tags:        e.Tags,
 			Api:         e.ApiVersion,
 			Error:       e.Error,
-			Type:        e.WatchType,
+			Type:        string(e.WatchType),
 		}
 	}
 

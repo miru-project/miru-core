@@ -339,13 +339,27 @@ func runAttachWatchWithEvents(args []string, client pb.ExtensionServiceClient, _
 				fmt.Printf("    %d. %s: %s\n", i+1, mirror.Name, mirror.Url)
 			}
 		}
-	case *pb.WatchResponse_Raw:
-		if data.Raw == "" {
-			fmt.Println("  [WARNING: Raw response is empty - data may be malformed]")
-			fmt.Println("\nExpected schema for WatchResponse:")
-			printWatchSchema()
+	case *pb.WatchResponse_All:
+		if data.All == nil {
+			fmt.Println("  [WARNING: All watch is empty - data may be malformed]")
+			fmt.Println("\nExpected schema for ExtensionAllWatch:")
+			printAllWatchSchema()
 		}
-		fmt.Printf("  Raw: %s\n", data.Raw)
+		if data.All.Manga != nil {
+			fmt.Printf("  [MANGA] %d page(s)\n", len(data.All.Manga.Urls))
+			for i, u := range data.All.Manga.Urls {
+				fmt.Printf("    Page %d: %s\n", i+1, u)
+			}
+		}
+		if data.All.Fikushon != nil {
+			fmt.Printf("  [FIKUSHON] %q (%d paragraph(s))\n", data.All.Fikushon.Title, len(data.All.Fikushon.Content))
+			for i, c := range data.All.Fikushon.Content {
+				fmt.Printf("    %d. %s\n", i+1, c)
+			}
+		}
+		if data.All.Bangumi != nil {
+			fmt.Printf("  [BANGUMI] %s\n", data.All.Bangumi.Url)
+		}
 	default:
 		fmt.Println("  No watch data available")
 		fmt.Println("\nExpected schema for WatchResponse (oneof data):")
@@ -405,13 +419,21 @@ func runAttachMirrorWithEvents(args []string, client pb.ExtensionServiceClient, 
 		for i, c := range data.Fikushon.Content {
 			fmt.Printf("  Content %d: %s\n", i+1, c)
 		}
-	case *pb.MirrorResponse_Raw:
-		if data.Raw == "" {
-			fmt.Println("  [WARNING: Raw response is empty - data may be malformed]")
-			fmt.Println("\nExpected schema for MirrorResponse:")
-			printMirrorSchema()
+	case *pb.MirrorResponse_All:
+		if data.All == nil {
+			fmt.Println("  [WARNING: All mirror is empty - data may be malformed]")
+			fmt.Println("\nExpected schema for ExtensionAllWatch:")
+			printAllWatchSchema()
 		}
-		fmt.Printf("  Raw: %s\n", data.Raw)
+		if data.All.Manga != nil {
+			fmt.Printf("  [MANGA] %d page(s)\n", len(data.All.Manga.Urls))
+		}
+		if data.All.Fikushon != nil {
+			fmt.Printf("  [FIKUSHON] %q\n", data.All.Fikushon.Title)
+		}
+		if data.All.Bangumi != nil {
+			fmt.Printf("  [BANGUMI] %s\n", data.All.Bangumi.Url)
+		}
 	default:
 		fmt.Println("  No mirror data available")
 		fmt.Println("\nExpected schema for MirrorResponse (oneof data):")
@@ -456,9 +478,17 @@ func printWatchSchema() {
 	fmt.Println("      bangumi  -> ExtensionBangumiWatch  (video streaming URL)")
 	fmt.Println("      manga    -> ExtensionMangaWatch    (manga page URLs)")
 	fmt.Println("      fikushon -> ExtensionFikushonWatch (novel content)")
+	fmt.Println("      all      -> ExtensionAllWatch      (manga + fikushon + bangumi)")
 	fmt.Println("      watch    -> ExtensionWatch         (multi-mirror V2 format)")
-	fmt.Println("      raw      -> string                 (raw/fallback URL)")
 	fmt.Println("    }")
+	fmt.Println("  }")
+}
+
+func printAllWatchSchema() {
+	fmt.Println("  ExtensionAllWatch {")
+	fmt.Println("    manga    -> ExtensionMangaWatch    (manga page URLs)")
+	fmt.Println("    fikushon -> ExtensionFikushonWatch (novel content)")
+	fmt.Println("    bangumi  -> ExtensionBangumiWatch  (video streaming URL)")
 	fmt.Println("  }")
 }
 
@@ -490,12 +520,6 @@ func printBangumiWatchSchema() {
 	fmt.Println("      }")
 	fmt.Println("    headers:    map<string, string>")
 	fmt.Println("    audio_track: optional string                   (audio track)")
-	fmt.Println("    torrent:    optional ExtensionBangumiWatchTorrent")
-	fmt.Println("      ExtensionBangumiWatchTorrent {")
-	fmt.Println("        info_hash: string                         (torrent info hash)")
-	fmt.Println("        detail:   ExtensionBangumiWatchTorrentDetail")
-	fmt.Println("        files:    repeated string                  (file paths)")
-	fmt.Println("      }")
 	fmt.Println("  }")
 }
 
@@ -520,7 +544,7 @@ func printMirrorSchema() {
 	fmt.Println("      bangumi  -> ExtensionBangumiWatch  (video streaming URL)")
 	fmt.Println("      manga    -> ExtensionMangaWatch    (manga page URLs)")
 	fmt.Println("      fikushon -> ExtensionFikushonWatch (novel content)")
-	fmt.Println("      raw      -> string                 (raw/fallback URL)")
+	fmt.Println("      all      -> ExtensionAllWatch      (manga + fikushon + bangumi)")
 	fmt.Println("    }")
 	fmt.Println("  }")
 }

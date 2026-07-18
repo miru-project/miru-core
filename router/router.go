@@ -4,9 +4,9 @@ import (
 	fasthttp_router "github.com/fasthttp/router"
 	"github.com/miru-project/miru-core/config"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
+	"github.com/miru-project/miru-core/pkg/grpc"
 	"github.com/miru-project/miru-core/pkg/logger"
 	"github.com/miru-project/miru-core/pkg/network"
-	"github.com/miru-project/miru-core/pkg/grpc"
 	"github.com/valyala/fasthttp"
 )
 

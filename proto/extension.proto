@@ -62,7 +62,7 @@ message MirrorResponse {
     ExtensionBangumiWatch bangumi = 1;
     ExtensionMangaWatch manga = 2;
     ExtensionFikushonWatch fikushon = 3;
-    string raw = 4;
+    ExtensionAllWatch all = 5;
   }
 }
 
@@ -72,7 +72,7 @@ message WatchResponse {
     ExtensionMangaWatch manga = 2;
     ExtensionFikushonWatch fikushon = 3;
     ExtensionWatch watch = 4;
-    string raw = 5; // Backup or unknown watch type
+    ExtensionAllWatch all = 6;
   }
 }
 

@@ -50,7 +50,7 @@ func (s *MiruCoreServer) WatchEvents(req *proto.WatchEventsRequest, stream proto
 						Tags:        e.Tags,
 						Api:         e.ApiVersion,
 						Error:       e.Error,
-						Type:        e.WatchType,
+						Type:        string(e.WatchType),
 					}
 				}
 				resp = &proto.WatchEventsResponse{

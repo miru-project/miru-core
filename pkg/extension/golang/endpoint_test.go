@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/miru-project/miru-core/pkg/extension"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -114,29 +115,6 @@ func main() {
 	assert.Contains(t, out.String(), "Hello")
 }
 
-func TestEndpointJSONHelpers(t *testing.T) {
-	ExtensionDir = filepath.Join("extensions", "example")
-	jsonStr, err := SearchJSON("example", 1, "test", "")
-	assert.NoError(t, err)
-	assert.Contains(t, jsonStr, "Example Result 1")
-
-	jsonStr, err = LatestJSON("example", 1)
-	assert.NoError(t, err)
-	assert.Contains(t, jsonStr, "Latest Example 1")
-
-	jsonStr, err = DetailJSON("example", "https://example.com/1")
-	assert.NoError(t, err)
-	assert.Contains(t, jsonStr, "Example Detail")
-
-	jsonStr, err = WatchJSON("example", "https://example.com/1")
-	assert.NoError(t, err)
-	assert.Contains(t, jsonStr, "Group 1")
-
-	jsonStr, err = MirrorJSON("example", "https://example.com/1")
-	assert.NoError(t, err)
-	assert.Contains(t, jsonStr, "Mirror 1")
-}
-
 func TestParseExtensionMetadata(t *testing.T) {
 	ExtensionDir = filepath.Join("extensions", "example")
 	meta, err := ParseExtensionMetadata("example")
@@ -147,6 +125,29 @@ func TestParseExtensionMetadata(t *testing.T) {
 	assert.Equal(t, "MIT", meta.License)
 	assert.Equal(t, "all", meta.Lang)
 	assert.Equal(t, "example", meta.Pkg)
-	assert.Equal(t, "bangumi", meta.WatchType)
+	assert.Equal(t, extension.WatchTypeAll, meta.WatchType)
 	assert.Equal(t, "v0.1.0", meta.Version)
+}
+
+func TestParseWatchType(t *testing.T) {
+	// The four valid kinds parse to their enum constant.
+	for _, tc := range []struct {
+		raw  string
+		want extension.WatchType
+	}{
+		{"bangumi", extension.WatchTypeBangumi},
+		{"manga", extension.WatchTypeManga},
+		{"fikushon", extension.WatchTypeFikushon},
+		{"all", extension.WatchTypeAll},
+	} {
+		got, err := extension.ParseWatchType(tc.raw)
+		assert.NoError(t, err, "expected %q to be valid", tc.raw)
+		assert.Equal(t, tc.want, got)
+	}
+
+	// Anything else is rejected so non-conforming extensions fail fast.
+	for _, bad := range []string{"video", "novel", "", "Bangumi"} {
+		_, err := extension.ParseWatchType(bad)
+		assert.Error(t, err, "expected %q to be rejected", bad)
+	}
 }

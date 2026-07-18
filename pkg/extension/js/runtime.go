@@ -23,7 +23,7 @@ func (Runtime) Latest(pkg string, page int) ([]*proto.ExtensionListItem, error) 
 }
 
 func (Runtime) Search(pkg string, page int, kw string, filter string) ([]*proto.ExtensionListItem, error) {
-	return Search[proto.ExtensionListItem](pkg, page, kw, filter)
+	return Search(pkg, page, kw, filter)
 }
 
 func (Runtime) Watch(pkg string, url string) (any, *extension.Extension, error) {
@@ -31,7 +31,7 @@ func (Runtime) Watch(pkg string, url string) (any, *extension.Extension, error) 
 }
 
 func (Runtime) Detail(pkg string, url string) (*proto.ExtensionDetail, error) {
-	return Detail[proto.ExtensionDetail](pkg, url)
+	return Detail(pkg, url)
 }
 
 func (Runtime) Mirror(pkg string, url string) (any, error) {

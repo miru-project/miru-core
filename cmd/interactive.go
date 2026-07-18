@@ -276,6 +276,16 @@ func selectMirror(watchResp *pb.WatchResponse) string {
 		// Fikushon is text content, not playable
 		fmt.Println("Fikushon content is not playable with mpv.")
 		return ""
+	case *pb.WatchResponse_All:
+		// The "all" type bundles manga/fikushon/bangumi. Prefer the bangumi
+		// stream for mpv playback.
+		if data.All != nil && data.All.Bangumi != nil && data.All.Bangumi.Url != "" {
+			return data.All.Bangumi.Url
+		}
+		if data.All != nil && data.All.Manga != nil && len(data.All.Manga.Urls) > 0 {
+			return data.All.Manga.Urls[0]
+		}
+		return ""
 	case *pb.WatchResponse_Watch:
 		groups := data.Watch.Groups
 		if len(groups) == 0 {
@@ -326,8 +336,6 @@ func selectMirror(watchResp *pb.WatchResponse) string {
 			}
 			return allMirrors[idx-1].Url
 		}
-	case *pb.WatchResponse_Raw:
-		return data.Raw
 	}
 
 	return ""

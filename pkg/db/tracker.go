@@ -114,7 +114,7 @@ func DeleteTracker(detailUrl string, pkg string, provider string) error {
 	err = client.Tracker.UpdateOne(t).
 		RemoveDetails(d).
 		Exec(context.Background())
-	if (err != nil) {
+	if err != nil {
 		return err
 	}
 
@@ -156,7 +156,7 @@ func DeleteTrackerByTrackerId(trackerId string, provider string) error {
 			tracker.ProviderEQ(tracker.Provider(provider)),
 		)).
 		All(ctx)
-	
+
 	if err == nil {
 		for _, d := range details {
 			if d.TrackIds != nil {

@@ -96,7 +96,11 @@ func ParseExtensionMetadata(content string, fileName string) (*Extension, error)
 				ext.ApiVersion = value
 			}
 		case "type":
-			ext.WatchType = value
+			wt, err := ParseWatchType(value)
+			if err != nil {
+				return nil, err
+			}
+			ext.WatchType = wt
 		case "tags":
 			tagList := strings.Split(value, ",")
 			for i, tag := range tagList {

@@ -57,8 +57,23 @@ type (
 	ExtensionMirrorGroup = runtime.ExtensionMirrorGroup
 	// ExtensionMirror is a single alternative mirror URL.
 	ExtensionMirror = runtime.ExtensionMirror
+	// ExtensionMangaWatch is the per-type watch shape for manga extensions.
+	ExtensionMangaWatch = runtime.ExtensionMangaWatch
+	// ExtensionFikushonWatch is the per-type watch shape for novel/fiction.
+	ExtensionFikushonWatch = runtime.ExtensionFikushonWatch
+	// ExtensionBangumiWatchSubtitle is a single subtitle track for a bangumi watch.
+	ExtensionBangumiWatchSubtitle = runtime.ExtensionBangumiWatchSubtitle
+	// ExtensionBangumiWatch is the per-type watch shape for bangumi extensions.
+	// When URL is a magnet/torrent link the host resolves it (mirroring the JS
+	// handleMediaType behaviour) and fills Torrent; an author may also resolve
+	// one explicitly via AddMagnet / AddTorrent and set Torrent themselves.
+	ExtensionBangumiWatch = runtime.ExtensionBangumiWatch
+	// ExtensionAllWatch bundles manga + fikushon + bangumi behind @type all.
+	ExtensionAllWatch = runtime.ExtensionAllWatch
 	// TLSConfig configures browser-impersonating (tls-client) requests.
 	TLSConfig = runtime.TLSConfig
+	// Torrent is the resolved torrent handle attached to a bangumi watch.
+	Torrent = runtime.Torrent
 )
 
 // Fetch performs a single HTTP request and returns the raw response body, the
@@ -72,6 +87,17 @@ var Fetch = runtime.Fetch
 // the Miru backend fetches server-side on behalf of the client. tlsProfile
 // optionally selects a tls-client fingerprint profile.
 var ProxyURL = runtime.ProxyURL
+
+// AddMagnet resolves a magnet: link (mirroring the JavaScript handleMediaType)
+// and returns the resolved Torrent. The second return value is a non-empty
+// error string when resolution fails. title may be empty (the torrent's own
+// name is used); pkg is the calling extension's package name.
+var AddMagnet = runtime.AddMagnet
+
+// AddTorrent resolves a .torrent file URL (mirroring the JavaScript
+// handleMediaType). A relative link is resolved against the extension's
+// website origin. See AddMagnet for the return-value contract.
+var AddTorrent = runtime.AddTorrent
 
 // SaveCache stores a cross-function variable for this package. It is the Go
 // counterpart of the JavaScript Miru.saveCache. The store is keyed by package

@@ -17,7 +17,7 @@ func TestGojaExtensionSearch(t *testing.T) {
 	}
 
 	api := &ExtApi{
-		Ext:       ext,
+		Ext: ext,
 		asyncCallBack: func(api *ExtApi, pkg string, evalStr string) (any, error) {
 			return []any{
 				map[string]any{"title": "Test Result 1", "url": "https://example.com/1"},
@@ -28,7 +28,7 @@ func TestGojaExtensionSearch(t *testing.T) {
 	ApiPkgCache.Store(ext.Pkg, api)
 	ApiPkgCache.SetError(ext.Pkg, "")
 
-	result, err := Search[proto.ExtensionListItem](ext.Pkg, 1, "test", "")
+	result, err := Search(ext.Pkg, 1, "test", "")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Len(t, result, 2)
@@ -45,7 +45,7 @@ func TestGojaExtensionLatest(t *testing.T) {
 	}
 
 	api := &ExtApi{
-		Ext:       ext,
+		Ext: ext,
 		asyncCallBack: func(api *ExtApi, pkg string, evalStr string) (any, error) {
 			return []any{
 				map[string]any{"title": "Latest Test 1", "url": "https://example.com/latest/1"},
@@ -71,7 +71,7 @@ func TestGojaExtensionDetail(t *testing.T) {
 	}
 
 	api := &ExtApi{
-		Ext:       ext,
+		Ext: ext,
 		asyncCallBack: func(api *ExtApi, pkg string, evalStr string) (any, error) {
 			return map[string]any{
 				"title": "Test Detail",
@@ -83,7 +83,7 @@ func TestGojaExtensionDetail(t *testing.T) {
 	ApiPkgCache.Store(ext.Pkg, api)
 	ApiPkgCache.SetError(ext.Pkg, "")
 
-	result, err := Detail[proto.ExtensionDetail](ext.Pkg, "https://example.com/1")
+	result, err := Detail(ext.Pkg, "https://example.com/1")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.NotNil(t, result.Title)
@@ -99,7 +99,7 @@ func TestGojaExtensionWatch(t *testing.T) {
 	}
 
 	api := &ExtApi{
-		Ext:       ext,
+		Ext: ext,
 		asyncCallBack: func(api *ExtApi, pkg string, evalStr string) (any, error) {
 			return map[string]any{
 				"type": "manga",
@@ -129,7 +129,7 @@ func TestGojaExtensionMirror(t *testing.T) {
 	}
 
 	api := &ExtApi{
-		Ext:       ext,
+		Ext: ext,
 		asyncCallBack: func(api *ExtApi, pkg string, evalStr string) (any, error) {
 			return []any{
 				map[string]any{"name": "Mirror 1", "url": "https://mirror1.example.com/1"},

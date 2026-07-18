@@ -556,7 +556,7 @@ type MirrorResponse struct {
 	//	*MirrorResponse_Bangumi
 	//	*MirrorResponse_Manga
 	//	*MirrorResponse_Fikushon
-	//	*MirrorResponse_Raw
+	//	*MirrorResponse_All
 	Data          isMirrorResponse_Data `protobuf_oneof:"data"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -626,13 +626,13 @@ func (x *MirrorResponse) GetFikushon() *ExtensionFikushonWatch {
 	return nil
 }
 
-func (x *MirrorResponse) GetRaw() string {
+func (x *MirrorResponse) GetAll() *ExtensionAllWatch {
 	if x != nil {
-		if x, ok := x.Data.(*MirrorResponse_Raw); ok {
-			return x.Raw
+		if x, ok := x.Data.(*MirrorResponse_All); ok {
+			return x.All
 		}
 	}
-	return ""
+	return nil
 }
 
 type isMirrorResponse_Data interface {
@@ -651,8 +651,8 @@ type MirrorResponse_Fikushon struct {
 	Fikushon *ExtensionFikushonWatch `protobuf:"bytes,3,opt,name=fikushon,proto3,oneof"`
 }
 
-type MirrorResponse_Raw struct {
-	Raw string `protobuf:"bytes,4,opt,name=raw,proto3,oneof"`
+type MirrorResponse_All struct {
+	All *ExtensionAllWatch `protobuf:"bytes,5,opt,name=all,proto3,oneof"`
 }
 
 func (*MirrorResponse_Bangumi) isMirrorResponse_Data() {}
@@ -661,7 +661,7 @@ func (*MirrorResponse_Manga) isMirrorResponse_Data() {}
 
 func (*MirrorResponse_Fikushon) isMirrorResponse_Data() {}
 
-func (*MirrorResponse_Raw) isMirrorResponse_Data() {}
+func (*MirrorResponse_All) isMirrorResponse_Data() {}
 
 type WatchResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -671,7 +671,7 @@ type WatchResponse struct {
 	//	*WatchResponse_Manga
 	//	*WatchResponse_Fikushon
 	//	*WatchResponse_Watch
-	//	*WatchResponse_Raw
+	//	*WatchResponse_All
 	Data          isWatchResponse_Data `protobuf_oneof:"data"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -750,13 +750,13 @@ func (x *WatchResponse) GetWatch() *ExtensionWatch {
 	return nil
 }
 
-func (x *WatchResponse) GetRaw() string {
+func (x *WatchResponse) GetAll() *ExtensionAllWatch {
 	if x != nil {
-		if x, ok := x.Data.(*WatchResponse_Raw); ok {
-			return x.Raw
+		if x, ok := x.Data.(*WatchResponse_All); ok {
+			return x.All
 		}
 	}
-	return ""
+	return nil
 }
 
 type isWatchResponse_Data interface {
@@ -779,8 +779,8 @@ type WatchResponse_Watch struct {
 	Watch *ExtensionWatch `protobuf:"bytes,4,opt,name=watch,proto3,oneof"`
 }
 
-type WatchResponse_Raw struct {
-	Raw string `protobuf:"bytes,5,opt,name=raw,proto3,oneof"` // Backup or unknown watch type
+type WatchResponse_All struct {
+	All *ExtensionAllWatch `protobuf:"bytes,6,opt,name=all,proto3,oneof"`
 }
 
 func (*WatchResponse_Bangumi) isWatchResponse_Data() {}
@@ -791,7 +791,7 @@ func (*WatchResponse_Fikushon) isWatchResponse_Data() {}
 
 func (*WatchResponse_Watch) isWatchResponse_Data() {}
 
-func (*WatchResponse_Raw) isWatchResponse_Data() {}
+func (*WatchResponse_All) isWatchResponse_Data() {}
 
 // Extension Management
 type DownloadExtensionRequest struct {
@@ -1200,19 +1200,19 @@ const file_proto_extension_proto_rawDesc = "" +
 	"\x03url\x18\x02 \x01(\tR\x03url\"3\n" +
 	"\rMirrorRequest\x12\x10\n" +
 	"\x03pkg\x18\x01 \x01(\tR\x03pkg\x12\x10\n" +
-	"\x03url\x18\x02 \x01(\tR\x03url\"\xd4\x01\n" +
+	"\x03url\x18\x02 \x01(\tR\x03url\"\xed\x01\n" +
 	"\x0eMirrorResponse\x127\n" +
 	"\abangumi\x18\x01 \x01(\v2\x1b.miru.ExtensionBangumiWatchH\x00R\abangumi\x121\n" +
 	"\x05manga\x18\x02 \x01(\v2\x19.miru.ExtensionMangaWatchH\x00R\x05manga\x12:\n" +
-	"\bfikushon\x18\x03 \x01(\v2\x1c.miru.ExtensionFikushonWatchH\x00R\bfikushon\x12\x12\n" +
-	"\x03raw\x18\x04 \x01(\tH\x00R\x03rawB\x06\n" +
-	"\x04data\"\x81\x02\n" +
+	"\bfikushon\x18\x03 \x01(\v2\x1c.miru.ExtensionFikushonWatchH\x00R\bfikushon\x12+\n" +
+	"\x03all\x18\x05 \x01(\v2\x17.miru.ExtensionAllWatchH\x00R\x03allB\x06\n" +
+	"\x04data\"\x9a\x02\n" +
 	"\rWatchResponse\x127\n" +
 	"\abangumi\x18\x01 \x01(\v2\x1b.miru.ExtensionBangumiWatchH\x00R\abangumi\x121\n" +
 	"\x05manga\x18\x02 \x01(\v2\x19.miru.ExtensionMangaWatchH\x00R\x05manga\x12:\n" +
 	"\bfikushon\x18\x03 \x01(\v2\x1c.miru.ExtensionFikushonWatchH\x00R\bfikushon\x12,\n" +
-	"\x05watch\x18\x04 \x01(\v2\x14.miru.ExtensionWatchH\x00R\x05watch\x12\x12\n" +
-	"\x03raw\x18\x05 \x01(\tH\x00R\x03rawB\x06\n" +
+	"\x05watch\x18\x04 \x01(\v2\x14.miru.ExtensionWatchH\x00R\x05watch\x12+\n" +
+	"\x03all\x18\x06 \x01(\v2\x17.miru.ExtensionAllWatchH\x00R\x03allB\x06\n" +
 	"\x04data\"G\n" +
 	"\x18DownloadExtensionRequest\x12\x19\n" +
 	"\brepo_url\x18\x01 \x01(\tR\arepoUrl\x12\x10\n" +
@@ -1284,9 +1284,10 @@ var file_proto_extension_proto_goTypes = []any{
 	(*ExtensionBangumiWatch)(nil),         // 23: miru.ExtensionBangumiWatch
 	(*ExtensionMangaWatch)(nil),           // 24: miru.ExtensionMangaWatch
 	(*ExtensionFikushonWatch)(nil),        // 25: miru.ExtensionFikushonWatch
-	(*ExtensionWatch)(nil),                // 26: miru.ExtensionWatch
-	(*ExtensionSetting)(nil),              // 27: miru.ExtensionSetting
-	(*ExtensionFilter)(nil),               // 28: miru.ExtensionFilter
+	(*ExtensionAllWatch)(nil),             // 26: miru.ExtensionAllWatch
+	(*ExtensionWatch)(nil),                // 27: miru.ExtensionWatch
+	(*ExtensionSetting)(nil),              // 28: miru.ExtensionSetting
+	(*ExtensionFilter)(nil),               // 29: miru.ExtensionFilter
 }
 var file_proto_extension_proto_depIdxs = []int32{
 	20, // 0: miru.CreateFilterResponse.filters:type_name -> miru.CreateFilterResponse.FiltersEntry
@@ -1296,38 +1297,40 @@ var file_proto_extension_proto_depIdxs = []int32{
 	23, // 4: miru.MirrorResponse.bangumi:type_name -> miru.ExtensionBangumiWatch
 	24, // 5: miru.MirrorResponse.manga:type_name -> miru.ExtensionMangaWatch
 	25, // 6: miru.MirrorResponse.fikushon:type_name -> miru.ExtensionFikushonWatch
-	23, // 7: miru.WatchResponse.bangumi:type_name -> miru.ExtensionBangumiWatch
-	24, // 8: miru.WatchResponse.manga:type_name -> miru.ExtensionMangaWatch
-	25, // 9: miru.WatchResponse.fikushon:type_name -> miru.ExtensionFikushonWatch
-	26, // 10: miru.WatchResponse.watch:type_name -> miru.ExtensionWatch
-	27, // 11: miru.GetExtensionSettingsResponse.settings:type_name -> miru.ExtensionSetting
-	27, // 12: miru.SaveExtensionSettingsRequest.settings:type_name -> miru.ExtensionSetting
-	28, // 13: miru.CreateFilterResponse.FiltersEntry.value:type_name -> miru.ExtensionFilter
-	0,  // 14: miru.ExtensionService.Search:input_type -> miru.SearchRequest
-	1,  // 15: miru.ExtensionService.CreateFilter:input_type -> miru.CreateFilterRequest
-	4,  // 16: miru.ExtensionService.Latest:input_type -> miru.LatestRequest
-	6,  // 17: miru.ExtensionService.Detail:input_type -> miru.DetailRequest
-	8,  // 18: miru.ExtensionService.Watch:input_type -> miru.WatchRequest
-	9,  // 19: miru.ExtensionService.Mirror:input_type -> miru.MirrorRequest
-	12, // 20: miru.ExtensionService.DownloadExtension:input_type -> miru.DownloadExtensionRequest
-	14, // 21: miru.ExtensionService.RemoveExtension:input_type -> miru.RemoveExtensionRequest
-	16, // 22: miru.ExtensionService.GetExtensionSettings:input_type -> miru.GetExtensionSettingsRequest
-	18, // 23: miru.ExtensionService.SaveExtensionSettings:input_type -> miru.SaveExtensionSettingsRequest
-	3,  // 24: miru.ExtensionService.Search:output_type -> miru.SearchResponse
-	2,  // 25: miru.ExtensionService.CreateFilter:output_type -> miru.CreateFilterResponse
-	5,  // 26: miru.ExtensionService.Latest:output_type -> miru.LatestResponse
-	7,  // 27: miru.ExtensionService.Detail:output_type -> miru.DetailResponse
-	11, // 28: miru.ExtensionService.Watch:output_type -> miru.WatchResponse
-	10, // 29: miru.ExtensionService.Mirror:output_type -> miru.MirrorResponse
-	13, // 30: miru.ExtensionService.DownloadExtension:output_type -> miru.DownloadExtensionResponse
-	15, // 31: miru.ExtensionService.RemoveExtension:output_type -> miru.RemoveExtensionResponse
-	17, // 32: miru.ExtensionService.GetExtensionSettings:output_type -> miru.GetExtensionSettingsResponse
-	19, // 33: miru.ExtensionService.SaveExtensionSettings:output_type -> miru.SaveExtensionSettingsResponse
-	24, // [24:34] is the sub-list for method output_type
-	14, // [14:24] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	26, // 7: miru.MirrorResponse.all:type_name -> miru.ExtensionAllWatch
+	23, // 8: miru.WatchResponse.bangumi:type_name -> miru.ExtensionBangumiWatch
+	24, // 9: miru.WatchResponse.manga:type_name -> miru.ExtensionMangaWatch
+	25, // 10: miru.WatchResponse.fikushon:type_name -> miru.ExtensionFikushonWatch
+	27, // 11: miru.WatchResponse.watch:type_name -> miru.ExtensionWatch
+	26, // 12: miru.WatchResponse.all:type_name -> miru.ExtensionAllWatch
+	28, // 13: miru.GetExtensionSettingsResponse.settings:type_name -> miru.ExtensionSetting
+	28, // 14: miru.SaveExtensionSettingsRequest.settings:type_name -> miru.ExtensionSetting
+	29, // 15: miru.CreateFilterResponse.FiltersEntry.value:type_name -> miru.ExtensionFilter
+	0,  // 16: miru.ExtensionService.Search:input_type -> miru.SearchRequest
+	1,  // 17: miru.ExtensionService.CreateFilter:input_type -> miru.CreateFilterRequest
+	4,  // 18: miru.ExtensionService.Latest:input_type -> miru.LatestRequest
+	6,  // 19: miru.ExtensionService.Detail:input_type -> miru.DetailRequest
+	8,  // 20: miru.ExtensionService.Watch:input_type -> miru.WatchRequest
+	9,  // 21: miru.ExtensionService.Mirror:input_type -> miru.MirrorRequest
+	12, // 22: miru.ExtensionService.DownloadExtension:input_type -> miru.DownloadExtensionRequest
+	14, // 23: miru.ExtensionService.RemoveExtension:input_type -> miru.RemoveExtensionRequest
+	16, // 24: miru.ExtensionService.GetExtensionSettings:input_type -> miru.GetExtensionSettingsRequest
+	18, // 25: miru.ExtensionService.SaveExtensionSettings:input_type -> miru.SaveExtensionSettingsRequest
+	3,  // 26: miru.ExtensionService.Search:output_type -> miru.SearchResponse
+	2,  // 27: miru.ExtensionService.CreateFilter:output_type -> miru.CreateFilterResponse
+	5,  // 28: miru.ExtensionService.Latest:output_type -> miru.LatestResponse
+	7,  // 29: miru.ExtensionService.Detail:output_type -> miru.DetailResponse
+	11, // 30: miru.ExtensionService.Watch:output_type -> miru.WatchResponse
+	10, // 31: miru.ExtensionService.Mirror:output_type -> miru.MirrorResponse
+	13, // 32: miru.ExtensionService.DownloadExtension:output_type -> miru.DownloadExtensionResponse
+	15, // 33: miru.ExtensionService.RemoveExtension:output_type -> miru.RemoveExtensionResponse
+	17, // 34: miru.ExtensionService.GetExtensionSettings:output_type -> miru.GetExtensionSettingsResponse
+	19, // 35: miru.ExtensionService.SaveExtensionSettings:output_type -> miru.SaveExtensionSettingsResponse
+	26, // [26:36] is the sub-list for method output_type
+	16, // [16:26] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_proto_extension_proto_init() }
@@ -1340,14 +1343,14 @@ func file_proto_extension_proto_init() {
 		(*MirrorResponse_Bangumi)(nil),
 		(*MirrorResponse_Manga)(nil),
 		(*MirrorResponse_Fikushon)(nil),
-		(*MirrorResponse_Raw)(nil),
+		(*MirrorResponse_All)(nil),
 	}
 	file_proto_extension_proto_msgTypes[11].OneofWrappers = []any{
 		(*WatchResponse_Bangumi)(nil),
 		(*WatchResponse_Manga)(nil),
 		(*WatchResponse_Fikushon)(nil),
 		(*WatchResponse_Watch)(nil),
-		(*WatchResponse_Raw)(nil),
+		(*WatchResponse_All)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

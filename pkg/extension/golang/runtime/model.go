@@ -194,3 +194,89 @@ type ExtensionMirror struct {
 	URL     string            `json:"url"`
 	Headers map[string]string `json:"headers,omitempty"`
 }
+
+// ExtensionMangaWatch is the per-type watch shape for manga extensions. A Golang
+// extension that declares @type manga returns this from its Watch entry point.
+type ExtensionMangaWatch struct {
+	URLs    []string          `json:"urls"`
+	Headers map[string]string `json:"headers,omitempty"`
+}
+
+// ExtensionFikushonWatch is the per-type watch shape for novel/fiction
+// (fikushon) extensions. A Golang extension that declares @type fikushon returns
+// this from its Watch entry point.
+type ExtensionFikushonWatch struct {
+	Content  []string `json:"content"`
+	Title    string   `json:"title"`
+	Subtitle string   `json:"subtitle,omitempty"`
+}
+
+// ExtensionBangumiWatchSubtitle is a single subtitle track for a bangumi watch.
+type ExtensionBangumiWatchSubtitle struct {
+	Language *string `json:"language,omitempty"`
+	Title    string  `json:"title"`
+	URL      string  `json:"url"`
+}
+
+// ExtensionBangumiWatch is the per-type watch shape for bangumi (anime) video
+// extensions. A Golang extension that declares @type bangumi returns this from
+// its Watch entry point.
+//
+// When URL is a magnet: or .torrent link the host resolves it (mirroring the
+// JavaScript handleMediaType behaviour) and fills Torrent; an author may also
+// resolve one explicitly via sdk.AddMagnet / sdk.AddTorrent and set Torrent
+// themselves. The frontend reads Torrent to decide which files to download.
+type ExtensionBangumiWatch struct {
+	Type       string                          `json:"type"`
+	URL        string                          `json:"url"`
+	Subtitles  []ExtensionBangumiWatchSubtitle `json:"subtitles,omitempty"`
+	Headers    map[string]string               `json:"headers,omitempty"`
+	AudioTrack string                          `json:"audioTrack,omitempty"`
+	Torrent    *Torrent                        `json:"torrent,omitempty"`
+}
+
+// TorrentFileTreeFile is a single file node in a torrent's file tree.
+type TorrentFileTreeFile struct {
+	Length     int64  `json:"length"`
+	PiecesRoot string `json:"piecesRoot"`
+}
+
+// TorrentFileTree is a node in a torrent's file tree: either a file, a directory
+// (dir), or both (a file that also has sub-directories).
+type TorrentFileTree struct {
+	File *TorrentFileTreeFile        `json:"file,omitempty"`
+	Dir  map[string]*TorrentFileTree `json:"dir,omitempty"`
+}
+
+// TorrentDetail carries the resolved torrent metainfo the frontend needs to
+// render the file tree and pick files to download. All fields are optional to
+// match the proto ExtensionBangumiWatchTorrentDetail message.
+type TorrentDetail struct {
+	PieceLength *int32           `json:"pieceLength,omitempty"`
+	Pieces      *string          `json:"pieces,omitempty"`
+	Name        *string          `json:"name,omitempty"`
+	NameUtf8    *string          `json:"nameUtf8,omitempty"`
+	Length      *int64           `json:"length,omitempty"`
+	Source      *string          `json:"source,omitempty"`
+	MetaVersion *int32           `json:"metaVersion,omitempty"`
+	FileTree    *TorrentFileTree `json:"fileTree,omitempty"`
+}
+
+// Torrent is the resolved torrent handle an extension (or the host) attaches to
+// a bangumi watch. It mirrors the proto ExtensionBangumiWatchTorrent message so
+// the gRPC WatchResponse can carry it straight to the frontend.
+type Torrent struct {
+	InfoHash string         `json:"infoHash"`
+	Detail   *TorrentDetail `json:"detail,omitempty"`
+	Files    []string       `json:"files,omitempty"`
+}
+
+// ExtensionAllWatch bundles the three per-type watch shapes (manga, fikushon and
+// bangumi) behind a single "all" extension type. A Golang extension that
+// declares @type all returns this from its Watch entry point so the client can
+// render any of the three media kinds from one watch call.
+type ExtensionAllWatch struct {
+	Manga    *ExtensionMangaWatch    `json:"manga,omitempty"`
+	Fikushon *ExtensionFikushonWatch `json:"fikushon,omitempty"`
+	Bangumi  *ExtensionBangumiWatch  `json:"bangumi,omitempty"`
+}

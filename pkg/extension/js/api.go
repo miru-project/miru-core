@@ -183,13 +183,13 @@ func (api *ExtApi) registerFunction(vm *goja.Runtime, job Job) {
 
 		url := call.Argument(0).ToString().String()
 		url = strings.ReplaceAll(url, "&amp;", "&")
-		
+
 		// Safe export of options
 		var opt any
 		if len(call.Arguments) > 1 {
 			opt = call.Argument(1).Export()
 		}
-		
+
 		var requestOptions network.RequestOptions
 		if opt != nil {
 			jsonData, e := json.Marshal(opt)

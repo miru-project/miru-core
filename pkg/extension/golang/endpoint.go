@@ -1,7 +1,6 @@
 package golang
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/miru-project/miru-core/pkg/extension"
+	"github.com/miru-project/miru-core/pkg/extension/golang/runtime"
 	"github.com/miru-project/miru-core/proto/generate/proto"
 )
 
@@ -106,7 +106,15 @@ func Detail(pkg string, url string) (*proto.ExtensionDetail, error) {
 
 // Watch returns watch/stream information for a content item. The returned
 // *extension.Extension carries the ApiVersion/WatchType used by callers to
-// pick a response shape. The Golang backend is v2-only.
+// pick a response shape.
+//
+// The Golang backend is not locked to a single watch shape: it routes the watch
+// result to the right proto message by the *concrete struct the extension
+// returned*. A legacy extension that returns the V2 ExtensionWatch shape stays
+// on the generic V2 path, while an extension that returns one of the per-type
+// shapes (manga/fikushon/bangumi/all) gets that oneof variant. This lets Golang
+// support the per-type watches (and the combined "all" type) without breaking
+// extensions that still emit the V2 ExtensionWatch.
 func Watch(pkg string, url string) (any, *extension.Extension, error) {
 	res, err := callExtension(pkg, "Watch", pkg, url)
 	if err != nil {
@@ -116,7 +124,129 @@ func Watch(pkg string, url string) (any, *extension.Extension, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	return toWatch(res), meta, nil
+	// Mirror the JavaScript handleMediaType: for bangumi (or the bangumi member
+	// of an "all" extension) resolve a magnet:/torrent URL into a Torrent and
+	// attach it so the frontend can read the file tree. The extension may also
+	// have resolved one itself (via sdk.AddMagnet / sdk.AddTorrent); in that
+	// case we leave its Torrent untouched.
+	resolveBangumiTorrent(pkg, meta, res)
+	return toWatchValue(res), meta, nil
+}
+
+// resolveBangumiTorrent attaches a resolved Torrent to any bangumi-shaped watch
+// result whose URL is a magnet:/torrent link and that does not already carry a
+// Torrent. It handles both a top-level *ExtensionBangumiWatch and the bangumi
+// member of a *ExtensionAllWatch.
+func resolveBangumiTorrent(pkg string, meta *extension.Extension, res any) {
+	if res == nil {
+		return
+	}
+	rv := reflect.ValueOf(res)
+	for rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {
+		if rv.IsNil() {
+			return
+		}
+		rv = rv.Elem()
+	}
+	if rv.Kind() != reflect.Struct {
+		return
+	}
+	switch rv.Type().Name() {
+	case "ExtensionBangumiWatch":
+		attachTorrentIfNeeded(pkg, meta, rv)
+	case "ExtensionAllWatch":
+		bangumi := fieldByName(rv, "Bangumi")
+		if bangumi.IsValid() && bangumi.Kind() == reflect.Ptr && !bangumi.IsNil() {
+			attachTorrentIfNeeded(pkg, meta, bangumi.Elem())
+		}
+	}
+}
+
+// attachTorrentIfNeeded resolves a magnet:/torrent URL on a bangumi watch struct
+// and sets its Torrent field when the field is currently nil.
+func attachTorrentIfNeeded(pkg string, meta *extension.Extension, rw reflect.Value) {
+	torrentField := fieldByName(rw, "Torrent")
+	if torrentField.IsValid() && !torrentField.IsNil() {
+		return // author already resolved one
+	}
+	urlField := fieldByName(rw, "URL")
+	if !urlField.IsValid() || urlField.Kind() != reflect.String {
+		return
+	}
+	link := urlField.String()
+	if !isTorrentLink(link) {
+		return
+	}
+	website := ""
+	if meta != nil {
+		website = meta.Website
+	}
+	var (
+		t   runtime.Torrent
+		err string
+	)
+	if strings.HasPrefix(link, "magnet:") {
+		t, err = runtime.AddMagnet(link, "", pkg)
+	} else {
+		t, err = runtime.AddTorrent(link, "", pkg, website)
+	}
+	if err != "" {
+		return // leave the raw link for the frontend to resolve
+	}
+	if torrentField.IsValid() && torrentField.CanSet() {
+		torrentField.Set(reflect.ValueOf(&t))
+	}
+}
+
+// isTorrentLink reports whether a watch URL refers to a torrent resource that
+// the host should resolve: a magnet: link or a .torrent file URL.
+func isTorrentLink(link string) bool {
+	if link == "" {
+		return false
+	}
+	if strings.HasPrefix(link, "magnet:") {
+		return true
+	}
+	return strings.HasSuffix(strings.ToLower(link), ".torrent")
+}
+
+// toWatchValue converts a script Watch return value into the appropriate proto
+// watch message. It inspects the concrete (script) type the extension returned:
+//
+//   - *ExtensionMangaWatch    -> proto.ExtensionMangaWatch
+//   - *ExtensionFikushonWatch -> proto.ExtensionFikushonWatch
+//   - *ExtensionBangumiWatch  -> proto.ExtensionBangumiWatch
+//   - *ExtensionAllWatch      -> proto.ExtensionAllWatch
+//   - anything else (incl. the V2 *ExtensionWatch) -> proto.ExtensionWatch
+//
+// The match is by the script type's name so the generic V2 shape keeps using
+// the legacy V2 conversion while the per-type shapes get their own.
+func toWatchValue(res any) any {
+	if res == nil {
+		return toWatch(res)
+	}
+	rv := reflect.ValueOf(res)
+	for rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {
+		if rv.IsNil() {
+			return toWatch(res)
+		}
+		rv = rv.Elem()
+	}
+	if rv.Kind() != reflect.Struct {
+		return toWatch(res)
+	}
+	switch rv.Type().Name() {
+	case "ExtensionMangaWatch":
+		return toMangaWatch(res)
+	case "ExtensionFikushonWatch":
+		return toFikushonWatch(res)
+	case "ExtensionBangumiWatch":
+		return toBangumiWatch(res)
+	case "ExtensionAllWatch":
+		return toAllWatch(res)
+	default:
+		return toWatch(res)
+	}
 }
 
 // Mirror returns mirror/alternative URLs for a content item.
@@ -126,77 +256,6 @@ func Mirror(pkg string, url string) (any, error) {
 		return nil, err
 	}
 	return toMirrors(res), nil
-}
-
-// SearchJSON searches for content and returns JSON-encoded results.
-func SearchJSON(pkg string, page int, kw string, filter string) (string, error) {
-	items, err := Search(pkg, page, kw, filter)
-	if err != nil {
-		return "", err
-	}
-	data, err := json.Marshal(items)
-	if err != nil {
-		return "", fmt.Errorf("marshal search results: %w", err)
-	}
-	return string(data), nil
-}
-
-// LatestJSON returns latest content as JSON.
-func LatestJSON(pkg string, page int) (string, error) {
-	items, err := Latest(pkg, page)
-	if err != nil {
-		return "", err
-	}
-	data, err := json.Marshal(items)
-	if err != nil {
-		return "", fmt.Errorf("marshal latest results: %w", err)
-	}
-	return string(data), nil
-}
-
-// DetailJSON returns detail as JSON.
-func DetailJSON(pkg string, url string) (string, error) {
-	d, err := Detail(pkg, url)
-	if err != nil {
-		return "", err
-	}
-	if d == nil {
-		return "null", nil
-	}
-	data, err := json.Marshal(d)
-	if err != nil {
-		return "", fmt.Errorf("marshal detail: %w", err)
-	}
-	return string(data), nil
-}
-
-// WatchJSON returns watch info as JSON.
-func WatchJSON(pkg string, url string) (string, error) {
-	w, _, err := Watch(pkg, url)
-	if err != nil {
-		return "", err
-	}
-	if w == nil {
-		return "null", nil
-	}
-	data, err := json.Marshal(w)
-	if err != nil {
-		return "", fmt.Errorf("marshal watch: %w", err)
-	}
-	return string(data), nil
-}
-
-// MirrorJSON returns mirror info as JSON.
-func MirrorJSON(pkg string, url string) (string, error) {
-	m, err := Mirror(pkg, url)
-	if err != nil {
-		return "", err
-	}
-	data, err := json.Marshal(m)
-	if err != nil {
-		return "", fmt.Errorf("marshal mirrors: %w", err)
-	}
-	return string(data), nil
 }
 
 // ---------------------------------------------------------------------------
@@ -421,4 +480,237 @@ func toWatch(v any) *proto.ExtensionWatch {
 		}
 	}
 	return &proto.ExtensionWatch{Groups: groups}
+}
+
+// strSliceField reads a []string field by name (e.g. a manga watch's URLs).
+// Templates return nil when the field is absent, so extensions that don't set
+// the slice simply produce an empty slice.
+func strSliceField(rv reflect.Value, name string) []string {
+	f := fieldByName(rv, name)
+	if !f.IsValid() || f.Kind() != reflect.Slice {
+		return nil
+	}
+	out := make([]string, 0, f.Len())
+	for i := 0; i < f.Len(); i++ {
+		if s := f.Index(i); s.Kind() == reflect.String {
+			out = append(out, s.String())
+		}
+	}
+	return out
+}
+
+// optionalStrField reads a string field by name and returns it as a *string, or
+// nil when the field is absent or empty. proto marks these fields `optional`, so
+// an empty value must be omitted rather than sent as "".
+func optionalStrField(rv reflect.Value, name string) *string {
+	f := fieldByName(rv, name)
+	if !f.IsValid() || f.Kind() != reflect.String || f.String() == "" {
+		return nil
+	}
+	s := f.String()
+	return &s
+}
+
+// int64Field reads an int-like field by name and returns it as int64 (0 when
+// absent or non-numeric).
+func int64Field(rv reflect.Value, name string) int64 {
+	f := fieldByName(rv, name)
+	if !f.IsValid() || !f.CanInt() && !f.CanUint() {
+		return 0
+	}
+	return f.Int()
+}
+
+// optInt32Field reads an int-like field by name and returns it as a *int32, or
+// nil when absent. proto marks these fields `optional`.
+func optInt32Field(rv reflect.Value, name string) *int32 {
+	f := fieldByName(rv, name)
+	if !f.IsValid() || !f.CanInt() && !f.CanUint() {
+		return nil
+	}
+	v := int32(f.Int())
+	return &v
+}
+
+// optInt64Field reads an int-like field by name and returns it as a *int64, or
+// nil when absent. proto marks these fields `optional`.
+func optInt64Field(rv reflect.Value, name string) *int64 {
+	f := fieldByName(rv, name)
+	if !f.IsValid() || !f.CanInt() && !f.CanUint() {
+		return nil
+	}
+	v := f.Int()
+	return &v
+}
+
+// derefStruct normalises a possibly-pointer/interface value to its underlying
+// struct Value, returning an invalid Value when the value is nil or not a
+// struct. It is the shared prelude for the per-type watch converters.
+func derefStruct(v any) reflect.Value {
+	if v == nil {
+		return reflect.Value{}
+	}
+	rv := reflect.ValueOf(v)
+	for rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {
+		if rv.IsNil() {
+			return reflect.Value{}
+		}
+		rv = rv.Elem()
+	}
+	if rv.Kind() != reflect.Struct {
+		return reflect.Value{}
+	}
+	return rv
+}
+
+// toMangaWatch converts a script ExtensionMangaWatch into the proto equivalent.
+func toMangaWatch(v any) *proto.ExtensionMangaWatch {
+	rv := derefStruct(v)
+	if !rv.IsValid() {
+		return nil
+	}
+	return &proto.ExtensionMangaWatch{
+		Urls:    strSliceField(rv, "URLs"),
+		Headers: mapStrField(rv, "Headers"),
+	}
+}
+
+// toFikushonWatch converts a script ExtensionFikushonWatch into the proto
+// equivalent.
+func toFikushonWatch(v any) *proto.ExtensionFikushonWatch {
+	rv := derefStruct(v)
+	if !rv.IsValid() {
+		return nil
+	}
+	return &proto.ExtensionFikushonWatch{
+		Content:  strSliceField(rv, "Content"),
+		Title:    strField(rv, "Title"),
+		Subtitle: optionalStrField(rv, "Subtitle"),
+	}
+}
+
+// toBangumiWatch converts a script ExtensionBangumiWatch into the proto
+// equivalent, descending into its subtitles. Torrent resolution is a frontend
+// concern, so no torrent metadata is carried here.
+func toBangumiWatch(v any) *proto.ExtensionBangumiWatch {
+	rv := derefStruct(v)
+	if !rv.IsValid() {
+		return nil
+	}
+	return &proto.ExtensionBangumiWatch{
+		Type:       strField(rv, "Type"),
+		Url:        strField(rv, "URL"),
+		Subtitles:  toBangumiSubtitles(anyField(rv, "Subtitles")),
+		Headers:    mapStrField(rv, "Headers"),
+		AudioTrack: optionalStrField(rv, "AudioTrack"),
+		Torrent:    toProtoTorrent(anyField(rv, "Torrent")),
+	}
+}
+
+// toProtoTorrent converts a runtime Torrent (as returned by sdk.AddMagnet /
+// sdk.AddTorrent, or auto-resolved by the host) into the proto
+// ExtensionBangumiWatchTorrent the gRPC WatchResponse carries to the frontend.
+func toProtoTorrent(v any) *proto.ExtensionBangumiWatchTorrent {
+	rv := derefStruct(v)
+	if !rv.IsValid() {
+		return nil
+	}
+	out := &proto.ExtensionBangumiWatchTorrent{
+		InfoHash: strField(rv, "InfoHash"),
+		Files:    strSliceField(rv, "Files"),
+	}
+	if detail := toProtoTorrentDetail(anyField(rv, "Detail")); detail != nil {
+		out.Detail = detail
+	}
+	return out
+}
+
+func toProtoTorrentDetail(v any) *proto.ExtensionBangumiWatchTorrentDetail {
+	rv := derefStruct(v)
+	if !rv.IsValid() {
+		return nil
+	}
+	detail := &proto.ExtensionBangumiWatchTorrentDetail{
+		PieceLength: optInt32Field(rv, "PieceLength"),
+		Pieces:      optionalStrField(rv, "Pieces"),
+		Name:        optionalStrField(rv, "Name"),
+		NameUtf8:    optionalStrField(rv, "NameUtf8"),
+		Length:      optInt64Field(rv, "Length"),
+		Source:      optionalStrField(rv, "Source"),
+		MetaVersion: optInt32Field(rv, "MetaVersion"),
+	}
+	if tree := toProtoFileTree(anyField(rv, "FileTree")); tree != nil {
+		detail.FileTree = tree
+	}
+	return detail
+}
+
+func toProtoFileTree(v any) *proto.ExtensionBangumiWatchTorrentFileTree {
+	rv := derefStruct(v)
+	if !rv.IsValid() {
+		return nil
+	}
+	tree := &proto.ExtensionBangumiWatchTorrentFileTree{}
+	if file := toProtoFileTreeFile(anyField(rv, "File")); file != nil {
+		tree.File = file
+	}
+	if dir := anyField(rv, "Dir"); dir != nil {
+		dirRV := reflect.ValueOf(dir)
+		if dirRV.Kind() == reflect.Map && dirRV.Type().Key().Kind() == reflect.String {
+			out := make(map[string]*proto.ExtensionBangumiWatchTorrentFileTree, dirRV.Len())
+			for _, key := range dirRV.MapKeys() {
+				child := toProtoFileTree(dirRV.MapIndex(key).Interface())
+				if child != nil {
+					out[key.String()] = child
+				}
+			}
+			tree.Dir = out
+		}
+	}
+	return tree
+}
+
+func toProtoFileTreeFile(v any) *proto.ExtensionBangumiWatchTorrentFileTreeFile {
+	rv := derefStruct(v)
+	if !rv.IsValid() {
+		return nil
+	}
+	return &proto.ExtensionBangumiWatchTorrentFileTreeFile{
+		Length:     int64Field(rv, "Length"),
+		PiecesRoot: strField(rv, "PiecesRoot"),
+	}
+}
+
+func toBangumiSubtitles(v any) []*proto.ExtensionBangumiWatchSubtitle {
+	rv := derefStruct(v)
+	if !rv.IsValid() || rv.Kind() != reflect.Slice {
+		return nil
+	}
+	out := make([]*proto.ExtensionBangumiWatchSubtitle, 0, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		elem := derefStruct(rv.Index(i).Interface())
+		if !elem.IsValid() {
+			continue
+		}
+		out = append(out, &proto.ExtensionBangumiWatchSubtitle{
+			Language: optionalStrField(elem, "Language"),
+			Title:    strField(elem, "Title"),
+			Url:      strField(elem, "URL"),
+		})
+	}
+	return out
+}
+
+// toAllWatch converts a script ExtensionAllWatch into the proto equivalent,
+// delegating each member to its own converter.
+func toAllWatch(v any) *proto.ExtensionAllWatch {
+	rv := derefStruct(v)
+	if !rv.IsValid() {
+		return nil
+	}
+	return &proto.ExtensionAllWatch{
+		Manga:    toMangaWatch(anyField(rv, "Manga")),
+		Fikushon: toFikushonWatch(anyField(rv, "Fikushon")),
+		Bangumi:  toBangumiWatch(anyField(rv, "Bangumi")),
+	}
 }

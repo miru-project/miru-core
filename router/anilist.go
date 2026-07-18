@@ -106,6 +106,7 @@ func ProcessAnilistToken(app *fasthttp_router.Router) {
 		c.SetBodyString("Authorized successfully, you can close this page now.")
 	})
 }
+
 // @Summary		Anilist logout
 // @Description	Clears the Anilist authentication token
 // @Tags			anilist

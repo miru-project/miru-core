@@ -37,7 +37,7 @@ require (
 
 require (
 	github.com/RoaringBitmap/roaring v1.9.4 // indirect
-	// github.com/RoaringBitmap/roaring/v2 v2.18.2 // indirect
+	github.com/RoaringBitmap/roaring/v2 v2.18.2 // indirect
 	github.com/anacrolix/btree v0.1.1 // indirect
 	github.com/dlclark/regexp2/v2 v2.2.2 // indirect
 	github.com/pion/dtls/v3 v3.1.4 // indirect

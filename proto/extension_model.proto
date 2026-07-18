@@ -60,6 +60,9 @@ message ExtensionBangumiWatchSubtitle {
   string url = 3;
 }
 
+// Torrent resolution is handled on the frontend, not by the extension. These
+// messages describe the resolved torrent's metainfo and file tree so the
+// frontend can read the tree and decide which files to download.
 message ExtensionBangumiWatchTorrentFileTreeFile {
   int64 length = 1;
   string piecesRoot = 2;
@@ -93,6 +96,9 @@ message ExtensionBangumiWatch {
   repeated ExtensionBangumiWatchSubtitle subtitles = 3;
   map<string, string> headers = 4;
   optional string audioTrack = 5;
+  // Resolved torrent handle. Populated when the extension's Watch returns a
+  // magnet:/torrent URL (or resolves one explicitly); the frontend reads it to
+  // render the file tree and pick files to download. Absent for plain streams.
   ExtensionBangumiWatchTorrent torrent = 6;
 }
 
@@ -105,6 +111,16 @@ message ExtensionFikushonWatch {
   repeated string content = 1;
   string title = 2;
   optional string subtitle = 3;
+}
+
+// ExtensionAllWatch bundles the three per-type watch shapes (manga, fikushon and
+// bangumi) behind a single "all" extension type. An extension that declares
+// @type all returns this message so the client can render any of the three
+// media kinds from one watch call.
+message ExtensionAllWatch {
+  ExtensionMangaWatch manga = 1;
+  ExtensionFikushonWatch fikushon = 2;
+  ExtensionBangumiWatch bangumi = 3;
 }
 
 
