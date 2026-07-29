@@ -3,23 +3,32 @@ package download
 import (
 	"context"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/miru-project/miru-core/ent"
+	"github.com/miru-project/miru-core/ext"
 	"github.com/miru-project/miru-core/pkg/db"
 	miruTorrent "github.com/miru-project/miru-core/pkg/torrent"
 	"github.com/miru-project/miru-core/proto/generate/proto"
 )
 
-var tasks = sync.Map{}
-var status = make(map[int]*Progress)
-var taskParamMap = make(map[int]TaskParamInterface)
+var tasks = sync.Map{}   // taskId → context.CancelFunc (running goroutines)
+var statusMap sync.Map   // taskId → *Progress (all known tasks)
+var taskParams sync.Map  // taskId → TaskParamInterface
 
 var OnStatusUpdate func(map[int]*Progress)
+
+// schedulerMu serialises the scheduler loop so only one goroutine at a time
+// picks the next task and promotes it. Without this, two concurrent callers
+// could both select the same highest-priority task.
+var schedulerMu sync.Mutex
 
 type Progress struct {
 	Progrss            int               `json:"progress"`
@@ -37,6 +46,8 @@ type Progress struct {
 	SavePath           string            `json:"save_path"`
 	DetailUrl          string            `json:"detail_url"`
 	WatchUrl           string            `json:"watch_url"`
+	// Priority used by the concurrency-limited scheduler. Higher runs first.
+	Priority int `json:"priority"`
 }
 
 type TaskParam struct {
@@ -110,90 +121,108 @@ func (t *TaskParam) GetTaskID() int {
 }
 
 func DownloadStatus() map[int]*Progress {
-	// Get the status of all tasks
-	return status
+	snapshot := make(map[int]*Progress)
+	statusMap.Range(func(k, v any) bool {
+		snapshot[k.(int)] = v.(*Progress)
+		return true
+	})
+	return snapshot
 }
 
-// Generate a unique task ID
+// genTaskID generates a unique task ID not currently in use.
 func genTaskID() int {
-
 	for {
 		id := rand.Intn(1000000)
-		if status[id] == nil {
+		if _, exists := statusMap.Load(id); !exists {
 			return id
 		}
 	}
 }
 
-func CancelTask(taskId int) error {
+// ---------------------------------------------------------------------------
+// Concurrency-limited scheduler
+//
+// `maxConcurrent` caps how many tasks may actually be running at once. Tasks
+// that cannot start immediately are parked in the `Queued` state and promoted
+// by priority order (higher Priority first) whenever a running slot frees up.
+// ---------------------------------------------------------------------------
 
-	if cancelFunc, ok := tasks.Load(taskId); ok {
-		cancelFunc.(context.CancelFunc)()
-		tasks.Delete(taskId)
+// maxConcurrent is the configured cap on simultaneously running downloads.
+// It is read from the app setting "downloadConcurrent" (default 3) in Init.
+var maxConcurrent = 3
+
+// DefaultMaxConcurrentDownload is used when the setting is missing/invalid.
+const DefaultMaxConcurrentDownload = 3
+
+// settingKeyMaxConcurrent mirrors the key used by the frontend settings UI.
+const settingKeyMaxConcurrent = "downloadConcurrent"
+
+// GetMaxConcurrent returns the current concurrency cap.
+func GetMaxConcurrent() int {
+	if maxConcurrent < 1 {
+		return 1
 	}
-	if _, ok := taskParamMap[taskId]; !ok {
-		return fmt.Errorf("task %d not found", taskId)
-	}
-
-	status[taskId].Status = Canceled
-
-	if status[taskId].Names == nil {
-		status[taskId].SyncDB()
-		return nil
-	}
-	names := *status[taskId].Names
-
-	// Remove files if the task is canceled
-	switch status[taskId].MediaType {
-	case Hls:
-		for _, file := range names {
-			// Remove the file
-			if err := os.Remove(file); err != nil {
-				return fmt.Errorf("failed to remove file %s: %v", file, err)
-			}
-		}
-		status[taskId].SyncDB()
-		return nil
-	case Mp4:
-		// Remove single mp4 file
-		if err := os.Remove(status[taskId].CurrentDownloading); err != nil {
-			return fmt.Errorf("failed to remove file %s: %v", status[taskId].CurrentDownloading, err)
-		}
-		status[taskId].SyncDB()
-	case Torrent:
-		miruTorrent.DeleteTorrent(status[taskId].Key, true)
-		if err := os.Remove(status[taskId].CurrentDownloading); err != nil {
-			return fmt.Errorf("failed to remove file %s: %v", status[taskId].CurrentDownloading, err)
-		}
-		status[taskId].SyncDB()
-	}
-
-	return nil
-
+	return maxConcurrent
 }
 
-func PauseTask(taskId int) error {
-
-	if cancelFunc, ok := tasks.Load(taskId); ok {
-		cancelFunc.(context.CancelFunc)()
-		tasks.Delete(taskId)
-		status[taskId].Status = Paused
-		status[taskId].SyncDB()
-
-		return nil
+// SetMaxConcurrent updates the in-memory cap and persists it as an app setting.
+func SetMaxConcurrent(n int) {
+	if n < 1 {
+		n = 1
 	}
-
-	return fmt.Errorf("task %d not found", taskId)
+	maxConcurrent = n
+	if dbErr := db.SetAppSetting(settingKeyMaxConcurrent, fmt.Sprintf("%d", n)); dbErr != nil {
+		log.Printf("failed to persist maxConcurrent setting: %v", dbErr)
+	}
+	// A larger cap may allow previously queued tasks to start now.
+	scheduleDownloads()
 }
 
-func ResumeTask(taskId int) error {
-	// Resume the task if it exists
+// loadMaxConcurrent reads the persisted cap from app settings (best effort).
+func loadMaxConcurrent() {
+	v, err := db.GetAPPSetting(settingKeyMaxConcurrent)
+	if err != nil || v == "" {
+		maxConcurrent = DefaultMaxConcurrentDownload
+		return
+	}
+	if n, e := strconv.Atoi(v); e == nil && n >= 1 {
+		maxConcurrent = n
+	} else {
+		maxConcurrent = DefaultMaxConcurrentDownload
+	}
+}
+
+// activeRunningCount returns how many tasks are currently executing (live
+// goroutines in the Downloading/Converting state).
+func activeRunningCount() int {
+	count := 0
+	tasks.Range(func(_, _ any) bool {
+		count++
+		return true
+	})
+	return count
+}
+
+// resumeFunc is the function used to actually (re)start a task. It defaults to
+// resumeByID but can be overridden in tests to avoid real network activity.
+var resumeFunc func(int) error
+
+func init() {
+	resumeFunc = resumeByID
+}
+
+// resumeByID starts (resumes) the task with the given id using its media type.
+// Returns an error if the task is unknown or already running.
+func resumeByID(taskId int) error {
 	if _, ok := tasks.Load(taskId); ok {
 		return fmt.Errorf("task %d already running", taskId)
 	}
-
-	switch status[taskId].MediaType {
-
+	v, ok := statusMap.Load(taskId)
+	if !ok {
+		return fmt.Errorf("task %d not found", taskId)
+	}
+	p := v.(*Progress)
+	switch p.MediaType {
 	case Hls:
 		return resumeHlsTask(taskId)
 	case Mp4:
@@ -201,22 +230,183 @@ func ResumeTask(taskId int) error {
 	case Torrent:
 		return resumeTorrentTask(taskId)
 	}
+	return fmt.Errorf("task %d has unknown media type", taskId)
+}
+
+// enqueueOrStart either launches the task immediately (when a slot is free) or
+// parks it in the Queued state for the scheduler to promote later.
+func enqueueOrStart(taskId int) {
+	v, ok := statusMap.Load(taskId)
+	if !ok {
+		return
+	}
+	p := v.(*Progress)
+	if activeRunningCount() < GetMaxConcurrent() {
+		p.Status = Downloading
+		_ = resumeFunc(taskId)
+		return
+	}
+	p.Status = Queued
+	p.SyncDB()
+}
+
+// scheduleDownloads promotes the highest-priority Queued tasks until the
+// running count reaches the concurrency cap. It is safe to call from any
+// lifecycle transition (pause/cancel/complete/setting change).
+func scheduleDownloads() {
+	schedulerMu.Lock()
+	defer schedulerMu.Unlock()
+	for activeRunningCount() < GetMaxConcurrent() {
+		next := highestPriorityQueued()
+		if next == 0 {
+			return
+		}
+		v, _ := statusMap.Load(next)
+		p := v.(*Progress)
+		p.Status = Downloading
+		_ = resumeFunc(next)
+	}
+}
+
+// highestPriorityQueued returns the task id of the Queued task with the highest
+// Priority (ties broken by lower task id for determinism). Returns 0 if none.
+func highestPriorityQueued() int {
+	bestID := 0
+	bestPriority := -1
+	statusMap.Range(func(k, v any) bool {
+		id := k.(int)
+		p := v.(*Progress)
+		if p.Status != Queued {
+			return true
+		}
+		if p.Priority > bestPriority || (p.Priority == bestPriority && (bestID == 0 || id < bestID)) {
+			bestPriority = p.Priority
+			bestID = id
+		}
+		return true
+	})
+	return bestID
+}
+
+// SetPriority updates a task's scheduler priority and re-runs the scheduler so
+// a higher-priority task can preempt a free slot immediately.
+func SetPriority(taskId int, priority int) error {
+	v, ok := statusMap.Load(taskId)
+	if !ok {
+		return fmt.Errorf("task %d not found", taskId)
+	}
+	p := v.(*Progress)
+	p.Priority = priority
+	p.SyncDB()
+	scheduleDownloads()
+	return nil
+}
+
+// ReorderTasks receives the full desired order of task ids (front = highest
+// priority). It reassigns priorities so the list order is respected and then
+// runs the scheduler. Unknown ids are ignored.
+func ReorderTasks(orderedIDs []int) error {
+	for i, id := range orderedIDs {
+		if v, ok := statusMap.Load(id); ok {
+			p := v.(*Progress)
+			// Front of the list gets the highest priority.
+			p.Priority = len(orderedIDs) - i
+			p.SyncDB()
+		}
+	}
+	scheduleDownloads()
+	return nil
+}
+
+func CancelTask(taskId int) error {
+	if cancelFunc, ok := tasks.Load(taskId); ok {
+		cancelFunc.(context.CancelFunc)()
+		tasks.Delete(taskId)
+	}
+	v, ok := statusMap.Load(taskId)
+	if !ok {
+		return fmt.Errorf("task %d not found", taskId)
+	}
+	p := v.(*Progress)
+
+	p.Status = Canceled
+
+	if p.Names == nil {
+		p.SyncDB()
+		scheduleDownloads()
+		return nil
+	}
+	names := *p.Names
+
+	// Remove files if the task is canceled
+	switch p.MediaType {
+	case Hls:
+		for _, file := range names {
+			if err := os.Remove(file); err != nil {
+				return fmt.Errorf("failed to remove file %s: %v", file, err)
+			}
+		}
+		p.SyncDB()
+		scheduleDownloads()
+		return nil
+	case Mp4:
+		if err := os.Remove(p.CurrentDownloading); err != nil {
+			return fmt.Errorf("failed to remove file %s: %v", p.CurrentDownloading, err)
+		}
+		p.SyncDB()
+	case Torrent:
+		miruTorrent.DeleteTorrent(p.Key, true)
+		if err := os.Remove(p.CurrentDownloading); err != nil {
+			return fmt.Errorf("failed to remove file %s: %v", p.CurrentDownloading, err)
+		}
+		p.SyncDB()
+	}
+
+	scheduleDownloads()
+	return nil
+}
+
+func PauseTask(taskId int) error {
+	if cancelFunc, ok := tasks.Load(taskId); ok {
+		cancelFunc.(context.CancelFunc)()
+		tasks.Delete(taskId)
+		v, _ := statusMap.Load(taskId)
+		p := v.(*Progress)
+		p.Status = Paused
+		p.SyncDB()
+
+		scheduleDownloads()
+		return nil
+	}
 
 	return fmt.Errorf("task %d not found", taskId)
 }
 
-// Start donwnload task and store it in the task map
-func startDownloadTask[T TaskParamInterface](param T, taskFunc func(param T, ctx context.Context)) {
+func ResumeTask(taskId int) error {
+	// Resume the task if it exists. Routing through the scheduler keeps the
+	// concurrency cap honoured: a resumed task may be re-queued if at capacity.
+	if _, ok := tasks.Load(taskId); ok {
+		return fmt.Errorf("task %d already running", taskId)
+	}
+	if _, ok := statusMap.Load(taskId); !ok {
+		return fmt.Errorf("task %d not found", taskId)
+	}
+	enqueueOrStart(taskId)
+	return nil
+}
 
+// startDownloadTask stores the cancel func and runs taskFunc in a goroutine.
+// When the goroutine finishes it cleans up and promotes queued tasks.
+func startDownloadTask[T TaskParamInterface](param T, taskFunc func(param T, ctx context.Context)) {
 	ctx, cancel := context.WithCancel(context.Background())
 	taskId := param.GetTaskID()
 	tasks.Store(taskId, cancel)
 
-	// Start the task in a goroutine
 	go func() {
-		defer tasks.Delete(taskId)
 		defer cancel()
 		taskFunc(param, ctx)
+		tasks.Delete(taskId)
+		scheduleDownloads()
 	}()
 }
 
@@ -224,7 +414,7 @@ func startDownloadTask[T TaskParamInterface](param T, taskFunc func(param T, ctx
 // absolute or relative. If it is relative, join it with the previous path
 func parsePath(basePath string, fileName string) string {
 
-	// Get the current working directory and join it with the file name
+	// Get the current working directory or relative path
 	link, _ := url.Parse(basePath)
 	name, _ := url.Parse(fileName)
 	// Return fileName if it is absolute
@@ -237,30 +427,150 @@ func parsePath(basePath string, fileName string) string {
 	return link.String()
 
 }
+
 func (p *Progress) SyncDB() {
-	db.UpsertDownload(&ent.Download{
-		URL:       p.URL,
-		Headers:   p.Headers,
-		Package:   p.Package,
-		Progress:  []int{p.Progrss}, // Use list of ints as requested
-		Key:       p.Key,
-		Title:     p.Title,
-		MediaType: string(p.MediaType),
-		Status:    string(p.Status),
-		SavePath:  p.SavePath,
-		DetailUrl: p.DetailUrl,
-		WatchUrl:  p.WatchUrl,
-	})
+	// Persist to the DB only when one is configured. The in-memory status map
+	// (used by the frontend for live updates) is always kept up to date, so
+	// callers/tests without a DB still work.
+	if ext.IsDBReady() {
+		db.UpsertDownload(&ent.Download{
+			URL:       p.URL,
+			Headers:   p.Headers,
+			Package:   p.Package,
+			Progress:  []int{p.Progrss, p.Total}, // [0]=progress, [1]=total
+			Key:       p.Key,
+			Title:     p.Title,
+			MediaType: string(p.MediaType),
+			Status:    string(p.Status),
+			SavePath:  p.SavePath,
+			DetailUrl: p.DetailUrl,
+			WatchUrl:  p.WatchUrl,
+			Priority:  p.Priority,
+		})
+	}
 	if OnStatusUpdate != nil {
-		OnStatusUpdate(status)
+		OnStatusUpdate(DownloadStatus())
 	}
 }
 
 func GetTaskParam(taskId int) TaskParamInterface {
-	return taskParamMap[taskId]
+	v, ok := taskParams.Load(taskId)
+	if !ok {
+		return nil
+	}
+	return v.(TaskParamInterface)
+}
+
+// verifyAndAdjustProgress checks whether the on-disk segment files still exist
+// for a recovered download and clamps Progress downward when files are missing.
+// This prevents the resumed download from claiming N segments are done when
+// some files were deleted while the backend was offline.
+func verifyAndAdjustProgress(p *Progress) {
+	switch p.MediaType {
+	case Hls:
+		verifyHlsProgress(p)
+	case Mp4:
+		verifyMp4Progress(p)
+	}
+}
+
+// verifyHlsProgress counts the segment files in SavePath (the segment
+// directory).  Segment names follow the pattern "{index}{ext}" (e.g.
+// 0.ts, 1.ts).  We count files whose base name is purely numeric,
+// clamp Progrss to that count if it is lower, and rebuild the Names
+// list from disk when it is nil/empty (which happens after a backend
+// restart because Names are not persisted in the DB).
+func verifyHlsProgress(p *Progress) {
+	if p.SavePath == "" {
+		return
+	}
+	dir := p.SavePath
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		// Directory gone — nothing downloaded.
+		log.Printf("HLS task %d: segment dir %s missing, resetting progress", p.TaskID, dir)
+		p.Progrss = 0
+		p.Total = 0
+		p.Names = &[]string{}
+		return
+	}
+
+	// Collect segment files sorted by their numeric index so Names is
+	// rebuilt in the correct order for FFmpeg concatenation.
+	type segmentFile struct {
+		index int
+		path  string
+	}
+	var segmentFiles []segmentFile
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		// Strip extension and check if the base is a number (segment file).
+		base := strings.TrimSuffix(name, filepath.Ext(name))
+		if idx, err := strconv.Atoi(base); err == nil {
+			segmentFiles = append(segmentFiles, segmentFile{
+				index: idx,
+				path:  filepath.Join(dir, name),
+			})
+		}
+	}
+
+	// Sort by numeric index to ensure correct segment order.
+	for i := 0; i < len(segmentFiles); i++ {
+		for j := i + 1; j < len(segmentFiles); j++ {
+			if segmentFiles[j].index < segmentFiles[i].index {
+				segmentFiles[i], segmentFiles[j] = segmentFiles[j], segmentFiles[i]
+			}
+		}
+	}
+
+	segmentCount := len(segmentFiles)
+	if segmentCount < p.Progrss {
+		log.Printf("HLS task %d: had progress=%d but only %d segment files on disk, adjusting",
+			p.TaskID, p.Progrss, segmentCount)
+		p.Progrss = segmentCount
+	}
+
+	// Rebuild Names from disk when nil or empty.  This happens after a
+	// backend restart because the Names field is not persisted in the DB.
+	if p.Names == nil || len(*p.Names) == 0 {
+		if segmentCount > 0 {
+			names := make([]string, segmentCount)
+			for i, sf := range segmentFiles {
+				names[i] = sf.path
+			}
+			p.Names = &names
+			log.Printf("HLS task %d: rebuilt %d segment names from disk", p.TaskID, segmentCount)
+		} else {
+			p.Names = &[]string{}
+		}
+	}
+
+	// Total may have been 0 from old DB records; try to preserve it but
+	// never set it below the current progress.
+	if p.Total < p.Progrss {
+		p.Total = p.Progrss
+	}
+}
+
+// verifyMp4Progress checks whether the single output file exists.
+func verifyMp4Progress(p *Progress) {
+	if p.SavePath == "" {
+		return
+	}
+	if _, err := os.Stat(p.SavePath); os.IsNotExist(err) {
+		log.Printf("MP4 task %d: file %s missing, resetting progress", p.TaskID, p.SavePath)
+		p.Progrss = 0
+	}
 }
 
 func Init() {
+	// Restore the configured concurrency cap before (re)scheduling.
+	loadMaxConcurrent()
+
 	downloads, err := db.GetPendingDownloads()
 	if err != nil {
 		return
@@ -276,9 +586,7 @@ func Init() {
 			total = d.Progress[1]
 		}
 
-		headers := make(map[string]string)
-
-		status[id] = &Progress{
+		prog := &Progress{
 			Progrss:   p,
 			Total:     total,
 			Status:    Status(d.Status),
@@ -290,38 +598,71 @@ func Init() {
 			URL:       d.URL,
 			Headers:   d.Headers,
 			SavePath:  d.SavePath,
+			Priority:  d.Priority,
 		}
-		// status
-		if status[id].Status == Downloading || status[id].Status == Converting {
-			status[id].Status = Paused
+		statusMap.Store(id, prog)
+
+		// Verify that segment/output files still exist on disk ONLY for
+		// tasks that were actively downloading when the backend stopped.
+		// Already-paused or queued tasks were not mid-stream so their
+		// files should be intact.
+		if prog.Status == Downloading || prog.Status == Converting {
+			verifyAndAdjustProgress(prog)
+
+			if prog.Status == Converting {
+				// Converting tasks: decide next state based on what's on disk.
+				if prog.Progrss >= prog.Total && prog.Total > 0 {
+					// All segments present — keep Converting so the
+					// frontend can re-run FFmpeg.
+				} else if prog.Progrss == 0 && prog.Total > 0 {
+					// All segments were cleaned up (conversion likely
+					// completed and segments deleted) but the DB was not
+					// updated to Completed (e.g. gRPC call failed).
+					// There are no segments to convert, so mark Failed
+					// rather than misleading Paused-with-zero-progress.
+					prog.Status = Failed
+					log.Printf("HLS task %d: Converting but 0 segments on disk, marking Failed (conversion may have completed)", prog.TaskID)
+					prog.SyncDB()
+				} else {
+					// Partial segments missing — fall back to Paused so
+					// the user can resume the download.
+					prog.Status = Paused
+				}
+			} else {
+				// Downloading tasks always fall back to Paused on restart.
+				prog.Status = Paused
+			}
 		}
 
 		// Reconstruct TaskParam
 		switch MediaType(d.MediaType) {
 		case Hls:
-			taskParamMap[id] = &HlsTaskParam{
+			taskParams.Store(id, &HlsTaskParam{
 				TaskParam:   TaskParam{taskID: id},
 				playListUrl: d.URL[0],
 				filePath:    d.SavePath,
-				headers:     headers,
-			}
+				headers:     d.Headers,
+			})
 		case Mp4:
-			taskParamMap[id] = &Mp4TaskParam{
+			taskParams.Store(id, &Mp4TaskParam{
 				TaskParam: TaskParam{taskID: id},
 				url:       d.URL[0],
 				filePath:  d.SavePath,
-				header:    headers,
+				header:    d.Headers,
 				title:     d.Title,
 				pkg:       d.Package,
 				key:       d.Key,
-			}
+			})
 		case Torrent:
-			taskParamMap[id] = &TorrentTaskParam{
+			taskParams.Store(id, &TorrentTaskParam{
 				TaskParam: TaskParam{taskID: id},
 				url:       d.URL[0],
 				title:     d.Title,
 				pkg:       d.Package,
-			}
+			})
 		}
 	}
+
+	// (Re)start downloads respecting the concurrency cap and priority order.
+	scheduleDownloads()
 }

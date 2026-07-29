@@ -58,6 +58,29 @@ func (s *MiruCoreServer) UpdateDownloadStatus(ctx context.Context, req *proto.Up
 	return &proto.UpdateDownloadStatusResponse{Message: "Success"}, nil
 }
 
+func (s *MiruCoreServer) SetDownloadPriority(ctx context.Context, req *proto.SetDownloadPriorityRequest) (*proto.SetDownloadPriorityResponse, error) {
+	if err := download.SetPriority(int(req.TaskId), int(req.Priority)); err != nil {
+		return nil, err
+	}
+	return &proto.SetDownloadPriorityResponse{Message: "Success"}, nil
+}
+
+func (s *MiruCoreServer) SetDownloadConcurrent(ctx context.Context, req *proto.SetDownloadConcurrentRequest) (*proto.SetDownloadConcurrentResponse, error) {
+	download.SetMaxConcurrent(int(req.MaxConcurrent))
+	return &proto.SetDownloadConcurrentResponse{Message: "Success"}, nil
+}
+
+func (s *MiruCoreServer) ReorderDownloads(ctx context.Context, req *proto.ReorderDownloadsRequest) (*proto.ReorderDownloadsResponse, error) {
+	ids := make([]int, len(req.OrderedTaskIds))
+	for i, v := range req.OrderedTaskIds {
+		ids[i] = int(v)
+	}
+	if err := download.ReorderTasks(ids); err != nil {
+		return nil, err
+	}
+	return &proto.ReorderDownloadsResponse{Message: "Success"}, nil
+}
+
 func (s *MiruCoreServer) Download(ctx context.Context, req *proto.DownloadRequest) (*proto.DownloadResponse, error) {
 	res, err := download.Download(req.DownloadPath, req.Url, req.Headers, req.MediaType, req.Title, req.Package, req.Key, req.DetailUrl, req.WatchUrl)
 	if err != nil {
@@ -105,6 +128,7 @@ func (s *MiruCoreServer) GetAllDownloads(ctx context.Context, req *proto.GetAllD
 			Status:    download.StatusToProto(download.Status(d.Status)),
 			SavePath:  d.SavePath,
 			Date:      d.Date.Format(time.RFC3339),
+			Priority:  int32(d.Priority),
 		}
 	}
 	return &proto.GetAllDownloadsResponse{Downloads: protoDownloads}, nil
@@ -135,6 +159,7 @@ func (s *MiruCoreServer) GetDownloadsByPackageAndDetailUrl(ctx context.Context, 
 			Status:    download.StatusToProto(download.Status(d.Status)),
 			SavePath:  d.SavePath,
 			Date:      d.Date.Format(time.RFC3339),
+			Priority:  int32(d.Priority),
 		}
 	}
 	return &proto.GetDownloadsByPackageAndDetailUrlResponse{Downloads: protoDownloads}, nil
@@ -163,6 +188,7 @@ func (s *MiruCoreServer) GetDownloadByPackageWatchUrlDetailUrl(ctx context.Conte
 		Status:    download.StatusToProto(download.Status(d.Status)),
 		SavePath:  d.SavePath,
 		Date:      d.Date.Format(time.RFC3339),
+		Priority:  int32(d.Priority),
 	}}, nil
 }
 

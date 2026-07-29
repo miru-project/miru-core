@@ -37,6 +37,8 @@ const (
 	FieldSavePath = "save_path"
 	// FieldDate holds the string denoting the date field in the database.
 	FieldDate = "date"
+	// FieldPriority holds the string denoting the priority field in the database.
+	FieldPriority = "priority"
 	// Table holds the table name of the download in the database.
 	Table = "downloads"
 )
@@ -56,6 +58,7 @@ var Columns = []string{
 	FieldStatus,
 	FieldSavePath,
 	FieldDate,
+	FieldPriority,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -87,6 +90,8 @@ var (
 	StatusValidator func(string) error
 	// DefaultDate holds the default value on creation for the "date" field.
 	DefaultDate func() time.Time
+	// DefaultPriority holds the default value on creation for the "priority" field.
+	DefaultPriority int
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(int) error
 )
@@ -142,4 +147,9 @@ func BySavePath(opts ...sql.OrderTermOption) OrderOption {
 // ByDate orders the results by the date field.
 func ByDate(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDate, opts...).ToFunc()
+}
+
+// ByPriority orders the results by the priority field.
+func ByPriority(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPriority, opts...).ToFunc()
 }

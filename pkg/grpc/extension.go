@@ -177,6 +177,10 @@ func (s *MiruCoreServer) Mirror(ctx context.Context, req *proto.MirrorRequest) (
 		default:
 			return nil, fmt.Errorf("mirror result for extension %q (golang runtime) does not conform to any known watch type (got %q)", req.Pkg, api.WatchType)
 		}
+		// Default every resolved stream/mirror through miru-core (like torrents),
+		// so the player/downloader fetches it server-side with the mirror headers
+		// and optional tls fingerprint applied. Already-proxied URLs pass through.
+		proxyMirrorResponse(mirrorResp)
 		return mirrorResp, nil
 	}
 
@@ -209,6 +213,8 @@ func (s *MiruCoreServer) Mirror(ctx context.Context, req *proto.MirrorRequest) (
 		return nil, fmt.Errorf("mirror result for extension %q does not conform to any known watch type (got %q)", req.Pkg, api.WatchType)
 	}
 
+	// Default every resolved stream/mirror through miru-core (like torrents).
+	proxyMirrorResponse(mirrorResp)
 	return mirrorResp, nil
 }
 

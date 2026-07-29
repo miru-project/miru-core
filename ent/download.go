@@ -42,7 +42,9 @@ type Download struct {
 	// Final save path of the content
 	SavePath string `json:"save_path,omitempty"`
 	// Date when the download entry was created/updated
-	Date         time.Time `json:"date,omitempty"`
+	Date time.Time `json:"date,omitempty"`
+	// Queue priority for the concurrency-limited scheduler. Higher runs first
+	Priority     int `json:"priority,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -53,7 +55,7 @@ func (*Download) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case download.FieldURL, download.FieldHeaders, download.FieldProgress:
 			values[i] = new([]byte)
-		case download.FieldID:
+		case download.FieldID, download.FieldPriority:
 			values[i] = new(sql.NullInt64)
 		case download.FieldWatchUrl, download.FieldDetailUrl, download.FieldPackage, download.FieldKey, download.FieldTitle, download.FieldMediaType, download.FieldStatus, download.FieldSavePath:
 			values[i] = new(sql.NullString)
@@ -158,6 +160,12 @@ func (_m *Download) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Date = value.Time
 			}
+		case download.FieldPriority:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field priority", values[i])
+			} else if value.Valid {
+				_m.Priority = int(value.Int64)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -229,6 +237,9 @@ func (_m *Download) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("date=")
 	builder.WriteString(_m.Date.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("priority=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Priority))
 	builder.WriteByte(')')
 	return builder.String()
 }

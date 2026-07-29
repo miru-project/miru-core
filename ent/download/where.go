@@ -99,6 +99,11 @@ func Date(v time.Time) predicate.Download {
 	return predicate.Download(sql.FieldEQ(FieldDate, v))
 }
 
+// Priority applies equality check predicate on the "priority" field. It's identical to PriorityEQ.
+func Priority(v int) predicate.Download {
+	return predicate.Download(sql.FieldEQ(FieldPriority, v))
+}
+
 // WatchUrlEQ applies the EQ predicate on the "watchUrl" field.
 func WatchUrlEQ(v string) predicate.Download {
 	return predicate.Download(sql.FieldEQ(FieldWatchUrl, v))
@@ -687,6 +692,46 @@ func DateLT(v time.Time) predicate.Download {
 // DateLTE applies the LTE predicate on the "date" field.
 func DateLTE(v time.Time) predicate.Download {
 	return predicate.Download(sql.FieldLTE(FieldDate, v))
+}
+
+// PriorityEQ applies the EQ predicate on the "priority" field.
+func PriorityEQ(v int) predicate.Download {
+	return predicate.Download(sql.FieldEQ(FieldPriority, v))
+}
+
+// PriorityNEQ applies the NEQ predicate on the "priority" field.
+func PriorityNEQ(v int) predicate.Download {
+	return predicate.Download(sql.FieldNEQ(FieldPriority, v))
+}
+
+// PriorityIn applies the In predicate on the "priority" field.
+func PriorityIn(vs ...int) predicate.Download {
+	return predicate.Download(sql.FieldIn(FieldPriority, vs...))
+}
+
+// PriorityNotIn applies the NotIn predicate on the "priority" field.
+func PriorityNotIn(vs ...int) predicate.Download {
+	return predicate.Download(sql.FieldNotIn(FieldPriority, vs...))
+}
+
+// PriorityGT applies the GT predicate on the "priority" field.
+func PriorityGT(v int) predicate.Download {
+	return predicate.Download(sql.FieldGT(FieldPriority, v))
+}
+
+// PriorityGTE applies the GTE predicate on the "priority" field.
+func PriorityGTE(v int) predicate.Download {
+	return predicate.Download(sql.FieldGTE(FieldPriority, v))
+}
+
+// PriorityLT applies the LT predicate on the "priority" field.
+func PriorityLT(v int) predicate.Download {
+	return predicate.Download(sql.FieldLT(FieldPriority, v))
+}
+
+// PriorityLTE applies the LTE predicate on the "priority" field.
+func PriorityLTE(v int) predicate.Download {
+	return predicate.Download(sql.FieldLTE(FieldPriority, v))
 }
 
 // And groups predicates with the AND operator between them.

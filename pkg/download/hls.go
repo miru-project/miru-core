@@ -66,7 +66,7 @@ func downloadHls(filePath string, url string, headers map[string]string, title s
 	// Generate random task id
 	taskId := genTaskID()
 	// Initialize the status
-	status[taskId] = &Progress{
+	p := &Progress{
 		Progrss:   0,
 		Names:     &[]string{},
 		Total:     len(playList.Segments),
@@ -82,12 +82,13 @@ func downloadHls(filePath string, url string, headers map[string]string, title s
 		DetailUrl: detailUrl,
 		WatchUrl:  watchUrl,
 	}
-	status[taskId].SyncDB()
+	statusMap.Store(taskId, p)
+	p.SyncDB()
 
 	fetchedKey := downloadKey(playList.Key, url, headers)
 	iv := getIV(playList.Key, playList.SeqNo)
 
-	taskParamMap[taskId] = &HlsTaskParam{
+	hlsParam := &HlsTaskParam{
 		TaskParam:   TaskParam{taskID: taskId},
 		playList:    playList,
 		filePath:    filePath,
@@ -96,7 +97,8 @@ func downloadHls(filePath string, url string, headers map[string]string, title s
 		Key:         &fetchedKey,
 		IV:          &iv,
 	}
-	startDownloadTask((taskParamMap[taskId]).(*HlsTaskParam), downloadSegment)
+	taskParams.Store(taskId, hlsParam)
+	startDownloadTask(hlsParam, downloadSegment)
 
 	return MultipleLinkJson{IsDownloading: true, TaskID: taskId}, nil
 
@@ -170,7 +172,18 @@ func downloadSegment(param *HlsTaskParam, ctx context.Context) {
 	key := param.playList.Key
 	seg := param.playList.Segments
 	taskId := param.taskID
-	completed := status[taskId].Progrss
+
+	v, _ := statusMap.Load(taskId)
+	if v == nil {
+		log.Printf("HLS download task %d: status missing, aborting", taskId)
+		return
+	}
+	p := v.(*Progress)
+	// Ensure Names slice exists — DB may not have persisted it.
+	if p.Names == nil {
+		p.Names = &[]string{}
+	}
+	completed := p.Progrss
 
 	for i, s := range seg {
 
@@ -179,17 +192,22 @@ func downloadSegment(param *HlsTaskParam, ctx context.Context) {
 			log.Printf("HLS download task %d canceled", taskId)
 			return
 		default:
-			// Define the file name
-			name := fmt.Sprintf("%d%s", i+completed, path.Ext(s.URI))
+			// Define the file name. Resolve the REAL segment target (a proxy URL
+			// carries the original .ts/.m4s extension in its __u param) so the
+			// written chunk keeps the correct container extension instead of a
+			// garbled proxy placeholder like .ts?__u=....
+			name := fmt.Sprintf("%d%s", i+completed, path.Ext(network.ProxyURLTargetName(s.URI)))
 			fileName := filepath.Join(param.filePath, network.SanitizeFilename(name))
-			status[taskId].CurrentDownloading = fileName
+			p.CurrentDownloading = fileName
 
 			// Download the segment
 			url := parsePath(param.playListUrl, s.URI)
 			res, e := network.Request[[]byte](url, &network.RequestOptions{Headers: param.headers, Method: "GET"}, network.ReadAll)
 			if e != nil {
 				log.Println("Error downloading segment:", e)
-				continue
+				p.Status = Failed
+				p.SyncDB()
+				return
 			}
 
 			// Decypt segment if needed
@@ -197,7 +215,9 @@ func downloadSegment(param *HlsTaskParam, ctx context.Context) {
 				res.Body, e = hlsDecrypt(res.Body, *param.Key, *param.IV)
 				if e != nil {
 					log.Println("Error decrypting segment:", e)
-					continue
+					p.Status = Failed
+					p.SyncDB()
+					return
 				}
 
 			}
@@ -206,41 +226,104 @@ func downloadSegment(param *HlsTaskParam, ctx context.Context) {
 			err := network.SaveFile(fileName, &res.Body)
 			if err != nil {
 				log.Println("Error saving segment:", err)
-				continue
+				p.Status = Failed
+				p.SyncDB()
+				return
 			}
 
 			// Update status
-			status[taskId].Progrss++
-			*status[taskId].Names = append(*status[taskId].Names, fileName)
-			status[taskId].SyncDB()
+			p.Progrss++
+			*p.Names = append(*p.Names, fileName)
+			p.SyncDB()
 			log.Println("Downloaded segment:", url, "to", fileName)
 		}
 
 	}
 
-	status[taskId].Status = Converting
-	status[taskId].SyncDB()
+	p.Status = Converting
+	p.SyncDB()
 }
 
 func resumeHlsTask(taskId int) error {
 
-	taskParam := taskParamMap[taskId]
-	if taskParam == nil {
+	tp, _ := taskParams.Load(taskId)
+	if tp == nil {
 		return fmt.Errorf("task %d not found", taskId)
 	}
 
 	// Check if the task is a hls task
-	hlsTaskParam, ok := taskParam.(*HlsTaskParam)
+	hlsTaskParam, ok := tp.(*HlsTaskParam)
 	if !ok {
 		return fmt.Errorf("task %d is not a hls task", taskId)
 	}
 
-	completed := status[taskId].Progrss
+	sv, _ := statusMap.Load(taskId)
+	completed := sv.(*Progress).Progrss
+
+	// After a backend restart the parsed playList is nil (not persisted in DB).
+	// Re-fetch the m3u8 playlist from the stored URL so we can resume.
+	if hlsTaskParam.playList == nil {
+		playList, e := fetchPlaylistFunc(hlsTaskParam.playListUrl, hlsTaskParam.headers)
+		if e != nil {
+			return fmt.Errorf("task %d: %w", taskId, e)
+		}
+		hlsTaskParam.playList = playList
+
+		// Re-download the encryption key if the playlist requires one and
+		// it was not persisted across the restart (Key/IV are in-memory only).
+		if playList.Key != nil && hlsTaskParam.Key == nil {
+			fetchedKey := downloadKey(playList.Key, hlsTaskParam.playListUrl, hlsTaskParam.headers)
+			hlsTaskParam.Key = &fetchedKey
+			iv := getIV(playList.Key, playList.SeqNo)
+			hlsTaskParam.IV = &iv
+		}
+	}
+
 	seg := hlsTaskParam.playList.Segments
+	if completed >= len(seg) {
+		// All segments were already downloaded — skip to converting.
+		sp, _ := statusMap.Load(taskId)
+		p := sp.(*Progress)
+		// Ensure Names are populated for the frontend to run FFmpeg.
+		// After a restart, Names are rebuilt by verifyHlsProgress, but
+		// this path is also hit when the user resumes a Converting task
+		// that already has all segments on disk.
+		if p.Names == nil || len(*p.Names) == 0 {
+			verifyHlsProgress(p)
+		}
+		p.Status = Converting
+		p.SyncDB()
+		return nil
+	}
 
 	hlsTaskParam.playList.Segments = seg[completed:]
 	startDownloadTask(hlsTaskParam, downloadSegment)
 	return nil
+}
+
+// fetchPlaylistFunc fetches and parses an m3u8 media playlist from [playlistURL].
+// It defaults to fetchPlaylist but can be overridden in tests.
+var fetchPlaylistFunc = fetchPlaylist
+
+func fetchPlaylist(playlistURL string, headers map[string]string) (*m3u8.MediaPlaylist, error) {
+	res, e := network.Request[string](playlistURL, &network.RequestOptions{
+		Headers: headers,
+		Method:  "GET",
+	}, network.ReadAll)
+	if e != nil {
+		return nil, fmt.Errorf("failed to fetch playlist: %w", e)
+	}
+	o := bytes.NewBufferString(res.Body)
+	pl, li, e := m3u8.Decode(*o, true)
+	if e != nil {
+		return nil, fmt.Errorf("failed to decode playlist: %w", e)
+	}
+	if li != m3u8.MEDIA {
+		return nil, fmt.Errorf("URL is not a media playlist")
+	}
+	playList := pl.(*m3u8.MediaPlaylist)
+	playList.Segments = filterSegments(playList.Segments)
+	return playList, nil
 }
 
 // Summary of available variant

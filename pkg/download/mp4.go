@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 
 	log "github.com/miru-project/miru-core/pkg/logger"
@@ -16,13 +15,19 @@ import (
 
 func downloadMp4(filePath string, url string, header map[string]string, title string, pkg string, key string, detailUrl string, watchUrl string) (MultipleLinkJson, error) {
 
-	// Create the file path
-	fileName := filepath.Join(filePath, path.Base(url))
+	// Derive the saved file name from the REAL upstream target, not from the
+	// proxy path placeholder / query string. When url is a miru-core proxy URL
+	// (e.g. http://127.0.0.1:3000/proxy/file-16-f2-v1-a1.xls?__u=<b64>...), the
+	// original file name lives in the base64url __u param, so we resolve it and
+	// use path.Base of that. This fixes the long/garbled file name bug where
+	// path.Base(proxyURL) returned the whole query string glued onto the
+	// placeholder name.
+	fileName := filepath.Join(filePath, network.ProxyURLTargetName(url))
 
 	taskId := genTaskID()
-	status[taskId] = &Progress{
+	p := &Progress{
 		Progrss:   0,
-		Names:     &[]string{path.Base(url)},
+		Names:     &[]string{network.ProxyURLTargetName(url)},
 		Total:     0,
 		Status:    Downloading,
 		MediaType: Mp4,
@@ -35,9 +40,10 @@ func downloadMp4(filePath string, url string, header map[string]string, title st
 		DetailUrl: detailUrl,
 		WatchUrl:  watchUrl,
 	}
-	status[taskId].SyncDB()
+	statusMap.Store(taskId, p)
+	p.SyncDB()
 
-	taskParamMap[taskId] = &Mp4TaskParam{
+	mp4Param := &Mp4TaskParam{
 		TaskParam:     TaskParam{taskID: taskId},
 		filePath:      fileName,
 		header:        header,
@@ -47,7 +53,8 @@ func downloadMp4(filePath string, url string, header map[string]string, title st
 		pkg:           pkg,
 		key:           key,
 	}
-	startDownloadTask(taskParamMap[taskId].(*Mp4TaskParam), downloadMp4Task)
+	taskParams.Store(taskId, mp4Param)
+	startDownloadTask(mp4Param, downloadMp4Task)
 
 	return MultipleLinkJson{IsDownloading: true, TaskID: taskId}, nil
 }
@@ -57,10 +64,10 @@ func downloadMp4Task(param *Mp4TaskParam, ctx context.Context) {
 	param.ctx = ctx
 	if _, e := network.Request[[]byte](param.url, &network.RequestOptions{Headers: param.header, Method: "GET"}, param.readAndSavePartial); e != nil {
 		log.Println("Error downloading mp4 file:", e)
-		status[param.taskID] = &Progress{
+		statusMap.Store(param.taskID, &Progress{
 			TaskID: param.taskID,
 			Status: Failed,
-		}
+		})
 		return
 	}
 
@@ -83,12 +90,14 @@ func (t *Mp4TaskParam) readAndSavePartial(res *fasthttp.Response) ([]byte, error
 	}
 
 	// Update the status
-	status[taskId].Progrss = int(t.startingPoint)
-	status[taskId].Total = int(totalBytes)
-	status[taskId].Status = Downloading
-	status[taskId].SyncDB()
+	v, _ := statusMap.Load(taskId)
+	p := v.(*Progress)
+	p.Progrss = int(t.startingPoint)
+	p.Total = int(totalBytes)
+	p.Status = Downloading
+	p.SyncDB()
 
-	status[taskId].CurrentDownloading = t.filePath
+	p.CurrentDownloading = t.filePath
 
 	var file *os.File
 	var err error
@@ -114,7 +123,8 @@ func (t *Mp4TaskParam) readAndSavePartial(res *fasthttp.Response) ([]byte, error
 	for {
 		select {
 		case <-ctx.Done():
-			status[taskId].Status = Canceled
+			p.Status = Canceled
+			p.SyncDB()
 			log.Printf("Mp4 download task %d canceled", taskId)
 			return nil, nil
 		default:
@@ -126,20 +136,20 @@ func (t *Mp4TaskParam) readAndSavePartial(res *fasthttp.Response) ([]byte, error
 					return nil, writeErr
 				}
 				downloadedBytes += int64(n)
-				status[taskId].Progrss = int(downloadedBytes)
-				status[taskId].SyncDB()
+				p.Progrss = int(downloadedBytes)
+				p.SyncDB()
 				// log.Printf("\rDownloading... %d%% complete", 100*downloadedBytes/totalBytes)
 			}
 
 			if err == io.EOF {
-				status[taskId].Status = Completed
-				status[taskId].SyncDB()
+				p.Status = Completed
+				p.SyncDB()
 				return nil, nil
 			}
 
 			if err != nil {
-				status[taskId].Status = Failed
-				status[taskId].SyncDB()
+				p.Status = Failed
+				p.SyncDB()
 				return nil, err
 			}
 
@@ -151,17 +161,18 @@ func (t *Mp4TaskParam) readAndSavePartial(res *fasthttp.Response) ([]byte, error
 
 func resumeMp4Task(taskId int) error {
 
-	taskParam := taskParamMap[taskId]
-	if taskParam == nil {
+	tp, _ := taskParams.Load(taskId)
+	if tp == nil {
 		return fmt.Errorf("task %d not found", taskId)
 	}
 
-	mp4TaskParam, ok := taskParam.(*Mp4TaskParam)
+	mp4TaskParam, ok := tp.(*Mp4TaskParam)
 	if !ok {
 		return fmt.Errorf("task %d is not a mp4 task", taskId)
 	}
 
-	completed := status[taskId].Progrss
+	sv, _ := statusMap.Load(taskId)
+	completed := sv.(*Progress).Progrss
 
 	if mp4TaskParam.header == nil {
 		mp4TaskParam.header = make(map[string]string)

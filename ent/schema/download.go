@@ -62,6 +62,9 @@ func (Download) Fields() []ent.Field {
 			dialect.Postgres: "timestamp",
 		}).
 			Comment("Date when the download entry was created/updated"),
+		field.Int("priority").
+			Default(0).
+			Comment("Queue priority for the concurrency-limited scheduler. Higher runs first"),
 	}
 }
 

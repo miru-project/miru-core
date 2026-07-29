@@ -12,6 +12,14 @@ import (
 func Download(fileLoc string, url string, header map[string]string, mediaType string, title string, pkg string, key string, detailUrl string, watchUrl string) (MultipleLinkJson, error) {
 	fileLoc = network.SanitizeFolderPath(fileLoc)
 	mediaType = strings.ToLower(mediaType)
+
+	// When the media type is not explicitly supplied, infer it from the REAL
+	// upstream target. A proxy URL (http://.../proxy/name?__u=<b64>) carries no
+	// usable extension in its path, so resolve it to the original target first.
+	if mediaType == "" {
+		mediaType = inferMediaTypeFromURL(url)
+	}
+
 	// Check if the URL is a valid HLS URL
 	if mediaType == "hls" || isHlsUrl(url) {
 		logger.Println("Downloading HLS : " + url)
@@ -31,17 +39,40 @@ func Download(fileLoc string, url string, header map[string]string, mediaType st
 	return MultipleLinkJson{}, errors.New("Unsupported media type: " + mediaType)
 }
 
+// inferMediaTypeFromURL resolves a (possibly proxied) URL to its REAL target and
+// returns the media type implied by its extension. Returns "" when it cannot be
+// determined, so the caller can still fall back to the explicit mediaType or the
+// "Unsupported media type" error.
+func inferMediaTypeFromURL(rawURL string) string {
+	target, _ := network.ResolveProxyTarget(rawURL)
+	switch strings.ToLower(path.Ext(target)) {
+	case ".m3u8":
+		return "hls"
+	case ".mp4", ".m4v", ".mov", ".webm":
+		return "mp4"
+	case ".torrent":
+		return "torrent"
+	}
+	if strings.HasPrefix(target, "magnet:") {
+		return "torrent"
+	}
+	return ""
+}
+
 func isHlsUrl(url string) bool {
-	fileExt := path.Ext(url)
+	target, _ := network.ResolveProxyTarget(url)
+	fileExt := path.Ext(target)
 	return fileExt == ".m3u8"
 }
 
 func isTorrent(url string) bool {
-	return path.Ext(url) == ".torrent" || strings.HasPrefix(url, "magnet:")
+	target, _ := network.ResolveProxyTarget(url)
+	return path.Ext(target) == ".torrent" || strings.HasPrefix(target, "magnet:")
 }
 
 func isMp4Url(url string) bool {
-	return path.Ext(url) == ".mp4"
+	target, _ := network.ResolveProxyTarget(url)
+	return path.Ext(target) == ".mp4"
 }
 
 // Request schema

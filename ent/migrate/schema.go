@@ -61,6 +61,7 @@ var (
 		{Name: "status", Type: field.TypeString},
 		{Name: "save_path", Type: field.TypeString, Nullable: true},
 		{Name: "date", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamp", "sqlite3": "DATETIME"}},
+		{Name: "priority", Type: field.TypeInt, Default: 0},
 	}
 	// DownloadsTable holds the schema information for the "downloads" table.
 	DownloadsTable = &schema.Table{

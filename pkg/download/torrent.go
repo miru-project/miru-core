@@ -45,7 +45,7 @@ func downloadTorrent(filePath string, url string, header map[string]string, medi
 	fullPath := filepath.Join(filePath, targetFile.DisplayPath())
 
 	taskId := genTaskID()
-	status[taskId] = &Progress{
+	p := &Progress{
 		Progrss:   0,
 		Names:     &[]string{targetFile.DisplayPath()},
 		Total:     int(maxSize),
@@ -60,9 +60,10 @@ func downloadTorrent(filePath string, url string, header map[string]string, medi
 		DetailUrl: detailUrl,
 		WatchUrl:  watchUrl,
 	}
-	status[taskId].SyncDB()
+	statusMap.Store(taskId, p)
+	p.SyncDB()
 
-	taskParamMap[taskId] = &TorrentTaskParam{
+	torrentParam := &TorrentTaskParam{
 		TaskParam:  TaskParam{taskID: taskId},
 		url:        url,
 		title:      title,
@@ -71,8 +72,10 @@ func downloadTorrent(filePath string, url string, header map[string]string, medi
 		targetFile: targetFile,
 		key:        key,
 	}
+	taskParams.Store(taskId, torrentParam)
 
-	startDownloadTask(taskParamMap[taskId].(*TorrentTaskParam), downloadTorrentTask)
+	// Honour the concurrency cap / priority queue when first starting.
+	enqueueOrStart(taskId)
 	return MultipleLinkJson{IsDownloading: true, TaskID: taskId}, nil
 }
 
@@ -88,16 +91,20 @@ func (param *TorrentTaskParam) readAndSavePartial(ctx context.Context) {
 	// Ensure directory exists and open file
 	if err := os.MkdirAll(filepath.Dir(param.filePath), 0755); err != nil {
 		logger.Println("Error creating directory:", err)
-		status[taskId].Status = Failed
-		status[taskId].SyncDB()
+		v, _ := statusMap.Load(taskId)
+		p := v.(*Progress)
+		p.Status = Failed
+		p.SyncDB()
 		return
 	}
 
 	file, err := os.OpenFile(param.filePath, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		logger.Println("Error opening file:", err)
-		status[taskId].Status = Failed
-		status[taskId].SyncDB()
+		v, _ := statusMap.Load(taskId)
+		p := v.(*Progress)
+		p.Status = Failed
+		p.SyncDB()
 		return
 	}
 	defer file.Close()
@@ -108,45 +115,51 @@ func (param *TorrentTaskParam) readAndSavePartial(ctx context.Context) {
 	if currentSize > 0 {
 		if _, err := reader.Seek(currentSize, io.SeekStart); err != nil {
 			logger.Println("Error seeking torrent:", err)
-			status[taskId].Status = Failed
-			status[taskId].SyncDB()
+			v, _ := statusMap.Load(taskId)
+			p := v.(*Progress)
+			p.Status = Failed
+			p.SyncDB()
 			return
 		}
-		status[taskId].Progrss = int(currentSize)
-		status[taskId].SyncDB()
+		v, _ := statusMap.Load(taskId)
+		p := v.(*Progress)
+		p.Progrss = int(currentSize)
+		p.SyncDB()
 	}
 
-	status[taskId].CurrentDownloading = param.filePath
+	v, _ := statusMap.Load(taskId)
+	p := v.(*Progress)
+	p.CurrentDownloading = param.filePath
 
 	buf := make([]byte, 1024*1024) // 1MB buffer
 	for {
 		select {
 		case <-ctx.Done():
-			status[taskId].Status = Canceled
-			status[taskId].SyncDB()
+			p.Status = Canceled
+			p.SyncDB()
 			return
 		default:
 			n, err := reader.Read(buf)
 			if n > 0 {
 				if _, wErr := file.Write(buf[:n]); wErr != nil {
 					logger.Println("Write error:", wErr)
-					status[taskId].Status = Failed
-					status[taskId].SyncDB()
+					p.Status = Failed
+					p.SyncDB()
 					return
 				}
-				status[taskId].Progrss += n
-				status[taskId].SyncDB()
+				p.Progrss += n
+				p.SyncDB()
 			}
 			if err == io.EOF {
-				status[taskId].Status = Completed
-				status[taskId].SyncDB()
+				p.Status = Completed
+				p.SyncDB()
 				miruTorrent.DeleteTorrent(param.key, true)
 				return
 			}
 			if err != nil {
 				logger.Println("Read torrent error:", err)
-				status[taskId].Status = Failed
-				status[taskId].SyncDB()
+				p.Status = Failed
+				p.SyncDB()
 				return
 			}
 		}
@@ -165,12 +178,12 @@ type TorrentTaskParam struct {
 }
 
 func resumeTorrentTask(taskId int) error {
-	taskParam := taskParamMap[taskId]
-	if taskParam == nil {
+	tp, _ := taskParams.Load(taskId)
+	if tp == nil {
 		return fmt.Errorf("task %d not found", taskId)
 	}
 
-	torrentTaskParam, ok := taskParam.(*TorrentTaskParam)
+	torrentTaskParam, ok := tp.(*TorrentTaskParam)
 	if !ok {
 		return fmt.Errorf("task %d is not a torrent task", taskId)
 	}

@@ -234,12 +234,17 @@ const (
 
 // ExtensionBangumiWatchMirror is the per-type watch shape for bangumi (anime) video
 // extensions. A Golang extension that declares @type bangumi returns this from
-// its Watch entry point.
+// its Watch or Mirror entry point.
 //
-// When URL is a magnet: or .torrent link the host resolves it (mirroring the
-// JavaScript handleMediaType behaviour) and fills Torrent; an author may also
-// resolve one explicitly via sdk.AddMagnet / sdk.AddTorrent and set Torrent
-// themselves. The frontend reads Torrent to decide which files to download.
+// All URLs inside the mirror (main URL and subtitle URLs) are RAW and UNPROXIED.
+// When TLSConfig is set, the backend automatically wraps every URL into a proxy
+// URL before sending the response to the client. Extension authors should never
+// call sdk.ProxyURL manually on mirror URLs -- they set TLSConfig and the backend
+// handles proxying transparently.
+//
+// For torrent/magnet content types, the URL carries the raw .torrent link or
+// magnet: URI. Torrent resolution (fetching metainfo, building the file tree)
+// is handled by the frontend or a separate backend endpoint, not by the mirror.
 //
 // Type carries the CONTENT type (BangumiWatchType), never the extension type.
 type ExtensionBangumiWatchMirror struct {
@@ -248,7 +253,13 @@ type ExtensionBangumiWatchMirror struct {
 	Subtitles  []ExtensionBangumiWatchMirrorSubtitle `json:"subtitles,omitempty"`
 	Headers    map[string]string                     `json:"headers,omitempty"`
 	AudioTrack string                                `json:"audioTrack,omitempty"`
-	Torrent    *TorrentHandle                        `json:"torrent,omitempty"`
+	// TLSConfig optionally configures browser-impersonating (tls-client)
+	// proxying for this mirror. When non-nil, the backend rewrites every URL
+	// in this mirror (main URL + subtitle URLs) into a host-relative proxy
+	// URL that fetches server-side with the specified TLS fingerprint profile.
+	// Extension authors set Profile (e.g. "chrome_133") and the backend
+	// handles the rest -- no manual ProxyURL calls needed.
+	TLSConfig *TLSConfig `json:"tlsConfig,omitempty"`
 }
 
 // TorrentFileTreeFile is a single file node in a torrent's file tree.

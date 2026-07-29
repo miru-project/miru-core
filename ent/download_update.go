@@ -203,6 +203,27 @@ func (_u *DownloadUpdate) SetNillableDate(v *time.Time) *DownloadUpdate {
 	return _u
 }
 
+// SetPriority sets the "priority" field.
+func (_u *DownloadUpdate) SetPriority(v int) *DownloadUpdate {
+	_u.mutation.ResetPriority()
+	_u.mutation.SetPriority(v)
+	return _u
+}
+
+// SetNillablePriority sets the "priority" field if the given value is not nil.
+func (_u *DownloadUpdate) SetNillablePriority(v *int) *DownloadUpdate {
+	if v != nil {
+		_u.SetPriority(*v)
+	}
+	return _u
+}
+
+// AddPriority adds value to the "priority" field.
+func (_u *DownloadUpdate) AddPriority(v int) *DownloadUpdate {
+	_u.mutation.AddPriority(v)
+	return _u
+}
+
 // Mutation returns the DownloadMutation object of the builder.
 func (_u *DownloadUpdate) Mutation() *DownloadMutation {
 	return _u.mutation
@@ -341,6 +362,12 @@ func (_u *DownloadUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Date(); ok {
 		_spec.SetField(download.FieldDate, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.Priority(); ok {
+		_spec.SetField(download.FieldPriority, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedPriority(); ok {
+		_spec.AddField(download.FieldPriority, field.TypeInt, value)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -536,6 +563,27 @@ func (_u *DownloadUpdateOne) SetNillableDate(v *time.Time) *DownloadUpdateOne {
 	return _u
 }
 
+// SetPriority sets the "priority" field.
+func (_u *DownloadUpdateOne) SetPriority(v int) *DownloadUpdateOne {
+	_u.mutation.ResetPriority()
+	_u.mutation.SetPriority(v)
+	return _u
+}
+
+// SetNillablePriority sets the "priority" field if the given value is not nil.
+func (_u *DownloadUpdateOne) SetNillablePriority(v *int) *DownloadUpdateOne {
+	if v != nil {
+		_u.SetPriority(*v)
+	}
+	return _u
+}
+
+// AddPriority adds value to the "priority" field.
+func (_u *DownloadUpdateOne) AddPriority(v int) *DownloadUpdateOne {
+	_u.mutation.AddPriority(v)
+	return _u
+}
+
 // Mutation returns the DownloadMutation object of the builder.
 func (_u *DownloadUpdateOne) Mutation() *DownloadMutation {
 	return _u.mutation
@@ -704,6 +752,12 @@ func (_u *DownloadUpdateOne) sqlSave(ctx context.Context) (_node *Download, err 
 	}
 	if value, ok := _u.mutation.Date(); ok {
 		_spec.SetField(download.FieldDate, field.TypeTime, value)
+	}
+	if value, ok := _u.mutation.Priority(); ok {
+		_spec.SetField(download.FieldPriority, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedPriority(); ok {
+		_spec.AddField(download.FieldPriority, field.TypeInt, value)
 	}
 	_node = &Download{config: _u.config}
 	_spec.Assign = _node.assignValues

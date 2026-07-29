@@ -47,10 +47,19 @@ func init() {
 	}()
 }
 
+// IsDBReady reports whether a database client has been initialised. It is used
+// to guard code paths (e.g. unit tests) that run before the DB is configured so
+// they can fall back to in-memory state without panicking.
+func IsDBReady() bool {
+	return entClient != nil
+}
+
+
 func EntClient() *ent.Client {
 	if entClient != nil {
 		return entClient
 	}
+
 
 	var client *ent.Client
 	dbCfg := config.Global.Database

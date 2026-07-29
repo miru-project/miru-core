@@ -2,6 +2,8 @@ package network
 
 import (
 	"encoding/base64"
+	"fmt"
+	"net"
 	"net/url"
 	"strings"
 	"sync"
@@ -12,8 +14,13 @@ import (
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttpproxy"
 	"golang.org/x/net/http/httpproxy"
+	"golang.org/x/net/proxy"
 )
 
+// getProxyURL resolves the proxy URL from request options or the app-level
+// database setting. It preserves the original scheme (http, https, socks4,
+// socks4a, socks5, socks5h) so both the tls-client and fasthttp transports
+// can select the correct dialer. An empty scheme defaults to "http".
 func getProxyURL(option *RequestOptions) string {
 	if option != nil && option.ProxyHost != "" {
 		u := url.URL{
@@ -97,32 +104,44 @@ func PrepareProxy(option *RequestOptions, targetURL string) (*fasthttp.Client, e
 	}
 
 	var dialFunc fasthttp.DialFunc
-	switch link.Scheme {
+
+	switch strings.ToLower(link.Scheme) {
 	case "socks4", "socks4a":
 		protocol := SOCKS4
 		if link.Scheme == "socks4a" {
 			protocol = SOCKS4A
 		}
-		user := ""
+		userID := ""
 		if link.User != nil {
-			user = link.User.Username()
+			userID = link.User.Username()
 		}
-		dialFunc = FasthttpDialer(protocol, link.Host, user, 15*time.Second)
-	case "socks5":
-		d := fasthttpproxy.Dialer{Timeout: 15 * time.Second, ConnectTimeout: 15 * time.Second,
-			TCPDialer: fasthttp.TCPDialer{
-				Concurrency:      4096,
-				DNSCacheDuration: 6 * time.Hour,
-			}, Config: httpproxy.Config{HTTPProxy: proxy, HTTPSProxy: proxy}}
-		dialFunc, _ = d.GetDialFunc(false)
+		dialFunc = FasthttpDialer(protocol, link.Host, userID, 15*time.Second)
 
-	// http and https proxy
-	default:
-		d := fasthttpproxy.Dialer{Timeout: 15 * time.Second, ConnectTimeout: 15 * time.Second,
+	case "socks5", "socks5h":
+		dialFunc, err = newSocks5FasthttpDialer(proxy)
+		if err != nil {
+			return nil, fmt.Errorf("socks5 proxy: %w", err)
+		}
+
+	default: // http, https, or any other scheme -> HTTP CONNECT tunnel
+		// fasthttpproxy only supports "http" proxy scheme for CONNECT tunnels.
+		// HTTPS proxy (TLS to proxy itself) is treated identically for tunneling.
+		if link.Scheme != "http" {
+			link.Scheme = "http"
+			proxy = link.String()
+		}
+		d := fasthttpproxy.Dialer{
+			Timeout:        15 * time.Second,
+			ConnectTimeout: 15 * time.Second,
 			TCPDialer: fasthttp.TCPDialer{
 				Concurrency:      4096,
 				DNSCacheDuration: 6 * time.Hour,
-			}, Config: httpproxy.Config{HTTPProxy: proxy, HTTPSProxy: proxy}}
+			},
+			Config: httpproxy.Config{
+				HTTPProxy:  proxy,
+				HTTPSProxy: proxy,
+			},
+		}
 		dialFunc, _ = d.GetDialFunc(false)
 	}
 
@@ -144,6 +163,33 @@ func PrepareProxy(option *RequestOptions, targetURL string) (*fasthttp.Client, e
 
 	logger.Println("[Proxy] request to:", targetURL)
 	return client, nil
+}
+
+// newSocks5FasthttpDialer creates a fasthttp.DialFunc that dials through a
+// SOCKS5 proxy using golang.org/x/net/proxy.
+func newSocks5FasthttpDialer(proxyURL string) (fasthttp.DialFunc, error) {
+	u, err := url.Parse(proxyURL)
+	if err != nil {
+		return nil, err
+	}
+	var auth *proxy.Auth
+	if u.User != nil {
+		password, _ := u.User.Password()
+		auth = &proxy.Auth{
+			User:     u.User.Username(),
+			Password: password,
+		}
+	}
+	dialer, err := proxy.SOCKS5("tcp", u.Host, auth, &net.Dialer{
+		Timeout:   15 * time.Second,
+		KeepAlive: 15 * time.Second,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return func(addr string) (net.Conn, error) {
+		return dialer.Dial("tcp", addr)
+	}, nil
 }
 
 func Proxy(ctx *fasthttp.RequestCtx) {

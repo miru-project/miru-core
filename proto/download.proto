@@ -114,7 +114,26 @@ service DownloadService {
 
   rpc UpdateDownloadStatus(UpdateDownloadStatusRequest)
       returns (UpdateDownloadStatusResponse);
+
+  // Concurrency-limited scheduler controls.
+  rpc SetDownloadPriority(SetDownloadPriorityRequest)
+      returns (SetDownloadPriorityResponse);
+  rpc SetDownloadConcurrent(SetDownloadConcurrentRequest)
+      returns (SetDownloadConcurrentResponse);
+  rpc ReorderDownloads(ReorderDownloadsRequest)
+      returns (ReorderDownloadsResponse);
 }
+
+message SetDownloadPriorityRequest { int32 task_id = 1; int32 priority = 2; }
+message SetDownloadPriorityResponse { string message = 1; }
+
+message SetDownloadConcurrentRequest { int32 max_concurrent = 1; }
+message SetDownloadConcurrentResponse { string message = 1; }
+
+// Reorders active/queued tasks. `ordered_task_ids` is the full desired order
+// (front = highest priority). The backend reassigns priorities accordingly.
+message ReorderDownloadsRequest { repeated int32 ordered_task_ids = 1; }
+message ReorderDownloadsResponse { string message = 1; }
 
 message UpdateDownloadStatusRequest {
   int32 task_id = 1;

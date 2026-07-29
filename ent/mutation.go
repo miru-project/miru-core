@@ -1455,6 +1455,8 @@ type DownloadMutation struct {
 	status         *string
 	save_path      *string
 	date           *time.Time
+	priority       *int
+	addpriority    *int
 	clearedFields  map[string]struct{}
 	done           bool
 	oldValue       func(context.Context) (*Download, error)
@@ -2067,6 +2069,62 @@ func (m *DownloadMutation) ResetDate() {
 	m.date = nil
 }
 
+// SetPriority sets the "priority" field.
+func (m *DownloadMutation) SetPriority(i int) {
+	m.priority = &i
+	m.addpriority = nil
+}
+
+// Priority returns the value of the "priority" field in the mutation.
+func (m *DownloadMutation) Priority() (r int, exists bool) {
+	v := m.priority
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPriority returns the old "priority" field's value of the Download entity.
+// If the Download object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DownloadMutation) OldPriority(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPriority is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPriority requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPriority: %w", err)
+	}
+	return oldValue.Priority, nil
+}
+
+// AddPriority adds i to the "priority" field.
+func (m *DownloadMutation) AddPriority(i int) {
+	if m.addpriority != nil {
+		*m.addpriority += i
+	} else {
+		m.addpriority = &i
+	}
+}
+
+// AddedPriority returns the value that was added to the "priority" field in this mutation.
+func (m *DownloadMutation) AddedPriority() (r int, exists bool) {
+	v := m.addpriority
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetPriority resets all changes to the "priority" field.
+func (m *DownloadMutation) ResetPriority() {
+	m.priority = nil
+	m.addpriority = nil
+}
+
 // Where appends a list predicates to the DownloadMutation builder.
 func (m *DownloadMutation) Where(ps ...predicate.Download) {
 	m.predicates = append(m.predicates, ps...)
@@ -2101,7 +2159,7 @@ func (m *DownloadMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DownloadMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 13)
 	if m.url != nil {
 		fields = append(fields, download.FieldURL)
 	}
@@ -2138,6 +2196,9 @@ func (m *DownloadMutation) Fields() []string {
 	if m.date != nil {
 		fields = append(fields, download.FieldDate)
 	}
+	if m.priority != nil {
+		fields = append(fields, download.FieldPriority)
+	}
 	return fields
 }
 
@@ -2170,6 +2231,8 @@ func (m *DownloadMutation) Field(name string) (ent.Value, bool) {
 		return m.SavePath()
 	case download.FieldDate:
 		return m.Date()
+	case download.FieldPriority:
+		return m.Priority()
 	}
 	return nil, false
 }
@@ -2203,6 +2266,8 @@ func (m *DownloadMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldSavePath(ctx)
 	case download.FieldDate:
 		return m.OldDate(ctx)
+	case download.FieldPriority:
+		return m.OldPriority(ctx)
 	}
 	return nil, fmt.Errorf("unknown Download field %s", name)
 }
@@ -2296,6 +2361,13 @@ func (m *DownloadMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDate(v)
 		return nil
+	case download.FieldPriority:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPriority(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Download field %s", name)
 }
@@ -2303,13 +2375,21 @@ func (m *DownloadMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *DownloadMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addpriority != nil {
+		fields = append(fields, download.FieldPriority)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *DownloadMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case download.FieldPriority:
+		return m.AddedPriority()
+	}
 	return nil, false
 }
 
@@ -2318,6 +2398,13 @@ func (m *DownloadMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *DownloadMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case download.FieldPriority:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddPriority(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Download numeric field %s", name)
 }
@@ -2401,6 +2488,9 @@ func (m *DownloadMutation) ResetField(name string) error {
 		return nil
 	case download.FieldDate:
 		m.ResetDate()
+		return nil
+	case download.FieldPriority:
+		m.ResetPriority()
 		return nil
 	}
 	return fmt.Errorf("unknown Download field %s", name)

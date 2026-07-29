@@ -47,6 +47,8 @@ message DownloadProgress {
   string title = 8;
   string package = 9;
   string key = 10;
+  // Priority used by the concurrency-limited scheduler. Higher runs first.
+  int32 priority = 11;
 }
 
 message TorrentStats {
@@ -77,6 +79,8 @@ message Download {
   string date = 11;
   string download_url = 12;
   string detail_url = 13;
+  // Priority used by the concurrency-limited scheduler. Higher runs first.
+  int32 priority = 14;
 }
 
 // Torrent

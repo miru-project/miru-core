@@ -79,9 +79,9 @@ type (
 	// as standalone Watch() return values in the V2 runtime.
 	ExtensionAllMirror = runtime.ExtensionAllMirror
 	// TLSConfig configures browser-impersonating (tls-client) requests.
+	// Use it on ExtensionBangumiWatchMirror to let the backend auto-proxy
+	// all URLs with the specified TLS fingerprint profile.
 	TLSConfig = runtime.TLSConfig
-	// Torrent is the resolved torrent handle attached to a bangumi watch.
-	Torrent = runtime.TorrentHandle
 )
 
 // BangumiWatchType is the content type of a bangumi stream/mirror
@@ -90,9 +90,7 @@ type BangumiWatchType = runtime.BangumiWatchType
 
 // Content-type constants for a bangumi stream/mirror. These mirror what V1
 // watch() and V2 mirror() emit as the per-type watch "type" field, and the
-// dart ExtensionWatchBangumiType enum (hls/mp4/torrent/magnet). Note: the
-// "torrent" content value is the string literal "torrent" -- the sdk alias
-// Torrent above is the resolved torrent HANDLE, not this content type.
+// dart ExtensionWatchBangumiType enum (hls/mp4/torrent/magnet).
 var (
 	HLS    = runtime.HLS
 	MP4    = runtime.MP4

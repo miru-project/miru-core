@@ -59,7 +59,14 @@ func GetAllDownloads() ([]*ent.Download, error) {
 
 func GetPendingDownloads() ([]*ent.Download, error) {
 	client := ext.EntClient()
-	return client.Download.Query().Where(download.Status("Downloading"), download.Status("Paused")).All(context.Background())
+	return client.Download.Query().Where(
+		download.Or(
+			download.Status("Downloading"),
+			download.Status("Paused"),
+			download.Status("Queued"),
+			download.Status("Converting"),
+		),
+	).All(context.Background())
 }
 
 func DeleteDownloadByID(id int) error {

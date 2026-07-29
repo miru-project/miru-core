@@ -187,6 +187,7 @@ func toProtoDownloadProgress(p *download.Progress) *proto.DownloadProgress {
 		Title:              p.Title,
 		Package:            p.Package,
 		Key:                p.Key,
+		Priority:           int32(p.Priority),
 	}
 }
 

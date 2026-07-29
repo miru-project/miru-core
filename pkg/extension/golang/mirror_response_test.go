@@ -165,6 +165,49 @@ func Mirror(pkg, url string) (*runtime.ExtensionBangumiWatchMirror, error) {
 				assert.Equal(t, "magnet:?xt=urn:btih:0011223344556677889900112233445566778899&dn=Cool+Show+S01", w.Url)
 			},
 		},
+		// ---- bangumi + TLSConfig proxying -----------------------------------
+		{
+			// When an extension sets TLSConfig on the mirror, the backend
+			// rewrites every URL (main + subtitles) into a proxy URL. The
+			// raw upstream URL must NOT appear in the proto output.
+			name:  "bangumi/tls-proxy",
+			watch: extension.WatchTypeBangumi,
+			srcTmpl: `
+package example
+import runtime "github.com/miru-project/miru-core/pkg/extension/golang/runtime"
+func ptr(s string) *string { return &s }
+func Mirror(pkg, url string) (*runtime.ExtensionBangumiWatchMirror, error) {
+	return &runtime.ExtensionBangumiWatchMirror{
+		Type: runtime.HLS,
+		URL:  %q,
+		Subtitles: []runtime.ExtensionBangumiWatchMirrorSubtitle{
+			{Language: ptr("en"), Title: "English", URL: "https://cdn.example.com/sub/en.vtt"},
+		},
+		TLSConfig: &runtime.TLSConfig{Profile: "chrome_133"},
+	}, nil
+}`,
+			assert: func(t *testing.T, res any) {
+				w, ok := res.(*proto.ExtensionBangumiWatch)
+				require.True(t, ok, "expected *proto.ExtensionBangumiWatch, got %T", res)
+				assert.Equal(t, "hls", w.Type)
+				// The main URL must be wrapped in a proxy URL.
+				assert.NotEqual(t, chosenURL, w.Url,
+					"main URL must be proxied when TLSConfig is set")
+				assert.Contains(t, w.Url, "/proxy/",
+					"proxied URL must contain /proxy/ path")
+				assert.Contains(t, w.Url, "__tls=1",
+					"proxied URL must include TLS flag")
+				assert.Contains(t, w.Url, "__tlsp=chrome_133",
+					"proxied URL must include the TLS profile")
+				// Subtitle URLs must also be proxied.
+				require.Len(t, w.Subtitles, 1)
+				assert.NotEqual(t, "https://cdn.example.com/sub/en.vtt",
+					w.Subtitles[0].Url,
+					"subtitle URL must be proxied when TLSConfig is set")
+				assert.Contains(t, w.Subtitles[0].Url, "/proxy/",
+					"proxied subtitle URL must contain /proxy/ path")
+			},
+		},
 		// ---- manga ---------------------------------------------------------
 		{
 			name:  "manga/full-struct",

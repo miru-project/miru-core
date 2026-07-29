@@ -283,8 +283,10 @@ type DownloadProgress struct {
 	Title              string                 `protobuf:"bytes,8,opt,name=title,proto3" json:"title,omitempty"`
 	Package            string                 `protobuf:"bytes,9,opt,name=package,proto3" json:"package,omitempty"`
 	Key                string                 `protobuf:"bytes,10,opt,name=key,proto3" json:"key,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Priority used by the concurrency-limited scheduler. Higher runs first.
+	Priority      int32 `protobuf:"varint,11,opt,name=priority,proto3" json:"priority,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DownloadProgress) Reset() {
@@ -385,6 +387,13 @@ func (x *DownloadProgress) GetKey() string {
 		return x.Key
 	}
 	return ""
+}
+
+func (x *DownloadProgress) GetPriority() int32 {
+	if x != nil {
+		return x.Priority
+	}
+	return 0
 }
 
 type TorrentStats struct {
@@ -501,20 +510,22 @@ func (x *AvailableHlsVariant) GetCodec() string {
 
 // Download
 type Download struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int32                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Url           []string               `protobuf:"bytes,2,rep,name=url,proto3" json:"url,omitempty"`
-	Headers       map[string]string      `protobuf:"bytes,3,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	Package       string                 `protobuf:"bytes,4,opt,name=package,proto3" json:"package,omitempty"`
-	Progress      []int32                `protobuf:"varint,5,rep,packed,name=progress,proto3" json:"progress,omitempty"`
-	Key           string                 `protobuf:"bytes,6,opt,name=key,proto3" json:"key,omitempty"`
-	Title         string                 `protobuf:"bytes,7,opt,name=title,proto3" json:"title,omitempty"`
-	MediaType     string                 `protobuf:"bytes,8,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
-	Status        DownloadStatus         `protobuf:"varint,9,opt,name=status,proto3,enum=miru.DownloadStatus" json:"status,omitempty"`
-	SavePath      string                 `protobuf:"bytes,10,opt,name=save_path,json=savePath,proto3" json:"save_path,omitempty"`
-	Date          string                 `protobuf:"bytes,11,opt,name=date,proto3" json:"date,omitempty"`
-	DownloadUrl   string                 `protobuf:"bytes,12,opt,name=download_url,json=downloadUrl,proto3" json:"download_url,omitempty"`
-	DetailUrl     string                 `protobuf:"bytes,13,opt,name=detail_url,json=detailUrl,proto3" json:"detail_url,omitempty"`
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Id          int32                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Url         []string               `protobuf:"bytes,2,rep,name=url,proto3" json:"url,omitempty"`
+	Headers     map[string]string      `protobuf:"bytes,3,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Package     string                 `protobuf:"bytes,4,opt,name=package,proto3" json:"package,omitempty"`
+	Progress    []int32                `protobuf:"varint,5,rep,packed,name=progress,proto3" json:"progress,omitempty"`
+	Key         string                 `protobuf:"bytes,6,opt,name=key,proto3" json:"key,omitempty"`
+	Title       string                 `protobuf:"bytes,7,opt,name=title,proto3" json:"title,omitempty"`
+	MediaType   string                 `protobuf:"bytes,8,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
+	Status      DownloadStatus         `protobuf:"varint,9,opt,name=status,proto3,enum=miru.DownloadStatus" json:"status,omitempty"`
+	SavePath    string                 `protobuf:"bytes,10,opt,name=save_path,json=savePath,proto3" json:"save_path,omitempty"`
+	Date        string                 `protobuf:"bytes,11,opt,name=date,proto3" json:"date,omitempty"`
+	DownloadUrl string                 `protobuf:"bytes,12,opt,name=download_url,json=downloadUrl,proto3" json:"download_url,omitempty"`
+	DetailUrl   string                 `protobuf:"bytes,13,opt,name=detail_url,json=detailUrl,proto3" json:"detail_url,omitempty"`
+	// Priority used by the concurrency-limited scheduler. Higher runs first.
+	Priority      int32 `protobuf:"varint,14,opt,name=priority,proto3" json:"priority,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -640,6 +651,13 @@ func (x *Download) GetDetailUrl() string {
 	return ""
 }
 
+func (x *Download) GetPriority() int32 {
+	if x != nil {
+		return x.Priority
+	}
+	return 0
+}
+
 // Torrent
 type TorrentResult struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -720,7 +738,7 @@ const file_proto_common_proto_rawDesc = "" +
 	" \x03(\tR\x04tags\x12\x10\n" +
 	"\x03api\x18\v \x01(\tR\x03api\x12\x14\n" +
 	"\x05error\x18\f \x01(\tR\x05error\x12\x12\n" +
-	"\x04type\x18\r \x01(\tR\x04type\"\xb3\x02\n" +
+	"\x04type\x18\r \x01(\tR\x04type\"\xcf\x02\n" +
 	"\x10DownloadProgress\x12\x1a\n" +
 	"\bprogress\x18\x01 \x01(\x05R\bprogress\x12\x14\n" +
 	"\x05names\x18\x02 \x03(\tR\x05names\x12\x14\n" +
@@ -733,7 +751,8 @@ const file_proto_common_proto_rawDesc = "" +
 	"\x05title\x18\b \x01(\tR\x05title\x12\x18\n" +
 	"\apackage\x18\t \x01(\tR\apackage\x12\x10\n" +
 	"\x03key\x18\n" +
-	" \x01(\tR\x03key\"H\n" +
+	" \x01(\tR\x03key\x12\x1a\n" +
+	"\bpriority\x18\v \x01(\x05R\bpriority\"H\n" +
 	"\fTorrentStats\x12\x1d\n" +
 	"\n" +
 	"total_down\x18\x01 \x01(\x03R\ttotalDown\x12\x19\n" +
@@ -743,7 +762,7 @@ const file_proto_common_proto_rawDesc = "" +
 	"resolution\x18\x01 \x01(\tR\n" +
 	"resolution\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\x12\x14\n" +
-	"\x05codec\x18\x03 \x01(\tR\x05codec\"\xbd\x03\n" +
+	"\x05codec\x18\x03 \x01(\tR\x05codec\"\xd9\x03\n" +
 	"\bDownload\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x10\n" +
 	"\x03url\x18\x02 \x03(\tR\x03url\x125\n" +
@@ -760,7 +779,8 @@ const file_proto_common_proto_rawDesc = "" +
 	"\x04date\x18\v \x01(\tR\x04date\x12!\n" +
 	"\fdownload_url\x18\f \x01(\tR\vdownloadUrl\x12\x1d\n" +
 	"\n" +
-	"detail_url\x18\r \x01(\tR\tdetailUrl\x1a:\n" +
+	"detail_url\x18\r \x01(\tR\tdetailUrl\x12\x1a\n" +
+	"\bpriority\x18\x0e \x01(\x05R\bpriority\x1a:\n" +
 	"\fHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"V\n" +

@@ -83,6 +83,10 @@ func init() {
 	downloadDescDate := downloadFields[12].Descriptor()
 	// download.DefaultDate holds the default value on creation for the date field.
 	download.DefaultDate = downloadDescDate.Default.(func() time.Time)
+	// downloadDescPriority is the schema descriptor for priority field.
+	downloadDescPriority := downloadFields[13].Descriptor()
+	// download.DefaultPriority holds the default value on creation for the priority field.
+	download.DefaultPriority = downloadDescPriority.Default.(int)
 	// downloadDescID is the schema descriptor for id field.
 	downloadDescID := downloadFields[0].Descriptor()
 	// download.IDValidator is a validator for the "id" field. It is called by the builders before save.

@@ -110,6 +110,20 @@ func (_c *DownloadCreate) SetNillableDate(v *time.Time) *DownloadCreate {
 	return _c
 }
 
+// SetPriority sets the "priority" field.
+func (_c *DownloadCreate) SetPriority(v int) *DownloadCreate {
+	_c.mutation.SetPriority(v)
+	return _c
+}
+
+// SetNillablePriority sets the "priority" field if the given value is not nil.
+func (_c *DownloadCreate) SetNillablePriority(v *int) *DownloadCreate {
+	if v != nil {
+		_c.SetPriority(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *DownloadCreate) SetID(v int) *DownloadCreate {
 	_c.mutation.SetID(v)
@@ -158,6 +172,10 @@ func (_c *DownloadCreate) defaults() {
 	if _, ok := _c.mutation.Date(); !ok {
 		v := download.DefaultDate()
 		_c.mutation.SetDate(v)
+	}
+	if _, ok := _c.mutation.Priority(); !ok {
+		v := download.DefaultPriority
+		_c.mutation.SetPriority(v)
 	}
 }
 
@@ -224,6 +242,9 @@ func (_c *DownloadCreate) check() error {
 	}
 	if _, ok := _c.mutation.Date(); !ok {
 		return &ValidationError{Name: "date", err: errors.New(`ent: missing required field "Download.date"`)}
+	}
+	if _, ok := _c.mutation.Priority(); !ok {
+		return &ValidationError{Name: "priority", err: errors.New(`ent: missing required field "Download.priority"`)}
 	}
 	if v, ok := _c.mutation.ID(); ok {
 		if err := download.IDValidator(v); err != nil {
@@ -310,6 +331,10 @@ func (_c *DownloadCreate) createSpec() (*Download, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Date(); ok {
 		_spec.SetField(download.FieldDate, field.TypeTime, value)
 		_node.Date = value
+	}
+	if value, ok := _c.mutation.Priority(); ok {
+		_spec.SetField(download.FieldPriority, field.TypeInt, value)
+		_node.Priority = value
 	}
 	return _node, _spec
 }
@@ -522,6 +547,24 @@ func (u *DownloadUpsert) SetDate(v time.Time) *DownloadUpsert {
 // UpdateDate sets the "date" field to the value that was provided on create.
 func (u *DownloadUpsert) UpdateDate() *DownloadUpsert {
 	u.SetExcluded(download.FieldDate)
+	return u
+}
+
+// SetPriority sets the "priority" field.
+func (u *DownloadUpsert) SetPriority(v int) *DownloadUpsert {
+	u.Set(download.FieldPriority, v)
+	return u
+}
+
+// UpdatePriority sets the "priority" field to the value that was provided on create.
+func (u *DownloadUpsert) UpdatePriority() *DownloadUpsert {
+	u.SetExcluded(download.FieldPriority)
+	return u
+}
+
+// AddPriority adds v to the "priority" field.
+func (u *DownloadUpsert) AddPriority(v int) *DownloadUpsert {
+	u.Add(download.FieldPriority, v)
 	return u
 }
 
@@ -759,6 +802,27 @@ func (u *DownloadUpsertOne) SetDate(v time.Time) *DownloadUpsertOne {
 func (u *DownloadUpsertOne) UpdateDate() *DownloadUpsertOne {
 	return u.Update(func(s *DownloadUpsert) {
 		s.UpdateDate()
+	})
+}
+
+// SetPriority sets the "priority" field.
+func (u *DownloadUpsertOne) SetPriority(v int) *DownloadUpsertOne {
+	return u.Update(func(s *DownloadUpsert) {
+		s.SetPriority(v)
+	})
+}
+
+// AddPriority adds v to the "priority" field.
+func (u *DownloadUpsertOne) AddPriority(v int) *DownloadUpsertOne {
+	return u.Update(func(s *DownloadUpsert) {
+		s.AddPriority(v)
+	})
+}
+
+// UpdatePriority sets the "priority" field to the value that was provided on create.
+func (u *DownloadUpsertOne) UpdatePriority() *DownloadUpsertOne {
+	return u.Update(func(s *DownloadUpsert) {
+		s.UpdatePriority()
 	})
 }
 
@@ -1162,6 +1226,27 @@ func (u *DownloadUpsertBulk) SetDate(v time.Time) *DownloadUpsertBulk {
 func (u *DownloadUpsertBulk) UpdateDate() *DownloadUpsertBulk {
 	return u.Update(func(s *DownloadUpsert) {
 		s.UpdateDate()
+	})
+}
+
+// SetPriority sets the "priority" field.
+func (u *DownloadUpsertBulk) SetPriority(v int) *DownloadUpsertBulk {
+	return u.Update(func(s *DownloadUpsert) {
+		s.SetPriority(v)
+	})
+}
+
+// AddPriority adds v to the "priority" field.
+func (u *DownloadUpsertBulk) AddPriority(v int) *DownloadUpsertBulk {
+	return u.Update(func(s *DownloadUpsert) {
+		s.AddPriority(v)
+	})
+}
+
+// UpdatePriority sets the "priority" field to the value that was provided on create.
+func (u *DownloadUpsertBulk) UpdatePriority() *DownloadUpsertBulk {
+	return u.Update(func(s *DownloadUpsert) {
+		s.UpdatePriority()
 	})
 }
 

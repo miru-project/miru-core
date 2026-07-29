@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/miru-project/miru-core/pkg/extension"
+	"github.com/miru-project/miru-core/pkg/extension/golang/runtime"
 	"github.com/miru-project/miru-core/proto/generate/proto"
 )
 
@@ -644,100 +645,65 @@ func toFikushonWatch(v any) *proto.ExtensionFikushonWatch {
 }
 
 // toBangumiWatch converts a script ExtensionBangumiWatchMirror into the proto
-// equivalent, descending into its subtitles. Torrent resolution is a frontend
-// concern, so no torrent metadata is carried here.
+// equivalent, descending into its subtitles. When the extension provides a
+// TLSConfig, every URL in the mirror (main URL + subtitle URLs) is rewritten
+// into a host-relative proxy URL so the client fetches through the backend's
+// tls-client proxy transparently. Torrent/magnet links are passed through
+// untouched -- the frontend resolves them.
 func toBangumiWatch(v any) *proto.ExtensionBangumiWatch {
 	rv := derefStruct(v)
 	if !rv.IsValid() {
 		return nil
 	}
-	return &proto.ExtensionBangumiWatch{
+	w := &proto.ExtensionBangumiWatch{
 		Type:       strField(rv, "Type"),
 		Url:        strField(rv, "URL"),
 		Subtitles:  toBangumiSubtitles(anyField(rv, "Subtitles")),
 		Headers:    mapStrField(rv, "Headers"),
 		AudioTrack: optionalStrField(rv, "AudioTrack"),
-		Torrent:    toProtoTorrent(anyField(rv, "Torrent")),
 	}
-}
-
-// toProtoTorrent converts a runtime Torrent (as returned by sdk.AddMagnet /
-// sdk.AddTorrent, or auto-resolved by the host) into the proto
-// ExtensionBangumiWatchTorrent the gRPC WatchResponse carries to the frontend.
-func toProtoTorrent(v any) *proto.ExtensionBangumiWatchTorrent {
-	rv := derefStruct(v)
-	if !rv.IsValid() {
-		return nil
-	}
-	out := &proto.ExtensionBangumiWatchTorrent{
-		InfoHash: strField(rv, "InfoHash"),
-		Files:    strSliceField(rv, "Files"),
-	}
-	if detail := toProtoTorrentDetail(anyField(rv, "Detail")); detail != nil {
-		out.Detail = detail
-	}
-	return out
-}
-
-func toProtoTorrentDetail(v any) *proto.ExtensionBangumiWatchTorrentDetail {
-	rv := derefStruct(v)
-	if !rv.IsValid() {
-		return nil
-	}
-	detail := &proto.ExtensionBangumiWatchTorrentDetail{
-		PieceLength: optInt32Field(rv, "PieceLength"),
-		Pieces:      optionalStrField(rv, "Pieces"),
-		Name:        optionalStrField(rv, "Name"),
-		NameUtf8:    optionalStrField(rv, "NameUtf8"),
-		Length:      optInt64Field(rv, "Length"),
-		Source:      optionalStrField(rv, "Source"),
-		MetaVersion: optInt32Field(rv, "MetaVersion"),
-	}
-	if tree := toProtoFileTree(anyField(rv, "FileTree")); tree != nil {
-		detail.FileTree = tree
-	}
-	return detail
-}
-
-func toProtoFileTree(v any) *proto.ExtensionBangumiWatchTorrentFileTree {
-	rv := derefStruct(v)
-	if !rv.IsValid() {
-		return nil
-	}
-	tree := &proto.ExtensionBangumiWatchTorrentFileTree{}
-	if file := toProtoFileTreeFile(anyField(rv, "File")); file != nil {
-		tree.File = file
-	}
-	if dir := anyField(rv, "Dir"); dir != nil {
-		dirRV := reflect.ValueOf(dir)
-		if dirRV.Kind() == reflect.Map && dirRV.Type().Key().Kind() == reflect.String {
-			out := make(map[string]*proto.ExtensionBangumiWatchTorrentFileTree, dirRV.Len())
-			for _, key := range dirRV.MapKeys() {
-				child := toProtoFileTree(dirRV.MapIndex(key).Interface())
-				if child != nil {
-					out[key.String()] = child
-				}
-			}
-			tree.Dir = out
+	// Apply TLSConfig-based proxying: when the extension provides a TLSConfig,
+	// the backend wraps all URLs (main + subtitles) into proxy URLs so the
+	// client/player never sees raw upstream URLs.
+	if profile := extractTLSProfile(anyField(rv, "TLSConfig")); profile != "" {
+		w.Url = proxyMirrorURL(w.Url, w.Headers, profile)
+		for _, sub := range w.Subtitles {
+			sub.Url = proxyMirrorURL(sub.Url, nil, profile)
 		}
 	}
-	return tree
+	return w
 }
 
-func toProtoFileTreeFile(v any) *proto.ExtensionBangumiWatchTorrentFileTreeFile {
+// extractTLSProfile reads the Profile field from a runtime TLSConfig struct
+// via reflection. Returns "" when the config is nil or has no profile.
+func extractTLSProfile(v any) string {
 	rv := derefStruct(v)
 	if !rv.IsValid() {
-		return nil
+		return ""
 	}
-	return &proto.ExtensionBangumiWatchTorrentFileTreeFile{
-		Length:     int64Field(rv, "Length"),
-		PiecesRoot: strField(rv, "PiecesRoot"),
-	}
+	return strField(rv, "Profile")
+}
+
+// proxyMirrorURL converts a raw mirror URL into a host-relative proxy URL
+// using the runtime's ProxyURL helper. Headers are forwarded only for the
+// main media URL; subtitle URLs are proxied without extra headers.
+func proxyMirrorURL(target string, headers map[string]string, tlsProfile string) string {
+	return runtime.ProxyURL(target, headers, tlsProfile)
 }
 
 func toBangumiSubtitles(v any) []*proto.ExtensionBangumiWatchSubtitle {
-	rv := derefStruct(v)
-	if !rv.IsValid() || rv.Kind() != reflect.Slice {
+	if v == nil {
+		return nil
+	}
+	rv := reflect.ValueOf(v)
+	// Dereference pointers/interfaces to get the underlying slice.
+	for rv.Kind() == reflect.Ptr || rv.Kind() == reflect.Interface {
+		if rv.IsNil() {
+			return nil
+		}
+		rv = rv.Elem()
+	}
+	if rv.Kind() != reflect.Slice {
 		return nil
 	}
 	out := make([]*proto.ExtensionBangumiWatchSubtitle, 0, rv.Len())

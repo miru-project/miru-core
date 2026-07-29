@@ -33,6 +33,9 @@ const (
 	DownloadService_DeleteTorrent_FullMethodName                         = "/miru.DownloadService/DeleteTorrent"
 	DownloadService_AddMagnet_FullMethodName                             = "/miru.DownloadService/AddMagnet"
 	DownloadService_UpdateDownloadStatus_FullMethodName                  = "/miru.DownloadService/UpdateDownloadStatus"
+	DownloadService_SetDownloadPriority_FullMethodName                   = "/miru.DownloadService/SetDownloadPriority"
+	DownloadService_SetDownloadConcurrent_FullMethodName                 = "/miru.DownloadService/SetDownloadConcurrent"
+	DownloadService_ReorderDownloads_FullMethodName                      = "/miru.DownloadService/ReorderDownloads"
 )
 
 // DownloadServiceClient is the client API for DownloadService service.
@@ -54,6 +57,10 @@ type DownloadServiceClient interface {
 	DeleteTorrent(ctx context.Context, in *DeleteTorrentRequest, opts ...grpc.CallOption) (*DeleteTorrentResponse, error)
 	AddMagnet(ctx context.Context, in *AddMagnetRequest, opts ...grpc.CallOption) (*AddMagnetResponse, error)
 	UpdateDownloadStatus(ctx context.Context, in *UpdateDownloadStatusRequest, opts ...grpc.CallOption) (*UpdateDownloadStatusResponse, error)
+	// Concurrency-limited scheduler controls.
+	SetDownloadPriority(ctx context.Context, in *SetDownloadPriorityRequest, opts ...grpc.CallOption) (*SetDownloadPriorityResponse, error)
+	SetDownloadConcurrent(ctx context.Context, in *SetDownloadConcurrentRequest, opts ...grpc.CallOption) (*SetDownloadConcurrentResponse, error)
+	ReorderDownloads(ctx context.Context, in *ReorderDownloadsRequest, opts ...grpc.CallOption) (*ReorderDownloadsResponse, error)
 }
 
 type downloadServiceClient struct {
@@ -204,6 +211,36 @@ func (c *downloadServiceClient) UpdateDownloadStatus(ctx context.Context, in *Up
 	return out, nil
 }
 
+func (c *downloadServiceClient) SetDownloadPriority(ctx context.Context, in *SetDownloadPriorityRequest, opts ...grpc.CallOption) (*SetDownloadPriorityResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetDownloadPriorityResponse)
+	err := c.cc.Invoke(ctx, DownloadService_SetDownloadPriority_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *downloadServiceClient) SetDownloadConcurrent(ctx context.Context, in *SetDownloadConcurrentRequest, opts ...grpc.CallOption) (*SetDownloadConcurrentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetDownloadConcurrentResponse)
+	err := c.cc.Invoke(ctx, DownloadService_SetDownloadConcurrent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *downloadServiceClient) ReorderDownloads(ctx context.Context, in *ReorderDownloadsRequest, opts ...grpc.CallOption) (*ReorderDownloadsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReorderDownloadsResponse)
+	err := c.cc.Invoke(ctx, DownloadService_ReorderDownloads_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DownloadServiceServer is the server API for DownloadService service.
 // All implementations must embed UnimplementedDownloadServiceServer
 // for forward compatibility.
@@ -223,6 +260,10 @@ type DownloadServiceServer interface {
 	DeleteTorrent(context.Context, *DeleteTorrentRequest) (*DeleteTorrentResponse, error)
 	AddMagnet(context.Context, *AddMagnetRequest) (*AddMagnetResponse, error)
 	UpdateDownloadStatus(context.Context, *UpdateDownloadStatusRequest) (*UpdateDownloadStatusResponse, error)
+	// Concurrency-limited scheduler controls.
+	SetDownloadPriority(context.Context, *SetDownloadPriorityRequest) (*SetDownloadPriorityResponse, error)
+	SetDownloadConcurrent(context.Context, *SetDownloadConcurrentRequest) (*SetDownloadConcurrentResponse, error)
+	ReorderDownloads(context.Context, *ReorderDownloadsRequest) (*ReorderDownloadsResponse, error)
 	mustEmbedUnimplementedDownloadServiceServer()
 }
 
@@ -274,6 +315,15 @@ func (UnimplementedDownloadServiceServer) AddMagnet(context.Context, *AddMagnetR
 }
 func (UnimplementedDownloadServiceServer) UpdateDownloadStatus(context.Context, *UpdateDownloadStatusRequest) (*UpdateDownloadStatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateDownloadStatus not implemented")
+}
+func (UnimplementedDownloadServiceServer) SetDownloadPriority(context.Context, *SetDownloadPriorityRequest) (*SetDownloadPriorityResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetDownloadPriority not implemented")
+}
+func (UnimplementedDownloadServiceServer) SetDownloadConcurrent(context.Context, *SetDownloadConcurrentRequest) (*SetDownloadConcurrentResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetDownloadConcurrent not implemented")
+}
+func (UnimplementedDownloadServiceServer) ReorderDownloads(context.Context, *ReorderDownloadsRequest) (*ReorderDownloadsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ReorderDownloads not implemented")
 }
 func (UnimplementedDownloadServiceServer) mustEmbedUnimplementedDownloadServiceServer() {}
 func (UnimplementedDownloadServiceServer) testEmbeddedByValue()                         {}
@@ -548,6 +598,60 @@ func _DownloadService_UpdateDownloadStatus_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DownloadService_SetDownloadPriority_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetDownloadPriorityRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DownloadServiceServer).SetDownloadPriority(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DownloadService_SetDownloadPriority_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DownloadServiceServer).SetDownloadPriority(ctx, req.(*SetDownloadPriorityRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DownloadService_SetDownloadConcurrent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetDownloadConcurrentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DownloadServiceServer).SetDownloadConcurrent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DownloadService_SetDownloadConcurrent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DownloadServiceServer).SetDownloadConcurrent(ctx, req.(*SetDownloadConcurrentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DownloadService_ReorderDownloads_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReorderDownloadsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DownloadServiceServer).ReorderDownloads(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DownloadService_ReorderDownloads_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DownloadServiceServer).ReorderDownloads(ctx, req.(*ReorderDownloadsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DownloadService_ServiceDesc is the grpc.ServiceDesc for DownloadService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -610,6 +714,18 @@ var DownloadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateDownloadStatus",
 			Handler:    _DownloadService_UpdateDownloadStatus_Handler,
+		},
+		{
+			MethodName: "SetDownloadPriority",
+			Handler:    _DownloadService_SetDownloadPriority_Handler,
+		},
+		{
+			MethodName: "SetDownloadConcurrent",
+			Handler:    _DownloadService_SetDownloadConcurrent_Handler,
+		},
+		{
+			MethodName: "ReorderDownloads",
+			Handler:    _DownloadService_ReorderDownloads_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

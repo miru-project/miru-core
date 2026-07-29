@@ -7,6 +7,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/miru-project/miru-core/pkg/db"
 	"github.com/valyala/fasthttp"
 )
 
@@ -216,4 +217,66 @@ func rewriteM3U8(manifest, baseURL, proxyOrigin string, headers map[string]strin
 		lines[i] = proxify(trimmed)
 	}
 	return strings.Join(lines, "\n")
+}
+// ProxyOrigin returns the scheme+host of the local stream proxy (e.g.
+// "http://127.0.0.1:3000"). It is derived from the app's Core host setting
+// and falls back to the default local development host when unset so tests
+// and local runs work without configuration.
+func ProxyOrigin() string {
+	host, _ := db.GetAPPSetting("CoreHost")
+	if host == "" {
+		return "http://127.0.0.1:3000"
+	}
+	return "http://" + host
+}
+
+// IsProxyURL reports whether urlString looks like a miru-core proxy URL.
+func IsProxyURL(urlString string) bool {
+	u, err := url.Parse(urlString)
+	if err != nil {
+		return false
+	}
+	origin := ProxyOrigin()
+	if origin == "" {
+		return false
+	}
+	originURL, _ := url.Parse(origin)
+	return u.Scheme == originURL.Scheme && u.Host == originURL.Host && strings.HasPrefix(u.Path, "/proxy/")
+}
+
+// ResolveProxyTarget extracts the real upstream target URL from a miru-core
+// proxy URL. It returns the decoded target and true if successful, otherwise
+// the original string and false.
+func ResolveProxyTarget(urlString string) (string, bool) {
+	if !IsProxyURL(urlString) {
+		return urlString, false
+	}
+	u, err := url.Parse(urlString)
+	if err != nil {
+		return urlString, false
+	}
+	if enc := u.Query().Get(proxyURLParam); enc != "" {
+		if decoded, err := base64.RawURLEncoding.DecodeString(enc); err == nil {
+			return string(decoded), true
+		}
+	}
+	// Legacy wildcard path fallback.
+	target := u.Path
+	target = strings.TrimPrefix(target, "/proxy/")
+	target, _ = url.PathUnescape(target)
+	if target == "" {
+		return urlString, false
+	}
+	return target, true
+}
+
+// ProxyURLTargetName returns the file name component of the real upstream
+// target hidden behind a proxy URL. For direct URLs it simply returns
+// path.Base(urlString).
+func ProxyURLTargetName(urlString string) string {
+	target, ok := ResolveProxyTarget(urlString)
+	if ok {
+		return path.Base(target)
+	}
+	return path.Base(urlString)
 }

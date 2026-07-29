@@ -1327,6 +1327,280 @@ func (x *AddMagnetResponse) GetFiles() []string {
 	return nil
 }
 
+type SetDownloadPriorityRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TaskId        int32                  `protobuf:"varint,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
+	Priority      int32                  `protobuf:"varint,2,opt,name=priority,proto3" json:"priority,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetDownloadPriorityRequest) Reset() {
+	*x = SetDownloadPriorityRequest{}
+	mi := &file_proto_download_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetDownloadPriorityRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetDownloadPriorityRequest) ProtoMessage() {}
+
+func (x *SetDownloadPriorityRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_download_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetDownloadPriorityRequest.ProtoReflect.Descriptor instead.
+func (*SetDownloadPriorityRequest) Descriptor() ([]byte, []int) {
+	return file_proto_download_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *SetDownloadPriorityRequest) GetTaskId() int32 {
+	if x != nil {
+		return x.TaskId
+	}
+	return 0
+}
+
+func (x *SetDownloadPriorityRequest) GetPriority() int32 {
+	if x != nil {
+		return x.Priority
+	}
+	return 0
+}
+
+type SetDownloadPriorityResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetDownloadPriorityResponse) Reset() {
+	*x = SetDownloadPriorityResponse{}
+	mi := &file_proto_download_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetDownloadPriorityResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetDownloadPriorityResponse) ProtoMessage() {}
+
+func (x *SetDownloadPriorityResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_download_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetDownloadPriorityResponse.ProtoReflect.Descriptor instead.
+func (*SetDownloadPriorityResponse) Descriptor() ([]byte, []int) {
+	return file_proto_download_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *SetDownloadPriorityResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type SetDownloadConcurrentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MaxConcurrent int32                  `protobuf:"varint,1,opt,name=max_concurrent,json=maxConcurrent,proto3" json:"max_concurrent,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetDownloadConcurrentRequest) Reset() {
+	*x = SetDownloadConcurrentRequest{}
+	mi := &file_proto_download_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetDownloadConcurrentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetDownloadConcurrentRequest) ProtoMessage() {}
+
+func (x *SetDownloadConcurrentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_download_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetDownloadConcurrentRequest.ProtoReflect.Descriptor instead.
+func (*SetDownloadConcurrentRequest) Descriptor() ([]byte, []int) {
+	return file_proto_download_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *SetDownloadConcurrentRequest) GetMaxConcurrent() int32 {
+	if x != nil {
+		return x.MaxConcurrent
+	}
+	return 0
+}
+
+type SetDownloadConcurrentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetDownloadConcurrentResponse) Reset() {
+	*x = SetDownloadConcurrentResponse{}
+	mi := &file_proto_download_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetDownloadConcurrentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetDownloadConcurrentResponse) ProtoMessage() {}
+
+func (x *SetDownloadConcurrentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_download_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetDownloadConcurrentResponse.ProtoReflect.Descriptor instead.
+func (*SetDownloadConcurrentResponse) Descriptor() ([]byte, []int) {
+	return file_proto_download_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *SetDownloadConcurrentResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+// Reorders active/queued tasks. `ordered_task_ids` is the full desired order
+// (front = highest priority). The backend reassigns priorities accordingly.
+type ReorderDownloadsRequest struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	OrderedTaskIds []int32                `protobuf:"varint,1,rep,packed,name=ordered_task_ids,json=orderedTaskIds,proto3" json:"ordered_task_ids,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ReorderDownloadsRequest) Reset() {
+	*x = ReorderDownloadsRequest{}
+	mi := &file_proto_download_proto_msgTypes[30]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReorderDownloadsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReorderDownloadsRequest) ProtoMessage() {}
+
+func (x *ReorderDownloadsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_download_proto_msgTypes[30]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReorderDownloadsRequest.ProtoReflect.Descriptor instead.
+func (*ReorderDownloadsRequest) Descriptor() ([]byte, []int) {
+	return file_proto_download_proto_rawDescGZIP(), []int{30}
+}
+
+func (x *ReorderDownloadsRequest) GetOrderedTaskIds() []int32 {
+	if x != nil {
+		return x.OrderedTaskIds
+	}
+	return nil
+}
+
+type ReorderDownloadsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReorderDownloadsResponse) Reset() {
+	*x = ReorderDownloadsResponse{}
+	mi := &file_proto_download_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReorderDownloadsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReorderDownloadsResponse) ProtoMessage() {}
+
+func (x *ReorderDownloadsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_download_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReorderDownloadsResponse.ProtoReflect.Descriptor instead.
+func (*ReorderDownloadsResponse) Descriptor() ([]byte, []int) {
+	return file_proto_download_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *ReorderDownloadsResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 type UpdateDownloadStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TaskId        int32                  `protobuf:"varint,1,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
@@ -1338,7 +1612,7 @@ type UpdateDownloadStatusRequest struct {
 
 func (x *UpdateDownloadStatusRequest) Reset() {
 	*x = UpdateDownloadStatusRequest{}
-	mi := &file_proto_download_proto_msgTypes[26]
+	mi := &file_proto_download_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1350,7 +1624,7 @@ func (x *UpdateDownloadStatusRequest) String() string {
 func (*UpdateDownloadStatusRequest) ProtoMessage() {}
 
 func (x *UpdateDownloadStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_download_proto_msgTypes[26]
+	mi := &file_proto_download_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1363,7 +1637,7 @@ func (x *UpdateDownloadStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateDownloadStatusRequest.ProtoReflect.Descriptor instead.
 func (*UpdateDownloadStatusRequest) Descriptor() ([]byte, []int) {
-	return file_proto_download_proto_rawDescGZIP(), []int{26}
+	return file_proto_download_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *UpdateDownloadStatusRequest) GetTaskId() int32 {
@@ -1396,7 +1670,7 @@ type UpdateDownloadStatusResponse struct {
 
 func (x *UpdateDownloadStatusResponse) Reset() {
 	*x = UpdateDownloadStatusResponse{}
-	mi := &file_proto_download_proto_msgTypes[27]
+	mi := &file_proto_download_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1408,7 +1682,7 @@ func (x *UpdateDownloadStatusResponse) String() string {
 func (*UpdateDownloadStatusResponse) ProtoMessage() {}
 
 func (x *UpdateDownloadStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_download_proto_msgTypes[27]
+	mi := &file_proto_download_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1421,7 +1695,7 @@ func (x *UpdateDownloadStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateDownloadStatusResponse.ProtoReflect.Descriptor instead.
 func (*UpdateDownloadStatusResponse) Descriptor() ([]byte, []int) {
-	return file_proto_download_proto_rawDescGZIP(), []int{27}
+	return file_proto_download_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *UpdateDownloadStatusResponse) GetMessage() string {
@@ -1519,7 +1793,20 @@ const file_proto_download_proto_rawDesc = "" +
 	"\tinfo_hash\x18\x01 \x01(\tR\binfoHash\x12\x1f\n" +
 	"\vdetail_json\x18\x02 \x01(\tR\n" +
 	"detailJson\x12\x14\n" +
-	"\x05files\x18\x03 \x03(\tR\x05files\"\x94\x01\n" +
+	"\x05files\x18\x03 \x03(\tR\x05files\"Q\n" +
+	"\x1aSetDownloadPriorityRequest\x12\x17\n" +
+	"\atask_id\x18\x01 \x01(\x05R\x06taskId\x12\x1a\n" +
+	"\bpriority\x18\x02 \x01(\x05R\bpriority\"7\n" +
+	"\x1bSetDownloadPriorityResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"E\n" +
+	"\x1cSetDownloadConcurrentRequest\x12%\n" +
+	"\x0emax_concurrent\x18\x01 \x01(\x05R\rmaxConcurrent\"9\n" +
+	"\x1dSetDownloadConcurrentResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"C\n" +
+	"\x17ReorderDownloadsRequest\x12(\n" +
+	"\x10ordered_task_ids\x18\x01 \x03(\x05R\x0eorderedTaskIds\"4\n" +
+	"\x18ReorderDownloadsResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\"\x94\x01\n" +
 	"\x1bUpdateDownloadStatusRequest\x12\x17\n" +
 	"\atask_id\x18\x01 \x01(\x05R\x06taskId\x12,\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x14.miru.DownloadStatusR\x06status\x12 \n" +
@@ -1527,7 +1814,7 @@ const file_proto_download_proto_rawDesc = "" +
 	"\n" +
 	"_save_path\"8\n" +
 	"\x1cUpdateDownloadStatusResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage2\xa9\t\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage2\xba\v\n" +
 	"\x0fDownloadService\x12T\n" +
 	"\x11GetDownloadStatus\x12\x1e.miru.GetDownloadStatusRequest\x1a\x1f.miru.GetDownloadStatusResponse\x12K\n" +
 	"\x0eCancelDownload\x12\x1b.miru.CancelDownloadRequest\x1a\x1c.miru.CancelDownloadResponse\x12K\n" +
@@ -1543,7 +1830,10 @@ const file_proto_download_proto_rawDesc = "" +
 	"AddTorrent\x12\x17.miru.AddTorrentRequest\x1a\x18.miru.AddTorrentResponse\x12H\n" +
 	"\rDeleteTorrent\x12\x1a.miru.DeleteTorrentRequest\x1a\x1b.miru.DeleteTorrentResponse\x12<\n" +
 	"\tAddMagnet\x12\x16.miru.AddMagnetRequest\x1a\x17.miru.AddMagnetResponse\x12]\n" +
-	"\x14UpdateDownloadStatus\x12!.miru.UpdateDownloadStatusRequest\x1a\".miru.UpdateDownloadStatusResponseB)Z'github.com/miru-project/miru-core/protob\x06proto3"
+	"\x14UpdateDownloadStatus\x12!.miru.UpdateDownloadStatusRequest\x1a\".miru.UpdateDownloadStatusResponse\x12Z\n" +
+	"\x13SetDownloadPriority\x12 .miru.SetDownloadPriorityRequest\x1a!.miru.SetDownloadPriorityResponse\x12`\n" +
+	"\x15SetDownloadConcurrent\x12\".miru.SetDownloadConcurrentRequest\x1a#.miru.SetDownloadConcurrentResponse\x12Q\n" +
+	"\x10ReorderDownloads\x12\x1d.miru.ReorderDownloadsRequest\x1a\x1e.miru.ReorderDownloadsResponseB)Z'github.com/miru-project/miru-core/protob\x06proto3"
 
 var (
 	file_proto_download_proto_rawDescOnce sync.Once
@@ -1557,7 +1847,7 @@ func file_proto_download_proto_rawDescGZIP() []byte {
 	return file_proto_download_proto_rawDescData
 }
 
-var file_proto_download_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
+var file_proto_download_proto_msgTypes = make([]protoimpl.MessageInfo, 36)
 var file_proto_download_proto_goTypes = []any{
 	(*GetDownloadStatusRequest)(nil),                      // 0: miru.GetDownloadStatusRequest
 	(*GetDownloadStatusResponse)(nil),                     // 1: miru.GetDownloadStatusResponse
@@ -1585,26 +1875,32 @@ var file_proto_download_proto_goTypes = []any{
 	(*DeleteTorrentResponse)(nil),                         // 23: miru.DeleteTorrentResponse
 	(*AddMagnetRequest)(nil),                              // 24: miru.AddMagnetRequest
 	(*AddMagnetResponse)(nil),                             // 25: miru.AddMagnetResponse
-	(*UpdateDownloadStatusRequest)(nil),                   // 26: miru.UpdateDownloadStatusRequest
-	(*UpdateDownloadStatusResponse)(nil),                  // 27: miru.UpdateDownloadStatusResponse
-	nil,                                                   // 28: miru.GetDownloadStatusResponse.DownloadStatusEntry
-	nil,                                                   // 29: miru.DownloadRequest.HeadersEntry
-	(*AvailableHlsVariant)(nil),                           // 30: miru.AvailableHlsVariant
-	(*Download)(nil),                                      // 31: miru.Download
-	(*TorrentResult)(nil),                                 // 32: miru.TorrentResult
-	(DownloadStatus)(0),                                   // 33: miru.DownloadStatus
-	(*DownloadProgress)(nil),                              // 34: miru.DownloadProgress
+	(*SetDownloadPriorityRequest)(nil),                    // 26: miru.SetDownloadPriorityRequest
+	(*SetDownloadPriorityResponse)(nil),                   // 27: miru.SetDownloadPriorityResponse
+	(*SetDownloadConcurrentRequest)(nil),                  // 28: miru.SetDownloadConcurrentRequest
+	(*SetDownloadConcurrentResponse)(nil),                 // 29: miru.SetDownloadConcurrentResponse
+	(*ReorderDownloadsRequest)(nil),                       // 30: miru.ReorderDownloadsRequest
+	(*ReorderDownloadsResponse)(nil),                      // 31: miru.ReorderDownloadsResponse
+	(*UpdateDownloadStatusRequest)(nil),                   // 32: miru.UpdateDownloadStatusRequest
+	(*UpdateDownloadStatusResponse)(nil),                  // 33: miru.UpdateDownloadStatusResponse
+	nil,                                                   // 34: miru.GetDownloadStatusResponse.DownloadStatusEntry
+	nil,                                                   // 35: miru.DownloadRequest.HeadersEntry
+	(*AvailableHlsVariant)(nil),                           // 36: miru.AvailableHlsVariant
+	(*Download)(nil),                                      // 37: miru.Download
+	(*TorrentResult)(nil),                                 // 38: miru.TorrentResult
+	(DownloadStatus)(0),                                   // 39: miru.DownloadStatus
+	(*DownloadProgress)(nil),                              // 40: miru.DownloadProgress
 }
 var file_proto_download_proto_depIdxs = []int32{
-	28, // 0: miru.GetDownloadStatusResponse.download_status:type_name -> miru.GetDownloadStatusResponse.DownloadStatusEntry
-	29, // 1: miru.DownloadRequest.headers:type_name -> miru.DownloadRequest.HeadersEntry
-	30, // 2: miru.DownloadResponse.variant_summary:type_name -> miru.AvailableHlsVariant
-	31, // 3: miru.GetAllDownloadsResponse.downloads:type_name -> miru.Download
-	31, // 4: miru.GetDownloadsByPackageAndDetailUrlResponse.downloads:type_name -> miru.Download
-	31, // 5: miru.GetDownloadByPackageWatchUrlDetailUrlResponse.download:type_name -> miru.Download
-	32, // 6: miru.ListTorrentResponse.torrents:type_name -> miru.TorrentResult
-	33, // 7: miru.UpdateDownloadStatusRequest.status:type_name -> miru.DownloadStatus
-	34, // 8: miru.GetDownloadStatusResponse.DownloadStatusEntry.value:type_name -> miru.DownloadProgress
+	34, // 0: miru.GetDownloadStatusResponse.download_status:type_name -> miru.GetDownloadStatusResponse.DownloadStatusEntry
+	35, // 1: miru.DownloadRequest.headers:type_name -> miru.DownloadRequest.HeadersEntry
+	36, // 2: miru.DownloadResponse.variant_summary:type_name -> miru.AvailableHlsVariant
+	37, // 3: miru.GetAllDownloadsResponse.downloads:type_name -> miru.Download
+	37, // 4: miru.GetDownloadsByPackageAndDetailUrlResponse.downloads:type_name -> miru.Download
+	37, // 5: miru.GetDownloadByPackageWatchUrlDetailUrlResponse.download:type_name -> miru.Download
+	38, // 6: miru.ListTorrentResponse.torrents:type_name -> miru.TorrentResult
+	39, // 7: miru.UpdateDownloadStatusRequest.status:type_name -> miru.DownloadStatus
+	40, // 8: miru.GetDownloadStatusResponse.DownloadStatusEntry.value:type_name -> miru.DownloadProgress
 	0,  // 9: miru.DownloadService.GetDownloadStatus:input_type -> miru.GetDownloadStatusRequest
 	2,  // 10: miru.DownloadService.CancelDownload:input_type -> miru.CancelDownloadRequest
 	4,  // 11: miru.DownloadService.ResumeDownload:input_type -> miru.ResumeDownloadRequest
@@ -1618,23 +1914,29 @@ var file_proto_download_proto_depIdxs = []int32{
 	20, // 19: miru.DownloadService.AddTorrent:input_type -> miru.AddTorrentRequest
 	22, // 20: miru.DownloadService.DeleteTorrent:input_type -> miru.DeleteTorrentRequest
 	24, // 21: miru.DownloadService.AddMagnet:input_type -> miru.AddMagnetRequest
-	26, // 22: miru.DownloadService.UpdateDownloadStatus:input_type -> miru.UpdateDownloadStatusRequest
-	1,  // 23: miru.DownloadService.GetDownloadStatus:output_type -> miru.GetDownloadStatusResponse
-	3,  // 24: miru.DownloadService.CancelDownload:output_type -> miru.CancelDownloadResponse
-	5,  // 25: miru.DownloadService.ResumeDownload:output_type -> miru.ResumeDownloadResponse
-	7,  // 26: miru.DownloadService.PauseDownload:output_type -> miru.PauseDownloadResponse
-	9,  // 27: miru.DownloadService.Download:output_type -> miru.DownloadResponse
-	11, // 28: miru.DownloadService.GetAllDownloads:output_type -> miru.GetAllDownloadsResponse
-	13, // 29: miru.DownloadService.DeleteDownload:output_type -> miru.DeleteDownloadResponse
-	15, // 30: miru.DownloadService.GetDownloadsByPackageAndDetailUrl:output_type -> miru.GetDownloadsByPackageAndDetailUrlResponse
-	17, // 31: miru.DownloadService.GetDownloadByPackageWatchUrlDetailUrl:output_type -> miru.GetDownloadByPackageWatchUrlDetailUrlResponse
-	19, // 32: miru.DownloadService.ListTorrent:output_type -> miru.ListTorrentResponse
-	21, // 33: miru.DownloadService.AddTorrent:output_type -> miru.AddTorrentResponse
-	23, // 34: miru.DownloadService.DeleteTorrent:output_type -> miru.DeleteTorrentResponse
-	25, // 35: miru.DownloadService.AddMagnet:output_type -> miru.AddMagnetResponse
-	27, // 36: miru.DownloadService.UpdateDownloadStatus:output_type -> miru.UpdateDownloadStatusResponse
-	23, // [23:37] is the sub-list for method output_type
-	9,  // [9:23] is the sub-list for method input_type
+	32, // 22: miru.DownloadService.UpdateDownloadStatus:input_type -> miru.UpdateDownloadStatusRequest
+	26, // 23: miru.DownloadService.SetDownloadPriority:input_type -> miru.SetDownloadPriorityRequest
+	28, // 24: miru.DownloadService.SetDownloadConcurrent:input_type -> miru.SetDownloadConcurrentRequest
+	30, // 25: miru.DownloadService.ReorderDownloads:input_type -> miru.ReorderDownloadsRequest
+	1,  // 26: miru.DownloadService.GetDownloadStatus:output_type -> miru.GetDownloadStatusResponse
+	3,  // 27: miru.DownloadService.CancelDownload:output_type -> miru.CancelDownloadResponse
+	5,  // 28: miru.DownloadService.ResumeDownload:output_type -> miru.ResumeDownloadResponse
+	7,  // 29: miru.DownloadService.PauseDownload:output_type -> miru.PauseDownloadResponse
+	9,  // 30: miru.DownloadService.Download:output_type -> miru.DownloadResponse
+	11, // 31: miru.DownloadService.GetAllDownloads:output_type -> miru.GetAllDownloadsResponse
+	13, // 32: miru.DownloadService.DeleteDownload:output_type -> miru.DeleteDownloadResponse
+	15, // 33: miru.DownloadService.GetDownloadsByPackageAndDetailUrl:output_type -> miru.GetDownloadsByPackageAndDetailUrlResponse
+	17, // 34: miru.DownloadService.GetDownloadByPackageWatchUrlDetailUrl:output_type -> miru.GetDownloadByPackageWatchUrlDetailUrlResponse
+	19, // 35: miru.DownloadService.ListTorrent:output_type -> miru.ListTorrentResponse
+	21, // 36: miru.DownloadService.AddTorrent:output_type -> miru.AddTorrentResponse
+	23, // 37: miru.DownloadService.DeleteTorrent:output_type -> miru.DeleteTorrentResponse
+	25, // 38: miru.DownloadService.AddMagnet:output_type -> miru.AddMagnetResponse
+	33, // 39: miru.DownloadService.UpdateDownloadStatus:output_type -> miru.UpdateDownloadStatusResponse
+	27, // 40: miru.DownloadService.SetDownloadPriority:output_type -> miru.SetDownloadPriorityResponse
+	29, // 41: miru.DownloadService.SetDownloadConcurrent:output_type -> miru.SetDownloadConcurrentResponse
+	31, // 42: miru.DownloadService.ReorderDownloads:output_type -> miru.ReorderDownloadsResponse
+	26, // [26:43] is the sub-list for method output_type
+	9,  // [9:26] is the sub-list for method input_type
 	9,  // [9:9] is the sub-list for extension type_name
 	9,  // [9:9] is the sub-list for extension extendee
 	0,  // [0:9] is the sub-list for field type_name
@@ -1646,14 +1948,14 @@ func file_proto_download_proto_init() {
 		return
 	}
 	file_proto_common_proto_init()
-	file_proto_download_proto_msgTypes[26].OneofWrappers = []any{}
+	file_proto_download_proto_msgTypes[32].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_download_proto_rawDesc), len(file_proto_download_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   30,
+			NumMessages:   36,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
