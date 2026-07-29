@@ -513,38 +513,6 @@ func optionalStrField(rv reflect.Value, name string) *string {
 	return &s
 }
 
-// int64Field reads an int-like field by name and returns it as int64 (0 when
-// absent or non-numeric).
-func int64Field(rv reflect.Value, name string) int64 {
-	f := fieldByName(rv, name)
-	if !f.IsValid() || !f.CanInt() && !f.CanUint() {
-		return 0
-	}
-	return f.Int()
-}
-
-// optInt32Field reads an int-like field by name and returns it as a *int32, or
-// nil when absent. proto marks these fields `optional`.
-func optInt32Field(rv reflect.Value, name string) *int32 {
-	f := fieldByName(rv, name)
-	if !f.IsValid() || !f.CanInt() && !f.CanUint() {
-		return nil
-	}
-	v := int32(f.Int())
-	return &v
-}
-
-// optInt64Field reads an int-like field by name and returns it as a *int64, or
-// nil when absent. proto marks these fields `optional`.
-func optInt64Field(rv reflect.Value, name string) *int64 {
-	f := fieldByName(rv, name)
-	if !f.IsValid() || !f.CanInt() && !f.CanUint() {
-		return nil
-	}
-	v := f.Int()
-	return &v
-}
-
 // derefStruct normalises a possibly-pointer/interface value to its underlying
 // struct Value, returning an invalid Value when the value is nil or not a
 // struct. It is the shared prelude for the per-type watch converters.

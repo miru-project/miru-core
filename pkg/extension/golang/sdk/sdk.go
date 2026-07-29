@@ -12,8 +12,8 @@
 //
 // It is a thin, curated re-export of the host implementation in the internal
 // `runtime` package: the model types are aliased (single source of truth, no
-// API drift) and the two host primitives an extension is allowed to call
-// (Fetch / ProxyURL) are surfaced as package-level vars. Keeping the names in
+// API drift) and the host primitive an extension is allowed to call
+// (Fetch) is surfaced as a package-level var. Keeping the name in
 // `sdk` avoids the `runtime` identifier clashing with the Go standard library
 // `runtime` package, which is exactly why callers previously had to alias the
 // internal package as `rt`.
@@ -103,22 +103,6 @@ var (
 // (e.g. Profile "chrome_133"); an empty Profile falls back to the library
 // default. See the host runtime for the full contract.
 var Fetch = runtime.Fetch
-
-// ProxyURL converts a raw media/stream URL into a host-relative proxy path
-// the Miru backend fetches server-side on behalf of the client. tlsProfile
-// optionally selects a tls-client fingerprint profile.
-var ProxyURL = runtime.ProxyURL
-
-// AddMagnet resolves a magnet: link (mirroring the JavaScript handleMediaType)
-// and returns the resolved Torrent. The second return value is a non-empty
-// error string when resolution fails. title may be empty (the torrent's own
-// name is used); pkg is the calling extension's package name.
-var AddMagnet = runtime.AddMagnet
-
-// AddTorrent resolves a .torrent file URL (mirroring the JavaScript
-// handleMediaType). A relative link is resolved against the extension's
-// website origin. See AddMagnet for the return-value contract.
-var AddTorrent = runtime.AddTorrent
 
 // SaveCache stores a cross-function variable for this package. It is the Go
 // counterpart of the JavaScript Miru.saveCache. The store is keyed by package

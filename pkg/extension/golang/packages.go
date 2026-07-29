@@ -3699,9 +3699,7 @@ func init() {
 		Declarations: decs,
 	}
 	// "github.com/miru-project/miru-core/pkg/extension/golang/runtime"
-	decs = make(native.Declarations, 28)
-	decs["AddMagnet"] = runtime_2.AddMagnet
-	decs["AddTorrent"] = runtime_2.AddTorrent
+	decs = make(native.Declarations, 22)
 	decs["BangumiWatchType"] = reflect.TypeFor[runtime_2.BangumiWatchType]()
 	decs["DeleteCache"] = runtime_2.DeleteCache
 	decs["ExtensionAllMirror"] = reflect.TypeFor[runtime_2.ExtensionAllMirror]()
@@ -3724,18 +3722,12 @@ func init() {
 	decs["SaveCache"] = runtime_2.SaveCache
 	decs["TLSConfig"] = reflect.TypeFor[runtime_2.TLSConfig]()
 	decs["Torrent"] = runtime_2.Torrent
-	decs["TorrentDetail"] = reflect.TypeFor[runtime_2.TorrentDetail]()
-	decs["TorrentFileTree"] = reflect.TypeFor[runtime_2.TorrentFileTree]()
-	decs["TorrentFileTreeFile"] = reflect.TypeFor[runtime_2.TorrentFileTreeFile]()
-	decs["TorrentHandle"] = reflect.TypeFor[runtime_2.TorrentHandle]()
 	packages["github.com/miru-project/miru-core/pkg/extension/golang/runtime"] = native.Package{
 		Name:         "runtime",
 		Declarations: decs,
 	}
 	// "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
-	decs = make(native.Declarations, 22)
-	decs["AddMagnet"] = &sdk.AddMagnet
-	decs["AddTorrent"] = &sdk.AddTorrent
+	decs = make(native.Declarations, 19)
 	decs["BangumiWatchType"] = reflect.TypeFor[sdk.BangumiWatchType]()
 	decs["ExtensionAllMirror"] = reflect.TypeFor[sdk.ExtensionAllMirror]()
 	decs["ExtensionBangumiWatchMirror"] = reflect.TypeFor[sdk.ExtensionBangumiWatchMirror]()
@@ -3753,7 +3745,6 @@ func init() {
 	decs["HLS"] = &sdk.HLS
 	decs["MP4"] = &sdk.MP4
 	decs["Magnet"] = &sdk.Magnet
-	decs["ProxyURL"] = &sdk.ProxyURL
 	decs["SaveCache"] = &sdk.SaveCache
 	decs["TLSConfig"] = reflect.TypeFor[sdk.TLSConfig]()
 	packages["github.com/miru-project/miru-core/pkg/extension/golang/sdk"] = native.Package{

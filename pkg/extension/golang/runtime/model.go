@@ -239,7 +239,7 @@ const (
 // All URLs inside the mirror (main URL and subtitle URLs) are RAW and UNPROXIED.
 // When TLSConfig is set, the backend automatically wraps every URL into a proxy
 // URL before sending the response to the client. Extension authors should never
-// call sdk.ProxyURL manually on mirror URLs -- they set TLSConfig and the backend
+// call ProxyURL manually on mirror URLs -- they set TLSConfig and the backend
 // handles proxying transparently.
 //
 // For torrent/magnet content types, the URL carries the raw .torrent link or
@@ -258,45 +258,8 @@ type ExtensionBangumiWatchMirror struct {
 	// in this mirror (main URL + subtitle URLs) into a host-relative proxy
 	// URL that fetches server-side with the specified TLS fingerprint profile.
 	// Extension authors set Profile (e.g. "chrome_133") and the backend
-	// handles the rest -- no manual ProxyURL calls needed.
+	// handles the rest -- no manual proxy URL calls needed.
 	TLSConfig *TLSConfig `json:"tlsConfig,omitempty"`
-}
-
-// TorrentFileTreeFile is a single file node in a torrent's file tree.
-type TorrentFileTreeFile struct {
-	Length     int64  `json:"length"`
-	PiecesRoot string `json:"piecesRoot"`
-}
-
-// TorrentFileTree is a node in a torrent's file tree: either a file, a directory
-// (dir), or both (a file that also has sub-directories).
-type TorrentFileTree struct {
-	File *TorrentFileTreeFile        `json:"file,omitempty"`
-	Dir  map[string]*TorrentFileTree `json:"dir,omitempty"`
-}
-
-// TorrentDetail carries the resolved torrent metainfo the frontend needs to
-// render the file tree and pick files to download. All fields are optional to
-// match the proto ExtensionBangumiWatchTorrentDetail message.
-type TorrentDetail struct {
-	PieceLength *int32           `json:"pieceLength,omitempty"`
-	Pieces      *string          `json:"pieces,omitempty"`
-	Name        *string          `json:"name,omitempty"`
-	NameUtf8    *string          `json:"nameUtf8,omitempty"`
-	Length      *int64           `json:"length,omitempty"`
-	Source      *string          `json:"source,omitempty"`
-	MetaVersion *int32           `json:"metaVersion,omitempty"`
-	FileTree    *TorrentFileTree `json:"fileTree,omitempty"`
-}
-
-// TorrentHandle is the resolved torrent handle an extension (or the host)
-// attaches to a bangumi watch. It mirrors the proto ExtensionBangumiWatchTorrent
-// message so the gRPC WatchResponse can carry it straight to the frontend. The
-// JSON tag stays "torrent" so the proto field mapping is unchanged.
-type TorrentHandle struct {
-	InfoHash string         `json:"infoHash"`
-	Detail   *TorrentDetail `json:"detail,omitempty"`
-	Files    []string       `json:"files,omitempty"`
 }
 
 // ExtensionAllMirror bundles the three per-type watch shapes (manga, fikushon and
