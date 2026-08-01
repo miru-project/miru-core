@@ -13,15 +13,15 @@ func (s *MiruCoreServer) ListTorrent(ctx context.Context, req *proto.ListTorrent
 	for hash, t := range torrent.Torrents {
 		files := []string{}
 		if len(t.Info().Files) == 0 {
-			files = append(files, t.Name())
+			files = append(files, sanitizeUTF8(t.Name()))
 		} else {
 			for _, file := range t.Info().Files {
-				files = append(files, file.DisplayPath(t.Info()))
+				files = append(files, sanitizeUTF8(file.DisplayPath(t.Info())))
 			}
 		}
 		torResult = append(torResult, &proto.TorrentResult{
 			InfoHash: hash,
-			Name:     t.Name(),
+			Name:     sanitizeUTF8(t.Name()),
 			Files:    files,
 		})
 	}
@@ -38,8 +38,8 @@ func (s *MiruCoreServer) AddTorrent(ctx context.Context, req *proto.AddTorrentRe
 
 	return &proto.AddTorrentResponse{
 		InfoHash:   res.InfoHash,
-		DetailJson: string(detailJson),
-		Files:      res.Files,
+		DetailJson: sanitizeUTF8(string(detailJson)),
+		Files:      sanitizeNames(res.Files),
 	}, nil
 }
 
@@ -53,8 +53,8 @@ func (s *MiruCoreServer) AddMagnet(ctx context.Context, req *proto.AddMagnetRequ
 
 	return &proto.AddMagnetResponse{
 		InfoHash:   res.InfoHash,
-		DetailJson: string(detailJson),
-		Files:      res.Files,
+		DetailJson: sanitizeUTF8(string(detailJson)),
+		Files:      sanitizeNames(res.Files),
 	}, nil
 }
 

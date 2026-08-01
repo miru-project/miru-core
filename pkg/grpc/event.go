@@ -32,27 +32,27 @@ func (s *MiruCoreServer) WatchEvents(req *proto.WatchEventsRequest, stream proto
 						},
 					},
 				}
-			case event.ExtensionUpdate:
-				exts := e.Data.([]*js.ExtApi)
-				protoExtMeta := make([]*proto.ExtensionMeta, len(exts))
-				for i, ea := range exts {
-					e := ea.Ext
-					protoExtMeta[i] = &proto.ExtensionMeta{
-						Name:        e.Name,
-						Version:     e.Version,
-						Author:      e.Author,
-						License:     e.License,
-						Lang:        e.Lang,
-						Icon:        e.Icon,
-						Package:     e.Pkg,
-						WebSite:     e.Website,
-						Description: e.Description,
-						Tags:        e.Tags,
-						Api:         e.ApiVersion,
-						Error:       e.Error,
-						Type:        string(e.WatchType),
-					}
+		case event.ExtensionUpdate:
+			exts := e.Data.([]*js.ExtApi)
+			protoExtMeta := make([]*proto.ExtensionMeta, len(exts))
+			for i, ea := range exts {
+				e := ea.Ext
+				protoExtMeta[i] = &proto.ExtensionMeta{
+					Name:        sanitizeUTF8(e.Name),
+					Version:     sanitizeUTF8(e.Version),
+					Author:      sanitizeUTF8(e.Author),
+					License:     sanitizeUTF8(e.License),
+					Lang:        sanitizeUTF8(e.Lang),
+					Icon:        sanitizeUTF8(e.Icon),
+					Package:     sanitizeUTF8(e.Pkg),
+					WebSite:     sanitizeUTF8(e.Website),
+					Description: sanitizeUTF8(e.Description),
+					Tags:        sanitizeTags(e.Tags),
+					Api:         sanitizeUTF8(e.ApiVersion),
+					Error:       sanitizeUTF8(e.Error),
+					Type:        sanitizeUTF8(string(e.WatchType)),
 				}
+			}
 				resp = &proto.WatchEventsResponse{
 					Event: &proto.WatchEventsResponse_ExtensionEvent{
 						ExtensionEvent: &proto.ExtensionEvent{
@@ -73,18 +73,36 @@ func (s *MiruCoreServer) WatchEvents(req *proto.WatchEventsRequest, stream proto
 						},
 					},
 				}
-			case event.DevLog:
-				resp = &proto.WatchEventsResponse{
-					Event: &proto.WatchEventsResponse_DevLogEvent{
-						DevLogEvent: e.Data.(*proto.DevLogEvent),
+		case event.DevLog:
+			raw := e.Data.(*proto.DevLogEvent)
+			resp = &proto.WatchEventsResponse{
+				Event: &proto.WatchEventsResponse_DevLogEvent{
+					DevLogEvent: &proto.DevLogEvent{
+						Package:   sanitizeUTF8(raw.Package),
+						Message:   sanitizeUTF8(raw.Message),
+						Level:     sanitizeUTF8(raw.Level),
+						Timestamp: raw.Timestamp,
 					},
-				}
-			case event.DevNetwork:
-				resp = &proto.WatchEventsResponse{
-					Event: &proto.WatchEventsResponse_DevNetworkEvent{
-						DevNetworkEvent: e.Data.(*proto.DevNetworkEvent),
+				},
+			}
+		case event.DevNetwork:
+			raw := e.Data.(*proto.DevNetworkEvent)
+			resp = &proto.WatchEventsResponse{
+				Event: &proto.WatchEventsResponse_DevNetworkEvent{
+					DevNetworkEvent: &proto.DevNetworkEvent{
+						Package:        sanitizeUTF8(raw.Package),
+						Url:            sanitizeUTF8(raw.Url),
+						Method:         sanitizeUTF8(raw.Method),
+						Status:         raw.Status,
+						Duration:       raw.Duration,
+						Timestamp:      raw.Timestamp,
+						RequestHeaders: sanitizeUTF8(raw.RequestHeaders),
+						RequestBody:    sanitizeUTF8(raw.RequestBody),
+						ResponseHeaders: sanitizeUTF8(raw.ResponseHeaders),
+						ResponseBody:   sanitizeUTF8(raw.ResponseBody),
 					},
-				}
+				},
+			}
 			}
 
 			if resp != nil {

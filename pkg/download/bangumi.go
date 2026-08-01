@@ -26,9 +26,14 @@ func Download(fileLoc string, url string, header map[string]string, mediaType st
 		return downloadHls(fileLoc, url, header, title, pkg, key, detailUrl, watchUrl)
 	}
 
-	if mediaType == "torrent" || isTorrent(url) {
+	if mediaType == "magnet" || isMagnetURL(url) {
+		logger.Println("Downloading Magnet : " + url)
+		return downloadTorrent(fileLoc, url, header, "magnet", title, pkg, key, detailUrl, watchUrl)
+	}
+
+	if mediaType == "torrent" || isTorrentFileURL(url) {
 		logger.Println("Downloading Torrent : " + url)
-		return downloadTorrent(fileLoc, url, header, mediaType, title, pkg, key, detailUrl, watchUrl)
+		return downloadTorrent(fileLoc, url, header, "torrent", title, pkg, key, detailUrl, watchUrl)
 	}
 
 	if mediaType == "mp4" || isMp4Url(url) {
@@ -54,7 +59,7 @@ func inferMediaTypeFromURL(rawURL string) string {
 		return "torrent"
 	}
 	if strings.HasPrefix(target, "magnet:") {
-		return "torrent"
+		return "magnet"
 	}
 	return ""
 }
@@ -65,9 +70,14 @@ func isHlsUrl(url string) bool {
 	return fileExt == ".m3u8"
 }
 
-func isTorrent(url string) bool {
+func isTorrentFileURL(url string) bool {
 	target, _ := network.ResolveProxyTarget(url)
-	return path.Ext(target) == ".torrent" || strings.HasPrefix(target, "magnet:")
+	return path.Ext(target) == ".torrent"
+}
+
+func isMagnetURL(url string) bool {
+	target, _ := network.ResolveProxyTarget(url)
+	return strings.HasPrefix(target, "magnet:")
 }
 
 func isMp4Url(url string) bool {

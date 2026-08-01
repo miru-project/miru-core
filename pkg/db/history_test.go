@@ -59,27 +59,16 @@ func TestPutHistory_UniqueConstraint(t *testing.T) {
 	count := client.History.Query().CountX(ctx)
 	assert.Equal(t, 2, count)
 
-	// Test 2: Conflict Replacement (Same package, Same watchUrl, Different detailUrl)
-	// Should replace (or fail if using simple Create, but PutHistory uses OnConflict)
-	// We simulate PutHistory logic here (Upsert)
-
-	// Insert watch1 again but with different series (detailUrl)
-	// This usually happens if the user watches the same episode but maybe from a different context or it was updated.
-	// But mostly strictly, if (package, url) is unique, this should UPDATE the existing entry.
+	// Test 2: Conflict on unique index (package, url, detailUrl)
+	// Inserting a record with the same (package, url, detailUrl) as h1 should
+	// FAIL the unique constraint.
 
 	h3 := &ent.History{
 		Package:   "pkg1",
-		DetailUrl: "series2", // Changed series
-		URL:       "watch1",  // Same watchUrl as h1
+		DetailUrl: "series1", // Same as h1
+		URL:       "watch1",  // Same as h1
 		Title:     "Episode 1 Updated",
 	}
-
-	// Use the OnConflict logic as in PutHistory
-	// Note: We need to import "entgo.io/ent/dialect/sql" and use the actual package in real code,
-	// but here we are using the client wrapper.
-	// Since we can't easily import 'sql' and 'history' package fields cleanly without full setup in this snippet tool,
-	// we will rely on checking if we can just call Save and expect error for simple Create,
-	// OR we should put this test logic inside the actual package to access 'history.FieldPackage'.
 
 	// For now, let's just assert that creating a DUPLICATE fails with simple Create (proving the index exists)
 	_, err = client.History.Create().
@@ -95,7 +84,7 @@ func TestPutHistory_UniqueConstraint(t *testing.T) {
 		SetTotalProgress(100).
 		Save(ctx)
 
-	// Attempting to create duplicate (package, url) should FAIL unique constraint
+	// Attempting to create duplicate (package, url, detailUrl) should FAIL unique constraint
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "constraint failed")
 }

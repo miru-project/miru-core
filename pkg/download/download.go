@@ -48,6 +48,8 @@ type Progress struct {
 	WatchUrl           string            `json:"watch_url"`
 	// Priority used by the concurrency-limited scheduler. Higher runs first.
 	Priority int `json:"priority"`
+	// Error message when status is Failed.
+	Error string `json:"error"`
 }
 
 type TaskParam struct {
@@ -64,6 +66,7 @@ const (
 	Hls     MediaType = "hls"
 	Mp4     MediaType = "mp4"
 	Torrent MediaType = "torrent"
+	Magnet  MediaType = "magnet"
 )
 
 type Status string
@@ -227,7 +230,7 @@ func resumeByID(taskId int) error {
 		return resumeHlsTask(taskId)
 	case Mp4:
 		return resumeMp4Task(taskId)
-	case Torrent:
+	case Torrent, Magnet:
 		return resumeTorrentTask(taskId)
 	}
 	return fmt.Errorf("task %d has unknown media type", taskId)
@@ -331,39 +334,73 @@ func CancelTask(taskId int) error {
 
 	p.Status = Canceled
 
-	if p.Names == nil {
-		p.SyncDB()
-		scheduleDownloads()
-		return nil
-	}
-	names := *p.Names
-
-	// Remove files if the task is canceled
+	// Remove files based on media type
 	switch p.MediaType {
 	case Hls:
-		for _, file := range names {
-			if err := os.Remove(file); err != nil {
-				return fmt.Errorf("failed to remove file %s: %v", file, err)
+		// Remove the entire segment directory
+		if p.SavePath != "" {
+			if err := os.RemoveAll(p.SavePath); err != nil {
+				log.Printf("cancel task %d: failed to remove HLS dir %s: %v", taskId, p.SavePath, err)
 			}
 		}
-		p.SyncDB()
-		scheduleDownloads()
-		return nil
+		// Also remove any individual segment files from Names
+		if p.Names != nil {
+			for _, file := range *p.Names {
+				if err := os.Remove(file); err != nil {
+					log.Printf("cancel task %d: failed to remove segment %s: %v", taskId, file, err)
+				}
+			}
+		}
 	case Mp4:
-		if err := os.Remove(p.CurrentDownloading); err != nil {
-			return fmt.Errorf("failed to remove file %s: %v", p.CurrentDownloading, err)
+		if p.CurrentDownloading != "" {
+			if err := os.Remove(p.CurrentDownloading); err != nil && !os.IsNotExist(err) {
+				log.Printf("cancel task %d: failed to remove file %s: %v", taskId, p.CurrentDownloading, err)
+			}
 		}
-		p.SyncDB()
-	case Torrent:
+	case Torrent, Magnet:
 		miruTorrent.DeleteTorrent(p.Key, true)
-		if err := os.Remove(p.CurrentDownloading); err != nil {
-			return fmt.Errorf("failed to remove file %s: %v", p.CurrentDownloading, err)
+		// Remove the downloaded file
+		if p.CurrentDownloading != "" {
+			if err := os.Remove(p.CurrentDownloading); err != nil && !os.IsNotExist(err) {
+				log.Printf("cancel task %d: failed to remove file %s: %v", taskId, p.CurrentDownloading, err)
+			}
 		}
-		p.SyncDB()
+		// Remove parent dir if empty
+		if p.CurrentDownloading != "" {
+			dir := filepath.Dir(p.CurrentDownloading)
+			if dir != "" {
+				_ = os.Remove(dir) // best-effort: only succeeds if empty
+			}
+		}
 	}
 
+	// Remove DB entry and in-memory state
+	removeTaskFromDB(taskId)
 	scheduleDownloads()
 	return nil
+}
+
+// removeTaskFromDB deletes the download entry from the DB and cleans up
+// in-memory maps so the task does not reappear after a restart.
+func removeTaskFromDB(taskId int) {
+	if ext.IsDBReady() {
+		v, ok := statusMap.Load(taskId)
+		if ok {
+			p := v.(*Progress)
+			// Delete by the Key field which is unique per download
+			// and always populated when the download is created.
+			d, err := db.GetDownloadByKey(p.Key)
+			if err == nil && d != nil {
+				if delErr := db.DeleteDownloadByID(d.ID); delErr != nil {
+					log.Printf("cancel task %d: failed to delete DB entry: %v", taskId, delErr)
+				}
+			} else if err != nil {
+				log.Printf("cancel task %d: failed to find DB entry by key %q: %v", taskId, p.Key, err)
+			}
+		}
+	}
+	statusMap.Delete(taskId)
+	taskParams.Delete(taskId)
 }
 
 func PauseTask(taskId int) error {
@@ -471,6 +508,8 @@ func verifyAndAdjustProgress(p *Progress) {
 		verifyHlsProgress(p)
 	case Mp4:
 		verifyMp4Progress(p)
+	case Torrent, Magnet:
+		verifyTorrentProgress(p)
 	}
 }
 
@@ -567,6 +606,30 @@ func verifyMp4Progress(p *Progress) {
 	}
 }
 
+// verifyTorrentProgress checks whether the downloaded torrent/magnet file
+// still exists on disk. For Converting tasks, the file must exist so the
+// frontend can copy it to the download folder. If missing, the task is
+// marked Failed.
+func verifyTorrentProgress(p *Progress) {
+	filePath := p.CurrentDownloading
+	if filePath == "" {
+		filePath = p.SavePath
+	}
+	if filePath == "" {
+		return
+	}
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		log.Printf("Torrent task %d: file %s missing, resetting progress", p.TaskID, filePath)
+		if p.Status == Converting {
+			p.Status = Failed
+			p.Error = "downloaded file missing after restart"
+			p.SyncDB()
+		} else {
+			p.Progrss = 0
+		}
+	}
+}
+
 func Init() {
 	// Restore the configured concurrency cap before (re)scheduling.
 	loadMaxConcurrent()
@@ -606,27 +669,36 @@ func Init() {
 		// tasks that were actively downloading when the backend stopped.
 		// Already-paused or queued tasks were not mid-stream so their
 		// files should be intact.
-		if prog.Status == Downloading || prog.Status == Converting {
+		if prog.Status == Converting || prog.Status == Downloading {
 			verifyAndAdjustProgress(prog)
 
 			if prog.Status == Converting {
-				// Converting tasks: decide next state based on what's on disk.
-				if prog.Progrss >= prog.Total && prog.Total > 0 {
-					// All segments present — keep Converting so the
-					// frontend can re-run FFmpeg.
-				} else if prog.Progrss == 0 && prog.Total > 0 {
-					// All segments were cleaned up (conversion likely
-					// completed and segments deleted) but the DB was not
-					// updated to Completed (e.g. gRPC call failed).
-					// There are no segments to convert, so mark Failed
-					// rather than misleading Paused-with-zero-progress.
-					prog.Status = Failed
-					log.Printf("HLS task %d: Converting but 0 segments on disk, marking Failed (conversion may have completed)", prog.TaskID)
-					prog.SyncDB()
-				} else {
-					// Partial segments missing — fall back to Paused so
-					// the user can resume the download.
-					prog.Status = Paused
+				switch prog.MediaType {
+				case Hls:
+					// HLS Converting tasks: decide next state based on what's on disk.
+					if prog.Progrss >= prog.Total && prog.Total > 0 {
+						// All segments present — keep Converting so the
+						// frontend can re-run FFmpeg.
+					} else if prog.Progrss == 0 && prog.Total > 0 {
+						// All segments were cleaned up (conversion likely
+						// completed and segments deleted) but the DB was not
+						// updated to Completed (e.g. gRPC call failed).
+						// There are no segments to convert, so mark Failed
+						// rather than misleading Paused-with-zero-progress.
+						prog.Status = Failed
+						log.Printf("HLS task %d: Converting but 0 segments on disk, marking Failed (conversion may have completed)", prog.TaskID)
+						prog.SyncDB()
+					} else {
+						// Partial segments missing — fall back to Paused so
+						// the user can resume the download.
+						prog.Status = Paused
+					}
+				case Torrent, Magnet, Mp4:
+					// Non-HLS Converting: verifyTorrentProgress/verifyMp4Progress
+					// already ran above. If the file is still on disk, keep
+					// Converting so the frontend can copy it to the download
+					// folder. If it was missing, verifyTorrentProgress already
+					// marked the task as Failed.
 				}
 			} else {
 				// Downloading tasks always fall back to Paused on restart.
@@ -653,7 +725,7 @@ func Init() {
 				pkg:       d.Package,
 				key:       d.Key,
 			})
-		case Torrent:
+		case Torrent, Magnet:
 			taskParams.Store(id, &TorrentTaskParam{
 				TaskParam: TaskParam{taskID: id},
 				url:       d.URL[0],

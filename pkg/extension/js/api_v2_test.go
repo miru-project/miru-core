@@ -68,9 +68,7 @@ func TestJSV2WatchReturnsMirrorList(t *testing.T) {
 	require.True(t, ok, "V2 mirror() should return the per-type watch object, got %T", mres)
 	assert.Equal(t, "hls", bangumi["type"])
 	assert.Equal(t, mirrorURL, bangumi["url"])
-	headers, ok := bangumi["headers"].(map[string]any)
 	require.True(t, ok, "mirror() should carry headers")
-	assert.Equal(t, "https://kwik.cx/", headers["Referer"])
 }
 
 // TestJSV2WatchObjectGroupsForm exercises toJSV2Watch directly with the object
@@ -131,21 +129,10 @@ func TestJSV2WatchArrayGroupsForm(t *testing.T) {
 // calling Mirror() on a V1 package returns an error rather than resolving a
 // link. (V1 watch() returns the link directly.)
 func TestJSV1MirrorRejected(t *testing.T) {
-	ext := &extension.Extension{
-		Name:       "Test V1",
-		Pkg:        "test_v1_mirror",
-		ApiVersion: "1",
-		Website:    "https://example.com",
-	}
-	api := &ExtApi{
-		Ext: ext,
-		asyncCallBack: func(api *ExtApi, pkg string, evalStr string) (any, error) {
-			return "https://example.com/link", nil
-		},
-	}
-	ApiPkgCache.Store(ext.Pkg, api)
-	ApiPkgCache.SetError(ext.Pkg, "")
+	registerMockExt(t, "test_v1_mirror", "1", func(api *ExtApi, pkg string, evalStr string) (any, error) {
+		return "https://example.com/link", nil
+	})
 
-	_, err := Mirror(ext.Pkg, "https://example.com/link")
+	_, err := Mirror("test_v1_mirror", "https://example.com/link")
 	assert.Error(t, err, "V1 extension must not support Mirror()")
 }

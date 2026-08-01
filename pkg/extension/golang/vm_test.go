@@ -1,8 +1,6 @@
 package golang
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/miru-project/miru-core/pkg/extension"
@@ -11,7 +9,7 @@ import (
 )
 
 func TestExampleExtensionCompiles(t *testing.T) {
-	ExtensionDir = filepath.Join("extensions", "example")
+	setExampleExtensionDir()
 	_, err := Search("example", 1, "test", "")
 	if err != nil {
 		t.Fatalf("failed to compile/run extension example: %v", err)
@@ -27,7 +25,6 @@ func TestRuntimeLoadExtensionAndCall(t *testing.T) {
 	// Write an extension that declares a Load entry point and a couple of
 	// callable functions. The package must not be named "main" so that Scriggo
 	// accepts Load as the entry point (a "main" package requires a func main).
-	dir := t.TempDir()
 	src := `package myext
 
 func Load() {
@@ -42,11 +39,7 @@ func Greet(name string) string {
 	return "Hello, " + name
 }
 `
-	extPath := filepath.Join(dir, "myext.go")
-	if err := os.WriteFile(extPath, []byte(src), 0644); err != nil {
-		t.Fatalf("write extension source: %v", err)
-	}
-	ExtensionDir = dir
+	writeExtensionSource(t, "myext", src)
 
 	rt := NewRuntime(NewScriggoVM(nil))
 	err := rt.LoadExtension(&extension.Extension{Name: "myext", Pkg: "myext"})
@@ -67,7 +60,7 @@ func Greet(name string) string {
 // using the legacy "main" based flow. The Load-entry-point flow demonstrated
 // by the other tests targets extensions whose package is not "main".
 func TestRuntimeLoadExtensionExampleWithLoad(t *testing.T) {
-	ExtensionDir = filepath.Join("extensions", "example")
+	setExampleExtensionDir()
 
 	rt := NewRuntime(NewScriggoVM(nil))
 	err := rt.LoadExtension(&extension.Extension{Name: "example", Pkg: "example"})
@@ -85,7 +78,6 @@ func TestRuntimeCallBeforeLoad(t *testing.T) {
 // TestRuntimeCallUnknownFunction verifies that calling a function that does
 // not exist in the loaded extension returns an error.
 func TestRuntimeCallUnknownFunction(t *testing.T) {
-	dir := t.TempDir()
 	src := `package myext
 
 func Load() {}
@@ -94,11 +86,7 @@ func Add(a, b int) int {
 	return a + b
 }
 `
-	extPath := filepath.Join(dir, "myext.go")
-	if err := os.WriteFile(extPath, []byte(src), 0644); err != nil {
-		t.Fatalf("write extension source: %v", err)
-	}
-	ExtensionDir = dir
+	writeExtensionSource(t, "myext", src)
 
 	rt := NewRuntime(NewScriggoVM(nil))
 	if err := rt.LoadExtension(&extension.Extension{Name: "myext", Pkg: "myext"}); err != nil {
@@ -110,7 +98,7 @@ func Add(a, b int) int {
 }
 
 func TestExampleExtensionSearchOutput(t *testing.T) {
-	ExtensionDir = filepath.Join("extensions", "example")
+	setExampleExtensionDir()
 	items, err := Search("example", 1, "test", "")
 	if err != nil {
 		t.Fatalf("Search failed: %v", err)
@@ -121,7 +109,7 @@ func TestExampleExtensionSearchOutput(t *testing.T) {
 }
 
 func TestExampleExtensionLatestOutput(t *testing.T) {
-	ExtensionDir = filepath.Join("extensions", "example")
+	setExampleExtensionDir()
 	items, err := Latest("example", 1)
 	if err != nil {
 		t.Fatalf("Latest failed: %v", err)
@@ -132,7 +120,7 @@ func TestExampleExtensionLatestOutput(t *testing.T) {
 }
 
 func TestExampleExtensionDetailOutput(t *testing.T) {
-	ExtensionDir = filepath.Join("extensions", "example")
+	setExampleExtensionDir()
 	detail, err := Detail("example", "https://example.com/1")
 	if err != nil {
 		t.Fatalf("Detail failed: %v", err)
@@ -143,7 +131,7 @@ func TestExampleExtensionDetailOutput(t *testing.T) {
 }
 
 func TestExampleExtensionWatchOutput(t *testing.T) {
-	ExtensionDir = filepath.Join("extensions", "example")
+	setExampleExtensionDir()
 	watch, _, err := Watch("example", "https://example.com/1")
 	if err != nil {
 		t.Fatalf("Watch failed: %v", err)
@@ -154,7 +142,7 @@ func TestExampleExtensionWatchOutput(t *testing.T) {
 }
 
 func TestExampleExtensionMirrorOutput(t *testing.T) {
-	ExtensionDir = filepath.Join("extensions", "example")
+	setExampleExtensionDir()
 	res, err := Mirror("example", "https://example.com/1")
 	if err != nil {
 		t.Fatalf("Mirror failed: %v", err)

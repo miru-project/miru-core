@@ -44,13 +44,18 @@ func downloadTorrent(filePath string, url string, header map[string]string, medi
 	// Prepare file path (filePath arg is treated as directory)
 	fullPath := filepath.Join(filePath, targetFile.DisplayPath())
 
+	mt := Torrent
+	if mediaType == "magnet" {
+		mt = Magnet
+	}
+
 	taskId := genTaskID()
 	p := &Progress{
 		Progrss:   0,
 		Names:     &[]string{targetFile.DisplayPath()},
 		Total:     int(maxSize),
 		Status:    Downloading,
-		MediaType: Torrent,
+		MediaType: mt,
 		TaskID:    taskId,
 		Title:     title,
 		Package:   pkg,
@@ -93,6 +98,7 @@ func (param *TorrentTaskParam) readAndSavePartial(ctx context.Context) {
 		logger.Println("Error creating directory:", err)
 		v, _ := statusMap.Load(taskId)
 		p := v.(*Progress)
+		p.Error = fmt.Sprintf("Failed to create directory: %v", err)
 		p.Status = Failed
 		p.SyncDB()
 		return
@@ -103,6 +109,7 @@ func (param *TorrentTaskParam) readAndSavePartial(ctx context.Context) {
 		logger.Println("Error opening file:", err)
 		v, _ := statusMap.Load(taskId)
 		p := v.(*Progress)
+		p.Error = fmt.Sprintf("Failed to open file: %v", err)
 		p.Status = Failed
 		p.SyncDB()
 		return
@@ -117,6 +124,7 @@ func (param *TorrentTaskParam) readAndSavePartial(ctx context.Context) {
 			logger.Println("Error seeking torrent:", err)
 			v, _ := statusMap.Load(taskId)
 			p := v.(*Progress)
+			p.Error = fmt.Sprintf("Failed to seek torrent reader: %v", err)
 			p.Status = Failed
 			p.SyncDB()
 			return
@@ -143,6 +151,7 @@ func (param *TorrentTaskParam) readAndSavePartial(ctx context.Context) {
 			if n > 0 {
 				if _, wErr := file.Write(buf[:n]); wErr != nil {
 					logger.Println("Write error:", wErr)
+					p.Error = fmt.Sprintf("Write error: %v", wErr)
 					p.Status = Failed
 					p.SyncDB()
 					return
@@ -151,13 +160,14 @@ func (param *TorrentTaskParam) readAndSavePartial(ctx context.Context) {
 				p.SyncDB()
 			}
 			if err == io.EOF {
-				p.Status = Completed
+				p.Status = Converting
 				p.SyncDB()
 				miruTorrent.DeleteTorrent(param.key, true)
 				return
 			}
 			if err != nil {
 				logger.Println("Read torrent error:", err)
+				p.Error = fmt.Sprintf("Read torrent error: %v", err)
 				p.Status = Failed
 				p.SyncDB()
 				return
@@ -188,10 +198,40 @@ func resumeTorrentTask(taskId int) error {
 		return fmt.Errorf("task %d is not a torrent task", taskId)
 	}
 
+	// Re-fetch the torrent and re-acquire the target file. After a restart
+	// the in-memory targetFile pointer is nil, so we must look it up again.
+	var t *torrent.Torrent
+	var err error
 	if strings.HasPrefix(torrentTaskParam.url, "magnet:") {
-		_, err := miruTorrent.AddMagnet(torrentTaskParam.url, torrentTaskParam.title, torrentTaskParam.pkg)
+		t, err = miruTorrent.FetchMagnet(torrentTaskParam.url)
+	} else {
+		t, err = miruTorrent.FetchTorrent(torrentTaskParam.url)
+	}
+	if err != nil {
 		return err
 	}
-	_, err := miruTorrent.AddTorrent(torrentTaskParam.url, torrentTaskParam.title, torrentTaskParam.pkg)
-	return err
+
+	// Store torrent in the streaming map so GetTorrentData can serve it.
+	hex := t.InfoHash().HexString()
+	miruTorrent.Torrents[hex] = t
+
+	// Re-acquire the target file (largest file in the torrent).
+	var targetFile *torrent.File
+	var maxSize int64
+	for _, f := range t.Files() {
+		if f.Length() > maxSize {
+			maxSize = f.Length()
+			targetFile = f
+		}
+	}
+	if targetFile == nil {
+		return fmt.Errorf("task %d: no files in torrent", taskId)
+	}
+	torrentTaskParam.targetFile = targetFile
+
+	// Now start the download task — readAndSavePartial will stream bytes
+	// from the torrent reader to disk and call p.Progrss += n; p.SyncDB()
+	// on each chunk, triggering the same event pipeline as HLS/MP4.
+	startDownloadTask(torrentTaskParam, downloadTorrentTask)
+	return nil
 }

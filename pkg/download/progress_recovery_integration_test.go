@@ -1,30 +1,9 @@
 package download
 
 import (
-	"context"
-	"os"
 	"path/filepath"
 	"testing"
-
-	entsql "entgo.io/ent/dialect/sql"
-	"github.com/miru-project/miru-core/ent"
-	_ "github.com/miru-project/miru-core/ent/runtime"
 )
-
-// setupTestClient creates an in-memory SQLite ent client for testing,
-// using the same driver and connection settings as production.
-func setupTestClient(t *testing.T) *ent.Client {
-	t.Helper()
-	drv, err := entsql.Open("sqlite3", "file::memory:?cache=shared&_fk=1&_pragma=foreign_keys(1)")
-	if err != nil {
-		t.Fatal(err)
-	}
-	c := ent.NewClient(ent.Driver(drv))
-	if err := c.Schema.Create(context.Background()); err != nil {
-		t.Fatal(err)
-	}
-	return c
-}
 
 // TestSyncDB_RoundTrip_ProgressAndTotal verifies that SyncDB persists both
 // progress AND total into the DB, and Init-recovery reads them back correctly.
@@ -33,47 +12,13 @@ func TestSyncDB_RoundTrip_ProgressAndTotal(t *testing.T) {
 	dir := t.TempDir()
 
 	// Create 2 segment files.
-	for _, name := range []string{"0.ts", "1.ts"} {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte("data"), 0644); err != nil {
-			t.Fatal(err)
-		}
-	}
+	writeSegmentFiles(t, dir, 2)
 
-	client := setupTestClient(t)
+	client := setupTestDB(t)
 	defer client.Close()
 
 	// Simulate what downloadHls does: create a download record via ent directly.
-	record, err := client.Download.Create().
-		SetURL([]string{"https://example.org/playlist.m3u8"}).
-		SetWatchUrl("https://example.org/watch").
-		SetDetailUrl("https://example.org/detail").
-		SetHeaders(map[string]string{"Authorization": "Bearer test"}).
-		SetPackage("test-pkg").
-		SetProgress([]int{2, 2}).
-		SetKey("test-key").
-		SetTitle("Test Title").
-		SetMediaType("hls").
-		SetStatus("Downloading").
-		SetSavePath(dir).
-		Save(t.Context())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Read it back — simulate what Init does.
-	d, err := client.Download.Get(t.Context(), record.ID)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	p := 0
-	total := 0
-	if len(d.Progress) > 0 {
-		p = d.Progress[0]
-	}
-	if len(d.Progress) > 1 {
-		total = d.Progress[1]
-	}
+	d, p, total := createDownloadRecord(t, client, []int{2, 2}, "test-key", "Test Title", "hls", "Downloading", dir)
 
 	if p != 2 {
 		t.Errorf("expected DB progress=2, got %d", p)
@@ -83,6 +28,7 @@ func TestSyncDB_RoundTrip_ProgressAndTotal(t *testing.T) {
 	}
 
 	// Now simulate Init recovery: create Progress and verify files.
+	_ = d
 	progress := &Progress{
 		Progrss:   p,
 		Total:     total,
@@ -105,44 +51,13 @@ func TestSyncDB_RoundTrip_SegmentDeleted(t *testing.T) {
 	dir := t.TempDir()
 
 	// Only create segment 0; segment 1 was "deleted" while offline.
-	if err := os.WriteFile(filepath.Join(dir, "0.ts"), []byte("data"), 0644); err != nil {
-		t.Fatal(err)
-	}
+	writeTestFile(t, filepath.Join(dir, "0.ts"))
 
-	client := setupTestClient(t)
+	client := setupTestDB(t)
 	defer client.Close()
 
 	// DB record claims progress=2, total=2 (both segments downloaded before shutdown).
-	record, err := client.Download.Create().
-		SetURL([]string{"https://example.org/playlist.m3u8"}).
-		SetWatchUrl("https://example.org/watch").
-		SetDetailUrl("https://example.org/detail").
-		SetHeaders(map[string]string{}).
-		SetPackage("test-pkg").
-		SetProgress([]int{2, 2}).
-		SetKey("test-key-2").
-		SetTitle("Deleted Segment").
-		SetMediaType("hls").
-		SetStatus("Downloading").
-		SetSavePath(dir).
-		Save(t.Context())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	d, err := client.Download.Get(t.Context(), record.ID)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	p := 0
-	total := 0
-	if len(d.Progress) > 0 {
-		p = d.Progress[0]
-	}
-	if len(d.Progress) > 1 {
-		total = d.Progress[1]
-	}
+	d, p, total := createDownloadRecord(t, client, []int{2, 2}, "test-key-2", "Deleted Segment", "hls", "Downloading", dir)
 
 	progress := &Progress{
 		Progrss:   p,
@@ -170,46 +85,13 @@ func TestSyncDB_RoundTrip_SegmentDeleted(t *testing.T) {
 func TestSyncDB_RoundTrip_OldDB_NoTotal(t *testing.T) {
 	dir := t.TempDir()
 
-	for _, name := range []string{"0.ts", "1.ts"} {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte("data"), 0644); err != nil {
-			t.Fatal(err)
-		}
-	}
+	writeSegmentFiles(t, dir, 2)
 
-	client := setupTestClient(t)
+	client := setupTestDB(t)
 	defer client.Close()
 
 	// Old DB record: only progress, no total.
-	record, err := client.Download.Create().
-		SetURL([]string{"https://example.org/playlist.m3u8"}).
-		SetWatchUrl("https://example.org/watch").
-		SetDetailUrl("https://example.org/detail").
-		SetHeaders(map[string]string{}).
-		SetPackage("test-pkg").
-		SetProgress([]int{2}). // old format: only progress
-		SetKey("test-key-3").
-		SetTitle("Old DB Format").
-		SetMediaType("hls").
-		SetStatus("Downloading").
-		SetSavePath(dir).
-		Save(t.Context())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	d, err := client.Download.Get(t.Context(), record.ID)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	p := 0
-	total := 0
-	if len(d.Progress) > 0 {
-		p = d.Progress[0]
-	}
-	if len(d.Progress) > 1 {
-		total = d.Progress[1]
-	}
+	d, p, total := createDownloadRecord(t, client, []int{2}, "test-key-3", "Old DB Format", "hls", "Downloading", dir)
 
 	progress := &Progress{
 		Progrss:   p,
@@ -264,39 +146,10 @@ func TestSyncDB_RoundTrip_MP4_FileDeleted(t *testing.T) {
 	// File path that does NOT exist.
 	missingFile := filepath.Join(t.TempDir(), "deleted.mp4")
 
-	client := setupTestClient(t)
+	client := setupTestDB(t)
 	defer client.Close()
 
-	record, err := client.Download.Create().
-		SetURL([]string{"https://example.org/video.mp4"}).
-		SetWatchUrl("https://example.org/watch").
-		SetDetailUrl("https://example.org/detail").
-		SetHeaders(map[string]string{}).
-		SetPackage("test-pkg").
-		SetProgress([]int{5000000, 10000000}).
-		SetKey("test-key-4").
-		SetTitle("Deleted MP4").
-		SetMediaType("mp4").
-		SetStatus("Downloading").
-		SetSavePath(missingFile).
-		Save(t.Context())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	d, err := client.Download.Get(t.Context(), record.ID)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	p := 0
-	total := 0
-	if len(d.Progress) > 0 {
-		p = d.Progress[0]
-	}
-	if len(d.Progress) > 1 {
-		total = d.Progress[1]
-	}
+	d, p, total := createDownloadRecord(t, client, []int{5000000, 10000000}, "test-key-4", "Deleted MP4", "mp4", "Downloading", missingFile)
 
 	progress := &Progress{
 		Progrss:   p,
@@ -322,46 +175,13 @@ func TestSyncDB_RoundTrip_ConvertingHLS_AllSegmentsDownloaded(t *testing.T) {
 	dir := t.TempDir()
 
 	// Create all segment files (simulating complete download before shutdown).
-	for _, name := range []string{"0.ts", "1.ts", "2.ts"} {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte("data"), 0644); err != nil {
-			t.Fatal(err)
-		}
-	}
+	writeSegmentFiles(t, dir, 3)
 
-	client := setupTestClient(t)
+	client := setupTestDB(t)
 	defer client.Close()
 
 	// DB record: Converting status, progress=3, total=3 (all segments downloaded).
-	record, err := client.Download.Create().
-		SetURL([]string{"https://example.org/playlist.m3u8"}).
-		SetWatchUrl("https://example.org/watch").
-		SetDetailUrl("https://example.org/detail").
-		SetHeaders(map[string]string{}).
-		SetPackage("test-pkg").
-		SetProgress([]int{3, 3}).
-		SetKey("test-key-converting-complete").
-		SetTitle("Converting Complete").
-		SetMediaType("hls").
-		SetStatus("Converting").
-		SetSavePath(dir).
-		Save(t.Context())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	d, err := client.Download.Get(t.Context(), record.ID)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	p := 0
-	total := 0
-	if len(d.Progress) > 0 {
-		p = d.Progress[0]
-	}
-	if len(d.Progress) > 1 {
-		total = d.Progress[1]
-	}
+	d, p, total := createDownloadRecord(t, client, []int{3, 3}, "test-key-converting-complete", "Converting Complete", "hls", "Converting", dir)
 
 	// Simulate Init recovery: create Progress from DB record.
 	progress := &Progress{
@@ -393,44 +213,13 @@ func TestSyncDB_RoundTrip_ConvertingHLS_PartialSegments(t *testing.T) {
 	dir := t.TempDir()
 
 	// Only create 1 of 3 segment files (simulating partial download).
-	if err := os.WriteFile(filepath.Join(dir, "0.ts"), []byte("data"), 0644); err != nil {
-		t.Fatal(err)
-	}
+	writeTestFile(t, filepath.Join(dir, "0.ts"))
 
-	client := setupTestClient(t)
+	client := setupTestDB(t)
 	defer client.Close()
 
 	// DB record: Converting status, progress=3, total=3 (claimed all downloaded).
-	record, err := client.Download.Create().
-		SetURL([]string{"https://example.org/playlist.m3u8"}).
-		SetWatchUrl("https://example.org/watch").
-		SetDetailUrl("https://example.org/detail").
-		SetHeaders(map[string]string{}).
-		SetPackage("test-pkg").
-		SetProgress([]int{3, 3}).
-		SetKey("test-key-converting-partial").
-		SetTitle("Converting Partial").
-		SetMediaType("hls").
-		SetStatus("Converting").
-		SetSavePath(dir).
-		Save(t.Context())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	d, err := client.Download.Get(t.Context(), record.ID)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	p := 0
-	total := 0
-	if len(d.Progress) > 0 {
-		p = d.Progress[0]
-	}
-	if len(d.Progress) > 1 {
-		total = d.Progress[1]
-	}
+	d, p, total := createDownloadRecord(t, client, []int{3, 3}, "test-key-converting-partial", "Converting Partial", "hls", "Converting", dir)
 
 	progress := &Progress{
 		Progrss:   p,
@@ -477,47 +266,14 @@ func TestSyncDB_RoundTrip_ConvertingHLS_NamesRebuilt(t *testing.T) {
 	dir := t.TempDir()
 
 	// Create 3 segment files (all downloaded before shutdown).
-	for _, name := range []string{"0.ts", "1.ts", "2.ts"} {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte("data"), 0644); err != nil {
-			t.Fatal(err)
-		}
-	}
+	writeSegmentFiles(t, dir, 3)
 
-	client := setupTestClient(t)
+	client := setupTestDB(t)
 	defer client.Close()
 
 	// DB record: Converting, progress=3, total=3 (all segments downloaded).
 	// Note: Names are NOT stored in the DB — they are in-memory only.
-	record, err := client.Download.Create().
-		SetURL([]string{"https://example.org/playlist.m3u8"}).
-		SetWatchUrl("https://example.org/watch").
-		SetDetailUrl("https://example.org/detail").
-		SetHeaders(map[string]string{}).
-		SetPackage("test-pkg").
-		SetProgress([]int{3, 3}).
-		SetKey("test-key-converting-names").
-		SetTitle("Converting Names Test").
-		SetMediaType("hls").
-		SetStatus("Converting").
-		SetSavePath(dir).
-		Save(t.Context())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	d, err := client.Download.Get(t.Context(), record.ID)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	p := 0
-	total := 0
-	if len(d.Progress) > 0 {
-		p = d.Progress[0]
-	}
-	if len(d.Progress) > 1 {
-		total = d.Progress[1]
-	}
+	d, p, total := createDownloadRecord(t, client, []int{3, 3}, "test-key-converting-names", "Converting Names Test", "hls", "Converting", dir)
 
 	// Simulate Init recovery: create Progress from DB record.
 	// Names is nil — simulating what happens after a restart.
@@ -565,11 +321,7 @@ func TestSyncDB_RoundTrip_ConvertingHLS_NamesRebuiltOnResume(t *testing.T) {
 	dir := t.TempDir()
 
 	// Create 2 segment files.
-	for _, name := range []string{"0.ts", "1.ts"} {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte("data"), 0644); err != nil {
-			t.Fatal(err)
-		}
-	}
+	writeSegmentFiles(t, dir, 2)
 
 	// Create a Progress with nil Names (simulating restart).
 	p := &Progress{
@@ -599,40 +351,11 @@ func TestSyncDB_RoundTrip_ConvertingHLS_NoSegmentsOnDisk(t *testing.T) {
 	dir := t.TempDir()
 	// Don't create any segment files — simulating post-conversion cleanup.
 
-	client := setupTestClient(t)
+	client := setupTestDB(t)
 	defer client.Close()
 
 	// DB record: Converting, progress=3, total=3 (all downloaded before).
-	record, err := client.Download.Create().
-		SetURL([]string{"https://example.org/playlist.m3u8"}).
-		SetWatchUrl("https://example.org/watch").
-		SetDetailUrl("https://example.org/detail").
-		SetHeaders(map[string]string{}).
-		SetPackage("test-pkg").
-		SetProgress([]int{3, 3}).
-		SetKey("test-key-converting-noseg").
-		SetTitle("Converted No Segments").
-		SetMediaType("hls").
-		SetStatus("Converting").
-		SetSavePath(dir).
-		Save(t.Context())
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	d, err := client.Download.Get(t.Context(), record.ID)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	p := 0
-	total := 0
-	if len(d.Progress) > 0 {
-		p = d.Progress[0]
-	}
-	if len(d.Progress) > 1 {
-		total = d.Progress[1]
-	}
+	d, p, total := createDownloadRecord(t, client, []int{3, 3}, "test-key-converting-noseg", "Converted No Segments", "hls", "Converting", dir)
 
 	progress := &Progress{
 		Progrss:   p,

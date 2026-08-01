@@ -1,37 +1,8 @@
 package download
 
 import (
-	"context"
-	"sync"
 	"testing"
 )
-
-// resetSchedulerState clears the package-level scheduler state so each test is
-// isolated. It does not touch the DB-backed helpers (those are exercised
-// indirectly via the pure scheduling logic only).
-func resetSchedulerState() {
-	// Clear statusMap
-	statusMap.Range(func(k, _ any) bool {
-		statusMap.Delete(k)
-		return true
-	})
-	// Clear taskParams
-	taskParams.Range(func(k, _ any) bool {
-		taskParams.Delete(k)
-		return true
-	})
-	tasks = sync.Map{}
-	maxConcurrent = DefaultMaxConcurrentDownload
-	// Override the real "resume" with a fake that simply registers the task as
-	// running, so the scheduler's running-slot accounting is exercised without
-	// performing any real network downloads.
-	resumeFunc = func(taskId int) error {
-		tasks.Store(taskId, noopCancel())
-		return nil
-	}
-}
-
-func noopCancel() context.CancelFunc { return func() {} }
 
 // TestActiveRunningCount verifies the running-slot counter tracks live tasks.
 func TestActiveRunningCount(t *testing.T) {

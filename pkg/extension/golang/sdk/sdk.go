@@ -92,9 +92,10 @@ type BangumiWatchType = runtime.BangumiWatchType
 // watch() and V2 mirror() emit as the per-type watch "type" field, and the
 // dart ExtensionWatchBangumiType enum (hls/mp4/torrent/magnet).
 var (
-	HLS    = runtime.HLS
-	MP4    = runtime.MP4
-	Magnet = runtime.Magnet
+	HLS     = runtime.HLS
+	MP4     = runtime.MP4
+	Magnet  = runtime.Magnet
+	Torrent = runtime.Torrent
 )
 
 // Fetch performs a single HTTP request and returns the raw response body, the

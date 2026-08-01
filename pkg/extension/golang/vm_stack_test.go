@@ -1,8 +1,6 @@
 package golang
 
 import (
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -80,10 +78,7 @@ func Latest(pkg string, page int) ([]sdk.ExtensionListItem, error) {
 // scriggo Program.Call -> interpreter -> panic, and back out as a
 // *scriggo.PanicError carrying the captured interpreter stack.
 func TestGolangExtensionPanicShowsInnerCallChain(t *testing.T) {
-	dir := t.TempDir()
-	extPath := filepath.Join(dir, "stacktraceext.go")
-	require.NoError(t, os.WriteFile(extPath, []byte(stackTraceSrc), 0644))
-	ExtensionDir = dir
+	writeExtensionSource(t, "stacktraceext", stackTraceSrc)
 	LoadExtensions() // runs Load once, seeding the cache
 
 	_, err := Latest("stacktraceext", 1)

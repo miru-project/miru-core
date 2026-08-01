@@ -71,19 +71,19 @@ func (s *MiruCoreServer) HelloMiru(ctx context.Context, req *proto.HelloMiruRequ
 	protoExtMeta := make([]*proto.ExtensionMeta, len(extMeta))
 	for i, e := range extMeta {
 		protoExtMeta[i] = &proto.ExtensionMeta{
-			Name:        e.Name,
-			Version:     e.Version,
-			Author:      e.Author,
-			License:     e.License,
-			Lang:        e.Lang,
-			Icon:        e.Icon,
-			Package:     e.Pkg,
-			WebSite:     e.Website,
-			Description: e.Description,
-			Tags:        e.Tags,
-			Api:         e.ApiVersion,
-			Error:       e.Error,
-			Type:        string(e.WatchType),
+			Name:        sanitizeUTF8(e.Name),
+			Version:     sanitizeUTF8(e.Version),
+			Author:      sanitizeUTF8(e.Author),
+			License:     sanitizeUTF8(e.License),
+			Lang:        sanitizeUTF8(e.Lang),
+			Icon:        sanitizeUTF8(e.Icon),
+			Package:     sanitizeUTF8(e.Pkg),
+			WebSite:     sanitizeUTF8(e.Website),
+			Description: sanitizeUTF8(e.Description),
+			Tags:        sanitizeTags(e.Tags),
+			Api:         sanitizeUTF8(e.ApiVersion),
+			Error:       sanitizeUTF8(e.Error),
+			Type:        sanitizeUTF8(string(e.WatchType)),
 		}
 	}
 
@@ -174,20 +174,26 @@ func safeSprint(v any) string {
 func toProtoDownloadProgress(p *download.Progress) *proto.DownloadProgress {
 	names := []string{}
 	if p.Names != nil {
-		names = *p.Names
+		names = sanitizeNames(*p.Names)
+	}
+	url := ""
+	if len(p.URL) > 0 {
+		url = p.URL[0]
 	}
 	return &proto.DownloadProgress{
 		Progress:           int32(p.Progrss),
 		Names:              names,
 		Total:              int32(p.Total),
 		Status:             download.StatusToProto(p.Status),
-		MediaType:          string(p.MediaType),
-		CurrentDownloading: p.CurrentDownloading,
+		MediaType:          sanitizeUTF8(string(p.MediaType)),
+		CurrentDownloading: sanitizeUTF8(p.CurrentDownloading),
 		TaskId:             int32(p.TaskID),
-		Title:              p.Title,
-		Package:            p.Package,
-		Key:                p.Key,
+		Title:              sanitizeUTF8(p.Title),
+		Package:            sanitizeUTF8(p.Package),
+		Key:                sanitizeUTF8(p.Key),
 		Priority:           int32(p.Priority),
+		Url:                sanitizeUTF8(url),
+		Error:              sanitizeUTF8(p.Error),
 	}
 }
 

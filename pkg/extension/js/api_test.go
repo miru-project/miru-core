@@ -3,32 +3,19 @@ package js
 import (
 	"testing"
 
-	"github.com/miru-project/miru-core/pkg/extension"
 	"github.com/miru-project/miru-core/proto/generate/proto"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGojaExtensionSearch(t *testing.T) {
-	ext := &extension.Extension{
-		Name:       "Test Extension",
-		Pkg:        "test",
-		ApiVersion: "1",
-		Website:    "https://example.com",
-	}
+	registerMockExt(t, "test", "1", func(api *ExtApi, pkg string, evalStr string) (any, error) {
+		return []any{
+			map[string]any{"title": "Test Result 1", "url": "https://example.com/1"},
+			map[string]any{"title": "Test Result 2", "url": "https://example.com/2"},
+		}, nil
+	})
 
-	api := &ExtApi{
-		Ext: ext,
-		asyncCallBack: func(api *ExtApi, pkg string, evalStr string) (any, error) {
-			return []any{
-				map[string]any{"title": "Test Result 1", "url": "https://example.com/1"},
-				map[string]any{"title": "Test Result 2", "url": "https://example.com/2"},
-			}, nil
-		},
-	}
-	ApiPkgCache.Store(ext.Pkg, api)
-	ApiPkgCache.SetError(ext.Pkg, "")
-
-	result, err := Search(ext.Pkg, 1, "test", "")
+	result, err := Search("test", 1, "test", "")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Len(t, result, 2)
@@ -37,25 +24,13 @@ func TestGojaExtensionSearch(t *testing.T) {
 }
 
 func TestGojaExtensionLatest(t *testing.T) {
-	ext := &extension.Extension{
-		Name:       "Test Extension",
-		Pkg:        "test_latest",
-		ApiVersion: "1",
-		Website:    "https://example.com",
-	}
+	registerMockExt(t, "test_latest", "1", func(api *ExtApi, pkg string, evalStr string) (any, error) {
+		return []any{
+			map[string]any{"title": "Latest Test 1", "url": "https://example.com/latest/1"},
+		}, nil
+	})
 
-	api := &ExtApi{
-		Ext: ext,
-		asyncCallBack: func(api *ExtApi, pkg string, evalStr string) (any, error) {
-			return []any{
-				map[string]any{"title": "Latest Test 1", "url": "https://example.com/latest/1"},
-			}, nil
-		},
-	}
-	ApiPkgCache.Store(ext.Pkg, api)
-	ApiPkgCache.SetError(ext.Pkg, "")
-
-	result, err := Latest[proto.ExtensionListItem](ext.Pkg, 1)
+	result, err := Latest[proto.ExtensionListItem]("test_latest", 1)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Len(t, result, 1)
@@ -63,27 +38,15 @@ func TestGojaExtensionLatest(t *testing.T) {
 }
 
 func TestGojaExtensionDetail(t *testing.T) {
-	ext := &extension.Extension{
-		Name:       "Test Extension",
-		Pkg:        "test_detail",
-		ApiVersion: "1",
-		Website:    "https://example.com",
-	}
+	registerMockExt(t, "test_detail", "1", func(api *ExtApi, pkg string, evalStr string) (any, error) {
+		return map[string]any{
+			"title": "Test Detail",
+			"url":   "https://example.com/1",
+			"desc":  "Test detail description",
+		}, nil
+	})
 
-	api := &ExtApi{
-		Ext: ext,
-		asyncCallBack: func(api *ExtApi, pkg string, evalStr string) (any, error) {
-			return map[string]any{
-				"title": "Test Detail",
-				"url":   "https://example.com/1",
-				"desc":  "Test detail description",
-			}, nil
-		},
-	}
-	ApiPkgCache.Store(ext.Pkg, api)
-	ApiPkgCache.SetError(ext.Pkg, "")
-
-	result, err := Detail(ext.Pkg, "https://example.com/1")
+	result, err := Detail("test_detail", "https://example.com/1")
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.NotNil(t, result.Title)
@@ -91,30 +54,18 @@ func TestGojaExtensionDetail(t *testing.T) {
 }
 
 func TestGojaExtensionWatch(t *testing.T) {
-	ext := &extension.Extension{
-		Name:       "Test Extension",
-		Pkg:        "test_watch",
-		ApiVersion: "1",
-		Website:    "https://example.com",
-	}
+	registerMockExt(t, "test_watch", "1", func(api *ExtApi, pkg string, evalStr string) (any, error) {
+		return map[string]any{
+			"type": "manga",
+			"url":  "https://example.com/1",
+			"pages": []string{
+				"https://example.com/page/1.jpg",
+				"https://example.com/page/2.jpg",
+			},
+		}, nil
+	})
 
-	api := &ExtApi{
-		Ext: ext,
-		asyncCallBack: func(api *ExtApi, pkg string, evalStr string) (any, error) {
-			return map[string]any{
-				"type": "manga",
-				"url":  "https://example.com/1",
-				"pages": []string{
-					"https://example.com/page/1.jpg",
-					"https://example.com/page/2.jpg",
-				},
-			}, nil
-		},
-	}
-	ApiPkgCache.Store(ext.Pkg, api)
-	ApiPkgCache.SetError(ext.Pkg, "")
-
-	result, meta, err := Watch(ext.Pkg, "https://example.com/1")
+	result, meta, err := Watch("test_watch", "https://example.com/1")
 	assert.NoError(t, err)
 	assert.NotNil(t, meta)
 	assert.NotNil(t, result)
@@ -124,25 +75,13 @@ func TestGojaExtensionWatch(t *testing.T) {
 // step (watch() returns the link directly), so calling Mirror() on a V1 package
 // is rejected. The V2 runtime is the one that supports watch()->mirror().
 func TestGojaExtensionMirror(t *testing.T) {
-	ext := &extension.Extension{
-		Name:       "Test Extension",
-		Pkg:        "test_mirror",
-		ApiVersion: "1",
-		Website:    "https://example.com",
-	}
+	registerMockExt(t, "test_mirror", "1", func(api *ExtApi, pkg string, evalStr string) (any, error) {
+		return []any{
+			map[string]any{"name": "Mirror 1", "url": "https://mirror1.example.com/1"},
+			map[string]any{"name": "Mirror 2", "url": "https://mirror2.example.com/1"},
+		}, nil
+	})
 
-	api := &ExtApi{
-		Ext: ext,
-		asyncCallBack: func(api *ExtApi, pkg string, evalStr string) (any, error) {
-			return []any{
-				map[string]any{"name": "Mirror 1", "url": "https://mirror1.example.com/1"},
-				map[string]any{"name": "Mirror 2", "url": "https://mirror2.example.com/1"},
-			}, nil
-		},
-	}
-	ApiPkgCache.Store(ext.Pkg, api)
-	ApiPkgCache.SetError(ext.Pkg, "")
-
-	_, err := Mirror(ext.Pkg, "https://example.com/1")
+	_, err := Mirror("test_mirror", "https://example.com/1")
 	assert.Error(t, err, "V1 extensions must not support Mirror()")
 }

@@ -284,7 +284,11 @@ type DownloadProgress struct {
 	Package            string                 `protobuf:"bytes,9,opt,name=package,proto3" json:"package,omitempty"`
 	Key                string                 `protobuf:"bytes,10,opt,name=key,proto3" json:"key,omitempty"`
 	// Priority used by the concurrency-limited scheduler. Higher runs first.
-	Priority      int32 `protobuf:"varint,11,opt,name=priority,proto3" json:"priority,omitempty"`
+	Priority int32 `protobuf:"varint,11,opt,name=priority,proto3" json:"priority,omitempty"`
+	// Source URL (torrent file URL, magnet link, video URL, etc.)
+	Url string `protobuf:"bytes,12,opt,name=url,proto3" json:"url,omitempty"`
+	// Error message when status is FAILED
+	Error         string `protobuf:"bytes,13,opt,name=error,proto3" json:"error,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -394,6 +398,20 @@ func (x *DownloadProgress) GetPriority() int32 {
 		return x.Priority
 	}
 	return 0
+}
+
+func (x *DownloadProgress) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+func (x *DownloadProgress) GetError() string {
+	if x != nil {
+		return x.Error
+	}
+	return ""
 }
 
 type TorrentStats struct {
@@ -738,7 +756,7 @@ const file_proto_common_proto_rawDesc = "" +
 	" \x03(\tR\x04tags\x12\x10\n" +
 	"\x03api\x18\v \x01(\tR\x03api\x12\x14\n" +
 	"\x05error\x18\f \x01(\tR\x05error\x12\x12\n" +
-	"\x04type\x18\r \x01(\tR\x04type\"\xcf\x02\n" +
+	"\x04type\x18\r \x01(\tR\x04type\"\xf7\x02\n" +
 	"\x10DownloadProgress\x12\x1a\n" +
 	"\bprogress\x18\x01 \x01(\x05R\bprogress\x12\x14\n" +
 	"\x05names\x18\x02 \x03(\tR\x05names\x12\x14\n" +
@@ -752,7 +770,9 @@ const file_proto_common_proto_rawDesc = "" +
 	"\apackage\x18\t \x01(\tR\apackage\x12\x10\n" +
 	"\x03key\x18\n" +
 	" \x01(\tR\x03key\x12\x1a\n" +
-	"\bpriority\x18\v \x01(\x05R\bpriority\"H\n" +
+	"\bpriority\x18\v \x01(\x05R\bpriority\x12\x10\n" +
+	"\x03url\x18\f \x01(\tR\x03url\x12\x14\n" +
+	"\x05error\x18\r \x01(\tR\x05error\"H\n" +
 	"\fTorrentStats\x12\x1d\n" +
 	"\n" +
 	"total_down\x18\x01 \x01(\x03R\ttotalDown\x12\x19\n" +

@@ -79,6 +79,7 @@ func (s *MiruCoreServer) Watch(ctx context.Context, req *proto.WatchRequest) (*p
 		default:
 			return nil, fmt.Errorf("watch result for golang extension %q does not conform to the V2 watch contract (got %T); golang extensions must return proto.ExtensionWatch or proto.ExtensionAllWatch", req.Pkg, res.Data)
 		}
+		sanitizeWatchResponse(watchResp)
 		return watchResp, nil
 	}
 
@@ -123,6 +124,7 @@ func (s *MiruCoreServer) Watch(ctx context.Context, req *proto.WatchRequest) (*p
 		}
 	}
 
+	sanitizeWatchResponse(watchResp)
 	return watchResp, nil
 }
 
@@ -180,6 +182,7 @@ func (s *MiruCoreServer) Mirror(ctx context.Context, req *proto.MirrorRequest) (
 		// Default every resolved stream/mirror through miru-core (like torrents),
 		// so the player/downloader fetches it server-side with the mirror headers
 		// and optional tls fingerprint applied. Already-proxied URLs pass through.
+		sanitizeMirrorResponse(mirrorResp)
 		proxyMirrorResponse(mirrorResp)
 		return mirrorResp, nil
 	}
@@ -213,6 +216,8 @@ func (s *MiruCoreServer) Mirror(ctx context.Context, req *proto.MirrorRequest) (
 		return nil, fmt.Errorf("mirror result for extension %q does not conform to any known watch type (got %q)", req.Pkg, api.WatchType)
 	}
 
+	// Sanitize before proxying so proxy URL building operates on valid UTF-8.
+	sanitizeMirrorResponse(mirrorResp)
 	// Default every resolved stream/mirror through miru-core (like torrents).
 	proxyMirrorResponse(mirrorResp)
 	return mirrorResp, nil

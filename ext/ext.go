@@ -54,6 +54,17 @@ func IsDBReady() bool {
 	return entClient != nil
 }
 
+// SetEntClientForTest replaces the global ent client for testing purposes.
+// Call with nil to restore the "not ready" state.
+func SetEntClientForTest(c *ent.Client) {
+	entClient = c
+}
+
+// GetEntClientForTest returns the raw entClient pointer (may be nil).
+func GetEntClientForTest() *ent.Client {
+	return entClient
+}
+
 
 func EntClient() *ent.Client {
 	if entClient != nil {

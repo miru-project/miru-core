@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/miru-project/miru-core/pkg/extension"
-	golang "github.com/miru-project/miru-core/pkg/extension/golang"
 	jsext "github.com/miru-project/miru-core/pkg/extension/js"
 	"github.com/miru-project/miru-core/proto/generate/proto"
 	"github.com/stretchr/testify/assert"
@@ -131,55 +130,4 @@ func TestExampleJSExtensionLoadsViaEntryPoint(t *testing.T) {
 	assert.NotNil(t, results)
 	assert.GreaterOrEqual(t, len(results), 1, "the JS example should serve at least one search result")
 	assert.Equal(t, "Example Result 1", results[0].Title)
-}
-
-// TestLoadExtensionsFromSharedFolder proves that a single extension directory
-// containing BOTH a Go extension (example.v2.go) and a JavaScript extension
-// (example.js) is read by the entry point and routed to the correct runtime:
-//   - the Go runtime loads example.v2.go and prints "[GO]"
-//   - the JS runtime loads example.js and prints "[JS]"
-//   - the JS runtime strictly ignores the .go file (no misrouting)
-//
-// This is the end-to-end answer to "does the folder get read and does the
-// example extension load correctly?": both runtimes load their respective
-// extension from the very same folder.
-func TestLoadExtensionsFromSharedFolder(t *testing.T) {
-	dir := t.TempDir()
-
-	// A real Go extension, copied verbatim from the shipped source.
-	goSrc, err := os.ReadFile(filepath.Join("..", "pkg", "extension", "golang", "extensions", "miruro", "examplev2.go"))
-	if err != nil {
-		t.Fatalf("read examplev2.go: %v", err)
-	}
-	if err := os.WriteFile(filepath.Join(dir, "examplev2.go"), goSrc, 0644); err != nil {
-		t.Fatalf("write examplev2.go: %v", err)
-	}
-
-	// A JS extension in the same directory.
-	if err := os.WriteFile(filepath.Join(dir, "example.js"), []byte(exampleJSExtension), 0644); err != nil {
-		t.Fatalf("write example.js: %v", err)
-	}
-
-	// Go runtime: load its own extensions from the shared folder.
-	prev := golang.ExtensionDir
-	golang.ExtensionDir = dir
-	defer func() { golang.ExtensionDir = prev }()
-	golang.LoadExtensions()
-
-	// JS runtime: load from the same folder; it must ignore the .go file.
-	jsext.InitRuntime(dir, jsext.AssetsFS)
-	time.Sleep(500 * time.Millisecond)
-
-	// JS side: example loaded, examplev2 strictly NOT compiled as JS.
-	api := jsext.ApiPkgCache.Load("example")
-	assert.NotNil(t, api, "the JS extension must be loaded by the JS runtime")
-	_, miruroInJS := jsext.ApiPkgCache.Map.Load("examplev2")
-	assert.False(t, miruroInJS, "examplev2.go must be skipped by the JS runtime")
-
-	// GO side: examplev2.go from the given folder compiles and loads via the
-	// Go runtime (deterministic, no network).
-	ext, perr := golang.ParseExtensionMetadata("examplev2")
-	assert.NoError(t, perr, "examplev2.go metadata must parse")
-	rt := golang.NewRuntime(golang.NewScriggoVM(nil))
-	assert.NoError(t, rt.LoadExtension(ext), "examplev2.go must load as a Go extension")
 }

@@ -4,36 +4,10 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"sync"
 	"testing"
 
 	"github.com/grafov/m3u8"
-	"github.com/miru-project/miru-core/pkg/network"
 )
-
-// resetTestState clears the package-level scheduler state so each test is
-// isolated. It also installs a no-op resumeFunc.
-func resetTestState() {
-	// Clear statusMap
-	statusMap.Range(func(k, _ any) bool {
-		statusMap.Delete(k)
-		return true
-	})
-	// Clear taskParams
-	taskParams.Range(func(k, _ any) bool {
-		taskParams.Delete(k)
-		return true
-	})
-	tasks = sync.Map{}
-	maxConcurrent = DefaultMaxConcurrentDownload
-	network.Init()
-	resumeFunc = func(taskId int) error {
-		tasks.Store(taskId, func() {})
-		return nil
-	}
-	// Reset the playlist fetcher to the real implementation by default.
-	fetchPlaylistFunc = fetchPlaylist
-}
 
 // parseTestPlaylist is a helper that parses an m3u8 string into a
 // *m3u8.MediaPlaylist, filtering nil segments.
@@ -55,7 +29,7 @@ func parseTestPlaylist(t *testing.T, body string) *m3u8.MediaPlaylist {
 // the HlsTaskParam.playList is nil (which happens after a backend restart — the
 // parsed m3u8 playlist is not persisted in the DB, only the URL).
 func TestResumeHlsTaskNilPlaylist(t *testing.T) {
-	resetTestState()
+	resetSchedulerState()
 
 	const segmentsAlreadyDownloaded = 2
 	totalSegments := 5
@@ -125,7 +99,7 @@ func TestResumeHlsTaskNilPlaylist(t *testing.T) {
 // TestResumeHlsTaskAllSegmentsDownloaded covers the edge case where every
 // segment was already downloaded before the backend crashed.
 func TestResumeHlsTaskAllSegmentsDownloaded(t *testing.T) {
-	resetTestState()
+	resetSchedulerState()
 
 	fetchPlaylistFunc = func(url string, headers map[string]string) (*m3u8.MediaPlaylist, error) {
 		body := "#EXTM3U\n" +
@@ -172,7 +146,7 @@ func TestResumeHlsTaskAllSegmentsDownloaded(t *testing.T) {
 // TestResumeHlsTaskFetchError verifies that a network error during
 // playlist re-fetch returns a descriptive error instead of panicking.
 func TestResumeHlsTaskFetchError(t *testing.T) {
-	resetTestState()
+	resetSchedulerState()
 
 	fetchPlaylistFunc = func(url string, headers map[string]string) (*m3u8.MediaPlaylist, error) {
 		return nil, fmt.Errorf("connection refused")
@@ -202,7 +176,7 @@ func TestResumeHlsTaskFetchError(t *testing.T) {
 // TestResumeHlsTaskPlaylistAlreadyPopulated verifies that resumeHlsTask
 // skips the re-fetch when playList is already set (normal resume, no restart).
 func TestResumeHlsTaskPlaylistAlreadyPopulated(t *testing.T) {
-	resetTestState()
+	resetSchedulerState()
 
 	fetchPlaylistFunc = func(url string, headers map[string]string) (*m3u8.MediaPlaylist, error) {
 		t.Fatal("fetchPlaylistFunc should not be called when playList is already set")

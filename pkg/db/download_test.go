@@ -28,6 +28,8 @@ func TestUpsertDownload(t *testing.T) {
 			if ent.IsNotFound(err) {
 				return client.Download.Create().
 					SetURL(d.URL).
+					SetWatchUrl(d.WatchUrl).
+					SetDetailUrl(d.DetailUrl).
 					SetHeaders(d.Headers).
 					SetPackage(d.Package).
 					SetProgress(d.Progress).
@@ -56,6 +58,8 @@ func TestUpsertDownload(t *testing.T) {
 
 	d := &ent.Download{
 		URL:       []string{"http://example.com/1"},
+		WatchUrl:  "http://example.com/watch/1",
+		DetailUrl: "http://example.com/detail/1",
 		Key:       "key1",
 		Title:     "Title 1",
 		Package:   "pkg1",
@@ -90,6 +94,8 @@ func TestDeleteDownloadByID(t *testing.T) {
 
 	d, err := client.Download.Create().
 		SetURL([]string{"url"}).
+		SetWatchUrl("watchUrl").
+		SetDetailUrl("detailUrl").
 		SetKey("key").
 		SetTitle("title").
 		SetPackage("pkg").

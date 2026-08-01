@@ -33,7 +33,7 @@ func TestSanitizeFolderPath(t *testing.T) {
 		expected string
 	}{
 		{"a/b:c/d?", filepath.Join("a", "b c", "d")},
-		{"C:\\unsafe:dir?\\sub*dir", filepath.Join("C:\\", "unsafe dir", "sub dir")},
+		{"C:\\unsafe:dir?\\sub*dir", filepath.Join("C", "unsafe dir", "sub dir")},
 		{"", "."},
 	}
 

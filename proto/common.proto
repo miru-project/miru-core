@@ -49,6 +49,10 @@ message DownloadProgress {
   string key = 10;
   // Priority used by the concurrency-limited scheduler. Higher runs first.
   int32 priority = 11;
+  // Source URL (torrent file URL, magnet link, video URL, etc.)
+  string url = 12;
+  // Error message when status is FAILED
+  string error = 13;
 }
 
 message TorrentStats {

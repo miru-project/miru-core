@@ -1,7 +1,6 @@
 package download
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 )
@@ -18,19 +17,15 @@ func TestHLSProgressRecovery_AllSegmentsExist(t *testing.T) {
 
 	// Create 2 segment files that match the HLS naming convention
 	// "{index}{ext}" (e.g. 0.ts, 1.ts).
-	for _, name := range []string{"0.ts", "1.ts"} {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte("data"), 0644); err != nil {
-			t.Fatal(err)
-		}
-	}
+	writeSegmentFiles(t, dir, 2)
 
 	p := &Progress{
-		Progrss: 2,
-		Total:   2,
-		Status:  Paused,
+		Progrss:   2,
+		Total:     2,
+		Status:    Paused,
 		MediaType: Hls,
-		TaskID:  42,
-		SavePath: dir,
+		TaskID:    42,
+		SavePath:  dir,
 	}
 
 	verifyAndAdjustProgress(p)
@@ -53,17 +48,15 @@ func TestHLSProgressRecovery_OneSegmentDeleted(t *testing.T) {
 	dir := t.TempDir()
 
 	// Only segment 0 exists; segment 1 was deleted.
-	if err := os.WriteFile(filepath.Join(dir, "0.ts"), []byte("data"), 0644); err != nil {
-		t.Fatal(err)
-	}
+	writeTestFile(t, filepath.Join(dir, "0.ts"))
 
 	p := &Progress{
-		Progrss:  2,
-		Total:    2,
-		Status:   Paused,
+		Progrss:   2,
+		Total:     2,
+		Status:    Paused,
 		MediaType: Hls,
-		TaskID:   43,
-		SavePath: dir,
+		TaskID:    43,
+		SavePath:  dir,
 	}
 
 	verifyAndAdjustProgress(p)
@@ -87,12 +80,12 @@ func TestHLSProgressRecovery_AllSegmentsDeleted(t *testing.T) {
 	// Don't create any files — directory is empty.
 
 	p := &Progress{
-		Progrss:  2,
-		Total:    2,
-		Status:   Paused,
+		Progrss:   2,
+		Total:     2,
+		Status:    Paused,
 		MediaType: Hls,
-		TaskID:   44,
-		SavePath: dir,
+		TaskID:    44,
+		SavePath:  dir,
 	}
 
 	verifyAndAdjustProgress(p)
@@ -114,12 +107,12 @@ func TestHLSProgressRecovery_AllSegmentsDeleted(t *testing.T) {
 // Expected: progress=0, total=0.
 func TestHLSProgressRecovery_DirMissing(t *testing.T) {
 	p := &Progress{
-		Progrss:  1,
-		Total:    2,
-		Status:   Paused,
+		Progrss:   1,
+		Total:     2,
+		Status:    Paused,
 		MediaType: Hls,
-		TaskID:   45,
-		SavePath: filepath.Join(t.TempDir(), "nonexistent"),
+		TaskID:    45,
+		SavePath:  filepath.Join(t.TempDir(), "nonexistent"),
 	}
 
 	verifyAndAdjustProgress(p)
@@ -139,19 +132,15 @@ func TestHLSProgressRecovery_DirMissing(t *testing.T) {
 func TestHLSProgressRecovery_OldDB_NoTotal(t *testing.T) {
 	dir := t.TempDir()
 
-	for _, name := range []string{"0.ts", "1.ts"} {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte("data"), 0644); err != nil {
-			t.Fatal(err)
-		}
-	}
+	writeSegmentFiles(t, dir, 2)
 
 	p := &Progress{
-		Progrss:  2,
-		Total:    0, // Old DB record — total was never saved.
-		Status:   Paused,
+		Progrss:   2,
+		Total:     0, // Old DB record — total was never saved.
+		Status:    Paused,
 		MediaType: Hls,
-		TaskID:   46,
-		SavePath: dir,
+		TaskID:    46,
+		SavePath:  dir,
 	}
 
 	verifyAndAdjustProgress(p)
@@ -171,17 +160,15 @@ func TestHLSProgressRecovery_OldDB_NoTotal(t *testing.T) {
 // Expected: progress unchanged.
 func TestMP4ProgressRecovery_FileExists(t *testing.T) {
 	f := filepath.Join(t.TempDir(), "video.mp4")
-	if err := os.WriteFile(f, []byte("video-data"), 0644); err != nil {
-		t.Fatal(err)
-	}
+	writeTestFile(t, f)
 
 	p := &Progress{
-		Progrss:  5000000,
-		Total:    10000000,
-		Status:   Paused,
+		Progrss:   5000000,
+		Total:     10000000,
+		Status:    Paused,
 		MediaType: Mp4,
-		TaskID:   47,
-		SavePath: f,
+		TaskID:    47,
+		SavePath:  f,
 	}
 
 	verifyAndAdjustProgress(p)
@@ -198,12 +185,12 @@ func TestMP4ProgressRecovery_FileExists(t *testing.T) {
 // Expected: progress=0.
 func TestMP4ProgressRecovery_FileMissing(t *testing.T) {
 	p := &Progress{
-		Progrss:  5000000,
-		Total:    10000000,
-		Status:   Paused,
+		Progrss:   5000000,
+		Total:     10000000,
+		Status:    Paused,
 		MediaType: Mp4,
-		TaskID:   48,
-		SavePath: filepath.Join(t.TempDir(), "deleted.mp4"),
+		TaskID:    48,
+		SavePath:  filepath.Join(t.TempDir(), "deleted.mp4"),
 	}
 
 	verifyAndAdjustProgress(p)
@@ -218,19 +205,16 @@ func TestMP4ProgressRecovery_FileMissing(t *testing.T) {
 func TestHLSProgressRecovery_MixedExtensions(t *testing.T) {
 	dir := t.TempDir()
 
-	for _, name := range []string{"0.ts", "1.m4s"} {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte("data"), 0644); err != nil {
-			t.Fatal(err)
-		}
-	}
+	writeTestFile(t, filepath.Join(dir, "0.ts"))
+	writeTestFile(t, filepath.Join(dir, "1.m4s"))
 
 	p := &Progress{
-		Progrss:  2,
-		Total:    2,
-		Status:   Paused,
+		Progrss:   2,
+		Total:     2,
+		Status:    Paused,
 		MediaType: Hls,
-		TaskID:   49,
-		SavePath: dir,
+		TaskID:    49,
+		SavePath:  dir,
 	}
 
 	verifyAndAdjustProgress(p)
@@ -246,22 +230,18 @@ func TestHLSProgressRecovery_NonSegmentFilesIgnored(t *testing.T) {
 	dir := t.TempDir()
 
 	// 1 real segment + junk files
-	if err := os.WriteFile(filepath.Join(dir, "0.ts"), []byte("data"), 0644); err != nil {
-		t.Fatal(err)
-	}
+	writeTestFile(t, filepath.Join(dir, "0.ts"))
 	for _, junk := range []string{"meta.json", "state.log", "temp.tmp"} {
-		if err := os.WriteFile(filepath.Join(dir, junk), []byte("junk"), 0644); err != nil {
-			t.Fatal(err)
-		}
+		writeTestFile(t, filepath.Join(dir, junk))
 	}
 
 	p := &Progress{
-		Progrss:  3, // DB claims 3 segments done
-		Total:    3,
-		Status:   Paused,
+		Progrss:   3, // DB claims 3 segments done
+		Total:     3,
+		Status:    Paused,
 		MediaType: Hls,
-		TaskID:   50,
-		SavePath: dir,
+		TaskID:    50,
+		SavePath:  dir,
 	}
 
 	verifyAndAdjustProgress(p)
@@ -279,11 +259,7 @@ func TestHLSProgressRecovery_ConvertingRebuildsNames(t *testing.T) {
 	dir := t.TempDir()
 
 	// Create 3 segment files.
-	for _, name := range []string{"0.ts", "1.ts", "2.ts"} {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte("data"), 0644); err != nil {
-			t.Fatal(err)
-		}
-	}
+	writeSegmentFiles(t, dir, 3)
 
 	p := &Progress{
 		Progrss:   3,
@@ -318,11 +294,7 @@ func TestHLSProgressRecovery_ConvertingRebuildsNames(t *testing.T) {
 func TestHLSProgressRecovery_ConvertingEmptyNamesRebuilt(t *testing.T) {
 	dir := t.TempDir()
 
-	for _, name := range []string{"0.ts", "1.ts"} {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte("data"), 0644); err != nil {
-			t.Fatal(err)
-		}
-	}
+	writeSegmentFiles(t, dir, 2)
 
 	empty := []string{}
 	p := &Progress{
@@ -378,11 +350,9 @@ func TestHLSProgressRecovery_SortedByIndex(t *testing.T) {
 	dir := t.TempDir()
 
 	// Create files in reverse order (filesystem may return them this way).
-	for _, name := range []string{"2.ts", "0.ts", "1.ts"} {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte("data"), 0644); err != nil {
-			t.Fatal(err)
-		}
-	}
+	writeTestFile(t, filepath.Join(dir, "2.ts"))
+	writeTestFile(t, filepath.Join(dir, "0.ts"))
+	writeTestFile(t, filepath.Join(dir, "1.ts"))
 
 	p := &Progress{
 		Progrss:   3,
@@ -417,11 +387,7 @@ func TestHLSProgressRecovery_SortedByIndex(t *testing.T) {
 func TestHLSProgressRecovery_NamesPreservedWhenAlreadyPopulated(t *testing.T) {
 	dir := t.TempDir()
 
-	for _, name := range []string{"0.ts", "1.ts"} {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte("data"), 0644); err != nil {
-			t.Fatal(err)
-		}
-	}
+	writeSegmentFiles(t, dir, 2)
 
 	existingNames := []string{"/custom/path/0.ts", "/custom/path/1.ts"}
 	p := &Progress{

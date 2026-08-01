@@ -1,10 +1,6 @@
 package golang
 
 import (
-	"io"
-	"os"
-	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/miru-project/miru-core/pkg/extension"
@@ -13,7 +9,7 @@ import (
 )
 
 func TestSearchEndpoint(t *testing.T) {
-	ExtensionDir = filepath.Join("extensions", "example")
+	setExampleExtensionDir()
 	items, err := Search("example", 1, "test", "")
 	assert.NoError(t, err)
 	assert.Len(t, items, 2)
@@ -22,7 +18,7 @@ func TestSearchEndpoint(t *testing.T) {
 }
 
 func TestLatestEndpoint(t *testing.T) {
-	ExtensionDir = filepath.Join("extensions", "example")
+	setExampleExtensionDir()
 	items, err := Latest("example", 1)
 	assert.NoError(t, err)
 	assert.Len(t, items, 1)
@@ -31,7 +27,7 @@ func TestLatestEndpoint(t *testing.T) {
 }
 
 func TestDetailEndpoint(t *testing.T) {
-	ExtensionDir = filepath.Join("extensions", "example")
+	setExampleExtensionDir()
 	detail, err := Detail("example", "https://example.com/1")
 	assert.NoError(t, err)
 	assert.NotNil(t, detail)
@@ -39,14 +35,14 @@ func TestDetailEndpoint(t *testing.T) {
 }
 
 func TestWatchEndpoint(t *testing.T) {
-	ExtensionDir = filepath.Join("extensions", "example")
+	setExampleExtensionDir()
 	watch, _, err := Watch("example", "https://example.com/1")
 	assert.NoError(t, err)
 	assert.NotNil(t, watch)
 }
 
 func TestMirrorEndpoint(t *testing.T) {
-	ExtensionDir = filepath.Join("extensions", "example")
+	setExampleExtensionDir()
 	// Under the V2 layout Mirror() resolves the chosen source into the final
 	// per-type watch, not a list of candidates.
 	res, err := Mirror("example", "https://example.com/1")
@@ -59,7 +55,7 @@ func TestMirrorEndpoint(t *testing.T) {
 }
 
 func TestStdLibMD5(t *testing.T) {
-	ExtensionDir = filepath.Join("extensions", "example")
+	setExampleExtensionDir()
 	vm := NewScriggoVM(nil)
 	prog, err := vm.Compile("md5_test", `package main
 
@@ -73,24 +69,16 @@ func main() {
 `)
 	assert.NoError(t, err)
 
-	oldStdout := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-	_, err = vm.Run(prog, nil)
-	w.Close()
-	os.Stdout = oldStdout
-
-	var out strings.Builder
-	data, _ := io.ReadAll(r)
-	out.WriteString(string(data))
-	r.Close()
+	out := captureStdout(t, func() {
+		_, err = vm.Run(prog, nil)
+	})
 
 	assert.NoError(t, err)
-	assert.Contains(t, out.String(), "5d41402abc4b2a76b9719d911017c592")
+	assert.Contains(t, out, "5d41402abc4b2a76b9719d911017c592")
 }
 
 func TestStdLibGoquery(t *testing.T) {
-	ExtensionDir = filepath.Join("extensions", "example")
+	setExampleExtensionDir()
 	vm := NewScriggoVM(nil)
 	prog, err := vm.Compile("goquery_test", `package main
 
@@ -106,24 +94,16 @@ func main() {
 `)
 	assert.NoError(t, err)
 
-	oldStdout := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-	_, err = vm.Run(prog, nil)
-	w.Close()
-	os.Stdout = oldStdout
-
-	var out strings.Builder
-	data, _ := io.ReadAll(r)
-	out.WriteString(string(data))
-	r.Close()
+	out := captureStdout(t, func() {
+		_, err = vm.Run(prog, nil)
+	})
 
 	assert.NoError(t, err)
-	assert.Contains(t, out.String(), "Hello")
+	assert.Contains(t, out, "Hello")
 }
 
 func TestParseExtensionMetadata(t *testing.T) {
-	ExtensionDir = filepath.Join("extensions", "example")
+	setExampleExtensionDir()
 	meta, err := ParseExtensionMetadata("example")
 	assert.NoError(t, err)
 	assert.Equal(t, "Example", meta.Name)

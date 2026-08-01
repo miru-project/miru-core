@@ -4,17 +4,17 @@ import (
 	"context"
 	"testing"
 
-	"github.com/miru-project/miru-core/config"
+	"github.com/miru-project/miru-core/ent/enttest"
 	"github.com/miru-project/miru-core/ext"
 	"github.com/stretchr/testify/assert"
+	_ "modernc.org/sqlite"
 )
 
 func TestDetail(t *testing.T) {
-	config.Global.Database.Driver = "sqlite3"
-	config.Global.Database.DBName = ":memory:"
-	Initialize()
-	client := ext.EntClient()
+	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1&_pragma=foreign_keys(1)")
 	defer client.Close()
+	ext.SetEntClientForTest(client)
+	defer ext.SetEntClientForTest(nil)
 
 	ctx := context.Background()
 

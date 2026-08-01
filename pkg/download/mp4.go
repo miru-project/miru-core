@@ -142,7 +142,7 @@ func (t *Mp4TaskParam) readAndSavePartial(res *fasthttp.Response) ([]byte, error
 			}
 
 			if err == io.EOF {
-				p.Status = Completed
+				p.Status = Converting
 				p.SyncDB()
 				return nil, nil
 			}
