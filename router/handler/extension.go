@@ -30,7 +30,7 @@ func Latest(page string, pkg string) *result.Result[[]*proto.ExtensionListItem] 
 }
 
 // handle Search when receiving a request
-func Search(page string, pkg string, kw string, filter string) *result.Result[[]*proto.ExtensionListItem] {
+func Search(page string, pkg string, kw string, filter *proto.FilterSelection) *result.Result[[]*proto.ExtensionListItem] {
 
 	intPage, err := strconv.Atoi(page)
 	if err != nil {
@@ -47,7 +47,7 @@ func Search(page string, pkg string, kw string, filter string) *result.Result[[]
 }
 
 // handle CreateFilter when receiving a request
-func CreateFilter(pkg string, filter string) *result.Result[map[string]*proto.ExtensionFilter] {
+func CreateFilter(pkg string, filter *proto.FilterSelection) *result.Result[map[string]*proto.ExtensionFilter] {
 	rt, e := endpoint.GetRuntime(pkg)
 	if e != nil {
 		return result.NewErrorResult[map[string]*proto.ExtensionFilter](e.Error(), 500, nil)

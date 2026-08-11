@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -113,17 +114,17 @@ func runAttachSearchWithEvents(args []string, client pb.ExtensionServiceClient, 
 	pkg := args[0]
 	kw := args[1]
 	page := 1
-	filter := ""
+	var filterSelection *pb.FilterSelection
 	if len(args) >= 3 {
 		if p, err := strconv.Atoi(args[2]); err == nil {
 			page = p
 		}
 	}
 	if len(args) >= 4 {
-		filter = args[3]
+		filterSelection = parseFilterArg(args[3])
 	}
 
-	resp, err := client.Search(context.Background(), &pb.SearchRequest{Pkg: pkg, Kw: kw, Page: int32(page), Filter: filter})
+	resp, err := client.Search(context.Background(), &pb.SearchRequest{Pkg: pkg, Kw: kw, Page: int32(page), Filter: filterSelection})
 	if err != nil {
 		log.Fatalf("Search RPC failed: %v", err)
 	}
@@ -547,4 +548,26 @@ func printMirrorSchema() {
 	fmt.Println("      all      -> ExtensionAllWatch      (manga + fikushon + bangumi)")
 	fmt.Println("    }")
 	fmt.Println("  }")
+}
+
+// parseFilterArg converts a JSON filter string from CLI args into a
+// proto.FilterSelection. The CLI accepts the same {name: val|[vals]} shape.
+func parseFilterArg(raw string) *pb.FilterSelection {
+	var m map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(raw), &m); err != nil || len(m) == 0 {
+		return nil
+	}
+	fs := &pb.FilterSelection{Selections: make(map[string]*pb.FilterSelectionValue, len(m))}
+	for name, val := range m {
+		var arr []string
+		if err := json.Unmarshal(val, &arr); err == nil {
+			fs.Selections[name] = &pb.FilterSelectionValue{Values: arr}
+			continue
+		}
+		var s string
+		if err := json.Unmarshal(val, &s); err == nil && s != "" {
+			fs.Selections[name] = &pb.FilterSelectionValue{Values: []string{s}}
+		}
+	}
+	return fs
 }

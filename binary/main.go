@@ -14,6 +14,7 @@ import (
 	"github.com/miru-project/miru-core/pkg/db"
 	"github.com/miru-project/miru-core/pkg/download"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
+	"github.com/miru-project/miru-core/pkg/extension"
 	golang "github.com/miru-project/miru-core/pkg/extension/golang"
 	jsext "github.com/miru-project/miru-core/pkg/extension/js"
 	log "github.com/miru-project/miru-core/pkg/logger"
@@ -164,5 +165,19 @@ func Init() {
 	// Eagerly load Go/Scriggo extensions at startup (mirrors jsext.InitRuntime)
 	// so they are visibly loaded and any compile error surfaces early.
 	golang.LoadExtensions()
+	// Unified hot-reload watcher for both .js and .go extensions. Uses the
+	// shared extension.WatchExtensions which routes by file extension.
+	watcher, err := extension.WatchExtensions([]string{config.Global.ExtensionPath}, func(lang extension.Language, pkg string) {
+		switch lang {
+		case extension.LanguageJS:
+			jsext.HandleReload(pkg)
+		case extension.LanguageGolang:
+			golang.HandleReload(pkg)
+		}
+	})
+	if err != nil {
+		log.Fatal("Failed to start extension watcher: ", err)
+	}
+	_ = watcher // keep reference to prevent GC closing it
 	log.Println("Miru Core initialized successfully!")
 }

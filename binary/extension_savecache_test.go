@@ -4,7 +4,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	jsext "github.com/miru-project/miru-core/pkg/extension/js"
 	"github.com/miru-project/miru-core/proto/generate/proto"
@@ -45,14 +44,8 @@ func TestJSSaveCacheRoundTrip(t *testing.T) {
 	}
 
 	jsext.InitRuntime(dir, jsext.AssetsFS)
-	// Give the init event-loop bootstrap a moment to finish before we query.
-	time.Sleep(500 * time.Millisecond)
 
-	api := jsext.ApiPkgCache.Load("savecachetest")
-	assert.NotNil(t, api, "the JS extension should be registered after InitRuntime")
-	if api != nil {
-		assert.Empty(t, api.Ext.Error, "the JS extension should load without a compile/load error")
-	}
+	requireLoaded(t, "savecachetest")
 
 	results, err := jsext.Latest[proto.ExtensionListItem]("savecachetest", 1)
 	assert.NoError(t, err)

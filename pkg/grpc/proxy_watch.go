@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"github.com/miru-project/miru-core/pkg/network"
+	"github.com/miru-project/miru-core/pkg/torrent"
 	"github.com/miru-project/miru-core/proto/generate/proto"
 )
 
@@ -13,16 +14,17 @@ const miruTLSProfileHeader = "Miru-TLS-Profile"
 
 // proxyWatchURL ensures every resolved stream/mirror URL is fetched through
 // miru-core (just like torrents are always resolved server-side). If the URL is
-// already a proxy URL it is returned untouched (no double-wrapping); otherwise
-// it is wrapped with network.BuildProxyURL so the player/downloader simply
-// requests it from the backend, which applies the mirror headers and optional
-// tls fingerprint server-side.
+// already a proxy URL, or it is a torrent/magnet link (resolved server-side into
+// a file tree rather than streamed), it is returned untouched (no double-wrapping
+// and no /proxy wrapping); otherwise it is wrapped with network.BuildProxyURL so
+// the player/downloader simply requests it from the backend, which applies the
+// mirror headers and optional tls fingerprint server-side.
 //
 // A TLS profile, when present, is taken from the reserved Miru-TLS-Profile
 // header (removed from the forwarded headers) and routed through the
 // tls-client-aware parse path.
 func proxyWatchURL(url string, headers map[string]string) string {
-	if url == "" || network.IsProxyURL(url) {
+	if url == "" || network.IsProxyURL(url) || torrent.IsTorrentLink(url) {
 		return url
 	}
 	tlsProfile := ""

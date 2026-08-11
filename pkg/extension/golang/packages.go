@@ -165,12 +165,13 @@ import (
 	runtime_2 "github.com/miru-project/miru-core/pkg/extension/golang/runtime"
 	sdk "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
 	tls_client "github.com/bogdanfinn/tls-client"
+	zstd "github.com/klauspost/compress/zstd"
 )
 
 import "github.com/open2b/scriggo/native"
 
 func init() {
-	packages = make(native.Packages, 153)
+	packages = make(native.Packages, 154)
 	var decs native.Declarations
 	// "archive/tar"
 	decs = make(native.Declarations, 31)
@@ -3698,8 +3699,83 @@ func init() {
 		Name:         "tls_client",
 		Declarations: decs,
 	}
+	// "github.com/klauspost/compress/zstd"
+	decs = make(native.Declarations, 69)
+	decs["BuildDict"] = zstd.BuildDict
+	decs["BuildDictOptions"] = reflect.TypeFor[zstd.BuildDictOptions]()
+	decs["DOption"] = reflect.TypeFor[zstd.DOption]()
+	decs["DecodeTo"] = zstd.DecodeTo
+	decs["Decoder"] = reflect.TypeFor[zstd.Decoder]()
+	decs["EOption"] = reflect.TypeFor[zstd.EOption]()
+	decs["EncodeTo"] = zstd.EncodeTo
+	decs["Encoder"] = reflect.TypeFor[zstd.Encoder]()
+	decs["EncoderLevel"] = reflect.TypeFor[zstd.EncoderLevel]()
+	decs["EncoderLevelFromString"] = zstd.EncoderLevelFromString
+	decs["EncoderLevelFromZstd"] = zstd.EncoderLevelFromZstd
+	decs["ErrBlockTooSmall"] = &zstd.ErrBlockTooSmall
+	decs["ErrCRCMismatch"] = &zstd.ErrCRCMismatch
+	decs["ErrCompressedSizeTooBig"] = &zstd.ErrCompressedSizeTooBig
+	decs["ErrDecoderClosed"] = &zstd.ErrDecoderClosed
+	decs["ErrDecoderNilInput"] = &zstd.ErrDecoderNilInput
+	decs["ErrDecoderSizeExceeded"] = &zstd.ErrDecoderSizeExceeded
+	decs["ErrEncoderClosed"] = &zstd.ErrEncoderClosed
+	decs["ErrFrameSizeExceeded"] = &zstd.ErrFrameSizeExceeded
+	decs["ErrFrameSizeMismatch"] = &zstd.ErrFrameSizeMismatch
+	decs["ErrMagicMismatch"] = &zstd.ErrMagicMismatch
+	decs["ErrReservedBlockType"] = &zstd.ErrReservedBlockType
+	decs["ErrSnappyCorrupt"] = &zstd.ErrSnappyCorrupt
+	decs["ErrSnappyTooLarge"] = &zstd.ErrSnappyTooLarge
+	decs["ErrSnappyUnsupported"] = &zstd.ErrSnappyUnsupported
+	decs["ErrUnexpectedBlockSize"] = &zstd.ErrUnexpectedBlockSize
+	decs["ErrUnknownDictionary"] = &zstd.ErrUnknownDictionary
+	decs["ErrWindowSizeExceeded"] = &zstd.ErrWindowSizeExceeded
+	decs["ErrWindowSizeTooSmall"] = &zstd.ErrWindowSizeTooSmall
+	decs["Header"] = reflect.TypeFor[zstd.Header]()
+	decs["HeaderMaxSize"] = native.UntypedNumericConst("17")
+	decs["IgnoreChecksum"] = zstd.IgnoreChecksum
+	decs["InspectDictionary"] = zstd.InspectDictionary
+	decs["MaxWindowSize"] = native.UntypedNumericConst("536870912")
+	decs["MinWindowSize"] = native.UntypedNumericConst("1024")
+	decs["NewReader"] = zstd.NewReader
+	decs["NewWriter"] = zstd.NewWriter
+	decs["SnappyConverter"] = reflect.TypeFor[zstd.SnappyConverter]()
+	decs["SpeedBestCompression"] = zstd.SpeedBestCompression
+	decs["SpeedBetterCompression"] = zstd.SpeedBetterCompression
+	decs["SpeedDefault"] = zstd.SpeedDefault
+	decs["SpeedFastest"] = zstd.SpeedFastest
+	decs["WithAllLitEntropyCompression"] = zstd.WithAllLitEntropyCompression
+	decs["WithConcurrentBlocks"] = zstd.WithConcurrentBlocks
+	decs["WithDecodeAllCapLimit"] = zstd.WithDecodeAllCapLimit
+	decs["WithDecodeBuffersBelow"] = zstd.WithDecodeBuffersBelow
+	decs["WithDecoderConcurrency"] = zstd.WithDecoderConcurrency
+	decs["WithDecoderDictDelete"] = zstd.WithDecoderDictDelete
+	decs["WithDecoderDictRaw"] = zstd.WithDecoderDictRaw
+	decs["WithDecoderDicts"] = zstd.WithDecoderDicts
+	decs["WithDecoderLowmem"] = zstd.WithDecoderLowmem
+	decs["WithDecoderMaxMemory"] = zstd.WithDecoderMaxMemory
+	decs["WithDecoderMaxWindow"] = zstd.WithDecoderMaxWindow
+	decs["WithEncoderCRC"] = zstd.WithEncoderCRC
+	decs["WithEncoderConcurrency"] = zstd.WithEncoderConcurrency
+	decs["WithEncoderDict"] = zstd.WithEncoderDict
+	decs["WithEncoderDictDelete"] = zstd.WithEncoderDictDelete
+	decs["WithEncoderDictRaw"] = zstd.WithEncoderDictRaw
+	decs["WithEncoderLevel"] = zstd.WithEncoderLevel
+	decs["WithEncoderPadding"] = zstd.WithEncoderPadding
+	decs["WithLowerEncoderMem"] = zstd.WithLowerEncoderMem
+	decs["WithNoEntropyCompression"] = zstd.WithNoEntropyCompression
+	decs["WithSingleSegment"] = zstd.WithSingleSegment
+	decs["WithWindowSize"] = zstd.WithWindowSize
+	decs["WithZeroFrames"] = zstd.WithZeroFrames
+	decs["ZipCompressor"] = zstd.ZipCompressor
+	decs["ZipDecompressor"] = zstd.ZipDecompressor
+	decs["ZipMethodPKWare"] = native.UntypedNumericConst("20")
+	decs["ZipMethodWinZip"] = native.UntypedNumericConst("93")
+	packages["github.com/klauspost/compress/zstd"] = native.Package{
+		Name:         "zstd",
+		Declarations: decs,
+	}
 	// "github.com/miru-project/miru-core/pkg/extension/golang/runtime"
-	decs = make(native.Declarations, 22)
+	decs = make(native.Declarations, 50)
 	decs["BangumiWatchType"] = reflect.TypeFor[runtime_2.BangumiWatchType]()
 	decs["DeleteCache"] = runtime_2.DeleteCache
 	decs["ExtensionAllMirror"] = reflect.TypeFor[runtime_2.ExtensionAllMirror]()
@@ -3712,14 +3788,42 @@ func init() {
 	decs["ExtensionMangaWatchMirror"] = reflect.TypeFor[runtime_2.ExtensionMangaWatchMirror]()
 	decs["ExtensionMirror"] = reflect.TypeFor[runtime_2.ExtensionMirror]()
 	decs["ExtensionMirrorGroup"] = reflect.TypeFor[runtime_2.ExtensionMirrorGroup]()
+	decs["ExtensionSetting"] = reflect.TypeFor[runtime_2.ExtensionSetting]()
+	decs["ExtensionSettingType"] = reflect.TypeFor[runtime_2.ExtensionSettingType]()
 	decs["ExtensionWatch"] = reflect.TypeFor[runtime_2.ExtensionWatch]()
 	decs["Fetch"] = runtime_2.Fetch
+	decs["Filter"] = reflect.TypeFor[runtime_2.Filter]()
+	decs["FilterDefinition"] = reflect.TypeFor[runtime_2.FilterDefinition]()
+	decs["FilterOption"] = reflect.TypeFor[runtime_2.FilterOption]()
+	decs["FilterSelection"] = reflect.TypeFor[runtime_2.FilterSelection]()
+	decs["FilterSelectionBuilder"] = reflect.TypeFor[runtime_2.FilterSelectionBuilder]()
+	decs["FirstSelection"] = runtime_2.FirstSelection
 	decs["GetCache"] = runtime_2.GetCache
+	decs["GetCookies"] = runtime_2.GetCookies
+	decs["GetSetting"] = runtime_2.GetSetting
 	decs["HLS"] = runtime_2.HLS
+	decs["HasSelection"] = runtime_2.HasSelection
 	decs["MP4"] = runtime_2.MP4
 	decs["Magnet"] = runtime_2.Magnet
+	decs["MultiSelectBuilder"] = reflect.TypeFor[runtime_2.MultiSelectBuilder]()
+	decs["MultiSelectFilter"] = reflect.TypeFor[runtime_2.MultiSelectFilter]()
+	decs["NewFilterSelection"] = runtime_2.NewFilterSelection
+	decs["NewMultiSelect"] = runtime_2.NewMultiSelect
+	decs["NewRange"] = runtime_2.NewRange
+	decs["NewSelect"] = runtime_2.NewSelect
 	decs["ProxyURL"] = runtime_2.ProxyURL
+	decs["RangeBuilder"] = reflect.TypeFor[runtime_2.RangeBuilder]()
+	decs["RangeFilter"] = reflect.TypeFor[runtime_2.RangeFilter]()
+	decs["RegisterSetting"] = runtime_2.RegisterSetting
 	decs["SaveCache"] = runtime_2.SaveCache
+	decs["SelectFilter"] = reflect.TypeFor[runtime_2.SelectFilter]()
+	decs["SelectFilterBuilder"] = reflect.TypeFor[runtime_2.SelectFilterBuilder]()
+	decs["SelectionsOf"] = runtime_2.SelectionsOf
+	decs["SetCookies"] = runtime_2.SetCookies
+	decs["SetSetting"] = runtime_2.SetSetting
+	decs["SettingInput"] = runtime_2.SettingInput
+	decs["SettingRadio"] = runtime_2.SettingRadio
+	decs["SettingToggle"] = runtime_2.SettingToggle
 	decs["TLSConfig"] = reflect.TypeFor[runtime_2.TLSConfig]()
 	decs["Torrent"] = runtime_2.Torrent
 	packages["github.com/miru-project/miru-core/pkg/extension/golang/runtime"] = native.Package{
@@ -3727,7 +3831,7 @@ func init() {
 		Declarations: decs,
 	}
 	// "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
-	decs = make(native.Declarations, 19)
+	decs = make(native.Declarations, 48)
 	decs["BangumiWatchType"] = reflect.TypeFor[sdk.BangumiWatchType]()
 	decs["ExtensionAllMirror"] = reflect.TypeFor[sdk.ExtensionAllMirror]()
 	decs["ExtensionBangumiWatchMirror"] = reflect.TypeFor[sdk.ExtensionBangumiWatchMirror]()
@@ -3739,14 +3843,43 @@ func init() {
 	decs["ExtensionMangaWatchMirror"] = reflect.TypeFor[sdk.ExtensionMangaWatchMirror]()
 	decs["ExtensionMirror"] = reflect.TypeFor[sdk.ExtensionMirror]()
 	decs["ExtensionMirrorGroup"] = reflect.TypeFor[sdk.ExtensionMirrorGroup]()
+	decs["ExtensionSetting"] = reflect.TypeFor[sdk.ExtensionSetting]()
+	decs["ExtensionSettingType"] = reflect.TypeFor[sdk.ExtensionSettingType]()
 	decs["ExtensionWatch"] = reflect.TypeFor[sdk.ExtensionWatch]()
 	decs["Fetch"] = &sdk.Fetch
+	decs["Filter"] = reflect.TypeFor[sdk.Filter]()
+	decs["FilterDefinition"] = reflect.TypeFor[sdk.FilterDefinition]()
+	decs["FilterOption"] = reflect.TypeFor[sdk.FilterOption]()
+	decs["FilterSelection"] = reflect.TypeFor[sdk.FilterSelection]()
+	decs["FilterSelectionBuilder"] = reflect.TypeFor[sdk.FilterSelectionBuilder]()
+	decs["FirstSelection"] = &sdk.FirstSelection
 	decs["GetCache"] = &sdk.GetCache
+	decs["GetCookies"] = &sdk.GetCookies
+	decs["GetSetting"] = &sdk.GetSetting
 	decs["HLS"] = &sdk.HLS
+	decs["HasSelection"] = &sdk.HasSelection
 	decs["MP4"] = &sdk.MP4
 	decs["Magnet"] = &sdk.Magnet
+	decs["MultiSelectBuilder"] = reflect.TypeFor[sdk.MultiSelectBuilder]()
+	decs["MultiSelectFilter"] = reflect.TypeFor[sdk.MultiSelectFilter]()
+	decs["NewFilterSelection"] = &sdk.NewFilterSelection
+	decs["NewMultiSelect"] = &sdk.NewMultiSelect
+	decs["NewRange"] = &sdk.NewRange
+	decs["NewSelect"] = &sdk.NewSelect
+	decs["RangeBuilder"] = reflect.TypeFor[sdk.RangeBuilder]()
+	decs["RangeFilter"] = reflect.TypeFor[sdk.RangeFilter]()
+	decs["RegisterSetting"] = &sdk.RegisterSetting
 	decs["SaveCache"] = &sdk.SaveCache
+	decs["SelectFilter"] = reflect.TypeFor[sdk.SelectFilter]()
+	decs["SelectFilterBuilder"] = reflect.TypeFor[sdk.SelectFilterBuilder]()
+	decs["SelectionsOf"] = &sdk.SelectionsOf
+	decs["SetCookies"] = &sdk.SetCookies
+	decs["SetSetting"] = &sdk.SetSetting
+	decs["SettingInput"] = &sdk.SettingInput
+	decs["SettingRadio"] = &sdk.SettingRadio
+	decs["SettingToggle"] = &sdk.SettingToggle
 	decs["TLSConfig"] = reflect.TypeFor[sdk.TLSConfig]()
+	decs["Torrent"] = &sdk.Torrent
 	packages["github.com/miru-project/miru-core/pkg/extension/golang/sdk"] = native.Package{
 		Name:         "sdk",
 		Declarations: decs,

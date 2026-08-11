@@ -43,8 +43,12 @@ func withStackTrace(where string, err error) error {
 
 // VM is the Scriggo/Go-subset extension runtime.
 type VM interface {
-	// Compile compiles extension source code.
-	Compile(name string, source any) (*Program, error)
+	// Compile compiles extension source code for the given extension package.
+	// When pkg is non-empty, the per-package native packages map is used so
+	// host primitives (fmt.Print / Fetch) are tagged with the correct package
+	// for the dev dashboard. When pkg is empty the global packages map is left
+	// untouched.
+	Compile(pkg string, name string, source any) (*Program, error)
 	// Run executes a compiled program.
 	Run(*Program, *scriggo.RunOptions) (Value, error)
 }
@@ -100,7 +104,7 @@ func (r *Runtime) LoadExtension(ext *extension.Extension) error {
 		return fmt.Errorf("read extension source %s: %w", extPath, err)
 	}
 
-	prog, err := r.vm.Compile(ext.Name, string(source))
+	prog, err := r.vm.Compile(ext.Pkg, ext.Name, string(source))
 	if err != nil {
 		return fmt.Errorf("compile extension %s: %w", ext.Name, err)
 	}
@@ -161,7 +165,11 @@ func NewScriggoVM(scriggoFile *Scriggofile) *ScriggoVM {
 // It builds directly from the source in memory. scriggo.Files is an fs.FS
 // backed by a map, and scriggo.Build compiles entirely in memory, so there is
 // no need to materialize a temporary directory or file on disk.
-func (v *ScriggoVM) Compile(name string, source any) (*Program, error) {
+//
+// When pkg is non-empty the per-package native packages map is used so host
+// primitives (fmt.Print / Fetch) emit dev-dashboard events tagged with the
+// correct package. When pkg is empty the global packages map is used as-is.
+func (v *ScriggoVM) Compile(pkg string, name string, source any) (*Program, error) {
 	var fsys scriggo.Files
 	switch s := source.(type) {
 	case string:
@@ -172,7 +180,8 @@ func (v *ScriggoVM) Compile(name string, source any) (*Program, error) {
 		return nil, fmt.Errorf("unsupported source type %T", source)
 	}
 
-	p, err := scriggo.Build(fsys, &scriggo.BuildOptions{Packages: packages})
+	pkgs := packagesForPkg(pkg)
+	p, err := scriggo.Build(fsys, &scriggo.BuildOptions{Packages: pkgs})
 	if err != nil {
 		return nil, withStackTrace("scriggo build", err)
 	}

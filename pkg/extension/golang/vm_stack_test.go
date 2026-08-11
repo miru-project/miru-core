@@ -21,7 +21,7 @@ import (
 // TestGolangExtensionPanicShowsInnerCallChain.
 func TestScriggoBuildErrorHasStackTrace(t *testing.T) {
 	vm := NewScriggoVM(nil)
-	_, err := vm.Compile("bad", "package main\nfunc ( { // syntax error\n")
+	_, err := vm.Compile("", "bad", "package main\nfunc ( { // syntax error\n")
 	if err == nil {
 		t.Fatalf("expected a compile error")
 	}

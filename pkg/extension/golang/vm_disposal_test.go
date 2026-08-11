@@ -12,24 +12,30 @@ import (
 // (counter) to detect whether the VM is recreated on every call. It also uses
 // the cross-function cache (seeded from Load) to show that the cache -- not the
 // VM -- is what survives between calls.
-const vmDisposalSrc = "// ==MiruExtension==\n" +
-	"// @name VM Disposal Test\n" +
-	"// @package vmdisposal\n" +
-	"// @apiVersion 2\n" +
-	"package vmdisposal\n\n" +
-	"import (\n" +
-	"	\"strconv\"\n\n" +
-	"	sdk \"github.com/miru-project/miru-core/pkg/extension/golang/sdk\"\n" +
-	")\n\n" +
-	"var counter int\n\n" +
-	"func Load() {\n" +
-	"	sdk.SaveCache(\"vmdisposal\", \"token\", \"secret\")\n" +
-	"}\n\n" +
-	"func Latest(pkg string, page int) ([]sdk.ExtensionListItem, error) {\n" +
-	"	counter++\n" +
-	"	v, _ := sdk.GetCache(pkg, \"token\")\n" +
-	"	return []sdk.ExtensionListItem{{Title: v.(string) + \":\" + strconv.Itoa(counter), URL: \"https://example.com\"}}, nil\n" +
-	"}\n"
+const vmDisposalSrc = `// ==MiruExtension==
+// @name VM Disposal Test
+// @package vmdisposal
+// @apiVersion 2
+package vmdisposal
+
+import (
+	"strconv"
+
+	sdk "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
+)
+
+var counter int
+
+func Load() {
+	sdk.SaveCache("vmdisposal", "token", "secret")
+}
+
+func Latest(pkg string, page int) ([]sdk.ExtensionListItem, error) {
+	counter++
+	v, _ := sdk.GetCache(pkg, "token")
+	return []sdk.ExtensionListItem{{Title: v.(string) + ":" + strconv.Itoa(counter), URL: "https://example.com"}}, nil
+}
+`
 
 // TestGolangVMDisposedPerCallAndCachePersists proves two of the changed
 // behaviours for the Go runtime:

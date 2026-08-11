@@ -18,22 +18,26 @@ import (
 func TestLoadSeedsCacheAndSearchReadsIt(t *testing.T) {
 	dir := t.TempDir()
 	const pkg = "cacheext"
-	src := "// ==MiruExtension==\n" +
-		"// @name Cache Test\n" +
-		"// @package " + pkg + "\n" +
-		"// @apiVersion 2\n" +
-		"package " + pkg + "\n\n" +
-		"import sdk \"github.com/miru-project/miru-core/pkg/extension/golang/sdk\"\n\n" +
-		"func Load() {\n" +
-		"	sdk.SaveCache(\"cacheext\", \"token\", \"secret\")\n" +
-		"}\n\n" +
-		"func Search(pkg, kw string, page int, filter string) ([]sdk.ExtensionListItem, error) {\n" +
-		"	v, ok := sdk.GetCache(pkg, \"token\")\n" +
-		"	if !ok {\n" +
-		"		return nil, nil\n" +
-		"	}\n" +
-		"	return []sdk.ExtensionListItem{{Title: v.(string), URL: \"https://example.com\"}}, nil\n" +
-		"}\n"
+	src := `// ==MiruExtension==
+// @name Cache Test
+// @package cacheext
+// @apiVersion 2
+package cacheext
+
+import sdk "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
+
+func Load() {
+	sdk.SaveCache("cacheext", "token", "secret")
+}
+
+func Search(pkg, kw string, page int, filter sdk.Filter) ([]sdk.ExtensionListItem, error) {
+	v, ok := sdk.GetCache(pkg, "token")
+	if !ok {
+		return nil, nil
+	}
+	return []sdk.ExtensionListItem{{Title: v.(string), URL: "https://example.com"}}, nil
+}
+`
 
 	extPath := filepath.Join(dir, pkg+".go")
 	if err := os.WriteFile(extPath, []byte(src), 0644); err != nil {
@@ -44,7 +48,7 @@ func TestLoadSeedsCacheAndSearchReadsIt(t *testing.T) {
 	// Eagerly load the extension: this runs Load() once, seeding the cache.
 	LoadExtensions()
 
-	items, err := Search(pkg, 1, "kw", "")
+	items, err := Search(pkg, 1, "kw", nil)
 	if err != nil {
 		t.Fatalf("Search failed: %v", err)
 	}

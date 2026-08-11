@@ -82,7 +82,7 @@ func TestFilterExtensionsLoadsJSAndGolangExample(t *testing.T) {
 	// Real Go example extension, copied verbatim from the shipped source so
 	// the test tracks the actual example. The language must come from the
 	// .go extension, regardless of the @package/@name metadata.
-	goSrc, err := os.ReadFile(filepath.Join("golang", "extensions", "example", "example.go"))
+	goSrc, err := os.ReadFile(filepath.Join("golang", "testdata", "example", "example.go"))
 	if err != nil {
 		t.Fatalf("read example.go: %v", err)
 	}
@@ -212,12 +212,12 @@ func TestWatchExtensionsRoutesByLanguage(t *testing.T) {
 // the embedded runtime assets).
 func TestLoadExampleGolangExtension(t *testing.T) {
 	prev := golang.ExtensionDir
-	golang.ExtensionDir = filepath.Join("golang", "extensions", "example")
+	golang.ExtensionDir = filepath.Join("golang", "testdata", "example")
 	defer func() { golang.ExtensionDir = prev }()
 
 	// Search compiles the .go source and invokes the exported Search function,
 	// which is the real load+run path for the example extension.
-	items, err := golang.Search("example", 1, "test", "")
+	items, err := golang.Search("example", 1, "test", nil)
 	assert.NoError(t, err, "the Go example extension must compile and run")
 	assert.NotNil(t, items)
 	assert.GreaterOrEqual(t, len(items), 1, "example Search should return results")

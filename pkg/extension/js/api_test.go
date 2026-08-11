@@ -15,7 +15,7 @@ func TestGojaExtensionSearch(t *testing.T) {
 		}, nil
 	})
 
-	result, err := Search("test", 1, "test", "")
+	result, err := Search("test", 1, "test", nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Len(t, result, 2)

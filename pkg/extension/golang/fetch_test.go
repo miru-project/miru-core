@@ -1,9 +1,11 @@
 package golang
 
 import (
+	"net"
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/miru-project/miru-core/pkg/extension"
 	"github.com/miru-project/miru-core/pkg/network"
@@ -102,10 +104,27 @@ func scriggoFetchRuntime(t *testing.T) *Runtime {
 	return rt
 }
 
+// networkAvailable reports whether the test environment can reach the public
+// fetch probe host. The fetch tests depend on a live external endpoint
+// (tls.peet.ws), so they are skipped when offline instead of failing.
+func networkAvailable(t *testing.T) bool {
+	t.Helper()
+	conn, err := net.DialTimeout("tcp", "tls.peet.ws:443", 2*time.Second)
+	if err != nil {
+		t.Logf("network unreachable, skipping live fetch test: %v", err)
+		return false
+	}
+	conn.Close()
+	return true
+}
+
 // TestFetchWithoutTLS runs runtime.Fetch inside the Scriggo runtime with no TLS
 // config and asserts the default (fasthttp) transport is used: HTTP/1.1 and no
 // h2 ALPN negotiation (no browser impersonation).
 func TestFetchWithoutTLS(t *testing.T) {
+	if !networkAvailable(t) {
+		t.Skip("requires network access to tls.peet.ws")
+	}
 	network.Init()
 	rt := scriggoFetchRuntime(t)
 	if _, err := rt.Call("Check", ""); err != nil {
@@ -118,6 +137,9 @@ func TestFetchWithoutTLS(t *testing.T) {
 // observe an HTTP/2 (h2) ALPN negotiation, which only the chrome_133 fingerprint
 // produces.
 func TestFetchWithTLS(t *testing.T) {
+	if !networkAvailable(t) {
+		t.Skip("requires network access to tls.peet.ws")
+	}
 	network.Init()
 	rt := scriggoFetchRuntime(t)
 	if _, err := rt.Call("Check", "chrome_133"); err != nil {

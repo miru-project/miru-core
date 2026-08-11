@@ -22,7 +22,7 @@ func (Runtime) Latest(pkg string, page int) ([]*proto.ExtensionListItem, error) 
 	return Latest[proto.ExtensionListItem](pkg, page)
 }
 
-func (Runtime) Search(pkg string, page int, kw string, filter string) ([]*proto.ExtensionListItem, error) {
+func (Runtime) Search(pkg string, page int, kw string, filter *proto.FilterSelection) ([]*proto.ExtensionListItem, error) {
 	return Search(pkg, page, kw, filter)
 }
 
@@ -38,6 +38,6 @@ func (Runtime) Mirror(pkg string, url string) (any, error) {
 	return Mirror(pkg, url)
 }
 
-func (Runtime) CreateFilter(pkg string, filter string) (map[string]*proto.ExtensionFilter, error) {
+func (Runtime) CreateFilter(pkg string, filter *proto.FilterSelection) (map[string]*proto.ExtensionFilter, error) {
 	return CreateFilter(pkg, filter)
 }

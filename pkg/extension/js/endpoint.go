@@ -5,10 +5,9 @@ import (
 	"net/url"
 	"path/filepath"
 	"sort"
+	"strings"
 
-	"github.com/anacrolix/torrent/metainfo"
 	"github.com/miru-project/miru-core/pkg/extension"
-	"github.com/miru-project/miru-core/pkg/result"
 	"github.com/miru-project/miru-core/pkg/torrent"
 	"github.com/miru-project/miru-core/proto/generate/proto"
 )
@@ -35,12 +34,12 @@ func Latest[T any](pkg string, page int) ([]*T, error) {
 }
 
 // Extension search should contain V1 and V2 api
-func Search[T proto.ExtensionListItem](pkg string, page int, kw string, filter string) ([]*T, error) {
+func Search[T proto.ExtensionListItem](pkg string, page int, kw string, filter *proto.FilterSelection) ([]*T, error) {
 	api, e := getPkgFromCache(pkg)
 	if e != nil {
 		return nil, e
 	}
-	res, err := api.asyncCallBack(api, pkg, fmt.Sprintf(api.searchEval, kw, page, filter))
+	res, err := api.asyncCallBack(api, pkg, fmt.Sprintf(api.searchEval, kw, page, filterToJsLiteral(filter)))
 	if err != nil {
 		return nil, err
 	}
@@ -139,15 +138,16 @@ func UnmarshalList[T any](input any) ([]*T, error) {
 	return extension.UnmarshalList[T](input)
 }
 
-func CreateFilter(pkg string, filter string) (map[string]*proto.ExtensionFilter, error) {
+func CreateFilter(pkg string, filter *proto.FilterSelection) (map[string]*proto.ExtensionFilter, error) {
 	api, e := getPkgFromCache(pkg)
 	if e != nil {
 		return nil, e
 	}
-	if filter == "" {
-		filter = "null"
+	filterLiteral := filterToJsLiteral(filter)
+	if filterLiteral == "null" {
+		filterLiteral = ""
 	}
-	res, err := api.asyncCallBack(api, pkg, fmt.Sprintf(api.createFilterEval, filter))
+	res, err := api.asyncCallBack(api, pkg, fmt.Sprintf(api.createFilterEval, filterLiteral))
 	if err != nil {
 		return nil, err
 	}
@@ -213,11 +213,12 @@ func resolveMediaType(api *ExtApi, pkg string, obj map[string]any) (any, error) 
 		if !ok {
 			return obj, nil
 		}
-		t, e := torrent.AddMagnet(link, "", pkg)
+		// Share the single torrent/magnet resolver with the Go/Scriggo runtime.
+		t, e := torrent.Resolve(link, pkg)
 		if e != nil {
 			return nil, e
 		}
-		obj["torrent"] = toProtoBangumiTorrent(t)
+		obj["torrent"] = t
 		return obj, nil
 
 	case "torrent":
@@ -234,105 +235,18 @@ func resolveMediaType(api *ExtApi, pkg string, obj map[string]any) (any, error) 
 			web.Path = filepath.Join(web.Path, link)
 			link = web.String()
 		}
-		t, e := torrent.AddTorrent(link, "", pkg)
+		// Share the single torrent/magnet resolver with the Go/Scriggo runtime.
+		t, e := torrent.Resolve(link, pkg)
 		if e != nil {
 			return nil, e
 		}
-		obj["torrent"] = toProtoBangumiTorrent(t)
+		obj["torrent"] = t
 		return obj, nil
 
 	default:
 		return obj, nil
 	}
 }
-
-// toProtoBangumiTorrent converts a resolved torrent result into the proto
-// ExtensionBangumiWatchTorrent shape the gRPC WatchResponse (and the frontend)
-// expects, rebuilding the directory file tree from the metainfo so the frontend can
-// pick which files to download.
-func toProtoBangumiTorrent(res result.TorrentDetailResult) *proto.ExtensionBangumiWatchTorrent {
-	out := &proto.ExtensionBangumiWatchTorrent{
-		InfoHash: res.InfoHash,
-		Files:    res.Files,
-	}
-	if detail := toProtoBangumiTorrentDetail(res.Detail); detail != nil {
-		out.Detail = detail
-	}
-	return out
-}
-
-func toProtoBangumiTorrentDetail(info *metainfo.Info) *proto.ExtensionBangumiWatchTorrentDetail {
-	if info == nil {
-		return nil
-	}
-	d := &proto.ExtensionBangumiWatchTorrentDetail{
-		PieceLength: optInt32(int32(info.PieceLength)),
-		Pieces:      optStr(string(info.Pieces)),
-		Name:        optStr(info.Name),
-		NameUtf8:    optStr(info.NameUtf8),
-	}
-	if info.Length != 0 {
-		d.Length = optInt64(info.Length)
-	}
-	if info.Source != "" {
-		d.Source = optStr(info.Source)
-	}
-	if info.MetaVersion != 0 {
-		d.MetaVersion = optInt32(int32(info.MetaVersion))
-	}
-	d.FileTree = toProtoBangumiFileTree(info)
-	return d
-}
-
-// toProtoBangumiFileTree rebuilds the nested file tree from metainfo.Info.Files.
-// A node may carry both a File (leaf) and a Dir (children), matching BEP 52
-// torrents where a file can also have sub-directories.
-func toProtoBangumiFileTree(info *metainfo.Info) *proto.ExtensionBangumiWatchTorrentFileTree {
-	root := &proto.ExtensionBangumiWatchTorrentFileTree{}
-	if info == nil {
-		return root
-	}
-	for i := range info.Files {
-		fi := &info.Files[i]
-		segments := fi.BestPath()
-		if len(segments) == 0 {
-			continue
-		}
-		node := root
-		for _, seg := range segments[:len(segments)-1] {
-			if node.Dir == nil {
-				node.Dir = make(map[string]*proto.ExtensionBangumiWatchTorrentFileTree)
-			}
-			child, ok := node.Dir[seg]
-			if !ok {
-				child = &proto.ExtensionBangumiWatchTorrentFileTree{}
-				node.Dir[seg] = child
-			}
-			node = child
-		}
-		leaf := &proto.ExtensionBangumiWatchTorrentFileTreeFile{
-			Length:     fi.Length,
-			PiecesRoot: fi.PiecesRoot.String(),
-		}
-		if node.File != nil {
-			// File already present at this path (unusual); keep it and also
-			// register the leaf under a child node so nothing is lost.
-			if node.Dir == nil {
-				node.Dir = make(map[string]*proto.ExtensionBangumiWatchTorrentFileTree)
-			}
-			node.Dir[segments[len(segments)-1]] = &proto.ExtensionBangumiWatchTorrentFileTree{File: leaf}
-		} else {
-			node.File = leaf
-		}
-	}
-	return root
-}
-
-func optStr(s string) *string { return &s }
-
-func optInt32(v int32) *int32 { return &v }
-
-func optInt64(v int64) *int64 { return &v }
 
 // toJSV2Watch converts a JavaScript V2 watch() return value into the proto
 // ExtensionWatch shape (the source/group list of mirrors). The V2 watch()
@@ -468,4 +382,50 @@ func toStringMap(raw any) map[string]string {
 		}
 	}
 	return out
+}
+// filterToJsLiteral converts a proto.FilterSelection into a JavaScript object
+// literal string that can be embedded in a goja eval. The shape mirrors
+// what the JS extension runtime already expects:
+//
+//	{ "<filter name>": "<single value>" | ["<val1>", "<val2>", ...] }
+//
+// A nil or empty proto yields the string "null" (JS null literal).
+// This is the ONLY place a string appears in the filter pipeline, and it is
+// deliberate: goja needs a JS object literal, and this function generates one
+// directly from the proto without any intermediate JSON string parsing.
+func filterToJsLiteral(p *proto.FilterSelection) string {
+	if p == nil || len(p.Selections) == 0 {
+		return "null"
+	}
+	var buf strings.Builder
+
+	buf.WriteByte('{')
+	first := true
+	for name, sv := range p.Selections {
+		if sv == nil {
+			continue
+		}
+		vals := sv.Values
+		if !first {
+			buf.WriteByte(',')
+		}
+		first = false
+		fmt.Fprintf(&buf, "%q:", name)
+		if len(vals) == 0 {
+			buf.WriteString(`""`)
+		} else if len(vals) == 1 {
+			fmt.Fprintf(&buf, "%q", vals[0])
+		} else {
+			buf.WriteByte('[')
+			for i, v := range vals {
+				if i > 0 {
+					buf.WriteByte(',')
+				}
+				fmt.Fprintf(&buf, "%q", v)
+			}
+			buf.WriteByte(']')
+		}
+	}
+	buf.WriteByte('}')
+	return buf.String()
 }

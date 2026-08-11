@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/miru-project/miru-core/pkg/extension"
+	"github.com/miru-project/miru-core/pkg/extension/golang/runtime"
 )
 
 // LoadExtensions scans ExtensionDir and eagerly loads every Go/Scriggo
@@ -81,4 +82,14 @@ func GetExtensions() []*extension.Extension {
 		out = append(out, ext)
 	}
 	return out
+}
+
+// HandleReload is the Go-specific reload handler invoked by the unified
+// extension watcher when a .go file changes. It invalidates the per-package
+// cross-call variable cache and the per-package native packages map so the
+// next request recompiles against the updated source.
+func HandleReload(pkg string) {
+	runtime.DeleteCache(pkg)
+	pkgPackages.Delete(pkg)
+	log.Println("Go extension changed, reloading:", pkg)
 }

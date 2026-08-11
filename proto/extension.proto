@@ -6,16 +6,24 @@ import "proto/extension_model.proto";
 
 option go_package = "github.com/miru-project/miru-core/proto";
 
+// FilterSelectionValue holds the selected option keys for a single filter.
+message FilterSelectionValue { repeated string values = 1; }
+
+// FilterSelection is the typed filter selection the frontend sends. It
+// replaces the former JSON string so the entire filter pipeline (proto,
+// Go runtime, gRPC handlers) is statically typed with zero JSON strings.
+message FilterSelection { map<string, FilterSelectionValue> selections = 1; }
+
 message SearchRequest {
   string pkg = 1;
   string kw = 2;
   int32 page = 3;
-  string filter = 4;
+  FilterSelection filter = 4;
 }
 
 message CreateFilterRequest {
   string pkg = 1;
-  string filter = 2;
+  FilterSelection filter = 2;
 }
 
 message CreateFilterResponse {

@@ -4,7 +4,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/miru-project/miru-core/pkg/extension"
 	jsext "github.com/miru-project/miru-core/pkg/extension/js"
@@ -105,16 +104,8 @@ func TestExampleJSExtensionLoadsViaEntryPoint(t *testing.T) {
 	// lib.go). The JS runtime must only compile .js files.
 	jsext.InitRuntime(dir, jsext.AssetsFS)
 
-	// loadExtApi runs asynchronously inside InitRuntime; give the goja compile
-	// + event-loop bootstrap a moment to finish before we query.
-	time.Sleep(500 * time.Millisecond)
-
 	// The JavaScript example must have loaded and registered cleanly.
-	api := jsext.ApiPkgCache.Load("example")
-	assert.NotNil(t, api, "the JS example should be registered after InitRuntime")
-	if api != nil {
-		assert.Empty(t, api.Ext.Error, "the JS example should load without a compile/load error")
-	}
+	requireLoaded(t, "example")
 
 	// Regression: the stray Go file must NOT have been compiled by goja and
 	// registered as a (broken) JS extension. Before the fix, testgo.org.go was
@@ -125,7 +116,7 @@ func TestExampleJSExtensionLoadsViaEntryPoint(t *testing.T) {
 	assert.False(t, goLoaded, "a .go extension must never be compiled by the JS runtime")
 
 	// The JS example must serve results through the public Search API.
-	results, err := jsext.Search[proto.ExtensionListItem]("example", 1, "test", "")
+	results, err := jsext.Search[proto.ExtensionListItem]("example", 1, "test", nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, results)
 	assert.GreaterOrEqual(t, len(results), 1, "the JS example should serve at least one search result")

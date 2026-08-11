@@ -4,7 +4,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	jsext "github.com/miru-project/miru-core/pkg/extension/js"
 	"github.com/miru-project/miru-core/proto/generate/proto"
@@ -56,14 +55,8 @@ func TestJSVMDisposedPerCallAndCachePersists(t *testing.T) {
 	}
 
 	jsext.InitRuntime(dir, jsext.AssetsFS)
-	// Give the init event-loop bootstrap a moment to finish before we query.
-	time.Sleep(500 * time.Millisecond)
 
-	api := jsext.ApiPkgCache.Load("vmdisposal")
-	assert.NotNil(t, api, "the JS extension should be registered after InitRuntime")
-	if api != nil {
-		assert.Empty(t, api.Ext.Error, "the JS extension should load without a compile/load error")
-	}
+	requireLoaded(t, "vmdisposal")
 
 	// First latest(): fresh VM -> counter 0->1; cache yields "secret".
 	r1, err := jsext.Latest[proto.ExtensionListItem]("vmdisposal", 1)
@@ -80,7 +73,7 @@ func TestJSVMDisposedPerCallAndCachePersists(t *testing.T) {
 	// search() runs on yet another fresh VM: counter is 0 there, but the cache
 	// still yields "secret" -> "secret:0". This proves the VM is disposed yet
 	// the cross-function cache survives across the disposed VMs.
-	rs, err := jsext.Search[proto.ExtensionListItem]("vmdisposal", 1, "kw", "")
+	rs, err := jsext.Search[proto.ExtensionListItem]("vmdisposal", 1, "kw", nil)
 	assert.NoError(t, err)
 	assert.Len(t, rs, 1)
 	assert.Equal(t, "secret:0", rs[0].Title)

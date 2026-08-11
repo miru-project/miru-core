@@ -22,7 +22,7 @@ import (
 //
 // This proves JS V2 and Go V2 share the same watch()->mirror() contract.
 func TestJSV2WatchReturnsMirrorList(t *testing.T) {
-	src, err := os.ReadFile(filepath.Join("extensions", "v2watch_example.js"))
+	src, err := os.ReadFile(filepath.Join("testdata", "v2watch_example.js"))
 	require.NoError(t, err)
 
 	dir := t.TempDir()

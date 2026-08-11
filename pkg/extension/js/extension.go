@@ -95,7 +95,6 @@ func InitRuntime(extPath string, f embed.FS) {
 	// Embeded file are externel js library that need to copy to jsRoot so that
 	// goja can require them as node js module
 	// readEmbedFileToDisk("assets", jsRoot)
-	WatchDir(extPath)
 	ScriptV1 := string(errorhandle.HandleFatal(fs.ReadFile("assets/runtime_v1.js")))
 	ScriptV2 := string(errorhandle.HandleFatal(fs.ReadFile("assets/runtime_v2.js")))
 	baseV1 = errorhandle.HandleFatal(goja.Compile("runtime_v1.js", ScriptV1, true))
@@ -116,12 +115,6 @@ func InitRuntime(extPath string, f embed.FS) {
 
 	}()
 	for _, ext := range exts {
-		// FilterExtensions is runtime-agnostic: it returns every supported
-		// extension source file, including .go files that belong to the
-		// Golang/Scriggo runtime. This JS runtime must only compile and
-		// register .js extensions. Feeding a .go source to the goja compiler
-		// (e.g. the `package miruro` declaration) is exactly what produced
-		// errors such as `SyntaxError: example.v2.js: Unexpected identifier`.
 		if ext.FileLang != extension.LanguageJS {
 			continue
 		}
@@ -150,40 +143,26 @@ func compileExtension(ext *Ext) (*goja.Program, error) {
 	return compile, e
 }
 
-// WatchDir watches the extension directory and reloads JavaScript extensions
-// when their source changes. The underlying watch is provided by the shared
-// extension.WatchExtensions, which routes each event by file extension; the JS
-// runtime only acts on .js events.
-func WatchDir(dir string) {
-	_, err := extension.WatchExtensions([]string{dir}, func(lang extension.Language, pkg string) {
-		if lang != extension.LanguageJS {
-			return
-		}
-		fileLoc := filepath.Join(dir, pkg+string(lang))
-		if _, statErr := os.Stat(fileLoc); os.IsNotExist(statErr) {
-			// Removed or renamed: evict from the cache.
-			ApiPkgCache.Delete(pkg)
-			return
-		}
-		f, readErr := os.ReadFile(fileLoc)
-		if readErr != nil {
-			log.Println("File is not a valid extension:", fileLoc)
-			return
-		}
-		ext, parseErr := extension.ParseExtensionMetadata(string(f), pkg+string(lang))
-		if parseErr != nil {
-			log.Println("File is not a valid extension:", fileLoc, parseErr)
-			return
-		}
-		// Drop any cached cross-function variables for this package so stale
-		// values from the previous version do not leak into the reloaded one.
-		deleteExtVarCache(pkg)
-		loadExtApi(ext)
-	})
-	if err != nil {
-		log.Fatal("Failed to start fsnotify: ", err)
+// HandleReload is the JS-specific reload handler invoked by the unified
+// extension watcher when a .js file changes.
+func HandleReload(pkg string) {
+	fileLoc := filepath.Join(ExtPath, pkg+string(extension.LanguageJS))
+	if _, statErr := os.Stat(fileLoc); os.IsNotExist(statErr) {
+		ApiPkgCache.Delete(pkg)
+		return
 	}
-	log.Println("Watching directory:", dir)
+	f, readErr := os.ReadFile(fileLoc)
+	if readErr != nil {
+		log.Println("File is not a valid extension:", fileLoc)
+		return
+	}
+	ext, parseErr := extension.ParseExtensionMetadata(string(f), pkg+string(extension.LanguageJS))
+	if parseErr != nil {
+		log.Println("File is not a valid extension:", fileLoc, parseErr)
+		return
+	}
+	deleteExtVarCache(pkg)
+	loadExtApi(ext)
 }
 
 // replaceClassExtendsDeclaration replaces `class X extends Extension` with `X = class extends Extension {`

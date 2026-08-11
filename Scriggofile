@@ -4,3 +4,4 @@ IMPORT github.com/PuerkitoBio/goquery
 IMPORT github.com/miru-project/miru-core/pkg/extension/golang/runtime
 IMPORT github.com/miru-project/miru-core/pkg/extension/golang/sdk
 IMPORT github.com/bogdanfinn/tls-client
+IMPORT github.com/klauspost/compress/zstd

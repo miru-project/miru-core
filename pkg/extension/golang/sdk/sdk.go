@@ -78,6 +78,37 @@ type (
 	// Watch(). Its members use the per-type runtime types, which are NOT exposed
 	// as standalone Watch() return values in the V2 runtime.
 	ExtensionAllMirror = runtime.ExtensionAllMirror
+	// FilterOption is a single key/label pair inside SelectFilter /
+	// MultiSelectFilter options.
+	FilterOption = runtime.FilterOption
+	// SelectFilter is a single-value filter (one option chosen).
+	SelectFilter = runtime.SelectFilter
+	// MultiSelectFilter is a multi-value filter (Min..Max options chosen).
+	MultiSelectFilter = runtime.MultiSelectFilter
+	// RangeFilter is a numeric range filter.
+	RangeFilter = runtime.RangeFilter
+	// FilterDefinition is the typed union an extension's CreateFilter entry
+	// point returns. Exactly one of its Select/MultiSelect/Range fields is set.
+	FilterDefinition = runtime.FilterDefinition
+	// FilterBuilder builds a SelectFilter fluently.
+	SelectFilterBuilder = runtime.SelectFilterBuilder
+	// MultiSelectBuilder builds a MultiSelectFilter fluently.
+	MultiSelectBuilder = runtime.MultiSelectBuilder
+	// RangeBuilder builds a RangeFilter fluently.
+	RangeBuilder = runtime.RangeBuilder
+	// FilterSelectionBuilder builds the Filter selection sent by the frontend.
+	FilterSelectionBuilder = runtime.FilterSelectionBuilder
+	// Filter is the strongly-typed filter selection passed to Search /
+	// CreateFilter. It is the runtime Filter struct.
+	Filter = runtime.Filter
+	// FilterSelection is a single filter's selected option keys.
+	FilterSelection = runtime.FilterSelection
+	// ExtensionSetting is the strongly typed definition of an extension
+	// setting, registered with RegisterSetting.
+	ExtensionSetting = runtime.ExtensionSetting
+	// ExtensionSettingType is the UI control type of an extension setting
+	// (input/radio/toggle).
+	ExtensionSettingType = runtime.ExtensionSettingType
 	// TLSConfig configures browser-impersonating (tls-client) requests.
 	// Use it on ExtensionBangumiWatchMirror to let the backend auto-proxy
 	// all URLs with the specified TLS fingerprint profile.
@@ -87,6 +118,16 @@ type (
 // BangumiWatchType is the content type of a bangumi stream/mirror
 // (hls/mp4/torrent/magnet). It is the runtime.BangumiWatchType type alias.
 type BangumiWatchType = runtime.BangumiWatchType
+
+// SettingType constants select the UI control type of an extension setting.
+var (
+	// SettingInput is a plain text/value input.
+	SettingInput = runtime.SettingInput
+	// SettingRadio is a radio group of the setting's options.
+	SettingRadio = runtime.SettingRadio
+	// SettingToggle is an on/off toggle.
+	SettingToggle = runtime.SettingToggle
+)
 
 // Content-type constants for a bangumi stream/mirror. These mirror what V1
 // watch() and V2 mirror() emit as the per-type watch "type" field, and the
@@ -105,6 +146,17 @@ var (
 // default. See the host runtime for the full contract.
 var Fetch = runtime.Fetch
 
+// Filter builders. These are the ergonomic constructors an extension's
+// CreateFilter entry point uses to return sdk.FilterDefinition values
+// without the verbose map[string]FilterOption{...} literal.
+var (
+	NewSelect      = runtime.NewSelect
+	NewMultiSelect = runtime.NewMultiSelect
+	NewRange       = runtime.NewRange
+	// NewFilterSelection builds a Filter (the frontend's filter selection).
+	NewFilterSelection = runtime.NewFilterSelection
+)
+
 // SaveCache stores a cross-function variable for this package. It is the Go
 // counterpart of the JavaScript Miru.saveCache. The store is keyed by package
 // name then variable key (matching the JavaScript layout). Values are plain Go
@@ -116,3 +168,40 @@ var SaveCache = runtime.SaveCache
 // GetCache reads a cross-function variable previously stored with SaveCache.
 // The second return value reports whether the key was present.
 var GetCache = runtime.GetCache
+
+// Filter helpers let extensions read individual filters from the strongly-typed
+// sdk.Filter passed to Search / CreateFilter, by the filter name declared in
+// CreateFilter. They are standalone functions (Scriggo does not support method
+// declarations on user-defined types).
+var (
+	// HasSelection reports whether the named filter has a non-empty selection.
+	HasSelection = runtime.HasSelection
+	// FirstSelection returns the first selected value ("" if unset); use for
+	// single-select filters (max == 1).
+	FirstSelection = runtime.FirstSelection
+	// SelectionsOf returns all selected values (nil if unset); use for
+	// multi-select filters (max > 1).
+	SelectionsOf = runtime.SelectionsOf
+)
+
+// RegisterSetting registers a setting definition for this extension package.
+// The setting is a strongly typed sdk.ExtensionSetting: it carries the same
+// fields as the JavaScript registerSetting({...}) API -- key, title, type,
+// value, defaultValue, description and options -- without the untyped map.
+var RegisterSetting = runtime.RegisterSetting
+
+// GetSetting reads a previously registered setting value for this package,
+// returned as a plain string. An empty string means the setting is unset.
+var GetSetting = runtime.GetSetting
+
+// SetSetting writes a setting value for a package. The key must have been
+// registered with RegisterSetting first.
+var SetSetting = runtime.SetSetting
+
+// GetCookies returns the cookies currently stored for a URL as a slice of
+// "name=value" strings, mirroring the JavaScript getCookies().
+var GetCookies = runtime.GetCookies
+
+// SetCookies stores the given cookies for a URL, mirroring the JavaScript
+// setCookies().
+var SetCookies = runtime.SetCookies

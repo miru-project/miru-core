@@ -8,9 +8,11 @@ import (
 	"testing"
 )
 
-// setExampleExtensionDir points ExtensionDir at the bundled example extension.
+// setExampleExtensionDir points ExtensionDir at the synthetic example
+// extension fixture in testdata. Per-site extensions and their tests live in
+// their own repositories; this fixture exists only to exercise the runtime.
 func setExampleExtensionDir() {
-	ExtensionDir = filepath.Join("extensions", "example")
+	ExtensionDir = filepath.Join("testdata", "example")
 }
 
 // writeExtensionSource writes a Go extension source file into a fresh temp dir

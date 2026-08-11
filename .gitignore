@@ -27,6 +27,14 @@ go.work.sum
 /tmp
 .vscode/launch.json
 /extensions
+
+# Individual/per-site extension implementations and their tests must NOT live
+# in this repo -- they belong in their own extension repository. Only synthetic
+# fixtures under testdata/ are allowed (they exercise the runtime, not a site).
+pkg/extension/*/extensions/
+pkg/extension/golang/extensions/
+pkg/extension/js/extensions/
+
 miru.db
 config.json
 miru

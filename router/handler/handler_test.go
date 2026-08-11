@@ -21,12 +21,12 @@ func TestBuildExtensionMetaIncludesJSAndGolang(t *testing.T) {
 
 	// A minimal but valid Go extension written to disk.
 	goSrc := `// ==MiruExtension==
-// @name         Miruro
+// @name         example
 // @package      example.v2
 // @apiVersion   1
 // ==/MiruExtension==
 
-package miruro
+package example
 
 func Load() {}
 `
@@ -36,7 +36,7 @@ func Load() {}
 
 	prevDir := golang.ExtensionDir
 	golang.ExtensionDir = dir
-	defer func() { golang.ExtensionDir = prevDir }()
+	t.Cleanup(func() { golang.ExtensionDir = prevDir })
 
 	// Seed a JavaScript extension into the JS runtime cache (as InitRuntime
 	// would after compiling a .js file).

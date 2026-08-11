@@ -6,11 +6,12 @@ import (
 	"github.com/miru-project/miru-core/pkg/extension"
 	"github.com/miru-project/miru-core/proto/generate/proto"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestExampleExtensionCompiles(t *testing.T) {
 	setExampleExtensionDir()
-	_, err := Search("example", 1, "test", "")
+	_, err := Search("example", 1, "test", nil)
 	if err != nil {
 		t.Fatalf("failed to compile/run extension example: %v", err)
 	}
@@ -55,16 +56,24 @@ func Greet(name string) string {
 	assert.Equal(t, "Hello, World", res.(string))
 }
 
-// TestRuntimeLoadExtensionExampleWithLoad verifies that the shipped example
-// extension can be loaded (its entries are exercised by the endpoint tests)
-// using the legacy "main" based flow. The Load-entry-point flow demonstrated
-// by the other tests targets extensions whose package is not "main".
-func TestRuntimeLoadExtensionExampleWithLoad(t *testing.T) {
+// TestRuntimeLoadEntryPointRequired verifies that LoadExtension runs the
+// extension's "Load" entry point AND that a missing Load entry point is a hard
+// compile/load error surfaced at the Load symbol -- not a silent success.
+//
+// Per the load contract, the load error must point at the same source location
+// as the compiled error: when "Load" is not declared, the runtime reports it as
+// an undefined entry point at "Load". The shipped example extension deliberately
+// omits Load (it opts into lazy loading), so this test pins the expected failure
+// so a regression that silently swallows a missing load hook is caught.
+func TestRuntimeLoadEntryPointRequired(t *testing.T) {
 	setExampleExtensionDir()
 
 	rt := NewRuntime(NewScriggoVM(nil))
 	err := rt.LoadExtension(&extension.Extension{Name: "example", Pkg: "example"})
-	assert.Error(t, err)
+	require.Error(t, err, "an extension without a Load entry point must fail to load")
+	// The failure must be localized to the Load entry point, not a bare generic
+	// message -- mirroring how a compiled error names its location.
+	assert.Contains(t, err.Error(), "Load", "load error must name the Load entry point where it failed")
 }
 
 // TestRuntimeCallBeforeLoad verifies that calling a function before an
@@ -99,7 +108,7 @@ func Add(a, b int) int {
 
 func TestExampleExtensionSearchOutput(t *testing.T) {
 	setExampleExtensionDir()
-	items, err := Search("example", 1, "test", "")
+	items, err := Search("example", 1, "test", nil)
 	if err != nil {
 		t.Fatalf("Search failed: %v", err)
 	}

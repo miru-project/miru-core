@@ -10,11 +10,47 @@ import (
 
 func TestSearchEndpoint(t *testing.T) {
 	setExampleExtensionDir()
-	items, err := Search("example", 1, "test", "")
+	items, err := Search("example", 1, "test", nil)
 	assert.NoError(t, err)
 	assert.Len(t, items, 2)
 	assert.Equal(t, "Example Result 1", items[0].Title)
 	assert.Equal(t, "https://example.com/1", items[0].Url)
+}
+
+// TestSearchFilterRoundTrip verifies the full server-side filter pipeline:
+// 1. CreateFilter returns the extension's filter definitions.
+// 2. A FilterSelection built from those definitions is passed to Search.
+// 3. Search receives the selection and returns results (the example extension
+//    ignores filter values, so we assert the results stay deterministic).
+func TestSearchFilterRoundTrip(t *testing.T) {
+	setExampleExtensionDir()
+
+	// Step 1 – get the filter definitions (simulates the initial UI load).
+	filters, err := CreateFilter("example", nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, filters)
+	assert.Contains(t, filters, "type", "example extension must expose a 'type' filter")
+	assert.Contains(t, filters, "language", "example extension must expose a 'language' filter")
+
+	// Step 2 – build a filter selection (simulates user picking "manga" from
+	// the "type" filter and leaving "language" alone) and Search.
+	sel := &proto.FilterSelection{Selections: map[string]*proto.FilterSelectionValue{
+		"type": {Values: []string{"manga"}},
+	}}
+	items, err := Search("example", 1, "test", sel)
+	assert.NoError(t, err)
+	assert.Len(t, items, 2)
+	assert.Equal(t, "Example Result 1", items[0].Title)
+	assert.Equal(t, "https://example.com/1", items[0].Url)
+
+	// Step 3 – multi-select and multi-field.
+	sel2 := &proto.FilterSelection{Selections: map[string]*proto.FilterSelectionValue{
+		"type":     {Values: []string{"manga", "bangumi"}},
+		"language": {Values: []string{"ja"}},
+	}}
+	items2, err := Search("example", 1, "module", sel2)
+	assert.NoError(t, err)
+	assert.Len(t, items2, 2)
 }
 
 func TestLatestEndpoint(t *testing.T) {
@@ -57,7 +93,7 @@ func TestMirrorEndpoint(t *testing.T) {
 func TestStdLibMD5(t *testing.T) {
 	setExampleExtensionDir()
 	vm := NewScriggoVM(nil)
-	prog, err := vm.Compile("md5_test", `package main
+	prog, err := vm.Compile("", "md5_test", `package main
 
 import "fmt"
 import "crypto/md5"
@@ -80,7 +116,7 @@ func main() {
 func TestStdLibGoquery(t *testing.T) {
 	setExampleExtensionDir()
 	vm := NewScriggoVM(nil)
-	prog, err := vm.Compile("goquery_test", `package main
+	prog, err := vm.Compile("", "goquery_test", `package main
 
 import "fmt"
 import "strings"

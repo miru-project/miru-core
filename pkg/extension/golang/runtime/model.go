@@ -118,8 +118,6 @@ func Fetch(url, method string, headers map[string]string, body string, tls *TLSC
 //
 // When tlsProfile is non-empty the backend routes the upstream fetch through the
 // browser-impersonating tls-client -- required for TLS-fingerprinting CDNs
-// (e.g. Cloudflare-fronted Miruro source CDNs) that block Go's crypto/tls
-// ClientHello.
 func ProxyURL(target string, headers map[string]string, tlsProfile string) string {
 	return network.BuildProxyURL(proxyOrigin(), target, headers, tlsProfile)
 }

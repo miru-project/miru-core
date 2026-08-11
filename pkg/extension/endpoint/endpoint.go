@@ -33,7 +33,7 @@ type Runtime interface {
 	// Latest returns the latest content for a package.
 	Latest(pkg string, page int) ([]*proto.ExtensionListItem, error)
 	// Search searches for content by keyword.
-	Search(pkg string, page int, kw string, filter string) ([]*proto.ExtensionListItem, error)
+	Search(pkg string, page int, kw string, filter *proto.FilterSelection) ([]*proto.ExtensionListItem, error)
 	// Watch returns watch/stream information. The returned *extension.Extension
 	// carries the ApiVersion/WatchType used by callers to pick a response shape.
 	Watch(pkg string, url string) (any, *extension.Extension, error)
@@ -42,7 +42,7 @@ type Runtime interface {
 	// Mirror returns mirror/alternative URLs for a content item.
 	Mirror(pkg string, url string) (any, error)
 	// CreateFilter creates filter options for a package.
-	CreateFilter(pkg string, filter string) (map[string]*proto.ExtensionFilter, error)
+	CreateFilter(pkg string, filter *proto.FilterSelection) (map[string]*proto.ExtensionFilter, error)
 }
 
 // Unmarshal decodes an arbitrary value into T. It is a thin re-export of the

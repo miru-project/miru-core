@@ -4,7 +4,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	jsext "github.com/miru-project/miru-core/pkg/extension/js"
 	"github.com/miru-project/miru-core/proto/generate/proto"
@@ -63,18 +62,14 @@ func TestJSExtensionLoadsAndServes(t *testing.T) {
 	// f is the embedded assets FS (runtime_v1.js etc.) defined in lib.go.
 	jsext.InitRuntime(dir, jsext.AssetsFS)
 
-	// loadExtApi runs asynchronously inside InitRuntime; give the goja compile
-	// + event-loop bootstrap a moment to finish before we query.
-	time.Sleep(500 * time.Millisecond)
-
 	pkg := "testjs.tv"
-	api := jsext.ApiPkgCache.Load(pkg)
-	assert.NotNil(t, api, "extension should be registered in the cache after InitRuntime")
-	if api != nil {
-		assert.Empty(t, api.Ext.Error, "extension should load without a compile/load error")
-	}
+	// loadExtApi runs asynchronously inside InitRuntime; poll the cache until
+	// the extension is registered instead of using a fixed sleep.
+	api := waitForExtension(t, pkg)
 
-	results, err := jsext.Search[proto.ExtensionListItem](pkg, 1, "test", "")
+	assert.Empty(t, api.Ext.Error, "extension should load without a compile/load error")
+
+	results, err := jsext.Search[proto.ExtensionListItem](pkg, 1, "test", nil)
 	assert.NoError(t, err)
 	assert.NotNil(t, results)
 	assert.GreaterOrEqual(t, len(results), 1, "extension should serve at least one search result")

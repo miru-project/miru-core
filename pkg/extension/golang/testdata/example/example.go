@@ -35,7 +35,7 @@ import (
 )
 
 // Search searches for content by keyword.
-func Search(pkg, kw string, page int, filter string) ([]sdk.ExtensionListItem, error) {
+func Search(pkg, kw string, page int, filter sdk.Filter) ([]sdk.ExtensionListItem, error) {
 	results := []sdk.ExtensionListItem{
 		{
 			Title:  "Example Result 1",
@@ -55,6 +55,25 @@ func Search(pkg, kw string, page int, filter string) ([]sdk.ExtensionListItem, e
 		},
 	}
 	return results, nil
+}
+
+// CreateFilter returns the search filters for this package, so the search UI
+// can render selectable options. The filter argument carries the current
+// selection as a strongly-typed sdk.Filter (the golang runtime decodes the
+// frontend's JSON before calling this), so extensions read typed filter
+// values via sdk.HasSelection / sdk.SelectionsOf / sdk.FirstSelection.
+func CreateFilter(pkg string, filter sdk.Filter) map[string]sdk.FilterDefinition {
+	return map[string]sdk.FilterDefinition{
+		"type": sdk.NewSelect("Type", "all").
+			Option("all", "All").
+			Option("manga", "Manga").
+			Option("bangumi", "Anime").
+			Build(),
+		"language": sdk.NewSelect("Language", "en").
+			Option("en", "English").
+			Option("ja", "Japanese").
+			Build(),
+	}
 }
 
 // Latest returns the latest content for a package.

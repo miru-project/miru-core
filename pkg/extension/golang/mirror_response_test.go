@@ -32,6 +32,20 @@ import (
 func TestScriggoMirrorResponses(t *testing.T) {
 	const chosenURL = "https://stream.example.com/ep/1/index.m3u8"
 
+	// Replace the real torrent resolver with a canned result so the torrent
+	// cases below exercise the host's wiring (torrent resolved server-side
+	// into w.Torrent) without performing an actual network download.
+	origResolve := resolveBangumiTorrent
+	name := "Resolved"
+	resolveBangumiTorrent = func(pkg, link string) (*proto.ExtensionBangumiWatchTorrent, error) {
+		return &proto.ExtensionBangumiWatchTorrent{
+			InfoHash: "resolvedhash",
+			Files:    []string{"resolved.mkv"},
+			Detail:   &proto.ExtensionBangumiWatchTorrentDetail{Name: &name},
+		}, nil
+	}
+	t.Cleanup(func() { resolveBangumiTorrent = origResolve })
+
 	cases := []struct {
 		name    string
 		watch   extension.WatchType
@@ -123,7 +137,7 @@ func Mirror(pkg, url string) (*runtime.ExtensionBangumiWatchMirror, error) {
 		{
 			// Same torrent carrier, but returned as a bare .torrent URL. The
 			// endpoint must derive the "torrent" content type from the URL
-			// (contentTypeFromURL -> isTorrentLink) rather than a struct Type
+			// (contentTypeFromURL -> torrent.IsTorrentLink) rather than a struct Type
 			// field. A .torrent file link yields the "torrent" content type
 			// (a bare "magnet:" link would yield "magnet").
 			name:  "bangumi/torrent-bare-url",
@@ -299,6 +313,10 @@ func Mirror(pkg, url string) (string, error) {
 				require.NotNil(t, w.Bangumi, "torrent must land in the Bangumi member")
 				assert.Equal(t, "torrent", w.Bangumi.Type)
 				assert.Equal(t, "https://example.com/all/cool-show.torrent", w.Bangumi.Url)
+				// The host resolves the torrent server-side (shared with the
+				// JS runtime) into a file-tree handle the frontend reads.
+				require.NotNil(t, w.Bangumi.Torrent, "torrent should be resolved server-side")
+				assert.Equal(t, "resolvedhash", w.Bangumi.Torrent.InfoHash)
 			},
 		},
 		{
@@ -325,6 +343,8 @@ func Mirror(pkg, url string) (*runtime.ExtensionBangumiWatchMirror, error) {
 				require.NotNil(t, w.Bangumi, "torrent struct must land in the Bangumi member")
 				assert.Equal(t, "torrent", w.Bangumi.Type)
 				assert.Equal(t, "magnet:?xt=urn:btih:AA11BB22CC33DD44EE55FF660011223344556677&dn=All+Show+S01", w.Bangumi.Url)
+				require.NotNil(t, w.Bangumi.Torrent, "torrent should be resolved server-side")
+				assert.Equal(t, "resolvedhash", w.Bangumi.Torrent.InfoHash)
 			},
 		},
 	}
@@ -395,7 +415,7 @@ func sanitizeName(s string) string {
 // The literal "@type" must only appear inside this header; doc comments
 // elsewhere in a Scriggo source are parsed by ParseExtensionMetadata too.
 func headerFor(wt extension.WatchType) string {
-	return `// ==MiruExtension==
+	const headerFmt = `// ==MiruExtension==
 // @name         Test
 // @version      v0.1.0
 // @author       Miru
@@ -403,10 +423,11 @@ func headerFor(wt extension.WatchType) string {
 // @license      MIT
 // @icon         https://example.com/icon.png
 // @package      test
-// @type         ` + string(wt) + `
+// @type         %s
 // @webSite      https://example.com
 // @nsfw         false
 // ==/MiruExtension==`
+	return fmt.Sprintf(headerFmt, string(wt))
 }
 
 // fmtSrc substitutes the URL into the %q placeholder of the template.

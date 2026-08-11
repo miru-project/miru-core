@@ -12,12 +12,48 @@ message ExtensionListItem {
   map<string, string> headers = 5;
 }
 
-message ExtensionFilter {
+// FilterOption pairs a stable option key with a display label.
+message FilterOption {
+  string label = 1;
+}
+
+// SelectFilter is a single-value filter: the user picks exactly one option
+// (max == 1). Default is the key of the pre-selected option.
+message SelectFilter {
+  string title = 1;
+  string default = 2;
+  map<string, FilterOption> options = 3;
+}
+
+// MultiSelectFilter is a multi-value filter: the user picks between min and
+// max options. Default is the list of pre-selected option keys.
+message MultiSelectFilter {
   string title = 1;
   int32 min = 2;
   int32 max = 3;
-  string default = 4;
-  map<string, string> options = 5;
+  repeated string default = 4;
+  map<string, FilterOption> options = 5;
+}
+
+// RangeFilter is a numeric range filter with inclusive min/max bounds and
+// separate default values. No options map; the UI typically renders a
+// slider or two number inputs.
+message RangeFilter {
+  string title = 1;
+  int32 min = 2;
+  int32 max = 3;
+  int32 default_min = 4;
+  int32 default_max = 5;
+}
+
+// ExtensionFilter is the typed filter definition returned by CreateFilter.
+// Exactly one of its variants is set; consumers switch on the oneof.
+message ExtensionFilter {
+  oneof kind {
+    SelectFilter select = 1;
+    MultiSelectFilter multi_select = 2;
+    RangeFilter range = 3;
+  }
 }
 
 message ExtensionDetail {

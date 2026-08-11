@@ -260,12 +260,7 @@ func readDecompressed(resp *http.Response) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	// Some servers advertise a Content-Encoding (e.g. "br") while actually
-	// sending base64/plain text (miruro.tv does exactly this). Trusting the
-	// header blindly and decoding invalid compressed bytes raises errors such
-	// as "brotli: HUFFMAN_SPACE". So we only decompress when the bytes are
-	// genuinely valid for that encoding; otherwise we return the raw body and
-	// let the caller decode it itself.
+
 	switch strings.ToLower(contentEncoding) {
 	case "gzip":
 		if gz, err := gzip.NewReader(bytes.NewReader(raw)); err == nil {
@@ -460,9 +455,6 @@ func ReadAll(res *fasthttp.Response) ([]byte, error) {
 			return dec, nil
 		}
 	case "br":
-		// Only brotli-decode when the bytes are valid brotli. Some servers
-		// advertise "br" while sending base64/plain text (miruro.tv); decoding
-		// that raises "brotli: HUFFMAN_SPACE". Fall back to the raw body.
 		if dec, err := io.ReadAll(brotli.NewReader(bytes.NewReader(body))); err == nil {
 			return dec, nil
 		}
