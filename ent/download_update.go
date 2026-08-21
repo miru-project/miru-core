@@ -142,16 +142,42 @@ func (_u *DownloadUpdate) SetNillableTitle(v *string) *DownloadUpdate {
 }
 
 // SetMediaType sets the "media_type" field.
-func (_u *DownloadUpdate) SetMediaType(v string) *DownloadUpdate {
+func (_u *DownloadUpdate) SetMediaType(v download.MediaType) *DownloadUpdate {
 	_u.mutation.SetMediaType(v)
 	return _u
 }
 
 // SetNillableMediaType sets the "media_type" field if the given value is not nil.
-func (_u *DownloadUpdate) SetNillableMediaType(v *string) *DownloadUpdate {
+func (_u *DownloadUpdate) SetNillableMediaType(v *download.MediaType) *DownloadUpdate {
 	if v != nil {
 		_u.SetMediaType(*v)
 	}
+	return _u
+}
+
+// ClearMediaType clears the value of the "media_type" field.
+func (_u *DownloadUpdate) ClearMediaType() *DownloadUpdate {
+	_u.mutation.ClearMediaType()
+	return _u
+}
+
+// SetCategory sets the "category" field.
+func (_u *DownloadUpdate) SetCategory(v download.Category) *DownloadUpdate {
+	_u.mutation.SetCategory(v)
+	return _u
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (_u *DownloadUpdate) SetNillableCategory(v *download.Category) *DownloadUpdate {
+	if v != nil {
+		_u.SetCategory(*v)
+	}
+	return _u
+}
+
+// ClearCategory clears the value of the "category" field.
+func (_u *DownloadUpdate) ClearCategory() *DownloadUpdate {
+	_u.mutation.ClearCategory()
 	return _u
 }
 
@@ -288,6 +314,11 @@ func (_u *DownloadUpdate) check() error {
 			return &ValidationError{Name: "media_type", err: fmt.Errorf(`ent: validator failed for field "Download.media_type": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Category(); ok {
+		if err := download.CategoryValidator(v); err != nil {
+			return &ValidationError{Name: "category", err: fmt.Errorf(`ent: validator failed for field "Download.category": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Status(); ok {
 		if err := download.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Download.status": %w`, err)}
@@ -349,7 +380,16 @@ func (_u *DownloadUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 		_spec.SetField(download.FieldTitle, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.MediaType(); ok {
-		_spec.SetField(download.FieldMediaType, field.TypeString, value)
+		_spec.SetField(download.FieldMediaType, field.TypeEnum, value)
+	}
+	if _u.mutation.MediaTypeCleared() {
+		_spec.ClearField(download.FieldMediaType, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.Category(); ok {
+		_spec.SetField(download.FieldCategory, field.TypeEnum, value)
+	}
+	if _u.mutation.CategoryCleared() {
+		_spec.ClearField(download.FieldCategory, field.TypeEnum)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(download.FieldStatus, field.TypeString, value)
@@ -502,16 +542,42 @@ func (_u *DownloadUpdateOne) SetNillableTitle(v *string) *DownloadUpdateOne {
 }
 
 // SetMediaType sets the "media_type" field.
-func (_u *DownloadUpdateOne) SetMediaType(v string) *DownloadUpdateOne {
+func (_u *DownloadUpdateOne) SetMediaType(v download.MediaType) *DownloadUpdateOne {
 	_u.mutation.SetMediaType(v)
 	return _u
 }
 
 // SetNillableMediaType sets the "media_type" field if the given value is not nil.
-func (_u *DownloadUpdateOne) SetNillableMediaType(v *string) *DownloadUpdateOne {
+func (_u *DownloadUpdateOne) SetNillableMediaType(v *download.MediaType) *DownloadUpdateOne {
 	if v != nil {
 		_u.SetMediaType(*v)
 	}
+	return _u
+}
+
+// ClearMediaType clears the value of the "media_type" field.
+func (_u *DownloadUpdateOne) ClearMediaType() *DownloadUpdateOne {
+	_u.mutation.ClearMediaType()
+	return _u
+}
+
+// SetCategory sets the "category" field.
+func (_u *DownloadUpdateOne) SetCategory(v download.Category) *DownloadUpdateOne {
+	_u.mutation.SetCategory(v)
+	return _u
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (_u *DownloadUpdateOne) SetNillableCategory(v *download.Category) *DownloadUpdateOne {
+	if v != nil {
+		_u.SetCategory(*v)
+	}
+	return _u
+}
+
+// ClearCategory clears the value of the "category" field.
+func (_u *DownloadUpdateOne) ClearCategory() *DownloadUpdateOne {
+	_u.mutation.ClearCategory()
 	return _u
 }
 
@@ -661,6 +727,11 @@ func (_u *DownloadUpdateOne) check() error {
 			return &ValidationError{Name: "media_type", err: fmt.Errorf(`ent: validator failed for field "Download.media_type": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Category(); ok {
+		if err := download.CategoryValidator(v); err != nil {
+			return &ValidationError{Name: "category", err: fmt.Errorf(`ent: validator failed for field "Download.category": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Status(); ok {
 		if err := download.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Download.status": %w`, err)}
@@ -739,7 +810,16 @@ func (_u *DownloadUpdateOne) sqlSave(ctx context.Context) (_node *Download, err 
 		_spec.SetField(download.FieldTitle, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.MediaType(); ok {
-		_spec.SetField(download.FieldMediaType, field.TypeString, value)
+		_spec.SetField(download.FieldMediaType, field.TypeEnum, value)
+	}
+	if _u.mutation.MediaTypeCleared() {
+		_spec.ClearField(download.FieldMediaType, field.TypeEnum)
+	}
+	if value, ok := _u.mutation.Category(); ok {
+		_spec.SetField(download.FieldCategory, field.TypeEnum, value)
+	}
+	if _u.mutation.CategoryCleared() {
+		_spec.ClearField(download.FieldCategory, field.TypeEnum)
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(download.FieldStatus, field.TypeString, value)

@@ -1158,9 +1158,10 @@ func TestToProtoDownloadProgressAllMediaTypes(t *testing.T) {
 				t.Errorf("Priority = %d, want %d", proto.Priority, tt.progress.Priority)
 			}
 
-			// All string fields must be valid UTF-8 after sanitization
-			if !utf8.ValidString(proto.MediaType) {
-				t.Errorf("MediaType has invalid UTF-8: %q", proto.MediaType)
+			// Media type is mapped to the proto enum.
+			wantMT := mediaTypeToProto(tt.progress.MediaType)
+			if proto.MediaType != wantMT {
+				t.Errorf("MediaType = %v, want %v", proto.MediaType, wantMT)
 			}
 			if !utf8.ValidString(proto.CurrentDownloading) {
 				t.Errorf("CurrentDownloading has invalid UTF-8: %q", proto.CurrentDownloading)

@@ -79,11 +79,6 @@ func Title(v string) predicate.Download {
 	return predicate.Download(sql.FieldEQ(FieldTitle, v))
 }
 
-// MediaType applies equality check predicate on the "media_type" field. It's identical to MediaTypeEQ.
-func MediaType(v string) predicate.Download {
-	return predicate.Download(sql.FieldEQ(FieldMediaType, v))
-}
-
 // Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
 func Status(v string) predicate.Download {
 	return predicate.Download(sql.FieldEQ(FieldStatus, v))
@@ -450,68 +445,63 @@ func TitleContainsFold(v string) predicate.Download {
 }
 
 // MediaTypeEQ applies the EQ predicate on the "media_type" field.
-func MediaTypeEQ(v string) predicate.Download {
+func MediaTypeEQ(v MediaType) predicate.Download {
 	return predicate.Download(sql.FieldEQ(FieldMediaType, v))
 }
 
 // MediaTypeNEQ applies the NEQ predicate on the "media_type" field.
-func MediaTypeNEQ(v string) predicate.Download {
+func MediaTypeNEQ(v MediaType) predicate.Download {
 	return predicate.Download(sql.FieldNEQ(FieldMediaType, v))
 }
 
 // MediaTypeIn applies the In predicate on the "media_type" field.
-func MediaTypeIn(vs ...string) predicate.Download {
+func MediaTypeIn(vs ...MediaType) predicate.Download {
 	return predicate.Download(sql.FieldIn(FieldMediaType, vs...))
 }
 
 // MediaTypeNotIn applies the NotIn predicate on the "media_type" field.
-func MediaTypeNotIn(vs ...string) predicate.Download {
+func MediaTypeNotIn(vs ...MediaType) predicate.Download {
 	return predicate.Download(sql.FieldNotIn(FieldMediaType, vs...))
 }
 
-// MediaTypeGT applies the GT predicate on the "media_type" field.
-func MediaTypeGT(v string) predicate.Download {
-	return predicate.Download(sql.FieldGT(FieldMediaType, v))
+// MediaTypeIsNil applies the IsNil predicate on the "media_type" field.
+func MediaTypeIsNil() predicate.Download {
+	return predicate.Download(sql.FieldIsNull(FieldMediaType))
 }
 
-// MediaTypeGTE applies the GTE predicate on the "media_type" field.
-func MediaTypeGTE(v string) predicate.Download {
-	return predicate.Download(sql.FieldGTE(FieldMediaType, v))
+// MediaTypeNotNil applies the NotNil predicate on the "media_type" field.
+func MediaTypeNotNil() predicate.Download {
+	return predicate.Download(sql.FieldNotNull(FieldMediaType))
 }
 
-// MediaTypeLT applies the LT predicate on the "media_type" field.
-func MediaTypeLT(v string) predicate.Download {
-	return predicate.Download(sql.FieldLT(FieldMediaType, v))
+// CategoryEQ applies the EQ predicate on the "category" field.
+func CategoryEQ(v Category) predicate.Download {
+	return predicate.Download(sql.FieldEQ(FieldCategory, v))
 }
 
-// MediaTypeLTE applies the LTE predicate on the "media_type" field.
-func MediaTypeLTE(v string) predicate.Download {
-	return predicate.Download(sql.FieldLTE(FieldMediaType, v))
+// CategoryNEQ applies the NEQ predicate on the "category" field.
+func CategoryNEQ(v Category) predicate.Download {
+	return predicate.Download(sql.FieldNEQ(FieldCategory, v))
 }
 
-// MediaTypeContains applies the Contains predicate on the "media_type" field.
-func MediaTypeContains(v string) predicate.Download {
-	return predicate.Download(sql.FieldContains(FieldMediaType, v))
+// CategoryIn applies the In predicate on the "category" field.
+func CategoryIn(vs ...Category) predicate.Download {
+	return predicate.Download(sql.FieldIn(FieldCategory, vs...))
 }
 
-// MediaTypeHasPrefix applies the HasPrefix predicate on the "media_type" field.
-func MediaTypeHasPrefix(v string) predicate.Download {
-	return predicate.Download(sql.FieldHasPrefix(FieldMediaType, v))
+// CategoryNotIn applies the NotIn predicate on the "category" field.
+func CategoryNotIn(vs ...Category) predicate.Download {
+	return predicate.Download(sql.FieldNotIn(FieldCategory, vs...))
 }
 
-// MediaTypeHasSuffix applies the HasSuffix predicate on the "media_type" field.
-func MediaTypeHasSuffix(v string) predicate.Download {
-	return predicate.Download(sql.FieldHasSuffix(FieldMediaType, v))
+// CategoryIsNil applies the IsNil predicate on the "category" field.
+func CategoryIsNil() predicate.Download {
+	return predicate.Download(sql.FieldIsNull(FieldCategory))
 }
 
-// MediaTypeEqualFold applies the EqualFold predicate on the "media_type" field.
-func MediaTypeEqualFold(v string) predicate.Download {
-	return predicate.Download(sql.FieldEqualFold(FieldMediaType, v))
-}
-
-// MediaTypeContainsFold applies the ContainsFold predicate on the "media_type" field.
-func MediaTypeContainsFold(v string) predicate.Download {
-	return predicate.Download(sql.FieldContainsFold(FieldMediaType, v))
+// CategoryNotNil applies the NotNil predicate on the "category" field.
+func CategoryNotNil() predicate.Download {
+	return predicate.Download(sql.FieldNotNull(FieldCategory))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.

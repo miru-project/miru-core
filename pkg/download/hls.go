@@ -30,7 +30,7 @@ func hlsDecrypt(enc []byte, key []byte, iv []byte) ([]byte, error) {
 	mode.CryptBlocks(decrypted, enc)
 	return decrypted, nil
 }
-func downloadHls(filePath string, url string, headers map[string]string, title string, pkg string, key string, detailUrl string, watchUrl string) (MultipleLinkJson, error) {
+func downloadHls(filePath string, url string, headers map[string]string, title string, pkg string, key string, detailUrl string, watchUrl string, category Category) (MultipleLinkJson, error) {
 
 	// Get hls content from url
 	res, e := network.Request[string](url, &network.RequestOptions{Headers: headers, Method: "GET"}, network.ReadAll)
@@ -72,6 +72,7 @@ func downloadHls(filePath string, url string, headers map[string]string, title s
 		Total:     len(playList.Segments),
 		Status:    Downloading,
 		MediaType: Hls,
+		Category: category,
 		TaskID:    taskId,
 		Title:     title,
 		Package:   pkg,

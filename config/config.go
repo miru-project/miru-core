@@ -118,5 +118,6 @@ func GetDefaultConfig() Config {
 	cfg.ExtensionPath = "./extensions"
 	cfg.Address = "127.0.0.1"
 	cfg.Port = "3000"
+	cfg.GRPCPort = "3001"
 	return cfg
 }

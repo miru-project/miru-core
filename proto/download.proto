@@ -25,12 +25,14 @@ message DownloadRequest {
   string url = 1;
   string download_path = 2;
   map<string, string> headers = 3;
-  string media_type = 4;
+  DownloadMediaType media_type = 4;
   string package = 5;
   string key = 6;
   string title = 7;
   string detail_url = 8;
   string watch_url = 9;
+  // Content category (video / manga / novel) used for storage grouping.
+  DownloadCategory category = 10;
 }
 message DownloadResponse {
   int32 task_id = 1;
@@ -122,6 +124,30 @@ service DownloadService {
       returns (SetDownloadConcurrentResponse);
   rpc ReorderDownloads(ReorderDownloadsRequest)
       returns (ReorderDownloadsResponse);
+
+  // Returns per-category storage usage for the given download path, including
+  // bytes occupied by in-progress (temp) downloads.
+  rpc GetStorageStats(GetStorageStatsRequest)
+      returns (GetStorageStatsResponse);
+}
+
+// StorageStats groups occupied bytes by content category plus temp downloads.
+message StorageStats {
+  int64 video_bytes = 1;
+  int64 manga_bytes = 2;
+  int64 novel_bytes = 3;
+  // Bytes occupied by in-progress downloads (partial files not yet completed).
+  int64 temp_bytes = 4;
+  // Total of video + manga + novel + temp.
+  int64 total_bytes = 5;
+}
+
+message GetStorageStatsRequest {
+  string download_path = 1;
+}
+
+message GetStorageStatsResponse {
+  StorageStats stats = 1;
 }
 
 message SetDownloadPriorityRequest { int32 task_id = 1; int32 priority = 2; }

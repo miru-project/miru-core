@@ -71,8 +71,30 @@ func (_c *DownloadCreate) SetTitle(v string) *DownloadCreate {
 }
 
 // SetMediaType sets the "media_type" field.
-func (_c *DownloadCreate) SetMediaType(v string) *DownloadCreate {
+func (_c *DownloadCreate) SetMediaType(v download.MediaType) *DownloadCreate {
 	_c.mutation.SetMediaType(v)
+	return _c
+}
+
+// SetNillableMediaType sets the "media_type" field if the given value is not nil.
+func (_c *DownloadCreate) SetNillableMediaType(v *download.MediaType) *DownloadCreate {
+	if v != nil {
+		_c.SetMediaType(*v)
+	}
+	return _c
+}
+
+// SetCategory sets the "category" field.
+func (_c *DownloadCreate) SetCategory(v download.Category) *DownloadCreate {
+	_c.mutation.SetCategory(v)
+	return _c
+}
+
+// SetNillableCategory sets the "category" field if the given value is not nil.
+func (_c *DownloadCreate) SetNillableCategory(v *download.Category) *DownloadCreate {
+	if v != nil {
+		_c.SetCategory(*v)
+	}
 	return _c
 }
 
@@ -169,6 +191,14 @@ func (_c *DownloadCreate) defaults() {
 		v := download.DefaultHeaders
 		_c.mutation.SetHeaders(v)
 	}
+	if _, ok := _c.mutation.MediaType(); !ok {
+		v := download.DefaultMediaType
+		_c.mutation.SetMediaType(v)
+	}
+	if _, ok := _c.mutation.Category(); !ok {
+		v := download.DefaultCategory
+		_c.mutation.SetCategory(v)
+	}
 	if _, ok := _c.mutation.Date(); !ok {
 		v := download.DefaultDate()
 		_c.mutation.SetDate(v)
@@ -224,12 +254,14 @@ func (_c *DownloadCreate) check() error {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Download.title": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.MediaType(); !ok {
-		return &ValidationError{Name: "media_type", err: errors.New(`ent: missing required field "Download.media_type"`)}
-	}
 	if v, ok := _c.mutation.MediaType(); ok {
 		if err := download.MediaTypeValidator(v); err != nil {
 			return &ValidationError{Name: "media_type", err: fmt.Errorf(`ent: validator failed for field "Download.media_type": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.Category(); ok {
+		if err := download.CategoryValidator(v); err != nil {
+			return &ValidationError{Name: "category", err: fmt.Errorf(`ent: validator failed for field "Download.category": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.Status(); !ok {
@@ -317,8 +349,12 @@ func (_c *DownloadCreate) createSpec() (*Download, *sqlgraph.CreateSpec) {
 		_node.Title = value
 	}
 	if value, ok := _c.mutation.MediaType(); ok {
-		_spec.SetField(download.FieldMediaType, field.TypeString, value)
+		_spec.SetField(download.FieldMediaType, field.TypeEnum, value)
 		_node.MediaType = value
+	}
+	if value, ok := _c.mutation.Category(); ok {
+		_spec.SetField(download.FieldCategory, field.TypeEnum, value)
+		_node.Category = value
 	}
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(download.FieldStatus, field.TypeString, value)
@@ -497,7 +533,7 @@ func (u *DownloadUpsert) UpdateTitle() *DownloadUpsert {
 }
 
 // SetMediaType sets the "media_type" field.
-func (u *DownloadUpsert) SetMediaType(v string) *DownloadUpsert {
+func (u *DownloadUpsert) SetMediaType(v download.MediaType) *DownloadUpsert {
 	u.Set(download.FieldMediaType, v)
 	return u
 }
@@ -505,6 +541,30 @@ func (u *DownloadUpsert) SetMediaType(v string) *DownloadUpsert {
 // UpdateMediaType sets the "media_type" field to the value that was provided on create.
 func (u *DownloadUpsert) UpdateMediaType() *DownloadUpsert {
 	u.SetExcluded(download.FieldMediaType)
+	return u
+}
+
+// ClearMediaType clears the value of the "media_type" field.
+func (u *DownloadUpsert) ClearMediaType() *DownloadUpsert {
+	u.SetNull(download.FieldMediaType)
+	return u
+}
+
+// SetCategory sets the "category" field.
+func (u *DownloadUpsert) SetCategory(v download.Category) *DownloadUpsert {
+	u.Set(download.FieldCategory, v)
+	return u
+}
+
+// UpdateCategory sets the "category" field to the value that was provided on create.
+func (u *DownloadUpsert) UpdateCategory() *DownloadUpsert {
+	u.SetExcluded(download.FieldCategory)
+	return u
+}
+
+// ClearCategory clears the value of the "category" field.
+func (u *DownloadUpsert) ClearCategory() *DownloadUpsert {
+	u.SetNull(download.FieldCategory)
 	return u
 }
 
@@ -743,7 +803,7 @@ func (u *DownloadUpsertOne) UpdateTitle() *DownloadUpsertOne {
 }
 
 // SetMediaType sets the "media_type" field.
-func (u *DownloadUpsertOne) SetMediaType(v string) *DownloadUpsertOne {
+func (u *DownloadUpsertOne) SetMediaType(v download.MediaType) *DownloadUpsertOne {
 	return u.Update(func(s *DownloadUpsert) {
 		s.SetMediaType(v)
 	})
@@ -753,6 +813,34 @@ func (u *DownloadUpsertOne) SetMediaType(v string) *DownloadUpsertOne {
 func (u *DownloadUpsertOne) UpdateMediaType() *DownloadUpsertOne {
 	return u.Update(func(s *DownloadUpsert) {
 		s.UpdateMediaType()
+	})
+}
+
+// ClearMediaType clears the value of the "media_type" field.
+func (u *DownloadUpsertOne) ClearMediaType() *DownloadUpsertOne {
+	return u.Update(func(s *DownloadUpsert) {
+		s.ClearMediaType()
+	})
+}
+
+// SetCategory sets the "category" field.
+func (u *DownloadUpsertOne) SetCategory(v download.Category) *DownloadUpsertOne {
+	return u.Update(func(s *DownloadUpsert) {
+		s.SetCategory(v)
+	})
+}
+
+// UpdateCategory sets the "category" field to the value that was provided on create.
+func (u *DownloadUpsertOne) UpdateCategory() *DownloadUpsertOne {
+	return u.Update(func(s *DownloadUpsert) {
+		s.UpdateCategory()
+	})
+}
+
+// ClearCategory clears the value of the "category" field.
+func (u *DownloadUpsertOne) ClearCategory() *DownloadUpsertOne {
+	return u.Update(func(s *DownloadUpsert) {
+		s.ClearCategory()
 	})
 }
 
@@ -1167,7 +1255,7 @@ func (u *DownloadUpsertBulk) UpdateTitle() *DownloadUpsertBulk {
 }
 
 // SetMediaType sets the "media_type" field.
-func (u *DownloadUpsertBulk) SetMediaType(v string) *DownloadUpsertBulk {
+func (u *DownloadUpsertBulk) SetMediaType(v download.MediaType) *DownloadUpsertBulk {
 	return u.Update(func(s *DownloadUpsert) {
 		s.SetMediaType(v)
 	})
@@ -1177,6 +1265,34 @@ func (u *DownloadUpsertBulk) SetMediaType(v string) *DownloadUpsertBulk {
 func (u *DownloadUpsertBulk) UpdateMediaType() *DownloadUpsertBulk {
 	return u.Update(func(s *DownloadUpsert) {
 		s.UpdateMediaType()
+	})
+}
+
+// ClearMediaType clears the value of the "media_type" field.
+func (u *DownloadUpsertBulk) ClearMediaType() *DownloadUpsertBulk {
+	return u.Update(func(s *DownloadUpsert) {
+		s.ClearMediaType()
+	})
+}
+
+// SetCategory sets the "category" field.
+func (u *DownloadUpsertBulk) SetCategory(v download.Category) *DownloadUpsertBulk {
+	return u.Update(func(s *DownloadUpsert) {
+		s.SetCategory(v)
+	})
+}
+
+// UpdateCategory sets the "category" field to the value that was provided on create.
+func (u *DownloadUpsertBulk) UpdateCategory() *DownloadUpsertBulk {
+	return u.Update(func(s *DownloadUpsert) {
+		s.UpdateCategory()
+	})
+}
+
+// ClearCategory clears the value of the "category" field.
+func (u *DownloadUpsertBulk) ClearCategory() *DownloadUpsertBulk {
+	return u.Update(func(s *DownloadUpsert) {
+		s.ClearCategory()
 	})
 }
 

@@ -10,6 +10,7 @@ import (
 
 	entsql "entgo.io/ent/dialect/sql"
 	"github.com/miru-project/miru-core/ent"
+	entDownload "github.com/miru-project/miru-core/ent/download"
 	"github.com/miru-project/miru-core/ext"
 	"github.com/miru-project/miru-core/pkg/network"
 )
@@ -97,7 +98,7 @@ func createDownloadRecord(t *testing.T, client *ent.Client, progress []int, key,
 		SetProgress(progress).
 		SetKey(key).
 		SetTitle(title).
-		SetMediaType(mediaType).
+		SetMediaType(entDownload.MediaType(mediaType)).
 		SetStatus(status).
 		SetSavePath(savePath).
 		Save(t.Context())

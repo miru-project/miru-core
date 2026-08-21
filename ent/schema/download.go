@@ -47,9 +47,21 @@ func (Download) Fields() []ent.Field {
 		field.String("title").
 			NotEmpty().
 			Comment("Title of the content"),
-		field.String("media_type").
-			NotEmpty().
-			Comment("Media type (hls, mp4, torrent)"),
+		// Transport/media type of the download. Stored as an enum string
+		// (unspecified / hls / mp4 / torrent / magnet); \"unspecified\" is the
+		// default and lets the backend infer the type from the URL.
+		field.Enum("media_type").
+			Values("unspecified", "hls", "mp4", "torrent", "magnet").
+			Optional().
+			Default("unspecified").
+			Comment("Media type (hls, mp4, torrent, magnet)"),
+		// Content category used for storage grouping. Stored as an enum string
+		// (unspecified / video / manga / novel); "unspecified" is the default.
+		field.Enum("category").
+			Values("unspecified", "video", "manga", "novel").
+			Optional().
+			Default("unspecified").
+			Comment("Content category (video, manga, novel) used for storage grouping"),
 		field.String("status").
 			NotEmpty().
 			Comment("Current status of the download"),

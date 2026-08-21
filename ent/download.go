@@ -35,8 +35,10 @@ type Download struct {
 	Key string `json:"key,omitempty"`
 	// Title of the content
 	Title string `json:"title,omitempty"`
-	// Media type (hls, mp4, torrent)
-	MediaType string `json:"media_type,omitempty"`
+	// Media type (hls, mp4, torrent, magnet)
+	MediaType download.MediaType `json:"media_type,omitempty"`
+	// Content category (video, manga, novel) used for storage grouping
+	Category download.Category `json:"category,omitempty"`
 	// Current status of the download
 	Status string `json:"status,omitempty"`
 	// Final save path of the content
@@ -57,7 +59,7 @@ func (*Download) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case download.FieldID, download.FieldPriority:
 			values[i] = new(sql.NullInt64)
-		case download.FieldWatchUrl, download.FieldDetailUrl, download.FieldPackage, download.FieldKey, download.FieldTitle, download.FieldMediaType, download.FieldStatus, download.FieldSavePath:
+		case download.FieldWatchUrl, download.FieldDetailUrl, download.FieldPackage, download.FieldKey, download.FieldTitle, download.FieldMediaType, download.FieldCategory, download.FieldStatus, download.FieldSavePath:
 			values[i] = new(sql.NullString)
 		case download.FieldDate:
 			values[i] = new(sql.NullTime)
@@ -140,7 +142,13 @@ func (_m *Download) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field media_type", values[i])
 			} else if value.Valid {
-				_m.MediaType = value.String
+				_m.MediaType = download.MediaType(value.String)
+			}
+		case download.FieldCategory:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field category", values[i])
+			} else if value.Valid {
+				_m.Category = download.Category(value.String)
 			}
 		case download.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -227,7 +235,10 @@ func (_m *Download) String() string {
 	builder.WriteString(_m.Title)
 	builder.WriteString(", ")
 	builder.WriteString("media_type=")
-	builder.WriteString(_m.MediaType)
+	builder.WriteString(fmt.Sprintf("%v", _m.MediaType))
+	builder.WriteString(", ")
+	builder.WriteString("category=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Category))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(_m.Status)

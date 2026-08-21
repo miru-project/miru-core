@@ -3,6 +3,7 @@
 package download
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -31,6 +32,8 @@ const (
 	FieldTitle = "title"
 	// FieldMediaType holds the string denoting the media_type field in the database.
 	FieldMediaType = "media_type"
+	// FieldCategory holds the string denoting the category field in the database.
+	FieldCategory = "category"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldSavePath holds the string denoting the save_path field in the database.
@@ -55,6 +58,7 @@ var Columns = []string{
 	FieldKey,
 	FieldTitle,
 	FieldMediaType,
+	FieldCategory,
 	FieldStatus,
 	FieldSavePath,
 	FieldDate,
@@ -84,8 +88,6 @@ var (
 	KeyValidator func(string) error
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
-	// MediaTypeValidator is a validator for the "media_type" field. It is called by the builders before save.
-	MediaTypeValidator func(string) error
 	// StatusValidator is a validator for the "status" field. It is called by the builders before save.
 	StatusValidator func(string) error
 	// DefaultDate holds the default value on creation for the "date" field.
@@ -95,6 +97,63 @@ var (
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(int) error
 )
+
+// MediaType defines the type for the "media_type" enum field.
+type MediaType string
+
+// MediaTypeUnspecified is the default value of the MediaType enum.
+const DefaultMediaType = MediaTypeUnspecified
+
+// MediaType values.
+const (
+	MediaTypeUnspecified MediaType = "unspecified"
+	MediaTypeHls         MediaType = "hls"
+	MediaTypeMp4         MediaType = "mp4"
+	MediaTypeTorrent     MediaType = "torrent"
+	MediaTypeMagnet      MediaType = "magnet"
+)
+
+func (mt MediaType) String() string {
+	return string(mt)
+}
+
+// MediaTypeValidator is a validator for the "media_type" field enum values. It is called by the builders before save.
+func MediaTypeValidator(mt MediaType) error {
+	switch mt {
+	case MediaTypeUnspecified, MediaTypeHls, MediaTypeMp4, MediaTypeTorrent, MediaTypeMagnet:
+		return nil
+	default:
+		return fmt.Errorf("download: invalid enum value for media_type field: %q", mt)
+	}
+}
+
+// Category defines the type for the "category" enum field.
+type Category string
+
+// CategoryUnspecified is the default value of the Category enum.
+const DefaultCategory = CategoryUnspecified
+
+// Category values.
+const (
+	CategoryUnspecified Category = "unspecified"
+	CategoryVideo       Category = "video"
+	CategoryManga       Category = "manga"
+	CategoryNovel       Category = "novel"
+)
+
+func (c Category) String() string {
+	return string(c)
+}
+
+// CategoryValidator is a validator for the "category" field enum values. It is called by the builders before save.
+func CategoryValidator(c Category) error {
+	switch c {
+	case CategoryUnspecified, CategoryVideo, CategoryManga, CategoryNovel:
+		return nil
+	default:
+		return fmt.Errorf("download: invalid enum value for category field: %q", c)
+	}
+}
 
 // OrderOption defines the ordering options for the Download queries.
 type OrderOption func(*sql.Selector)
@@ -132,6 +191,11 @@ func ByTitle(opts ...sql.OrderTermOption) OrderOption {
 // ByMediaType orders the results by the media_type field.
 func ByMediaType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMediaType, opts...).ToFunc()
+}
+
+// ByCategory orders the results by the category field.
+func ByCategory(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCategory, opts...).ToFunc()
 }
 
 // ByStatus orders the results by the status field.

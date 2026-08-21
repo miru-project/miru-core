@@ -13,7 +13,7 @@ import (
 	"github.com/miru-project/miru-core/pkg/network"
 )
 
-func downloadMp4(filePath string, url string, header map[string]string, title string, pkg string, key string, detailUrl string, watchUrl string) (MultipleLinkJson, error) {
+func downloadMp4(filePath string, url string, header map[string]string, title string, pkg string, key string, detailUrl string, watchUrl string, category Category) (MultipleLinkJson, error) {
 
 	// Derive the saved file name from the REAL upstream target, not from the
 	// proxy path placeholder / query string. When url is a miru-core proxy URL
@@ -31,6 +31,7 @@ func downloadMp4(filePath string, url string, header map[string]string, title st
 		Total:     0,
 		Status:    Downloading,
 		MediaType: Mp4,
+		Category: category,
 		TaskID:    taskId,
 		Title:     title,
 		Package:   pkg,

@@ -122,7 +122,21 @@ func (s *MiruCoreServer) HelloMiru(ctx context.Context, req *proto.HelloMiruRequ
 }
 
 func StartServer() {
-	grpcPort, _ := strconv.Atoi(config.Global.GRPCPort)
+	// Resolve the gRPC port defensively. An empty/invalid "gRPCPort" value
+	// makes strconv.Atoi return 0, and net.Listen on port 0 asks the OS for a
+	// random ephemeral port (e.g. 44458) that the Flutter client can't predict.
+	// Fall back to the documented default (HTTP port + 1) so both sides agree.
+	grpcPort, err := strconv.Atoi(config.Global.GRPCPort)
+	if err != nil || grpcPort <= 0 {
+		previous := config.Global.GRPCPort
+		if httpPort, e := strconv.Atoi(config.Global.Port); e == nil && httpPort > 0 {
+			grpcPort = httpPort + 1
+		} else {
+			grpcPort = 3001
+		}
+		logger.Printf("invalid gRPCPort %q, defaulting to %d", previous, grpcPort)
+		config.Global.GRPCPort = strconv.Itoa(grpcPort)
+	}
 	lis, err := net.Listen("tcp", config.Global.Address+":"+strconv.Itoa(grpcPort))
 	if err != nil {
 		logger.Printf("failed to listen for gRPC: %v", err)
@@ -185,7 +199,8 @@ func toProtoDownloadProgress(p *download.Progress) *proto.DownloadProgress {
 		Names:              names,
 		Total:              int32(p.Total),
 		Status:             download.StatusToProto(p.Status),
-		MediaType:          sanitizeUTF8(string(p.MediaType)),
+		MediaType:          mediaTypeToProto(p.MediaType),
+		Category:           categoryToProto(p.Category),
 		CurrentDownloading: sanitizeUTF8(p.CurrentDownloading),
 		TaskId:             int32(p.TaskID),
 		Title:              sanitizeUTF8(p.Title),
@@ -194,6 +209,55 @@ func toProtoDownloadProgress(p *download.Progress) *proto.DownloadProgress {
 		Priority:           int32(p.Priority),
 		Url:                sanitizeUTF8(url),
 		Error:              sanitizeUTF8(p.Error),
+	}
+}
+
+// categoryToProto converts the persisted content-category string (the ent enum
+// value: unspecified / video / manga / novel) into the proto DownloadCategory
+// enum. The enum value NAMES are identical between the ent column and the proto
+// definition, so this is a direct lookup with no semantic remapping; unknown
+// values fall back to unspecified.
+func categoryToProto(category download.Category) proto.DownloadCategory {
+	if v, ok := proto.DownloadCategory_value[string(category)]; ok {
+		return proto.DownloadCategory(v)
+	}
+	return proto.DownloadCategory_unspecified
+}
+
+// mediaTypeToProto converts the internal download media type (in-memory value /
+// the ent enum column string) into the proto DownloadMediaType enum. Similar to
+// [categoryToProto], the value names are aligned (hls / mp4 / torrent / magnet),
+// so this is a direct mapping; any unknown value falls back to unspecified.
+func mediaTypeToProto(mt download.MediaType) proto.DownloadMediaType {
+	switch mt {
+	case download.Hls:
+		return proto.DownloadMediaType_hls
+	case download.Mp4:
+		return proto.DownloadMediaType_mp4
+	case download.Torrent:
+		return proto.DownloadMediaType_torrent
+	case download.Magnet:
+		return proto.DownloadMediaType_magnet
+	default:
+		return proto.DownloadMediaType_media_type_unspecified
+	}
+}
+
+// mediaTypeFromProto converts a proto DownloadMediaType back into the internal
+// download media type. Unspecified (or unknown) values return the empty string so
+// the backend falls back to inferring the type from the URL.
+func mediaTypeFromProto(mt proto.DownloadMediaType) download.MediaType {
+	switch mt {
+	case proto.DownloadMediaType_hls:
+		return download.Hls
+	case proto.DownloadMediaType_mp4:
+		return download.Mp4
+	case proto.DownloadMediaType_torrent:
+		return download.Torrent
+	case proto.DownloadMediaType_magnet:
+		return download.Magnet
+	default:
+		return ""
 	}
 }
 

@@ -1451,7 +1451,8 @@ type DownloadMutation struct {
 	appendprogress []int
 	key            *string
 	title          *string
-	media_type     *string
+	media_type     *download.MediaType
+	category       *download.Category
 	status         *string
 	save_path      *string
 	date           *time.Time
@@ -1913,12 +1914,12 @@ func (m *DownloadMutation) ResetTitle() {
 }
 
 // SetMediaType sets the "media_type" field.
-func (m *DownloadMutation) SetMediaType(s string) {
-	m.media_type = &s
+func (m *DownloadMutation) SetMediaType(dt download.MediaType) {
+	m.media_type = &dt
 }
 
 // MediaType returns the value of the "media_type" field in the mutation.
-func (m *DownloadMutation) MediaType() (r string, exists bool) {
+func (m *DownloadMutation) MediaType() (r download.MediaType, exists bool) {
 	v := m.media_type
 	if v == nil {
 		return
@@ -1929,7 +1930,7 @@ func (m *DownloadMutation) MediaType() (r string, exists bool) {
 // OldMediaType returns the old "media_type" field's value of the Download entity.
 // If the Download object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *DownloadMutation) OldMediaType(ctx context.Context) (v string, err error) {
+func (m *DownloadMutation) OldMediaType(ctx context.Context) (v download.MediaType, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldMediaType is only allowed on UpdateOne operations")
 	}
@@ -1943,9 +1944,71 @@ func (m *DownloadMutation) OldMediaType(ctx context.Context) (v string, err erro
 	return oldValue.MediaType, nil
 }
 
+// ClearMediaType clears the value of the "media_type" field.
+func (m *DownloadMutation) ClearMediaType() {
+	m.media_type = nil
+	m.clearedFields[download.FieldMediaType] = struct{}{}
+}
+
+// MediaTypeCleared returns if the "media_type" field was cleared in this mutation.
+func (m *DownloadMutation) MediaTypeCleared() bool {
+	_, ok := m.clearedFields[download.FieldMediaType]
+	return ok
+}
+
 // ResetMediaType resets all changes to the "media_type" field.
 func (m *DownloadMutation) ResetMediaType() {
 	m.media_type = nil
+	delete(m.clearedFields, download.FieldMediaType)
+}
+
+// SetCategory sets the "category" field.
+func (m *DownloadMutation) SetCategory(d download.Category) {
+	m.category = &d
+}
+
+// Category returns the value of the "category" field in the mutation.
+func (m *DownloadMutation) Category() (r download.Category, exists bool) {
+	v := m.category
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCategory returns the old "category" field's value of the Download entity.
+// If the Download object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DownloadMutation) OldCategory(ctx context.Context) (v download.Category, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCategory is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCategory requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCategory: %w", err)
+	}
+	return oldValue.Category, nil
+}
+
+// ClearCategory clears the value of the "category" field.
+func (m *DownloadMutation) ClearCategory() {
+	m.category = nil
+	m.clearedFields[download.FieldCategory] = struct{}{}
+}
+
+// CategoryCleared returns if the "category" field was cleared in this mutation.
+func (m *DownloadMutation) CategoryCleared() bool {
+	_, ok := m.clearedFields[download.FieldCategory]
+	return ok
+}
+
+// ResetCategory resets all changes to the "category" field.
+func (m *DownloadMutation) ResetCategory() {
+	m.category = nil
+	delete(m.clearedFields, download.FieldCategory)
 }
 
 // SetStatus sets the "status" field.
@@ -2159,7 +2222,7 @@ func (m *DownloadMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DownloadMutation) Fields() []string {
-	fields := make([]string, 0, 13)
+	fields := make([]string, 0, 14)
 	if m.url != nil {
 		fields = append(fields, download.FieldURL)
 	}
@@ -2186,6 +2249,9 @@ func (m *DownloadMutation) Fields() []string {
 	}
 	if m.media_type != nil {
 		fields = append(fields, download.FieldMediaType)
+	}
+	if m.category != nil {
+		fields = append(fields, download.FieldCategory)
 	}
 	if m.status != nil {
 		fields = append(fields, download.FieldStatus)
@@ -2225,6 +2291,8 @@ func (m *DownloadMutation) Field(name string) (ent.Value, bool) {
 		return m.Title()
 	case download.FieldMediaType:
 		return m.MediaType()
+	case download.FieldCategory:
+		return m.Category()
 	case download.FieldStatus:
 		return m.Status()
 	case download.FieldSavePath:
@@ -2260,6 +2328,8 @@ func (m *DownloadMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldTitle(ctx)
 	case download.FieldMediaType:
 		return m.OldMediaType(ctx)
+	case download.FieldCategory:
+		return m.OldCategory(ctx)
 	case download.FieldStatus:
 		return m.OldStatus(ctx)
 	case download.FieldSavePath:
@@ -2334,11 +2404,18 @@ func (m *DownloadMutation) SetField(name string, value ent.Value) error {
 		m.SetTitle(v)
 		return nil
 	case download.FieldMediaType:
-		v, ok := value.(string)
+		v, ok := value.(download.MediaType)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetMediaType(v)
+		return nil
+	case download.FieldCategory:
+		v, ok := value.(download.Category)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCategory(v)
 		return nil
 	case download.FieldStatus:
 		v, ok := value.(string)
@@ -2419,6 +2496,12 @@ func (m *DownloadMutation) ClearedFields() []string {
 	if m.FieldCleared(download.FieldProgress) {
 		fields = append(fields, download.FieldProgress)
 	}
+	if m.FieldCleared(download.FieldMediaType) {
+		fields = append(fields, download.FieldMediaType)
+	}
+	if m.FieldCleared(download.FieldCategory) {
+		fields = append(fields, download.FieldCategory)
+	}
 	if m.FieldCleared(download.FieldSavePath) {
 		fields = append(fields, download.FieldSavePath)
 	}
@@ -2441,6 +2524,12 @@ func (m *DownloadMutation) ClearField(name string) error {
 		return nil
 	case download.FieldProgress:
 		m.ClearProgress()
+		return nil
+	case download.FieldMediaType:
+		m.ClearMediaType()
+		return nil
+	case download.FieldCategory:
+		m.ClearCategory()
 		return nil
 	case download.FieldSavePath:
 		m.ClearSavePath()
@@ -2479,6 +2568,9 @@ func (m *DownloadMutation) ResetField(name string) error {
 		return nil
 	case download.FieldMediaType:
 		m.ResetMediaType()
+		return nil
+	case download.FieldCategory:
+		m.ResetCategory()
 		return nil
 	case download.FieldStatus:
 		m.ResetStatus()

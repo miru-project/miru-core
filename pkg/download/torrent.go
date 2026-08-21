@@ -14,7 +14,7 @@ import (
 )
 
 // add torrent to torrent client -> start torrent download -> download torrent like mp4
-func downloadTorrent(filePath string, url string, header map[string]string, mediaType string, title string, pkg string, key string, detailUrl string, watchUrl string) (MultipleLinkJson, error) {
+func downloadTorrent(filePath string, url string, header map[string]string, mediaType string, title string, pkg string, key string, detailUrl string, watchUrl string, category Category) (MultipleLinkJson, error) {
 	var t *torrent.Torrent
 	var err error
 	if strings.HasPrefix(url, "magnet:") {
@@ -56,6 +56,7 @@ func downloadTorrent(filePath string, url string, header map[string]string, medi
 		Total:     int(maxSize),
 		Status:    Downloading,
 		MediaType: mt,
+		Category: category,
 		TaskID:    taskId,
 		Title:     title,
 		Package:   pkg,

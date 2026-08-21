@@ -13,6 +13,7 @@ import (
 	"sync"
 
 	"github.com/miru-project/miru-core/ent"
+	entDownload "github.com/miru-project/miru-core/ent/download"
 	"github.com/miru-project/miru-core/ext"
 	"github.com/miru-project/miru-core/pkg/db"
 	miruTorrent "github.com/miru-project/miru-core/pkg/torrent"
@@ -44,6 +45,7 @@ type Progress struct {
 	URL                []string          `json:"url"`
 	Headers            map[string]string `json:"headers"`
 	SavePath           string            `json:"save_path"`
+	Category           Category          `json:"category"`
 	DetailUrl          string            `json:"detail_url"`
 	WatchUrl           string            `json:"watch_url"`
 	// Priority used by the concurrency-limited scheduler. Higher runs first.
@@ -68,6 +70,48 @@ const (
 	Torrent MediaType = "torrent"
 	Magnet  MediaType = "magnet"
 )
+
+// Category is the content category of a download, used for storage grouping.
+// Its string values match the ent enum column and the proto DownloadCategory
+// value names (video / manga / novel); an empty value means unspecified.
+type Category string
+
+const (
+	CategoryVideo Category = "video"
+	CategoryManga Category = "manga"
+	CategoryNovel Category = "novel"
+)
+
+// CategoryFromProto converts a proto DownloadCategory into the internal content
+// category. Unspecified/unknown values map to "" so callers can treat it as "no
+// category" (stored back as unspecified).
+func CategoryFromProto(c proto.DownloadCategory) Category {
+	switch c {
+	case proto.DownloadCategory_video:
+		return CategoryVideo
+	case proto.DownloadCategory_manga:
+		return CategoryManga
+	case proto.DownloadCategory_novel:
+		return CategoryNovel
+	default:
+		return ""
+	}
+}
+
+// CategoryToProto converts the internal content category into the proto
+// DownloadCategory enum. Empty / unknown values map to unspecified.
+func CategoryToProto(c Category) proto.DownloadCategory {
+	switch c {
+	case CategoryVideo:
+		return proto.DownloadCategory_video
+	case CategoryManga:
+		return proto.DownloadCategory_manga
+	case CategoryNovel:
+		return proto.DownloadCategory_novel
+	default:
+		return proto.DownloadCategory_unspecified
+	}
+}
 
 type Status string
 
@@ -470,6 +514,10 @@ func (p *Progress) SyncDB() {
 	// (used by the frontend for live updates) is always kept up to date, so
 	// callers/tests without a DB still work.
 	if ext.IsDBReady() {
+		cat := entDownload.Category(string(p.Category))
+		if cat == "" {
+			cat = entDownload.CategoryUnspecified
+		}
 		db.UpsertDownload(&ent.Download{
 			URL:       p.URL,
 			Headers:   p.Headers,
@@ -477,8 +525,9 @@ func (p *Progress) SyncDB() {
 			Progress:  []int{p.Progrss, p.Total}, // [0]=progress, [1]=total
 			Key:       p.Key,
 			Title:     p.Title,
-			MediaType: string(p.MediaType),
+			MediaType: entDownload.MediaType(string(p.MediaType)),
 			Status:    string(p.Status),
+			Category:  cat,
 			SavePath:  p.SavePath,
 			DetailUrl: p.DetailUrl,
 			WatchUrl:  p.WatchUrl,

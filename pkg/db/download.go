@@ -30,6 +30,7 @@ func UpsertDownload(d *ent.Download) (*ent.Download, error) {
 				SetKey(d.Key).
 				SetTitle(d.Title).
 				SetMediaType(d.MediaType).
+				SetCategory(d.Category).
 				SetStatus(d.Status).
 				SetSavePath(d.SavePath).
 				Save(ctx)
@@ -45,6 +46,7 @@ func UpsertDownload(d *ent.Download) (*ent.Download, error) {
 		SetProgress(d.Progress).
 		SetTitle(d.Title).
 		SetMediaType(d.MediaType).
+		SetCategory(d.Category).
 		SetStatus(d.Status).
 		SetSavePath(d.SavePath).
 		SetDate(time.Now()).

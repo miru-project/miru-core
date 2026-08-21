@@ -70,7 +70,7 @@ func withStatusUpdate(t *testing.T, handler func(map[int]*Progress)) {
 // startDownload starts a download and returns the task ID.
 func startDownload(t *testing.T, url, mediaType, title string) int {
 	t.Helper()
-	result, err := Download(t.TempDir(), url, map[string]string{}, mediaType, title, "test-pkg", "", "", "")
+	result, err := Download(t.TempDir(), url, map[string]string{}, mediaType, title, "test-pkg", "", "", "", "")
 	if err != nil {
 		t.Fatalf("Download() returned error: %v", err)
 	}
@@ -164,7 +164,7 @@ func verifyInvalidURLFails(t *testing.T, init func(*testing.T), url, mediaType, 
 	skipShort(t)
 	init(t)
 
-	result, err := Download(t.TempDir(), url, map[string]string{}, mediaType, title, "test-pkg", "", "", "")
+	result, err := Download(t.TempDir(), url, map[string]string{}, mediaType, title, "test-pkg", "", "", "", "")
 	if err != nil {
 		t.Logf("Download() correctly returned error for invalid URL: %v", err)
 		return

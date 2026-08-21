@@ -36,6 +36,7 @@ const (
 	DownloadService_SetDownloadPriority_FullMethodName                   = "/miru.DownloadService/SetDownloadPriority"
 	DownloadService_SetDownloadConcurrent_FullMethodName                 = "/miru.DownloadService/SetDownloadConcurrent"
 	DownloadService_ReorderDownloads_FullMethodName                      = "/miru.DownloadService/ReorderDownloads"
+	DownloadService_GetStorageStats_FullMethodName                       = "/miru.DownloadService/GetStorageStats"
 )
 
 // DownloadServiceClient is the client API for DownloadService service.
@@ -61,6 +62,9 @@ type DownloadServiceClient interface {
 	SetDownloadPriority(ctx context.Context, in *SetDownloadPriorityRequest, opts ...grpc.CallOption) (*SetDownloadPriorityResponse, error)
 	SetDownloadConcurrent(ctx context.Context, in *SetDownloadConcurrentRequest, opts ...grpc.CallOption) (*SetDownloadConcurrentResponse, error)
 	ReorderDownloads(ctx context.Context, in *ReorderDownloadsRequest, opts ...grpc.CallOption) (*ReorderDownloadsResponse, error)
+	// Returns per-category storage usage for the given download path, including
+	// bytes occupied by in-progress (temp) downloads.
+	GetStorageStats(ctx context.Context, in *GetStorageStatsRequest, opts ...grpc.CallOption) (*GetStorageStatsResponse, error)
 }
 
 type downloadServiceClient struct {
@@ -241,6 +245,16 @@ func (c *downloadServiceClient) ReorderDownloads(ctx context.Context, in *Reorde
 	return out, nil
 }
 
+func (c *downloadServiceClient) GetStorageStats(ctx context.Context, in *GetStorageStatsRequest, opts ...grpc.CallOption) (*GetStorageStatsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetStorageStatsResponse)
+	err := c.cc.Invoke(ctx, DownloadService_GetStorageStats_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DownloadServiceServer is the server API for DownloadService service.
 // All implementations must embed UnimplementedDownloadServiceServer
 // for forward compatibility.
@@ -264,6 +278,9 @@ type DownloadServiceServer interface {
 	SetDownloadPriority(context.Context, *SetDownloadPriorityRequest) (*SetDownloadPriorityResponse, error)
 	SetDownloadConcurrent(context.Context, *SetDownloadConcurrentRequest) (*SetDownloadConcurrentResponse, error)
 	ReorderDownloads(context.Context, *ReorderDownloadsRequest) (*ReorderDownloadsResponse, error)
+	// Returns per-category storage usage for the given download path, including
+	// bytes occupied by in-progress (temp) downloads.
+	GetStorageStats(context.Context, *GetStorageStatsRequest) (*GetStorageStatsResponse, error)
 	mustEmbedUnimplementedDownloadServiceServer()
 }
 
@@ -324,6 +341,9 @@ func (UnimplementedDownloadServiceServer) SetDownloadConcurrent(context.Context,
 }
 func (UnimplementedDownloadServiceServer) ReorderDownloads(context.Context, *ReorderDownloadsRequest) (*ReorderDownloadsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ReorderDownloads not implemented")
+}
+func (UnimplementedDownloadServiceServer) GetStorageStats(context.Context, *GetStorageStatsRequest) (*GetStorageStatsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetStorageStats not implemented")
 }
 func (UnimplementedDownloadServiceServer) mustEmbedUnimplementedDownloadServiceServer() {}
 func (UnimplementedDownloadServiceServer) testEmbeddedByValue()                         {}
@@ -652,6 +672,24 @@ func _DownloadService_ReorderDownloads_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DownloadService_GetStorageStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetStorageStatsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DownloadServiceServer).GetStorageStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DownloadService_GetStorageStats_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DownloadServiceServer).GetStorageStats(ctx, req.(*GetStorageStatsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DownloadService_ServiceDesc is the grpc.ServiceDesc for DownloadService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -726,6 +764,10 @@ var DownloadService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ReorderDownloads",
 			Handler:    _DownloadService_ReorderDownloads_Handler,
+		},
+		{
+			MethodName: "GetStorageStats",
+			Handler:    _DownloadService_GetStorageStats_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

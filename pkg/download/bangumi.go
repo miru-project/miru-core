@@ -9,7 +9,7 @@ import (
 	"github.com/miru-project/miru-core/pkg/network"
 )
 
-func Download(fileLoc string, url string, header map[string]string, mediaType string, title string, pkg string, key string, detailUrl string, watchUrl string) (MultipleLinkJson, error) {
+func Download(fileLoc string, url string, header map[string]string, mediaType string, title string, pkg string, key string, detailUrl string, watchUrl string, category Category) (MultipleLinkJson, error) {
 	fileLoc = network.SanitizeFolderPath(fileLoc)
 	mediaType = strings.ToLower(mediaType)
 
@@ -23,22 +23,22 @@ func Download(fileLoc string, url string, header map[string]string, mediaType st
 	// Check if the URL is a valid HLS URL
 	if mediaType == "hls" || isHlsUrl(url) {
 		logger.Println("Downloading HLS : " + url)
-		return downloadHls(fileLoc, url, header, title, pkg, key, detailUrl, watchUrl)
+		return downloadHls(fileLoc, url, header, title, pkg, key, detailUrl, watchUrl, category)
 	}
 
 	if mediaType == "magnet" || isMagnetURL(url) {
 		logger.Println("Downloading Magnet : " + url)
-		return downloadTorrent(fileLoc, url, header, "magnet", title, pkg, key, detailUrl, watchUrl)
+		return downloadTorrent(fileLoc, url, header, "magnet", title, pkg, key, detailUrl, watchUrl, category)
 	}
 
 	if mediaType == "torrent" || isTorrentFileURL(url) {
 		logger.Println("Downloading Torrent : " + url)
-		return downloadTorrent(fileLoc, url, header, "torrent", title, pkg, key, detailUrl, watchUrl)
+		return downloadTorrent(fileLoc, url, header, "torrent", title, pkg, key, detailUrl, watchUrl, category)
 	}
 
 	if mediaType == "mp4" || isMp4Url(url) {
 		logger.Println("Downloading MP4 : " + url)
-		return downloadMp4(fileLoc, url, header, title, pkg, key, detailUrl, watchUrl)
+		return downloadMp4(fileLoc, url, header, title, pkg, key, detailUrl, watchUrl, category)
 	}
 
 	return MultipleLinkJson{}, errors.New("Unsupported media type: " + mediaType)
