@@ -111,13 +111,25 @@ func percent(x, total uint64) float64 {
 }
 
 func InitProgram(configPath *string) {
+	// Top-level guard: a panic during startup would otherwise terminate the
+	// whole process. Capture and identify it, then re-panic so the failure is
+	// still surfaced to the launcher.
+	defer func() {
+		if r := recover(); r != nil {
+			errorhandle.LogCrash(r, "InitProgram")
+			panic(r)
+		}
+	}()
 
-	// Start the memory/GC monitor as early as possible so it tracks the whole
-	// lifetime of the program.
-	startMemoryMonitor()
-
-	// Initialize logger
+	// Initialize logger FIRST. The crash-reporting pipeline
+	// (errorhandle.LogCrash -> logger.LogCrash -> miru_core_crash.log) only
+	// works once InitLog has opened the log files, so it must be armed before
+	// any code that can panic (including startMemoryMonitor below) runs.
 	log.InitLog(filepath.Dir(*configPath))
+
+	// Start the memory/GC monitor right after logging so it covers as much of
+	// the program lifetime as possible while still having a working crash log.
+	startMemoryMonitor()
 
 	if _, err := os.Stat(*configPath); os.IsNotExist(err) {
 		log.Printf("Configuration file not found at %s, creating with default settings", *configPath)

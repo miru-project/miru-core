@@ -1,6 +1,8 @@
 package router
 
 import (
+	"fmt"
+
 	fasthttp_router "github.com/fasthttp/router"
 	"github.com/miru-project/miru-core/config"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
@@ -21,7 +23,11 @@ func InitRouter(app *fasthttp_router.Router) {
 	initAnilistRouter(app)
 	initTorrentRouter(app)
 	initProxy(app)
-	go grpc.StartServer()
+	// Guard the gRPC server: a panic here must not take down the process.
+	go func() {
+		defer errorhandle.RecoverLog("grpc.StartServer")
+		grpc.StartServer()
+	}()
 	startListening(app, config.Global.Address+":"+config.Global.Port)
 
 }
@@ -31,7 +37,27 @@ func initProxy(app *fasthttp_router.Router) {
 }
 func startListening(app *fasthttp_router.Router, host string) {
 	logger.Println("HTTP Server started on ", host)
-	if e := fasthttp.ListenAndServe(host, app.Handler); e != nil {
+	// Per-request panic recovery: a bad request must not crash the server.
+	// Captured panics are written to the miru_core crash log and answered
+	// with HTTP 500 instead of terminating the process.
+	handler := func(ctx *fasthttp.RequestCtx) {
+		defer func() {
+			if r := recover(); r != nil {
+				errorhandle.LogCrash(
+					r,
+					fmt.Sprintf(
+						"%s %s",
+						string(ctx.Method()),
+						string(ctx.RequestURI()),
+					),
+				)
+				ctx.SetStatusCode(fasthttp.StatusInternalServerError)
+				ctx.SetBodyString("internal server error")
+			}
+		}()
+		app.Handler(ctx)
+	}
+	if e := fasthttp.ListenAndServe(host, handler); e != nil {
 		errorhandle.PanicF("Can't listen on host %q: %s", host, e)
 	}
 }
