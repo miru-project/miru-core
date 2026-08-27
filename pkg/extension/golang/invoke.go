@@ -20,7 +20,17 @@ func readExtensionPkgSource(pkg string) ([]byte, error) {
 // compiler handles, so there is no need to strip anything. The first return
 // value of the called function (index 0) is returned; if the function also
 // returns an error (index 1) it is propagated to the caller.
-func callExtension(pkg, fn string, args ...any) (any, error) {
+//
+// The whole call is guarded with recover: the Scriggo Call path is reflective,
+// and an extension entry point whose declared signature does not accept the
+// host's arguments (for example `filter string` instead of `sdk.Filter`)
+// panics inside reflect. Without this guard that panic would unwind through
+// the c-shared boundary and kill the whole core process; with it, the failure
+// becomes a normal error that travels back over gRPC to the UI.
+//
+// Every call compiles its own VM and program (see below), so recovering here
+// cannot leave shared interpreter state corrupted.
+func callExtension(pkg, fn string, args ...any) (result any, err error) {
 	vm := NewScriggoVM(nil)
 	src, err := readExtensionPkgSource(pkg)
 	if err != nil {
@@ -31,6 +41,15 @@ func callExtension(pkg, fn string, args ...any) (any, error) {
 	if err != nil {
 		return nil, fmt.Errorf("compile extension %s: %w", pkg, err)
 	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			result, err = nil, withStackTrace(
+				"extension "+pkg+"."+fn,
+				fmt.Errorf("calling %s panicked: %v", fn, r),
+			)
+		}
+	}()
 
 	res, err := prog.program.Call(fn, args...)
 	if err != nil {
@@ -46,3 +65,4 @@ func callExtension(pkg, fn string, args ...any) (any, error) {
 	}
 	return res[0], nil
 }
+
