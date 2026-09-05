@@ -32,27 +32,16 @@ func (s *MiruCoreServer) WatchEvents(req *proto.WatchEventsRequest, stream proto
 						},
 					},
 				}
-		case event.ExtensionUpdate:
-			exts := e.Data.([]*js.ExtApi)
-			protoExtMeta := make([]*proto.ExtensionMeta, len(exts))
-			for i, ea := range exts {
-				e := ea.Ext
-				protoExtMeta[i] = &proto.ExtensionMeta{
-					Name:        sanitizeUTF8(e.Name),
-					Version:     sanitizeUTF8(e.Version),
-					Author:      sanitizeUTF8(e.Author),
-					License:     sanitizeUTF8(e.License),
-					Lang:        sanitizeUTF8(e.Lang),
-					Icon:        sanitizeUTF8(e.Icon),
-					Package:     sanitizeUTF8(e.Pkg),
-					WebSite:     sanitizeUTF8(e.Website),
-					Description: sanitizeUTF8(e.Description),
-					Tags:        sanitizeTags(e.Tags),
-					Api:         sanitizeUTF8(e.ApiVersion),
-					Error:       sanitizeUTF8(e.Error),
-					Type:        sanitizeUTF8(string(e.WatchType)),
-				}
-			}
+			case event.ExtensionUpdate:
+				// The payload is the merged Go + JS snapshot published by
+				// handler.BuildExtensionMeta and converted by the same helper
+				// HelloMiru uses. It used to read the JS runtime's own cache, so any
+				// JS-side change (install, hot reload, lazy load on first use, or an
+				// extension merely reporting an error) pushed a JS-only list, and the
+				// frontend replaces its whole list on receipt — which wiped every Go
+				// extension from the UI until the app restarted.
+				exts := e.Data.([]*js.Ext)
+				protoExtMeta := toProtoExtensionMeta(exts)
 				resp = &proto.WatchEventsResponse{
 					Event: &proto.WatchEventsResponse_ExtensionEvent{
 						ExtensionEvent: &proto.ExtensionEvent{
@@ -73,36 +62,36 @@ func (s *MiruCoreServer) WatchEvents(req *proto.WatchEventsRequest, stream proto
 						},
 					},
 				}
-		case event.DevLog:
-			raw := e.Data.(*proto.DevLogEvent)
-			resp = &proto.WatchEventsResponse{
-				Event: &proto.WatchEventsResponse_DevLogEvent{
-					DevLogEvent: &proto.DevLogEvent{
-						Package:   sanitizeUTF8(raw.Package),
-						Message:   sanitizeUTF8(raw.Message),
-						Level:     sanitizeUTF8(raw.Level),
-						Timestamp: raw.Timestamp,
+			case event.DevLog:
+				raw := e.Data.(*proto.DevLogEvent)
+				resp = &proto.WatchEventsResponse{
+					Event: &proto.WatchEventsResponse_DevLogEvent{
+						DevLogEvent: &proto.DevLogEvent{
+							Package:   sanitizeUTF8(raw.Package),
+							Message:   sanitizeUTF8(raw.Message),
+							Level:     sanitizeUTF8(raw.Level),
+							Timestamp: raw.Timestamp,
+						},
 					},
-				},
-			}
-		case event.DevNetwork:
-			raw := e.Data.(*proto.DevNetworkEvent)
-			resp = &proto.WatchEventsResponse{
-				Event: &proto.WatchEventsResponse_DevNetworkEvent{
-					DevNetworkEvent: &proto.DevNetworkEvent{
-						Package:        sanitizeUTF8(raw.Package),
-						Url:            sanitizeUTF8(raw.Url),
-						Method:         sanitizeUTF8(raw.Method),
-						Status:         raw.Status,
-						Duration:       raw.Duration,
-						Timestamp:      raw.Timestamp,
-						RequestHeaders: sanitizeUTF8(raw.RequestHeaders),
-						RequestBody:    sanitizeUTF8(raw.RequestBody),
-						ResponseHeaders: sanitizeUTF8(raw.ResponseHeaders),
-						ResponseBody:   sanitizeUTF8(raw.ResponseBody),
+				}
+			case event.DevNetwork:
+				raw := e.Data.(*proto.DevNetworkEvent)
+				resp = &proto.WatchEventsResponse{
+					Event: &proto.WatchEventsResponse_DevNetworkEvent{
+						DevNetworkEvent: &proto.DevNetworkEvent{
+							Package:         sanitizeUTF8(raw.Package),
+							Url:             sanitizeUTF8(raw.Url),
+							Method:          sanitizeUTF8(raw.Method),
+							Status:          raw.Status,
+							Duration:        raw.Duration,
+							Timestamp:       raw.Timestamp,
+							RequestHeaders:  sanitizeUTF8(raw.RequestHeaders),
+							RequestBody:     sanitizeUTF8(raw.RequestBody),
+							ResponseHeaders: sanitizeUTF8(raw.ResponseHeaders),
+							ResponseBody:    sanitizeUTF8(raw.ResponseBody),
+						},
 					},
-				},
-			}
+				}
 			}
 
 			if resp != nil {

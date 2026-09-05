@@ -13,6 +13,7 @@ import (
 	"github.com/miru-project/miru-core/pkg/download"
 	errorhandle "github.com/miru-project/miru-core/pkg/errorHandle"
 	"github.com/miru-project/miru-core/pkg/event"
+	"github.com/miru-project/miru-core/pkg/extension/golang"
 	"github.com/miru-project/miru-core/pkg/extension/js"
 	"github.com/miru-project/miru-core/pkg/logger"
 	"github.com/miru-project/miru-core/pkg/torrent"
@@ -68,24 +69,7 @@ func (s *MiruCoreServer) HelloMiru(ctx context.Context, req *proto.HelloMiruRequ
 	extMeta := data["extensionMeta"].([]*js.Ext)
 	downloadStatus := data["downloadStatus"].(map[int]*download.Progress)
 
-	protoExtMeta := make([]*proto.ExtensionMeta, len(extMeta))
-	for i, e := range extMeta {
-		protoExtMeta[i] = &proto.ExtensionMeta{
-			Name:        sanitizeUTF8(e.Name),
-			Version:     sanitizeUTF8(e.Version),
-			Author:      sanitizeUTF8(e.Author),
-			License:     sanitizeUTF8(e.License),
-			Lang:        sanitizeUTF8(e.Lang),
-			Icon:        sanitizeUTF8(e.Icon),
-			Package:     sanitizeUTF8(e.Pkg),
-			WebSite:     sanitizeUTF8(e.Website),
-			Description: sanitizeUTF8(e.Description),
-			Tags:        sanitizeTags(e.Tags),
-			Api:         sanitizeUTF8(e.ApiVersion),
-			Error:       sanitizeUTF8(e.Error),
-			Type:        sanitizeUTF8(string(e.WatchType)),
-		}
-	}
+	protoExtMeta := toProtoExtensionMeta(extMeta)
 
 	protoDownloadStatus := make(map[int32]*proto.DownloadProgress)
 	for id, p := range downloadStatus {
@@ -161,9 +145,13 @@ func StartServer() {
 	download.OnStatusUpdate = func(status map[int]*download.Progress) {
 		event.SendDownloadUpdate(status)
 	}
-	js.OnExtensionUpdate = func(exts []*js.ExtApi) {
-		event.SendExtensionUpdate(exts)
-	}
+	// Both runtimes must publish the SAME merged list that the initial
+	// HelloMiru snapshot uses. Publishing the JS cache alone meant every
+	// JS-side cache mutation — install, hot reload, lazy load on first use, or
+	// even an extension merely reporting an error — pushed a JS-only snapshot,
+	// and the frontend replaces its whole list on receipt. That wiped every
+	// Go/Scriggo extension out of the UI until the app was restarted.
+	wireExtensionUpdateCallbacks()
 
 	logger.Printf("gRPC server listening at %v", lis.Addr())
 	if err := s.Serve(lis); err != nil {
@@ -172,6 +160,53 @@ func StartServer() {
 }
 
 // Helpers
+
+// wireExtensionUpdateCallbacks points both runtimes' change notifications at
+// the merged snapshot publisher. Extracted from StartGRPCServer (which blocks
+// on Serve) so tests can exercise the real wiring instead of a copy of it.
+func wireExtensionUpdateCallbacks() {
+	js.OnExtensionUpdate = func([]*js.ExtApi) { publishExtensionSnapshot() }
+	golang.OnExtensionUpdate = publishExtensionSnapshot
+}
+
+// publishExtensionSnapshot sends the merged Go + JS extension list to every
+// event subscriber. Both runtimes' update callbacks route through here, so a
+// change on one side can never publish a runtime-local list that makes the
+// frontend drop the other side's extensions.
+func publishExtensionSnapshot() {
+	event.SendExtensionUpdate(handler.BuildExtensionMeta())
+}
+
+// toProtoExtensionMeta converts the merged Go + JS extension snapshot into its
+// wire form.
+//
+// Both HelloMiru (the initial snapshot) and the ExtensionUpdate event publish
+// through this one function. They previously each carried their own copy of
+// the field mapping, which let the event path keep reading the JS-only cache
+// while the snapshot had already moved to the merged list — the divergence that
+// made Go extensions disappear from the UI.
+func toProtoExtensionMeta(exts []*js.Ext) []*proto.ExtensionMeta {
+	protoExtMeta := make([]*proto.ExtensionMeta, len(exts))
+	for i, e := range exts {
+		protoExtMeta[i] = &proto.ExtensionMeta{
+			Name:        sanitizeUTF8(e.Name),
+			Version:     sanitizeUTF8(e.Version),
+			Author:      sanitizeUTF8(e.Author),
+			License:     sanitizeUTF8(e.License),
+			Lang:        sanitizeUTF8(e.Lang),
+			Icon:        sanitizeUTF8(e.Icon),
+			Package:     sanitizeUTF8(e.Pkg),
+			WebSite:     sanitizeUTF8(e.Website),
+			Description: sanitizeUTF8(e.Description),
+			Tags:        sanitizeTags(e.Tags),
+			Api:         sanitizeUTF8(e.ApiVersion),
+			Error:       sanitizeUTF8(e.Error),
+			Type:        sanitizeUTF8(string(e.WatchType)),
+		}
+	}
+	return protoExtMeta
+}
+
 func safeSprint(v any) string {
 	if v == nil {
 		return ""
@@ -209,6 +244,37 @@ func toProtoDownloadProgress(p *download.Progress) *proto.DownloadProgress {
 		Priority:           int32(p.Priority),
 		Url:                sanitizeUTF8(url),
 		Error:              sanitizeUTF8(p.Error),
+	}
+}
+
+// toProtoDownload maps a persisted download row onto its wire form.
+//
+// This replaces three hand-rolled copies of the same struct literal in the
+// download RPCs. They had drifted: none of them carried Category, so every
+// history row arrived as `unspecified` and the mobile Video/Manga/Novel tabs
+// could never match a completed download; nor did they carry DetailUrl, which
+// the finished-download "open source" action needs to navigate back.
+func toProtoDownload(d *ent.Download) *proto.Download {
+	progress := make([]int32, len(d.Progress))
+	for i, v := range d.Progress {
+		progress[i] = int32(v)
+	}
+
+	return &proto.Download{
+		Id:        int32(d.ID),
+		Url:       d.URL,
+		Headers:   d.Headers,
+		Package:   d.Package,
+		Progress:  progress,
+		Key:       d.Key,
+		Title:     d.Title,
+		MediaType: mediaTypeToProto(download.MediaType(d.MediaType)),
+		Status:    download.StatusToProto(download.Status(d.Status)),
+		SavePath:  d.SavePath,
+		Date:      d.Date.Format(time.RFC3339),
+		Priority:  int32(d.Priority),
+		Category:  categoryToProto(download.Category(d.Category)),
+		DetailUrl: d.DetailUrl,
 	}
 }
 

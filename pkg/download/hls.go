@@ -5,10 +5,13 @@ import (
 	"context"
 	"crypto/aes"
 	"crypto/cipher"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"path"
 	"path/filepath"
+	"strings"
+	"time"
 
 	log "github.com/miru-project/miru-core/pkg/logger"
 
@@ -30,19 +33,47 @@ func hlsDecrypt(enc []byte, key []byte, iv []byte) ([]byte, error) {
 	mode.CryptBlocks(decrypted, enc)
 	return decrypted, nil
 }
+
+// fetchPlaylistText downloads an m3u8 playlist through the validated fetcher
+// (status/empty checks + retries), so an HTML error page or expired signed
+// URL surfaces as a clear fetch error instead of reaching the decoder.
+func fetchPlaylistText(url string, headers map[string]string) (string, error) {
+	body, e := fetchHlsResource(url, headers)
+	if e != nil {
+		return "", fmt.Errorf("playlist fetch failed: %w", e)
+	}
+	return string(body), nil
+}
+
+// decodePlaylist parses m3u8 text, wrapping decoder errors with the source
+// URL and a leading body snippet so "#EXTM3U absent" style failures are
+// diagnosable from the toast alone.
+func decodePlaylist(text string, sourceUrl string) (m3u8.Playlist, m3u8.ListType, error) {
+	o := bytes.NewBufferString(text)
+	pl, li, e := m3u8.Decode(*o, true)
+	if e != nil {
+		snippet := strings.TrimSpace(text)
+		if len(snippet) > 80 {
+			snippet = snippet[:80]
+		}
+		return nil, 0, fmt.Errorf(
+			"%s is not a valid m3u8 playlist: %w (body starts with %q)",
+			sourceUrl, e, snippet)
+	}
+	return pl, li, nil
+}
+
 func downloadHls(filePath string, url string, headers map[string]string, title string, pkg string, key string, detailUrl string, watchUrl string, category Category) (MultipleLinkJson, error) {
 
 	// Get hls content from url
-	res, e := network.Request[string](url, &network.RequestOptions{Headers: headers, Method: "GET"}, network.ReadAll)
+	res, e := fetchPlaylistText(url, headers)
 	if e != nil {
 		return MultipleLinkJson{}, e
 	}
-	o := bytes.NewBufferString(res.Body)
 
 	// Decode the m3u8 file
-	pl, li, e := m3u8.Decode(*o, true)
 	log.Println("Decode m3u8 file:", url)
-
+	pl, li, e := decodePlaylist(res, url)
 	if e != nil {
 		return MultipleLinkJson{}, e
 	}
@@ -72,7 +103,7 @@ func downloadHls(filePath string, url string, headers map[string]string, title s
 		Total:     len(playList.Segments),
 		Status:    Downloading,
 		MediaType: Hls,
-		Category: category,
+		Category:  category,
 		TaskID:    taskId,
 		Title:     title,
 		Package:   pkg,
@@ -86,17 +117,13 @@ func downloadHls(filePath string, url string, headers map[string]string, title s
 	statusMap.Store(taskId, p)
 	p.SyncDB()
 
-	fetchedKey := downloadKey(playList.Key, url, headers)
-	iv := getIV(playList.Key, playList.SeqNo)
-
 	hlsParam := &HlsTaskParam{
 		TaskParam:   TaskParam{taskID: taskId},
 		playList:    playList,
 		filePath:    filePath,
 		headers:     headers,
 		playListUrl: url,
-		Key:         &fetchedKey,
-		IV:          &iv,
+		keyResolver: newHlsKeyResolver(url, headers),
 	}
 	taskParams.Store(taskId, hlsParam)
 	startDownloadTask(hlsParam, downloadSegment)
@@ -117,9 +144,18 @@ func filterSegments(segments []*m3u8.MediaSegment) []*m3u8.MediaSegment {
 	return lis
 }
 func getIV(keyMeta *m3u8.Key, seqNo uint64) []byte {
-	if keyMeta != nil && len(keyMeta.IV) == 16 {
-		return []byte(keyMeta.IV)
+	// EXT-X-KEY IV is a hex literal ("0x...") per the HLS spec; decode it
+	// properly instead of taking the ASCII bytes of the string.
+	if keyMeta != nil && keyMeta.IV != "" {
+		raw := strings.TrimPrefix(strings.TrimPrefix(keyMeta.IV, "0x"), "0X")
+		if len(raw) < 32 {
+			raw = strings.Repeat("0", 32-len(raw)) + raw
+		}
+		if decoded, err := hex.DecodeString(raw); err == nil && len(decoded) == 16 {
+			return decoded
+		}
 	}
+	// Default IV is the media sequence number as a big-endian 128-bit value.
 	iv := make([]byte, 16)
 	iv[8] = byte(seqNo >> 56)
 	iv[9] = byte(seqNo >> 48)
@@ -152,25 +188,84 @@ func avaliableVarient(variants []*m3u8.Variant, prevUrl string) []*AvailableHlsV
 	return lis
 }
 
-func downloadKey(key *m3u8.Key, playListUrl string, headers map[string]string) []byte {
-	if key == nil {
-		return nil
+// fetchHlsResource downloads one HLS resource (media segment or key) and
+// validates the response. network.Request only reports transport errors, so
+// without the status/size checks a 403/404 error page would be saved as a
+// "good" segment and corrupt the eventual FFmpeg merge. Transient failures
+// (network errors, 5xx, 408/429, empty bodies) are retried with exponential
+// backoff; permanent 4xx fail immediately.
+func fetchHlsResource(url string, headers map[string]string) ([]byte, error) {
+	const attempts = 3
+	var lastErr error
+	for attempt := 1; attempt <= attempts; attempt++ {
+		if attempt > 1 {
+			time.Sleep(time.Duration(1<<(attempt-2)) * 500 * time.Millisecond)
+		}
+		res, e := network.Request[[]byte](url,
+			&network.RequestOptions{Headers: headers, Method: "GET"}, network.ReadAll)
+		if e != nil {
+			lastErr = e
+			continue
+		}
+		if res.StatusCode >= 400 {
+			lastErr = fmt.Errorf("HTTP status %d", res.StatusCode)
+			if res.StatusCode < 500 && res.StatusCode != 408 && res.StatusCode != 429 {
+				return nil, fmt.Errorf("fetch %s: %w", url, lastErr)
+			}
+			continue
+		}
+		if len(res.Body) == 0 {
+			lastErr = errors.New("empty response body")
+			continue
+		}
+		return res.Body, nil
 	}
-	// Download the key
-	url := parsePath(playListUrl, key.URI)
-	res, e := network.Request[[]byte](url, &network.RequestOptions{Headers: headers, Method: "GET"}, network.ReadAll)
-	if e != nil {
-		log.Println("Error downloading key:", e)
-		return nil
-	}
+	return nil, fmt.Errorf("fetch %s failed after %d attempts: %w", url, attempts, lastErr)
+}
 
-	return res.Body
+// hlsKeyResolver fetches and caches AES-128 keys by URI. Playlists may
+// rotate keys mid-stream, so resolution happens per segment instead of once
+// per task.
+type hlsKeyResolver struct {
+	playListUrl string
+	headers     map[string]string
+	cache       map[string][]byte
+}
+
+func newHlsKeyResolver(playListUrl string, headers map[string]string) *hlsKeyResolver {
+	return &hlsKeyResolver{
+		playListUrl: playListUrl,
+		headers:     headers,
+		cache:       make(map[string][]byte),
+	}
+}
+
+// resolve returns the raw key bytes for the given EXT-X-KEY metadata, or
+// nil when the segment is unencrypted.
+func (r *hlsKeyResolver) resolve(meta *m3u8.Key) ([]byte, error) {
+	if meta == nil || meta.Method == "" || meta.Method == "NONE" {
+		return nil, nil
+	}
+	if meta.Method != "AES-128" {
+		return nil, fmt.Errorf("unsupported HLS encryption method %q", meta.Method)
+	}
+	if k, ok := r.cache[meta.URI]; ok {
+		return k, nil
+	}
+	k, e := fetchHlsResource(parsePath(r.playListUrl, meta.URI), r.headers)
+	if e != nil {
+		return nil, fmt.Errorf("key download failed: %w", e)
+	}
+	if len(k) != 16 {
+		return nil, fmt.Errorf("invalid AES-128 key size %d for %s", len(k), meta.URI)
+	}
+	r.cache[meta.URI] = k
+	return k, nil
 }
 
 // Download hls segment inside go routine
 func downloadSegment(param *HlsTaskParam, ctx context.Context) {
 
-	key := param.playList.Key
 	seg := param.playList.Segments
 	taskId := param.taskID
 
@@ -186,6 +281,23 @@ func downloadSegment(param *HlsTaskParam, ctx context.Context) {
 	}
 	completed := p.Progrss
 
+	if param.keyResolver == nil {
+		param.keyResolver = newHlsKeyResolver(param.playListUrl, param.headers)
+	}
+	resolver := param.keyResolver
+
+	// EXT-X-KEY applies to every following segment until the next tag, and
+	// the parser only attaches it to the segment right after the tag, so
+	// carry the last seen key forward (seeded on resume via inheritedKey).
+	currentKey := param.inheritedKey
+
+	failTask := func(msg string) {
+		log.Printf("HLS task %d failed: %s", taskId, msg)
+		p.Status = Failed
+		p.Error = msg
+		p.SyncDB()
+	}
+
 	for i, s := range seg {
 
 		select {
@@ -193,55 +305,57 @@ func downloadSegment(param *HlsTaskParam, ctx context.Context) {
 			log.Printf("HLS download task %d canceled", taskId)
 			return
 		default:
-			// Define the file name. Resolve the REAL segment target (a proxy URL
-			// carries the original .ts/.m4s extension in its __u param) so the
-			// written chunk keeps the correct container extension instead of a
-			// garbled proxy placeholder like .ts?__u=....
-			name := fmt.Sprintf("%d%s", i+completed, path.Ext(network.ProxyURLTargetName(s.URI)))
-			fileName := filepath.Join(param.filePath, network.SanitizeFilename(name))
-			p.CurrentDownloading = fileName
-
-			// Download the segment
-			url := parsePath(param.playListUrl, s.URI)
-			res, e := network.Request[[]byte](url, &network.RequestOptions{Headers: param.headers, Method: "GET"}, network.ReadAll)
-			if e != nil {
-				log.Println("Error downloading segment:", e)
-				p.Status = Failed
-				p.SyncDB()
-				return
-			}
-
-			// Decypt segment if needed
-			if key != nil {
-				res.Body, e = hlsDecrypt(res.Body, *param.Key, *param.IV)
-				if e != nil {
-					log.Println("Error decrypting segment:", e)
-					p.Status = Failed
-					p.SyncDB()
-					return
-				}
-
-			}
-
-			// Save the segment to file
-			err := network.SaveFile(fileName, &res.Body)
-			if err != nil {
-				log.Println("Error saving segment:", err)
-				p.Status = Failed
-				p.SyncDB()
-				return
-			}
-
-			// Update status
-			p.Progrss++
-			*p.Names = append(*p.Names, fileName)
-			p.SyncDB()
-			log.Println("Downloaded segment:", url, "to", fileName)
 		}
 
+		if s.Key != nil {
+			currentKey = s.Key
+		}
+
+		// Define the file name. Resolve the REAL segment target (a proxy URL
+		// carries the original .ts/.m4s extension in its __u param) so the
+		// written chunk keeps the correct container extension instead of a
+		// garbled proxy placeholder like .ts?__u=....
+		name := fmt.Sprintf("%d%s", i+completed, path.Ext(network.ProxyURLTargetName(s.URI)))
+		fileName := filepath.Join(param.filePath, network.SanitizeFilename(name))
+		p.CurrentDownloading = fileName
+
+		// Download the segment
+		url := parsePath(param.playListUrl, s.URI)
+		body, e := fetchHlsResource(url, param.headers)
+		if e != nil {
+			failTask(fmt.Sprintf("segment %d: %v", i+completed, e))
+			return
+		}
+
+		// Decrypt segment if needed
+		keyBytes, e := resolver.resolve(currentKey)
+		if e != nil {
+			failTask(fmt.Sprintf("segment %d: %v", i+completed, e))
+			return
+		}
+		if keyBytes != nil {
+			body, e = hlsDecrypt(body, keyBytes, getIV(currentKey, s.SeqId))
+			if e != nil {
+				failTask(fmt.Sprintf("segment %d: decrypt failed: %v", i+completed, e))
+				return
+			}
+		}
+
+		// Save the segment to file
+		if err := network.SaveFile(fileName, &body); err != nil {
+			failTask(fmt.Sprintf("segment %d: save failed: %v", i+completed, err))
+			return
+		}
+
+		// Update status
+		p.Progrss++
+		*p.Names = append(*p.Names, fileName)
+		p.SyncDB()
+		log.Println("Downloaded segment:", url, "to", fileName)
 	}
 
 	p.Status = Converting
+	p.Error = ""
 	p.SyncDB()
 }
 
@@ -269,15 +383,9 @@ func resumeHlsTask(taskId int) error {
 			return fmt.Errorf("task %d: %w", taskId, e)
 		}
 		hlsTaskParam.playList = playList
-
-		// Re-download the encryption key if the playlist requires one and
-		// it was not persisted across the restart (Key/IV are in-memory only).
-		if playList.Key != nil && hlsTaskParam.Key == nil {
-			fetchedKey := downloadKey(playList.Key, hlsTaskParam.playListUrl, hlsTaskParam.headers)
-			hlsTaskParam.Key = &fetchedKey
-			iv := getIV(playList.Key, playList.SeqNo)
-			hlsTaskParam.IV = &iv
-		}
+		// Keys/IVs are resolved lazily per segment by the resolver, so no
+		// upfront key download is needed after a restart.
+		hlsTaskParam.keyResolver = newHlsKeyResolver(hlsTaskParam.playListUrl, hlsTaskParam.headers)
 	}
 
 	seg := hlsTaskParam.playList.Segments
@@ -298,6 +406,14 @@ func resumeHlsTask(taskId int) error {
 	}
 
 	hlsTaskParam.playList.Segments = seg[completed:]
+	// Carry the last EXT-X-KEY seen before the resume point: segments that
+	// inherit a key have a nil .Key, so without this the resumed slice
+	// would be stored un-decrypted.
+	for _, s := range seg[:completed] {
+		if s.Key != nil {
+			hlsTaskParam.inheritedKey = s.Key
+		}
+	}
 	startDownloadTask(hlsTaskParam, downloadSegment)
 	return nil
 }
@@ -307,17 +423,13 @@ func resumeHlsTask(taskId int) error {
 var fetchPlaylistFunc = fetchPlaylist
 
 func fetchPlaylist(playlistURL string, headers map[string]string) (*m3u8.MediaPlaylist, error) {
-	res, e := network.Request[string](playlistURL, &network.RequestOptions{
-		Headers: headers,
-		Method:  "GET",
-	}, network.ReadAll)
+	text, e := fetchPlaylistText(playlistURL, headers)
 	if e != nil {
-		return nil, fmt.Errorf("failed to fetch playlist: %w", e)
+		return nil, e
 	}
-	o := bytes.NewBufferString(res.Body)
-	pl, li, e := m3u8.Decode(*o, true)
+	pl, li, e := decodePlaylist(text, playlistURL)
 	if e != nil {
-		return nil, fmt.Errorf("failed to decode playlist: %w", e)
+		return nil, e
 	}
 	if li != m3u8.MEDIA {
 		return nil, fmt.Errorf("URL is not a media playlist")
@@ -340,8 +452,9 @@ type HlsTaskParam struct {
 	filePath    string
 	headers     map[string]string
 	playListUrl string
-	Key         *[]byte
-	IV          *[]byte
+	keyResolver *hlsKeyResolver
+	// inheritedKey is the last EXT-X-KEY active at the resume point.
+	inheritedKey *m3u8.Key
 }
 
 // A Multiple response Json for hls that can be used on master playlist and media playlist

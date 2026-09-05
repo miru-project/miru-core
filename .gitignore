@@ -44,3 +44,4 @@ __debug_bin*
 miru_core.log
 .agent
 miru_cli
+miru_core_crash.log

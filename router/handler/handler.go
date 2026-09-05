@@ -14,7 +14,7 @@ func HelloMiru() (*result.Result[any], error) {
 
 	// Extension metaData: include BOTH JavaScript and Go/Scriggo extensions so
 	// the frontend can list and use extensions from either runtime.
-	out["extensionMeta"] = buildExtensionMeta()
+	out["extensionMeta"] = BuildExtensionMeta()
 
 	// Download status
 	out["downloadStatus"] = download.DownloadStatus()
@@ -49,13 +49,18 @@ func SetAppSetting(key string, value string) error {
 	return db.SetAppSetting(key, value)
 }
 
-// buildExtensionMeta assembles the extension list returned to the frontend.
+// BuildExtensionMeta assembles the extension list returned to the frontend.
 // It merges the JavaScript extensions held in the JS runtime cache with the
 // Go/Scriggo extensions discovered on disk, so the UI can list and drive
 // extensions from either runtime. On a package-name collision the Go extension
 // wins, mirroring endpoint.GetRuntime's resolution order (.go file checked
 // before .js). Source contexts are stripped to keep the payload small.
-func buildExtensionMeta() []*js.Ext {
+//
+// This is the single source of truth for the extension list: both the initial
+// HelloMiru snapshot and every live ExtensionUpdate event must publish it.
+// Publishing a runtime-local list instead makes the frontend's whole-list
+// replace drop the other runtime's extensions.
+func BuildExtensionMeta() []*js.Ext {
 	extMeta := make([]*js.Ext, 0)
 	seen := make(map[string]bool)
 

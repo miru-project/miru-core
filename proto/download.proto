@@ -165,6 +165,9 @@ message UpdateDownloadStatusRequest {
   int32 task_id = 1;
   DownloadStatus status = 2;
   optional string save_path = 3;
+  // Optional failure reason reported by the frontend (e.g. FFmpeg
+  // conversion failed). Only meaningful with status FAILED.
+  optional string error = 4;
 }
 
 message UpdateDownloadStatusResponse { string message = 1; }

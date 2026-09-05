@@ -44,7 +44,7 @@ func Load() {}
 	js.ApiPkgCache.Store(jsPkg, &js.ExtApi{Ext: &extension.Extension{Name: "ExampleJS", Pkg: jsPkg}})
 	defer js.ApiPkgCache.Remove(jsPkg)
 
-	meta := buildExtensionMeta()
+	meta := BuildExtensionMeta()
 
 	pkgs := map[string]bool{}
 	for _, m := range meta {

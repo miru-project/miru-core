@@ -84,6 +84,12 @@ func GetExtensions() []*extension.Extension {
 	return out
 }
 
+// OnExtensionUpdate is invoked whenever the set of Go/Scriggo extensions on
+// disk may have changed, so the gRPC layer can republish the merged extension
+// list to the frontend. Mirrors js.OnExtensionUpdate; the gRPC server wires it
+// at startup, so it is nil during the initial boot scan (no subscribers yet).
+var OnExtensionUpdate func()
+
 // HandleReload is the Go-specific reload handler invoked by the unified
 // extension watcher when a .go file changes. It invalidates the per-package
 // cross-call variable cache and the per-package native packages map so the
@@ -92,4 +98,7 @@ func HandleReload(pkg string) {
 	runtime.DeleteCache(pkg)
 	pkgPackages.Delete(pkg)
 	log.Println("Go extension changed, reloading:", pkg)
+	if OnExtensionUpdate != nil {
+		OnExtensionUpdate()
+	}
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/miru-project/miru-core/pkg/db"
 	"github.com/miru-project/miru-core/pkg/download"
@@ -135,9 +134,23 @@ func (s *MiruCoreServer) UpdateDownloadStatus(ctx context.Context, req *proto.Up
 	if !ok {
 		return nil, fmt.Errorf("task %d not found", req.TaskId)
 	}
+	// Completed is terminal: a duplicate/racing frontend attempt must never
+	// downgrade a genuinely completed task to Failed.
+	if p.Status == download.Completed &&
+		download.StatusFromProto(req.Status) == download.Failed {
+		return &proto.UpdateDownloadStatusResponse{
+			Message: "Ignored: task already completed",
+		}, nil
+	}
 	p.Status = download.StatusFromProto(req.Status)
 	if req.SavePath != nil {
 		p.SavePath = *req.SavePath
+	}
+	if req.Error != nil {
+		p.Error = *req.Error
+	} else if p.Status != download.Failed {
+		// Clear any stale failure reason when moving out of Failed.
+		p.Error = ""
 	}
 	p.SyncDB()
 	return &proto.UpdateDownloadStatusResponse{Message: "Success"}, nil
@@ -195,26 +208,7 @@ func (s *MiruCoreServer) GetAllDownloads(ctx context.Context, req *proto.GetAllD
 	}
 	protoDownloads := make([]*proto.Download, len(downloads))
 	for i, d := range downloads {
-		protoDownloads[i] = &proto.Download{
-			Id:      int32(d.ID),
-			Url:     d.URL,
-			Headers: d.Headers,
-			Package: d.Package,
-			Progress: func() []int32 {
-				res := make([]int32, len(d.Progress))
-				for i, v := range d.Progress {
-					res[i] = int32(v)
-				}
-				return res
-			}(),
-			Key:       d.Key,
-			Title:     d.Title,
-			MediaType: mediaTypeToProto(download.MediaType(d.MediaType)),
-			Status:    download.StatusToProto(download.Status(d.Status)),
-			SavePath:  d.SavePath,
-			Date:      d.Date.Format(time.RFC3339),
-			Priority:  int32(d.Priority),
-		}
+		protoDownloads[i] = toProtoDownload(d)
 	}
 	return &proto.GetAllDownloadsResponse{Downloads: protoDownloads}, nil
 }
@@ -226,26 +220,7 @@ func (s *MiruCoreServer) GetDownloadsByPackageAndDetailUrl(ctx context.Context, 
 	}
 	protoDownloads := make([]*proto.Download, len(downloads))
 	for i, d := range downloads {
-		protoDownloads[i] = &proto.Download{
-			Id:      int32(d.ID),
-			Url:     d.URL,
-			Headers: d.Headers,
-			Package: d.Package,
-			Progress: func() []int32 {
-				res := make([]int32, len(d.Progress))
-				for i, v := range d.Progress {
-					res[i] = int32(v)
-				}
-				return res
-			}(),
-			Key:       d.Key,
-			Title:     d.Title,
-			MediaType: mediaTypeToProto(download.MediaType(d.MediaType)),
-			Status:    download.StatusToProto(download.Status(d.Status)),
-			SavePath:  d.SavePath,
-			Date:      d.Date.Format(time.RFC3339),
-			Priority:  int32(d.Priority),
-		}
+		protoDownloads[i] = toProtoDownload(d)
 	}
 	return &proto.GetDownloadsByPackageAndDetailUrlResponse{Downloads: protoDownloads}, nil
 }
@@ -255,26 +230,9 @@ func (s *MiruCoreServer) GetDownloadByPackageWatchUrlDetailUrl(ctx context.Conte
 	if d == nil {
 		return nil, err
 	}
-	return &proto.GetDownloadByPackageWatchUrlDetailUrlResponse{Download: &proto.Download{
-		Id:      int32(d.ID),
-		Url:     d.URL,
-		Headers: d.Headers,
-		Package: d.Package,
-		Progress: func() []int32 {
-			res := make([]int32, len(d.Progress))
-			for i, v := range d.Progress {
-				res[i] = int32(v)
-			}
-			return res
-		}(),
-		Key:       d.Key,
-		Title:     d.Title,
-		MediaType: mediaTypeToProto(download.MediaType(d.MediaType)),
-		Status:    download.StatusToProto(download.Status(d.Status)),
-		SavePath:  d.SavePath,
-		Date:      d.Date.Format(time.RFC3339),
-		Priority:  int32(d.Priority),
-	}}, nil
+	return &proto.GetDownloadByPackageWatchUrlDetailUrlResponse{
+		Download: toProtoDownload(d),
+	}, nil
 }
 
 func (s *MiruCoreServer) DeleteDownload(ctx context.Context, req *proto.DeleteDownloadRequest) (*proto.DeleteDownloadResponse, error) {

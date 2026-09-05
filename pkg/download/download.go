@@ -20,9 +20,9 @@ import (
 	"github.com/miru-project/miru-core/proto/generate/proto"
 )
 
-var tasks = sync.Map{}   // taskId → context.CancelFunc (running goroutines)
-var statusMap sync.Map   // taskId → *Progress (all known tasks)
-var taskParams sync.Map  // taskId → TaskParamInterface
+var tasks = sync.Map{}  // taskId → context.CancelFunc (running goroutines)
+var statusMap sync.Map  // taskId → *Progress (all known tasks)
+var taskParams sync.Map // taskId → TaskParamInterface
 
 var OnStatusUpdate func(map[int]*Progress)
 
@@ -711,6 +711,10 @@ func Init() {
 			Headers:   d.Headers,
 			SavePath:  d.SavePath,
 			Priority:  d.Priority,
+			// Category was not restored, so every task that survived a backend
+			// restart came back as `unspecified` and vanished from the mobile
+			// Video/Manga/Novel tabs (only "All Downloads" still listed them).
+			Category: Category(d.Category),
 		}
 		statusMap.Store(id, prog)
 
