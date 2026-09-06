@@ -270,6 +270,7 @@ type ExtensionMeta struct {
 	Api           string                 `protobuf:"bytes,11,opt,name=api,proto3" json:"api,omitempty"`
 	Error         string                 `protobuf:"bytes,12,opt,name=error,proto3" json:"error,omitempty"`
 	Type          string                 `protobuf:"bytes,13,opt,name=type,proto3" json:"type,omitempty"`
+	Nsfw          bool                   `protobuf:"varint,14,opt,name=nsfw,proto3" json:"nsfw,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -393,6 +394,13 @@ func (x *ExtensionMeta) GetType() string {
 		return x.Type
 	}
 	return ""
+}
+
+func (x *ExtensionMeta) GetNsfw() bool {
+	if x != nil {
+		return x.Nsfw
+	}
+	return false
 }
 
 type DownloadProgress struct {
@@ -883,7 +891,7 @@ var File_proto_common_proto protoreflect.FileDescriptor
 
 const file_proto_common_proto_rawDesc = "" +
 	"\n" +
-	"\x12proto/common.proto\x12\x04miru\"\xbd\x02\n" +
+	"\x12proto/common.proto\x12\x04miru\"\xd1\x02\n" +
 	"\rExtensionMeta\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\aversion\x18\x02 \x01(\tR\aversion\x12\x16\n" +
@@ -898,7 +906,8 @@ const file_proto_common_proto_rawDesc = "" +
 	" \x03(\tR\x04tags\x12\x10\n" +
 	"\x03api\x18\v \x01(\tR\x03api\x12\x14\n" +
 	"\x05error\x18\f \x01(\tR\x05error\x12\x12\n" +
-	"\x04type\x18\r \x01(\tR\x04type\"\xc4\x03\n" +
+	"\x04type\x18\r \x01(\tR\x04type\x12\x12\n" +
+	"\x04nsfw\x18\x0e \x01(\bR\x04nsfw\"\xc4\x03\n" +
 	"\x10DownloadProgress\x12\x1a\n" +
 	"\bprogress\x18\x01 \x01(\x05R\bprogress\x12\x14\n" +
 	"\x05names\x18\x02 \x03(\tR\x05names\x12\x14\n" +

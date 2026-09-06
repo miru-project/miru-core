@@ -11,6 +11,7 @@ import (
 	"github.com/miru-project/miru-core/pkg/extension"
 	golang "github.com/miru-project/miru-core/pkg/extension/golang"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // exampleJSExtension is a minimal but valid Miru v1 JavaScript extension that
@@ -131,6 +132,44 @@ func TestFilterExtensionsLoadsJSAndGolangExample(t *testing.T) {
 	// Sanity: FileLang matches DetectLanguage for each file name.
 	assert.Equal(t, extension.LanguageGolang, extension.DetectLanguage("example.go"))
 	assert.Equal(t, extension.LanguageJS, extension.DetectLanguage("example.js"))
+}
+
+// TestParseExtensionMetadataNSFW guards the @nsfw metadata tag: both runtimes
+// share the same header format, so the shared parser must accept the true
+// values and default everything else to false.
+func TestParseExtensionMetadataNSFW(t *testing.T) {
+	jsHeader := func(nsfw string) string {
+		return "// ==MiruExtension==\n" +
+			"// @name         Example\n" +
+			"// @version      v0.1.0\n" +
+			"// @package      example\n" +
+			"// @type         bangumi\n" +
+			"// @nsfw         " + nsfw + "\n" +
+			"// ==/MiruExtension==\n"
+	}
+
+	for _, tc := range []struct {
+		raw  string
+		want bool
+	}{
+		{"true", true},
+		{"True", true},
+		{"1", true},
+		{"false", false},
+		{"", false},
+		{"junk", false},
+	} {
+		ext, err := extension.ParseExtensionMetadata(jsHeader(tc.raw), "example.js")
+		require.NoError(t, err)
+		assert.Equal(t, tc.want, ext.Nsfw,
+			"@nsfw %q must parse to %v", tc.raw, tc.want)
+	}
+
+	// Missing @nsfw must default to false.
+	plain := "// ==MiruExtension==\n// @name Example\n// @package example\n// @type bangumi\n// ==/MiruExtension==\n"
+	ext, err := extension.ParseExtensionMetadata(plain, "example.js")
+	require.NoError(t, err)
+	assert.False(t, ext.Nsfw, "a missing @nsfw tag must default to false")
 }
 
 // TestWatchExtensionsRoutesByLanguage exercises the file-watch entry point.

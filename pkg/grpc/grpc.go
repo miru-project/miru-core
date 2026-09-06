@@ -202,6 +202,7 @@ func toProtoExtensionMeta(exts []*js.Ext) []*proto.ExtensionMeta {
 			Api:         sanitizeUTF8(e.ApiVersion),
 			Error:       sanitizeUTF8(e.Error),
 			Type:        sanitizeUTF8(string(e.WatchType)),
+			Nsfw:        e.Nsfw,
 		}
 	}
 	return protoExtMeta

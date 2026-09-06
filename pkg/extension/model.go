@@ -42,6 +42,7 @@ type Extension struct {
 	Description string   `json:"description"`
 	Tags        []string `json:"tags"`
 	ApiVersion  string   `json:"apiVersion"`
+	Nsfw        bool     `json:"nsfw"`
 	Error       string   `json:"error,omitempty"`
 	Context     *string
 	WatchType   WatchType `json:"type"`

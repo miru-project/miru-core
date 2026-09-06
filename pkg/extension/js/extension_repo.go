@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/miru-project/miru-core/pkg/db"
 	log "github.com/miru-project/miru-core/pkg/logger"
@@ -15,17 +16,37 @@ import (
 )
 
 type GithubExtension struct {
-	Name        string  `json:"name"`
-	Description *string `json:"description,omitempty"`
-	License     string  `json:"license"`
-	Version     string  `json:"version"`
-	Author      string  `json:"author"`
-	Icon        *string `json:"icon,omitempty"`
-	Type        string  `json:"type"`
-	Language    string  `json:"lang"`
-	Website     string  `json:"webSite"`
-	IsNsfw      string  `json:"nsfw,omitempty"`
-	Package     string  `json:"package"`
+	Name        string   `json:"name"`
+	Description *string  `json:"description,omitempty"`
+	License     string   `json:"license"`
+	Version     string   `json:"version"`
+	Author      string   `json:"author"`
+	Icon        *string  `json:"icon,omitempty"`
+	Type        string   `json:"type"`
+	Language    string   `json:"lang"`
+	Website     string   `json:"webSite"`
+	IsNsfw      FlexBool `json:"nsfw,omitempty"`
+	Package     string   `json:"package"`
+}
+
+// FlexBool accepts the two shapes repositories use for the nsfw flag: a JSON
+// boolean or the string "true"/"false". It always marshals back as a boolean
+// so clients never receive a string where they expect a bool.
+type FlexBool bool
+
+// UnmarshalJSON decodes a JSON bool or string into FlexBool.
+func (b *FlexBool) UnmarshalJSON(data []byte) error {
+	s := strings.Trim(string(data), `"`)
+	*b = FlexBool(strings.EqualFold(s, "true") || s == "1")
+	return nil
+}
+
+// MarshalJSON emits the flag as a plain JSON boolean.
+func (b FlexBool) MarshalJSON() ([]byte, error) {
+	if b {
+		return []byte("true"), nil
+	}
+	return []byte("false"), nil
 }
 
 var fetchedExtensionRepo map[string][]GithubExtension

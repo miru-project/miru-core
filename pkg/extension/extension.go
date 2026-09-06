@@ -107,6 +107,8 @@ func ParseExtensionMetadata(content string, fileName string) (*Extension, error)
 				tagList[i] = strings.TrimSpace(tag)
 			}
 			ext.Tags = tagList
+		case "nsfw":
+			ext.Nsfw = strings.EqualFold(value, "true") || value == "1"
 		}
 	}
 

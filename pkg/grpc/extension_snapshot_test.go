@@ -134,6 +134,7 @@ func TestToProtoExtensionMetaMapsGoFields(t *testing.T) {
 		ApiVersion: "2",
 		WatchType:  "bangumi",
 		Lang:       "en",
+		Nsfw:       true,
 	}}
 
 	out := toProtoExtensionMeta(in)
@@ -145,4 +146,5 @@ func TestToProtoExtensionMetaMapsGoFields(t *testing.T) {
 	assert.Equal(t, "2", out[0].Api)
 	assert.Equal(t, "bangumi", out[0].Type)
 	assert.Equal(t, "en", out[0].Lang)
+	assert.True(t, out[0].Nsfw, "the @nsfw flag must reach the wire form")
 }
