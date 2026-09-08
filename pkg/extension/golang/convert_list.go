@@ -47,29 +47,46 @@ func toEpisodeGroups(v any) []*proto.ExtensionEpisodeGroup {
 	groups := make([]*proto.ExtensionEpisodeGroup, 0, rv.Len())
 	for i := 0; i < rv.Len(); i++ {
 		elem := rv.Index(i)
-		urls := fieldByName(elem, "URLs")
 		var episodes []*proto.ExtensionEpisode
-		if urls.IsValid() && urls.Kind() == reflect.Slice {
-			for j := 0; j < urls.Len(); j++ {
-				u := urls.Index(j)
-				// Extensions may supply episodes either as bare URL strings
-				// (the original model, kept for backwards compatibility with
-				// existing extensions such as example) or as structs carrying
-				// both a Name and a URL. The latter is what makes episode text
-				// appear in the UI; the former yields unlabelled episodes.
-				if u.Kind() == reflect.String {
-					episodes = append(episodes, &proto.ExtensionEpisode{Url: u.String()})
-					continue
+		// Named episodes (ExtensionEpisode{Name, URL}) take precedence — the
+		// episode Name is what the UI renders as the row label. This is the
+		// shape JS V2 extensions produce and what rawkuma now emits.
+		if named := fieldByName(elem, "Episodes"); named.IsValid() && named.Kind() == reflect.Slice {
+			for j := 0; j < named.Len(); j++ {
+				ne := named.Index(j)
+				if ne.Kind() == reflect.Interface && !ne.IsNil() {
+					ne = ne.Elem()
 				}
-				uv := u
-				if uv.Kind() == reflect.Interface && !uv.IsNil() {
-					uv = uv.Elem()
-				}
-				if uv.Kind() == reflect.Struct {
+				if ne.Kind() == reflect.Struct {
 					episodes = append(episodes, &proto.ExtensionEpisode{
-						Name: strField(uv, "Name"),
-						Url:  strField(uv, "URL"),
+						Name: strField(ne, "Name"),
+						Url:  strField(ne, "URL"),
 					})
+				}
+			}
+		}
+		// Fall back to the legacy model: bare URL strings, or structs carrying
+		// a Name and a URL (kept for backwards compatibility with existing
+		// extensions such as example). Bare strings yield unlabelled episodes.
+		if len(episodes) == 0 {
+			urls := fieldByName(elem, "URLs")
+			if urls.IsValid() && urls.Kind() == reflect.Slice {
+				for j := 0; j < urls.Len(); j++ {
+					u := urls.Index(j)
+					if u.Kind() == reflect.String {
+						episodes = append(episodes, &proto.ExtensionEpisode{Url: u.String()})
+						continue
+					}
+					uv := u
+					if uv.Kind() == reflect.Interface && !uv.IsNil() {
+						uv = uv.Elem()
+					}
+					if uv.Kind() == reflect.Struct {
+						episodes = append(episodes, &proto.ExtensionEpisode{
+							Name: strField(uv, "Name"),
+							Url:  strField(uv, "URL"),
+						})
+					}
 				}
 			}
 		}

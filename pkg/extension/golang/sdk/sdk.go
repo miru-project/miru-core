@@ -51,6 +51,9 @@ type (
 	ExtensionDetail = runtime.ExtensionDetail
 	// ExtensionEpisodeGroup groups a set of episode URLs under a title.
 	ExtensionEpisodeGroup = runtime.ExtensionEpisodeGroup
+	// ExtensionEpisode is a single named episode (Name + URL) inside a group.
+	// It is the Go counterpart of the JS runtime's { name, url } episode.
+	ExtensionEpisode = runtime.ExtensionEpisode
 	// ExtensionWatch is stream/watch information for a content item. It is the
 	// only standalone watch shape a Go (Scriggo) V2 extension may return from
 	// Watch(); the resolved stream is fetched via Mirror().

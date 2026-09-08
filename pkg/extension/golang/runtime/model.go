@@ -165,10 +165,19 @@ type ExtensionDetail struct {
 	Headers     map[string]string       `json:"headers,omitempty"`
 }
 
+// ExtensionEpisode is a single episode inside an episode group. Unlike a
+// bare URL string (the legacy URLs model), it carries a display Name so the
+// UI can label the episode — the JS V2 runtime's { name, url } equivalent.
+type ExtensionEpisode struct {
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
+
 // ExtensionEpisodeGroup represents a group of episodes.
 type ExtensionEpisodeGroup struct {
-	Title string   `json:"title"`
-	URLs  []string `json:"urls,omitempty"`
+	Title    string             `json:"title"`
+	URLs     []string           `json:"urls,omitempty"`
+	Episodes []ExtensionEpisode `json:"episodes,omitempty"`
 }
 
 // ExtensionWatch represents watch/stream information.
