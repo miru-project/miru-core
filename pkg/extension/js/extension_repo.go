@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -12,6 +13,7 @@ import (
 	log "github.com/miru-project/miru-core/pkg/logger"
 
 	"github.com/miru-project/miru-core/ent"
+	"github.com/miru-project/miru-core/pkg/extension"
 	"github.com/miru-project/miru-core/pkg/network"
 )
 
@@ -27,6 +29,10 @@ type GithubExtension struct {
 	Website     string   `json:"webSite"`
 	IsNsfw      FlexBool `json:"nsfw,omitempty"`
 	Package     string   `json:"package"`
+	// URL is the entry's source path inside the repo (js/<pkg>.js or
+	// golang/<pkg>.go). It is the only thing that tells the two runtimes apart,
+	// so a download must follow it instead of assuming <pkg>.js.
+	URL string `json:"url,omitempty"`
 }
 
 // FlexBool accepts the two shapes repositories use for the nsfw flag: a JSON
@@ -96,6 +102,31 @@ func FetchExtensionRepo() (map[string][]GithubExtension, map[string]error, error
 	return fetchedExtensionRepo, err, nil
 }
 
+// extensionSourceURL resolves the absolute URL of an extension's source file.
+// The repo index publishes the path per entry (js/<pkg>.js or
+// golang/<pkg>.go), so it is followed verbatim: a golang extension requested as
+// <pkg>.js 404s. Repos that omit the field fall back to the historical js
+// layout.
+func extensionSourceURL(repoUrl string, ext GithubExtension) (string, error) {
+	rel := strings.TrimSpace(ext.URL)
+	if rel == "" {
+		rel = path.Join("js", ext.Package+string(extension.LanguageJS))
+	}
+	// A repo may publish a fully qualified link instead of a relative path.
+	if abs, e := url.Parse(rel); e == nil && abs.IsAbs() {
+		return abs.String(), nil
+	}
+	link, e := url.Parse(repoUrl)
+	if e != nil {
+		return "", fmt.Errorf("invalid repository URL: %s", repoUrl)
+	}
+	rel = strings.TrimPrefix(rel, "/")
+	// Tolerate indexes that spell the path with the repo/ directory included.
+	rel = strings.TrimPrefix(rel, "repo/")
+	link.Path = path.Join(path.Dir(link.Path), "repo", rel)
+	return link.String(), nil
+}
+
 func DownloadExtension(repoUrl string, pkg string) error {
 	if len(fetchedExtensionRepo) == 0 {
 		FetchExtensionRepo()
@@ -104,25 +135,31 @@ func DownloadExtension(repoUrl string, pkg string) error {
 	if !ok {
 		return fmt.Errorf("package %s not found in %s", pkg, repoUrl)
 	}
-	link, e := url.Parse(repoUrl)
-	if e != nil {
-		return fmt.Errorf("invalid repository URL: %s", repoUrl)
-	}
 	for _, ext := range repo {
-
-		if ext.Package == pkg {
-			link.Path = path.Join(path.Dir(link.Path), "repo", ext.Package+".js")
-			fileName := path.Base(link.Path)
-			res, e := network.Request[[]byte](link.String(), &network.RequestOptions{Method: "GET"}, network.ReadAll)
-			if e != nil {
-				return fmt.Errorf("failed to download package %s from %s: %v", pkg, link.String(), e)
-			}
-			if e := network.SaveFile(filepath.Join(ExtPath, network.SanitizeFilename(fileName)), &res.Body); e != nil {
-				return fmt.Errorf("failed to save js extension %s to %s: %v", pkg, ExtPath, e)
-			}
-			log.Println("Downloaded package:", ext.Package, "from", link.String())
-			return nil
+		if ext.Package != pkg {
+			continue
 		}
+		sourceUrl, e := extensionSourceURL(repoUrl, ext)
+		if e != nil {
+			return e
+		}
+		res, e := network.Request[[]byte](sourceUrl, &network.RequestOptions{Method: "GET"}, network.ReadAll)
+		if e != nil {
+			return fmt.Errorf("failed to download package %s from %s: %v", pkg, sourceUrl, e)
+		}
+		// network.Request resolves error responses instead of failing, so an
+		// error page body would otherwise be written out as the extension.
+		if res.StatusCode < 200 || res.StatusCode >= 300 {
+			return fmt.Errorf("failed to download package %s from %s: status %d", pkg, sourceUrl, res.StatusCode)
+		}
+		// The suffix follows the published path, so a golang extension lands as
+		// <pkg>.go and is picked up by the golang runtime's directory scan.
+		fileName := network.SanitizeFilename(path.Base(sourceUrl))
+		if e := network.SaveFile(filepath.Join(ExtPath, fileName), &res.Body); e != nil {
+			return fmt.Errorf("failed to save extension %s to %s: %v", pkg, ExtPath, e)
+		}
+		log.Println("Downloaded package:", ext.Package, "from", sourceUrl)
+		return nil
 	}
 	return fmt.Errorf("package %s not found in repository %s", pkg, repoUrl)
 }
@@ -132,12 +169,26 @@ func RemoveExtensionRepo(id string) error {
 
 }
 
+// RemoveExtension deletes the extension source of pkg. Both runtimes share one
+// directory, so the file suffix is looked up instead of assumed: a golang
+// extension is <pkg>.go and would otherwise survive an uninstall.
 func RemoveExtension(pkg string) error {
-	loc := filepath.Join(ExtPath, pkg+".js")
-	if e := network.DeleteFile(loc); e != nil {
-		return fmt.Errorf("failed to delete extension file %s: %v", loc, e)
+	var lastErr error
+	for _, lang := range []extension.Language{extension.LanguageJS, extension.LanguageGolang} {
+		loc := filepath.Join(ExtPath, pkg+string(lang))
+		if _, e := os.Stat(loc); e != nil {
+			continue
+		}
+		if e := network.DeleteFile(loc); e != nil {
+			lastErr = e
+			continue
+		}
+		log.Println("Deleted extension file:", loc)
+		ApiPkgCache.Remove(pkg)
+		return nil
 	}
-	log.Println("Deleted extension file:", loc)
-	ApiPkgCache.Remove(pkg)
-	return nil
+	if lastErr != nil {
+		return fmt.Errorf("failed to delete extension file %s: %v", filepath.Join(ExtPath, pkg), lastErr)
+	}
+	return fmt.Errorf("extension file for %s not found in %s", pkg, ExtPath)
 }
