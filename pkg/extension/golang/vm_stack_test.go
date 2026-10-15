@@ -39,8 +39,7 @@ func TestScriggoBuildErrorHasStackTrace(t *testing.T) {
 //	Latest -> middle -> innerBoom -> panic("boom in innerBoom")
 //
 // The Load hook is required by the Go runtime; here it just seeds the
-// cross-function cache via sdk.SaveCache (mirroring the JS Miru.saveCache
-// contract) so the extension compiles and loads.
+// cross-function cache via sdk.SaveCache so the extension compiles and loads.
 const stackTraceSrc = `
 // ==MiruExtension==
 // @name Stack Trace Test

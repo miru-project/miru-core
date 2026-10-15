@@ -161,7 +161,7 @@ func HandleReload(pkg string) {
 		log.Println("File is not a valid extension:", fileLoc, parseErr)
 		return
 	}
-	deleteExtVarCache(pkg)
+	deleteInstanceState(pkg)
 	loadExtApi(ext)
 }
 

@@ -18,8 +18,8 @@ func LoadApiV2(ext *Ext) {
 	// Run the extension's load() hook once. AsyncCallBack spins up a fresh goja
 	// VM for this call and disposes it afterwards; only the compiled program in
 	// api.service.program survives, which is exactly what the extension API
-	// requires. Any state load() wants to keep across calls must go through
-	// Miru.saveCache / Miru.getCache.
+	// requires. State load() wants to keep across calls is carried by the
+	// Go-native snapshot of the V2 globals (instance_state.go).
 	api.loadExtensionV2(ext.Pkg)
 	log.Println("Extension loaded (V2) [JS]:", ext.Name, ext.Pkg)
 }

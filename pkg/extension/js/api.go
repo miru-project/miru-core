@@ -22,9 +22,17 @@ import (
 // created here, used for this single call, and then stopped so it can be
 // garbage collected. Nothing about the VM survives between calls: only the
 // compiled program (api.service.program) is retained in the ExtApi, exactly as
-// the extension API requires. Any state an extension wants to keep across calls
-// must be stored through saveCache/getCache (Miru.saveCache / Miru.getCache),
-// which live outside the VM in extVarCache.
+// the extension API requires.
+//
+// Cross-call state is carried by the Go-native snapshot (instance_state.go):
+// V1 instance properties and V2 globals are captured onto the recorded
+// *stateNode tree before the loop is disposed and restored onto the next
+// call's fresh VM. That gives both versions their "runtime is kept" semantics
+// -- the logical extension instance survives -- without ever keeping a goja
+// VM (and its event loop) alive, so the anti-leak guarantee (one VM per call,
+// always disposed) still holds. The capture runs on the SUCCESS path and on
+// failure paths alike (once the call actually reached the eval stage), so
+// state written before an error is still waiting for the next call.
 func AsyncCallBack(api *ExtApi, pkg string, evalStr string) (any, error) {
 	// Lock to prevent multiple calls to the same extension
 	api.lock.Lock()
@@ -41,6 +49,15 @@ func AsyncCallBack(api *ExtApi, pkg string, evalStr string) (any, error) {
 	loop := eventloop.NewEventLoop(eventloop.WithRegistry(sharedRegistry))
 	res := make(chan PromiseResult)
 	defer close(res)
+
+	// evalStarted marks that the call reached the extension eval stage on a
+	// fully set-up VM (base runtime + program + host primitives + restore).
+	// Only then is a failure-path capture meaningful; if setup itself failed
+	// the VM never saw the extension, and capturing it would store a pristine
+	// VM over the last good snapshot. Written on the loop goroutine, read
+	// after the result channel below -- channel send/close establishes the
+	// happens-before edge.
+	evalStarted := false
 
 	loop.RunOnLoop(func(vm *goja.Runtime) {
 		defer func() {
@@ -76,24 +93,66 @@ func AsyncCallBack(api *ExtApi, pkg string, evalStr string) (any, error) {
 				panic(e)
 			}
 		}
+		// Register the host primitives (jsRequest, settings, cookies,
+		// btoa/atob...) BEFORE the previous state is restored, so a stale
+		// snapshot value can never overwrite them.
 		api.registerFunction(vm, job)
 
+		// Restore the previous call's state onto this VM. This is a pure-Go
+		// rebuild of the recorded *stateNode tree (no JS helpers, no JSON):
+		// V1 writes onto the `ext` instance, V2 onto globalThis minus the
+		// host-owned keys. Values keep their original structure -- functions
+		// are recompiled from source, Date/RegExp/Map/Set/TypedArray/BigInt
+		// are re-instantiated via their constructors.
+		if prev, ok := loadInstanceState(pkg); ok {
+			restoreStateOnVM(api, vm, prev)
+		}
+
+		evalStarted = true
 		o, e := vm.RunString(evalStr)
 		handlePromise(o, res, e)
 	})
 	loop.Start()
-	// Stop (and therefore dispose) the loop once the call has completed.
-	defer loop.Stop()
 
 	result := <-res
-	// handle error from PromiseResult{err: e}
-	if result.err != nil {
-		var zero any
-		return zero, result.err
+	// The promise must be awaited BEFORE the state is captured: an async
+	// latest()/load() mutates state after it returns its promise, so
+	// capturing earlier would record the state as it was BEFORE the awaited
+	// work finished.
+	//
+	// Capture ordering rationale: the snapshot is the ONLY carrier of
+	// cross-call state now, so a write made before an error must still reach
+	// the next call -- the capture therefore runs on failure paths too (what
+	// saveCache's immediate write used to guarantee). Two guards keep that
+	// safe: evalStarted ensures the VM was fully set up + restored (a setup
+	// failure must not overwrite last-good with a pristine VM), and
+	// finalizeInstanceState only saves when the capture itself succeeds, so a
+	// broken VM keeps the previous snapshot instead of recording garbage.
+	if result.err == nil {
+		o, e := await(result.promise)
+		if e != nil {
+			// Async rejection: capture what the extension wrote before it
+			// threw, then surface the error.
+			if evalStarted {
+				finalizeInstanceState(api, loop)
+			}
+			loop.Stop()
+			return nil, e
+		}
+		// Capture the state before the loop is disposed. Both versions go
+		// through here: V1 from the `ext` instance, V2 from globalThis.
+		finalizeInstanceState(api, loop)
+		// Stop (and therefore dispose) the loop now that the call is done.
+		loop.Stop()
+		return o, nil
 	}
-	// handle result when Promise has established
-	o, e := await(result.promise)
-	return o, e
+
+	// Sync throw / panic: same capture guarantee as above.
+	if evalStarted {
+		finalizeInstanceState(api, loop)
+	}
+	loop.Stop()
+	return nil, result.err
 }
 
 func (api *ExtApi) setFunction(vm *goja.Runtime, name string, fn any) {
@@ -231,23 +290,5 @@ func (api *ExtApi) registerFunction(vm *goja.Runtime, job Job) {
 			panic(err.Error())
 		}
 		return res.Body
-	})
-
-	// Cross-function / cross-call variable store. Because the goja VM is
-	// disposed after every execution, an extension keeps state between calls by
-	// writing here (outside the VM). Miru.saveCache / Miru.getCache in
-	// runtime_v2.js (and the V1 runtime) delegate to these native functions.
-	api.setFunction(vm, "saveCache", func(call goja.FunctionCall) goja.Value {
-		key := call.Argument(0).ToString().String()
-		value := call.Argument(1).ToString().String()
-		saveExtVar(pkg, key, value)
-		return vm.ToValue(nil)
-	})
-	api.setFunction(vm, "getCache", func(call goja.FunctionCall) goja.Value {
-		key := call.Argument(0).ToString().String()
-		if v, ok := getExtVar(pkg, key); ok {
-			return vm.ToValue(v)
-		}
-		return goja.Undefined()
 	})
 }

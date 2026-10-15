@@ -10,10 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// vmDisposalExtension uses a module-level variable (counter) to detect whether
-// the goja VM is recreated on every call, and the cross-function cache to show
-// that the cache -- not the VM -- is what survives between calls. settingKeys /
-// Miru are already declared by runtime_v2.js.
+// vmDisposalExtension uses a module-level lexical variable (counter) to detect
+// whether the goja VM is recreated on every call, and a globalThis property to
+// show that the state snapshot -- not the VM -- is what survives between calls.
+// settingKeys / Miru are already declared by runtime_v2.js.
 const vmDisposalExtension = `// ==MiruExtension==
 // @name         VM Disposal Test
 // @package      vmdisposal
@@ -23,31 +23,31 @@ const vmDisposalExtension = `// ==MiruExtension==
 let counter = 0;
 
 async function load() {
-    Miru.saveCache("token", "secret");
+    globalThis.token = "secret";
 }
 
 async function latest(page) {
     counter++;
-    const cached = Miru.getCache("token");
-    return [{ title: cached + ":" + counter, url: "https://example.com" }];
+    return [{ title: globalThis.token + ":" + counter, url: "https://example.com" }];
 }
 
 async function search(keyword, page, filter) {
-    // counter is re-initialized to 0 on this fresh VM; only the cache survives.
-    const cached = Miru.getCache("token") || "none";
-    return [{ title: cached + ":" + counter, url: "https://example.com" }];
+    // counter is re-initialized to 0 on this fresh VM; only the snapshotted
+    // globals survive.
+    return [{ title: globalThis.token + ":" + counter, url: "https://example.com" }];
 }
 `
 
-// TestJSVMDisposedPerCallAndCachePersists proves two of the changed behaviours
+// TestJSVMDisposedPerCallAndStatePersists proves two of the changed behaviours
 // for the JS runtime:
-//  1. The goja VM is disposed after every execution (so the module-level counter
-//     is re-initialized to 0 on every call -> "secret:1" each time, never
-//     "secret:2"), and only the compiled program is retained.
-//  2. The load() hook runs once at startup (seeding the cross-function cache),
-//     and the cache -- not the VM -- is what survives between the disposed calls
-//     (the value "secret" is still readable from latest() and search()).
-func TestJSVMDisposedPerCallAndCachePersists(t *testing.T) {
+//  1. The goja VM is disposed after every execution (so the module-level
+//     lexical counter is re-initialized to 0 on every call -> "secret:1" each
+//     time, never "secret:2"), and only the compiled program is retained.
+//  2. The load() hook runs once at startup and parks its value on globalThis;
+//     the snapshot of those globals -- not the VM -- is what survives between
+//     the disposed calls (the value "secret" is still readable from latest()
+//     and search()).
+func TestJSVMDisposedPerCallAndStatePersists(t *testing.T) {
 	dir := t.TempDir()
 	jsPath := filepath.Join(dir, "vmdisposal.js")
 	if err := os.WriteFile(jsPath, []byte(vmDisposalExtension), 0644); err != nil {
@@ -58,7 +58,7 @@ func TestJSVMDisposedPerCallAndCachePersists(t *testing.T) {
 
 	requireLoaded(t, "vmdisposal")
 
-	// First latest(): fresh VM -> counter 0->1; cache yields "secret".
+	// First latest(): fresh VM -> counter 0->1; snapshot yields "secret".
 	r1, err := jsext.Latest[proto.ExtensionListItem]("vmdisposal", 1)
 	assert.NoError(t, err)
 	assert.Len(t, r1, 1)
@@ -70,9 +70,10 @@ func TestJSVMDisposedPerCallAndCachePersists(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "secret:1", r2[0].Title)
 
-	// search() runs on yet another fresh VM: counter is 0 there, but the cache
-	// still yields "secret" -> "secret:0". This proves the VM is disposed yet
-	// the cross-function cache survives across the disposed VMs.
+	// search() runs on yet another fresh VM: counter is 0 there, but the
+	// snapshotted global still yields "secret" -> "secret:0". This proves the
+	// VM is disposed yet the extension's globals survive across the disposed
+	// VMs.
 	rs, err := jsext.Search[proto.ExtensionListItem]("vmdisposal", 1, "kw", nil)
 	assert.NoError(t, err)
 	assert.Len(t, rs, 1)

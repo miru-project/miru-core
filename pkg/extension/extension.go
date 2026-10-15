@@ -87,6 +87,11 @@ func ParseExtensionMetadata(content string, fileName string) (*Extension, error)
 			ext.Description = value
 		case "apiVersion":
 			if lang == LanguageJS {
+				// JS is the only runtime with two API versions, so it is the
+				// only one that has to collapse the value to a known enum.
+				// V2 must be opted into explicitly; anything else -- including
+				// a missing tag, an empty value or an unrecognised one -- is
+				// V1, so the legacy class-based runtime keeps working.
 				if value == "2" {
 					ext.ApiVersion = "2"
 				} else {
@@ -109,6 +114,26 @@ func ParseExtensionMetadata(content string, fileName string) (*Extension, error)
 			ext.Tags = tagList
 		case "nsfw":
 			ext.Nsfw = strings.EqualFold(value, "true") || value == "1"
+		}
+	}
+
+	// Normalise the API version per runtime so the field is always a known
+	// value. The routing decisions (js.loadExtApi, endpoint.IsGolang) already
+	// assume these defaults; they must agree with the value callers read.
+	//   - JS: V2 must be opted into with @apiVersion 2. A missing tag, an empty
+	//     value or an unrecognised one is V1, so the legacy class-based runtime
+	//     keeps working and the frontend's `meta.api == "2"` check sees V1.
+	//   - Golang: the Scriggo runtime has only one API version and it is V2,
+	//     so a missing/empty tag resolves to "2" rather than the old "1"
+	//     fallback in the VM log.
+	switch {
+	case lang == LanguageJS:
+		if ext.ApiVersion != "2" {
+			ext.ApiVersion = "1"
+		}
+	case lang == LanguageGolang:
+		if ext.ApiVersion == "" {
+			ext.ApiVersion = "2"
 		}
 	}
 

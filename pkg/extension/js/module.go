@@ -78,6 +78,48 @@ func initModule() {
 
 	md5 := string(errorhandle.HandleFatal(fs.ReadFile("assets/md5/md5.min.js")))
 	RegisterJSModule("md5", md5, func(vm *goja.Runtime, module *goja.Object) {
+		// md5.min.js ends with `module.exports = { md5: md5 }`, so a bare
+		// require('md5') is an OBJECT and not callable -- an author hits a
+		// confusing "TypeError: not a function" on the very first call.
+		// Replace the export with a callable that delegates to the module's
+		// md5 function while preserving every other property, so both
+		// `require('md5')('abc')` and `require('md5').md5('abc')` work.
+		exports := module.Get("exports")
+		obj, ok := exports.(*goja.Object)
+		if !ok {
+			return
+		}
+		fnVal := obj.Get("md5")
+		if _, ok := goja.AssertFunction(fnVal); !ok {
+			return
+		}
+		wrapped, err := vm.RunString(`
+			(function (inner, source) {
+				const out = function () {
+					return inner.apply(null, arguments);
+				};
+				for (const k of Object.keys(source)) {
+					out[k] = source[k];
+				}
+				out.md5 = inner;
+				out.default = inner;
+				return out;
+			})
+		`)
+		if err != nil {
+			log.Println("Error wrapping md5 module:", err)
+			return
+		}
+		makeCallable, ok := goja.AssertFunction(wrapped)
+		if !ok {
+			return
+		}
+		result, err := makeCallable(goja.Undefined(), obj.Get("md5"), obj)
+		if err != nil {
+			log.Println("Error wrapping md5 module:", err)
+			return
+		}
+		module.Set("exports", result)
 	})
 
 	jsencrypt := string(errorhandle.HandleFatal(fs.ReadFile("assets/jsencrypt/jsencrypt.min.js")))

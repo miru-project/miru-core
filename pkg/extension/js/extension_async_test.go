@@ -13,7 +13,7 @@ import (
 
 // v1AsyncExtension is a V1 (class-based) extension whose load() and latest()
 // both do real asynchronous work (await a setTimeout) and prove it actually ran
-// by writing the awaited result through Miru.saveCache. The event loop must
+// by writing the awaited result onto the instance. The event loop must
 // await these promises -- if it did not, the values would never be written and
 // the calls would return instantly instead of after the delay.
 const v1AsyncExtension = `// ==MiruExtension==
@@ -25,20 +25,21 @@ const v1AsyncExtension = `// ==MiruExtension==
 class V1Async extends Extension {
     async load() {
         await new Promise(r => setTimeout(r, 60));
-        Miru.saveCache("loadRan", "yes");
+        this.loadRan = "yes";
     }
     async latest(page) {
         const start = Date.now();
         await new Promise(r => setTimeout(r, 60));
-        const loadRan = Miru.getCache("loadRan");
-        return [{ title: loadRan, url: "https://example.com/" + (Date.now() - start) }];
+        return [{ title: this.loadRan, url: "https://example.com/" + (Date.now() - start) }];
     }
 }
 `
 
 // v2AsyncExtension is the V2 (top-level async function) equivalent. It must go
 // through the very same event loop / await machinery as V1, so a regression in
-// the event loop that breaks async would be caught on either version.
+// the event loop that breaks async would be caught on either version. State it
+// keeps between load() and latest() goes on globalThis (a top-level `let`
+// would reset with the recycled VM).
 const v2AsyncExtension = `// ==MiruExtension==
 // @name         V2 Async Test
 // @package      v2async
@@ -47,14 +48,13 @@ const v2AsyncExtension = `// ==MiruExtension==
 
 async function load() {
     await new Promise(r => setTimeout(r, 60));
-    Miru.saveCache("loadRan", "yes");
+    globalThis.loadRan = "yes";
 }
 
 async function latest(page) {
     const start = Date.now();
     await new Promise(r => setTimeout(r, 60));
-    const loadRan = Miru.getCache("loadRan");
-    return [{ title: loadRan, url: "https://example.com/" + (Date.now() - start) }];
+    return [{ title: globalThis.loadRan, url: "https://example.com/" + (Date.now() - start) }];
 }
 `
 
@@ -69,8 +69,8 @@ async function latest(page) {
 //     time-based calling validation.
 //  2. load() also ran asynchronously (it awaited its own setTimeout) and,
 //     because the goja VM is disposed after every call, communicated the result
-//     through the cross-function cache (Miru.saveCache / Miru.getCache). latest()
-//     reads that value back, proving load() was awaited too.
+//     through the cross-call state snapshot (instance state for V1, globals for
+//     V2). latest() reads that value back, proving load() was awaited too.
 //
 // Both runtimes share one AsyncCallBack / handlePromise / await implementation,
 // so this single test guards async correctness for V1 and V2 alike.
@@ -114,8 +114,8 @@ func TestJSAsyncAwaitRunsOnEventLoopV1AndV2(t *testing.T) {
 				"%s latest() should take at least the awaited delay (async ran on the event loop), got %s",
 				c.name, elapsed)
 
-			// load() was awaited on its own fresh VM and wrote its result to
-			// the cross-function cache; latest() read it back, confirming both
+			// load() was awaited on its own fresh VM and wrote its result into
+			// the cross-call snapshot; latest() read it back, confirming both
 			// hooks execute their async work under the same event loop.
 			assert.Equal(t, "yes", results[0].Title,
 				"%s latest() should observe the async result seeded by load()", c.name)

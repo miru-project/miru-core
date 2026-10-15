@@ -160,9 +160,8 @@ var (
 	NewFilterSelection = runtime.NewFilterSelection
 )
 
-// SaveCache stores a cross-function variable for this package. It is the Go
-// counterpart of the JavaScript Miru.saveCache. The store is keyed by package
-// name then variable key (matching the JavaScript layout). Values are plain Go
+// SaveCache stores a cross-function variable for this package. The store is
+// keyed by package name then variable key. Values are plain Go
 // values (strings, numbers, slices, maps, structs); avoid storing a value that
 // would break the Scriggo VM when passed back into a function call -- e.g. a
 // function value or a channel tied to a goroutine that has exited.

@@ -18,20 +18,6 @@ class V1Element {
     return this;
   }
 
-  // execute(fun) {
-  //   if (fun === "text") {
-  //     return this.document.textContent;
-  //   }
-  //   if (fun === "outerHTML") {
-  //     return this.document.outerHTML;
-  //   }
-  //   if (fun === "innerHTML") {
-  //     return this.document.innerHTML;
-  //   }
-  //   // Add more as needed
-  //   return null;
-  // }
-
   removeSelector(selector) {
     const removeNode = this.document.querySelector(selector);
     if (removeNode && removeNode.parentNode) {
@@ -67,40 +53,6 @@ class V1Element {
     return this.document.innerHTML;
   }
 }
-// class XPathNode {
-//   constructor(content, selector,extension) {
-//     this.content = content;
-//     this.selector = selector;
-//     this.extension=extension;
-//   }
-
-//   async execute(fun) {
-//     return await sendMessage(
-//       "queryXPath",
-//       JSON.stringify([this.content, this.selector, fun])
-//     );
-//   }
-
-//   get attr() {
-//     return this.execute("attr");
-//   }
-
-//   get attrs() {
-//     return this.execute("attrs");
-//   }
-
-//   get text() {
-//     return this.execute("text");
-//   }
-
-//   get allHTML() {
-//     return this.execute("allHTML");
-//   }
-
-//   get outerHTML() {
-//     return this.execute("outerHTML");
-//   }
-// }
 
 
 
@@ -110,17 +62,12 @@ class Extension {
     this.webSite = webSite;
   }
 
-  //package = this.extension.package;
-  //name = this.extension.name;
-  // 在 load 中注册的 keys
   settingKeys = [];
 
   async request(url, options) {
     options = options || {};
     options.headers = options.headers || {};
     const miruUrl = options.headers["Miru-Url"] || this.webSite;
-    // println("miruUrl",options.headers["Miru-Url"])
-    // println("miruUrl: " + miruUrl);
     options.method = options.method || "get";
     if (options.headers["Miru-Url"]) {
       delete options.headers["Miru-Url"];
@@ -148,9 +95,6 @@ class Extension {
   querySelector(content, selector) {
     const {parseHTML} = require("linkedom")
     const { document } = parseHTML(content);
-    // console.log(document)
-    // console.log(selector)
-    // console.log(document.querySelector(selector)) 
     const e = new V1Element(document).querySelector(selector)
     return e;
   }
@@ -240,19 +184,18 @@ class Extension {
 
   async load() { }
 }
-// const stringify = async (callback) => {
-//   const data = await callback();
-//   return typeof data === "object" ? JSON.stringify(data, 0, 2) : data;
-// }
-
+// Cross-call state for V1 is captured and rebuilt by the HOST (see
+// pkg/extension/js/instance_state.go): the goja VM is disposed after every
+// call, and the host keeps a structural copy of the `ext` instance's own
+// properties (functions, objects, Date/RegExp/Map/Set/TypedArray/BigInt all
+// preserved) which it re-instantiates on the fresh VM at the start of the next
+// call. No JS helper is involved.
 // Miru object exposed to V1 extensions. It is the SAME surface as the V2
-// runtime's Miru object, so an extension can use Miru.load/saveCache/getCache/
-// request/rawRequest identically on both API versions. Because the goja VM is
-// disposed after every execution, state that an extension wants to share
-// between load() and latest()/search()/... must live outside the VM; saveCache/
-// getCache delegate to the native functions registered by the host (values are
-// always strings). pkg/name/website are injected by the host (the sprintf
-// placeholders at the top of this file).
+// runtime's Miru object, so an extension can use Miru.request/rawRequest
+// identically on both API versions. Cross-call state needs no helper: the host
+// snapshots the `ext` instance's own properties after every call and restores
+// them at the start of the next one (see the comment above). pkg/name/website
+// are injected by the host (the sprintf placeholders at the top of this file).
 const settingKeys = [];
 const Miru = {
   pkg: pkg,
@@ -283,11 +226,5 @@ const Miru = {
     } catch (e) {
       return message;
     }
-  },
-  saveCache: (key, value) => {
-    return saveCache(key, String(value));
-  },
-  getCache: (key) => {
-    return getCache(key);
   },
 }

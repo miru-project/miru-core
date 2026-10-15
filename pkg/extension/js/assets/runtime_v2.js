@@ -62,19 +62,6 @@ const Miru = {
     }
   },
 
-  // Cross-function / cross-call variable store. Because the goja VM is disposed
-  // after every execution, long-lived state that an extension wants to share
-  // between its functions (e.g. a value computed once in load() and read later
-  // by latest()/search()/detail()) must live outside the VM. These delegate to
-  // the native saveCache/getCache functions registered by the host. Values are
-  // always strings.
-  saveCache: (key, value) => {
-    return saveCache(key, String(value));
-  },
-  getCache: (key) => {
-    return getCache(key);
-  },
-
 }
 var latest = () => {
   throw new Error("not implement latest");
@@ -152,3 +139,14 @@ async function load() { }
 var throwError = (message) => {
   throw new Error(message);
 }
+
+// Cross-call state for V2 is captured and rebuilt by the HOST (see
+// pkg/extension/js/instance_state.go): the goja VM is disposed after every
+// call, and the host keeps a structural copy of the extension's own globals
+// (`var` / implicit globals on globalThis; the host's own keys and the
+// entry-points above are excluded) which it re-instantiates on the fresh VM at
+// the start of the next call. Functions, objects, Date/RegExp/Map/Set/
+// TypedArray/BigInt all keep their original structure. No JS helper is
+// involved. Top-level `let`/`const` bindings are NOT on globalThis, so they
+// reset per call by design; state that must survive belongs on
+// `globalThis.x = ...`, which the snapshot carries.

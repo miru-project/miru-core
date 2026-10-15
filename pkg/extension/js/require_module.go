@@ -3,13 +3,27 @@ package js
 import (
 	"fmt"
 	"path/filepath"
+	"sort"
+	"strings"
+	"sync"
 
 	"github.com/dop251/goja"
 )
 
+// registeredModuleSources records the raw source of every JS module registered
+// via RegisterJSModule (name -> source). The snapshot uses it to recognise
+// which module a captured function was DEFINED by: a closure (e.g. linkedom's
+// parseHTML, which closes over the module-scope DOMParser) cannot be revived
+// from its source alone -- its scope chain dies with the VM -- but it CAN be
+// re-linked to a live instance of the module re-evaluated on the new VM. See
+// relinkFromModule in instance_state.go.
+var registeredModuleSources sync.Map
+
 // RegisterJSModule registers a JavaScript module from a source string.
 // This allows the module to be loaded via standard require(name) in JavaScript.
 func RegisterJSModule(name string, source string, callback func(*goja.Runtime, *goja.Object)) {
+	registeredModuleSources.Store(name, source)
+
 	// Wrap the source in a Node.js-style module wrapper
 	wrappedSource := "(function(exports, require, module, __filename, __dirname) {" + source + "\n})"
 
@@ -36,6 +50,30 @@ func RegisterJSModule(name string, source string, callback func(*goja.Runtime, *
 			callback(vm, module)
 		}
 	})
+}
+
+// moduleForFunctionSource returns the name of a registered module whose source
+// contains the given function source verbatim, or "" if the function did not
+// come from any known module (a self-contained extension function). Very short
+// sources are not matched: a snippet like "function () {}" appears in every
+// bundle and would mis-attribute.
+func moduleForFunctionSource(fnSource string) string {
+	if len(fnSource) < 16 {
+		return ""
+	}
+	var names []string
+	registeredModuleSources.Range(func(key, _ any) bool {
+		names = append(names, key.(string))
+		return true
+	})
+	sort.Strings(names) // deterministic attribution when several match
+	for _, name := range names {
+		src, _ := registeredModuleSources.Load(name)
+		if s, ok := src.(string); ok && strings.Contains(s, fnSource) {
+			return name
+		}
+	}
+	return ""
 }
 
 func LoadModule(vm *goja.Runtime, module *goja.Object, program *goja.Program, name string) {

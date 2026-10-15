@@ -136,3 +136,40 @@ func TestJSV1MirrorRejected(t *testing.T) {
 	_, err := Mirror("test_v1_mirror", "https://example.com/link")
 	assert.Error(t, err, "V1 extension must not support Mirror()")
 }
+
+// TestV1WatchReturnsFinalWatchDirectly pins the V1 watch contract: watch()
+// returns the FINAL per-type watch object (here a bangumi mp4 stream), not a
+// mirror list, and there is no mirror() step on V1.
+func TestV1WatchReturnsFinalWatchDirectly(t *testing.T) {
+	dir := t.TempDir()
+	src := "// ==MiruExtension==\n" +
+		"// @name         V1 Watch\n" +
+		"// @package      v1watch\n" +
+		"// @type         bangumi\n" +
+		"// @webSite      https://example.com\n" +
+		"// ==/MiruExtension==\n\n" +
+		"export default class extends Extension {\n" +
+		"    async watch(url) { return { type: \"mp4\", url: url }; }\n" +
+		"}\n"
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "v1watch.js"), []byte(src), 0644))
+
+	InitRuntime(dir, AssetsFS)
+	api := waitForPkg(t, "v1watch")
+	require.Equal(t, "1", api.Ext.ApiVersion)
+	require.Equal(t, extension.WatchTypeBangumi, api.Ext.WatchType)
+
+	streamURL := "https://example.com/stream.mp4"
+	res, meta, err := Watch("v1watch", streamURL)
+	require.NoError(t, err)
+	require.NotNil(t, meta)
+
+	watch, ok := res.(map[string]any)
+	require.True(t, ok, "V1 watch() must return the final per-type watch, got %T", res)
+	assert.Equal(t, "mp4", watch["type"],
+		"the bangumi type is the CONTENT type, not the extension type")
+	assert.Equal(t, streamURL, watch["url"])
+
+	// V1 has no mirror() step.
+	_, err = Mirror("v1watch", "https://example.com")
+	assert.Error(t, err, "V1 must not expose mirror()")
+}

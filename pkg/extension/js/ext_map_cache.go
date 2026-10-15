@@ -6,45 +6,12 @@ import (
 	log "github.com/miru-project/miru-core/pkg/logger"
 )
 
-// extVarCache is the cross-function / cross-call variable store shared by all
-// functions of an extension. Because the goja VM is now disposed after every
-// execution (see AsyncCallBack), any long-lived state an extension wants to
-// share between its functions -- for example a value computed once in load()
-// and read later by latest()/search()/detail() -- must live OUTSIDE the VM.
-// saveExtVar/getExtVar (exposed to JS as Miru.saveCache / Miru.getCache) read
-// and write this map. Values are stored as strings because a string is the only
-// goja value that can be carried safely across VM instances.
-//
-// Structure: pkg -> (key -> value).
-var extVarCache sync.Map
-
-// saveExtVar stores a string value under (pkg, key) in the cross-function store.
-func saveExtVar(pkg, key, value string) {
-	m, _ := extVarCache.LoadOrStore(pkg, &sync.Map{})
-	m.(*sync.Map).Store(key, value)
-}
-
-// getExtVar reads a string value stored under (pkg, key). The second return
-// value reports whether the key was present.
-func getExtVar(pkg, key string) (string, bool) {
-	m, ok := extVarCache.Load(pkg)
-	if !ok {
-		return "", false
-	}
-	v, ok := m.(*sync.Map).Load(key)
-	if !ok {
-		return "", false
-	}
-	s, ok := v.(string)
-	return s, ok
-}
-
-// deleteExtVarCache drops every cached variable for a package. It is called when
-// an extension is reloaded or removed so stale values from a previous version do
-// not leak into the new one.
-func deleteExtVarCache(pkg string) {
-	extVarCache.Delete(pkg)
-}
+// Cross-call state used to be mirrored into an in-process string store here
+// (the old saveCache / getCache surface). It is gone: the Go-native snapshot
+// in instance_state.go is the sole carrier of state between calls, and it
+// holds full-fidelity values instead of strings. The recorded state for a
+// package is dropped alongside its cache entry on reload/remove (see
+// deleteInstanceState).
 
 type ExtMapCache struct {
 	sync.Map
@@ -79,8 +46,9 @@ func (m *ExtMapCache) SetError(key string, errString string) {
 
 func (m *ExtMapCache) Remove(key string) {
 	m.Map.Delete(key)
-	// Drop cross-function variables for the removed package.
-	deleteExtVarCache(key)
+	// Drop the recorded cross-call state for the removed package so nothing
+	// from the outgoing extension leaks into a later install.
+	deleteInstanceState(key)
 	m.notify()
 }
 
