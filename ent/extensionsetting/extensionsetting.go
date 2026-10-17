@@ -72,8 +72,6 @@ var (
 	KeyValidator func(string) error
 	// DefaultDefaultValue holds the default value on creation for the "default_value" field.
 	DefaultDefaultValue string
-	// DefaultValueValidator is a validator for the "default_value" field. It is called by the builders before save.
-	DefaultValueValidator func(string) error
 )
 
 // DbType defines the type for the "db_type" enum field.

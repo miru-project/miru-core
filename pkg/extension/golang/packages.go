@@ -3580,7 +3580,7 @@ func init() {
 		Declarations: decs,
 	}
 	// "github.com/PuerkitoBio/goquery"
-	decs = make(native.Declarations, 14)
+	decs = make(native.Declarations, 16)
 	decs["CloneDocument"] = goquery.CloneDocument
 	decs["Document"] = reflect.TypeFor[goquery.Document]()
 	decs["Matcher"] = reflect.TypeFor[goquery.Matcher]()
@@ -3594,13 +3594,15 @@ func init() {
 	decs["Selection"] = reflect.TypeFor[goquery.Selection]()
 	decs["Single"] = goquery.Single
 	decs["SingleMatcher"] = goquery.SingleMatcher
+	decs["Text"] = goquery.Text
+	decs["TextOptions"] = reflect.TypeFor[goquery.TextOptions]()
 	decs["ToEnd"] = goquery.ToEnd
 	packages["github.com/PuerkitoBio/goquery"] = native.Package{
 		Name:         "goquery",
 		Declarations: decs,
 	}
 	// "github.com/bogdanfinn/tls-client"
-	decs = make(native.Declarations, 76)
+	decs = make(native.Declarations, 77)
 	decs["BadPinHandlerFunc"] = reflect.TypeFor[tls_client.BadPinHandlerFunc]()
 	decs["CHROME_MAX_FIELD_SECTION_SIZE"] = native.UntypedNumericConst("262144")
 	decs["CandidateCipherSuites"] = reflect.TypeFor[tls_client.CandidateCipherSuites]()
@@ -3654,6 +3656,7 @@ func init() {
 	decs["WithDisableHttp3"] = tls_client.WithDisableHttp3
 	decs["WithDisableIPV4"] = tls_client.WithDisableIPV4
 	decs["WithDisableIPV6"] = tls_client.WithDisableIPV6
+	decs["WithDisableSessionTickets"] = tls_client.WithDisableSessionTickets
 	decs["WithForceHttp1"] = tls_client.WithForceHttp1
 	decs["WithHandshakeTimeoutMilliseconds"] = tls_client.WithHandshakeTimeoutMilliseconds
 	decs["WithHeaders"] = tls_client.WithHeaders
@@ -3757,7 +3760,7 @@ func init() {
 		Declarations: decs,
 	}
 	// "github.com/miru-project/miru-core/pkg/extension/golang/runtime"
-	decs = make(native.Declarations, 51)
+	decs = make(native.Declarations, 55)
 	decs["BangumiWatchType"] = reflect.TypeFor[runtime_2.BangumiWatchType]()
 	decs["DeleteCache"] = runtime_2.DeleteCache
 	decs["ExtensionAllMirror"] = reflect.TypeFor[runtime_2.ExtensionAllMirror]()
@@ -3795,6 +3798,7 @@ func init() {
 	decs["NewMultiSelect"] = runtime_2.NewMultiSelect
 	decs["NewRange"] = runtime_2.NewRange
 	decs["NewSelect"] = runtime_2.NewSelect
+	decs["NewText"] = runtime_2.NewText
 	decs["ProxyURL"] = runtime_2.ProxyURL
 	decs["RangeBuilder"] = reflect.TypeFor[runtime_2.RangeBuilder]()
 	decs["RangeFilter"] = reflect.TypeFor[runtime_2.RangeFilter]()
@@ -3809,13 +3813,15 @@ func init() {
 	decs["SettingRadio"] = runtime_2.SettingRadio
 	decs["SettingToggle"] = runtime_2.SettingToggle
 	decs["TLSConfig"] = reflect.TypeFor[runtime_2.TLSConfig]()
+	decs["TextBuilder"] = reflect.TypeFor[runtime_2.TextBuilder]()
+	decs["TextFilter"] = reflect.TypeFor[runtime_2.TextFilter]()
 	decs["Torrent"] = runtime_2.Torrent
 	packages["github.com/miru-project/miru-core/pkg/extension/golang/runtime"] = native.Package{
 		Name:         "runtime",
 		Declarations: decs,
 	}
 	// "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
-	decs = make(native.Declarations, 48)
+	decs = make(native.Declarations, 50)
 	decs["BangumiWatchType"] = reflect.TypeFor[sdk.BangumiWatchType]()
 	decs["ExtensionAllMirror"] = reflect.TypeFor[sdk.ExtensionAllMirror]()
 	decs["ExtensionBangumiWatchMirror"] = reflect.TypeFor[sdk.ExtensionBangumiWatchMirror]()
@@ -3851,6 +3857,7 @@ func init() {
 	decs["NewMultiSelect"] = &sdk.NewMultiSelect
 	decs["NewRange"] = &sdk.NewRange
 	decs["NewSelect"] = &sdk.NewSelect
+	decs["NewText"] = &sdk.NewText
 	decs["RangeBuilder"] = reflect.TypeFor[sdk.RangeBuilder]()
 	decs["RangeFilter"] = reflect.TypeFor[sdk.RangeFilter]()
 	decs["RegisterSetting"] = &sdk.RegisterSetting

@@ -73,6 +73,15 @@ func CreateFilter(pkg string, filter sdk.Filter) map[string]sdk.FilterDefinition
 			Option("en", "English").
 			Option("ja", "Japanese").
 			Build(),
+		"quality": sdk.NewMultiSelect("Quality", 1, 3, "1080p").
+			Option("1080p", "1080p").
+			Option("720p", "720p").
+			Option("480p", "480p").
+			Build(),
+		"year": sdk.NewRange("Year", 1990, 2025, 2000, 2025).Build(),
+		"author": sdk.NewText("Author", "").
+			Hint("e.g. Fujimoto").
+			Build(),
 	}
 }
 

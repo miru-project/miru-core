@@ -206,11 +206,6 @@ func (_u *ExtensionSettingUpdate) check() error {
 			return &ValidationError{Name: "key", err: fmt.Errorf(`ent: validator failed for field "ExtensionSetting.key": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.DefaultValue(); ok {
-		if err := extensionsetting.DefaultValueValidator(v); err != nil {
-			return &ValidationError{Name: "default_value", err: fmt.Errorf(`ent: validator failed for field "ExtensionSetting.default_value": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.DbType(); ok {
 		if err := extensionsetting.DbTypeValidator(v); err != nil {
 			return &ValidationError{Name: "db_type", err: fmt.Errorf(`ent: validator failed for field "ExtensionSetting.db_type": %w`, err)}
@@ -474,11 +469,6 @@ func (_u *ExtensionSettingUpdateOne) check() error {
 	if v, ok := _u.mutation.Key(); ok {
 		if err := extensionsetting.KeyValidator(v); err != nil {
 			return &ValidationError{Name: "key", err: fmt.Errorf(`ent: validator failed for field "ExtensionSetting.key": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.DefaultValue(); ok {
-		if err := extensionsetting.DefaultValueValidator(v); err != nil {
-			return &ValidationError{Name: "default_value", err: fmt.Errorf(`ent: validator failed for field "ExtensionSetting.default_value": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.DbType(); ok {

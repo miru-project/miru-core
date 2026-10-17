@@ -31,10 +31,9 @@ func (ExtensionSetting) Fields() []ent.Field {
 			Nillable().
 			Comment("Value"),
 		field.String("default_value").
-			NotEmpty().
 			Nillable().
 			Default("").
-			Comment("Default value"),
+			Comment("Default value; may be empty"),
 		field.Enum("db_type").
 			Values("input", "radio", "toggle").
 			Default("input").

@@ -156,6 +156,7 @@ var (
 	NewSelect      = runtime.NewSelect
 	NewMultiSelect = runtime.NewMultiSelect
 	NewRange       = runtime.NewRange
+	NewText        = runtime.NewText
 	// NewFilterSelection builds a Filter (the frontend's filter selection).
 	NewFilterSelection = runtime.NewFilterSelection
 )

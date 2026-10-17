@@ -55,11 +55,28 @@ func RegisterSetting(setting map[string]any, pkg string) error {
 	}
 	set, _ := GetSetting(pkg, *key)
 	dbType := nilableObj[extensionsetting.DbType](setting["type"])
-	if set != nil && extensionsetting.DbType(set.DbType.String()) != setting["type"] {
-		return nil
-	}
 	client := ext.EntClient()
 	ctx := context.Background()
+
+	// Setting already registered with the same type: keep the stored value,
+	// only refresh the metadata.
+	if set != nil {
+		if dbType == nil || extensionsetting.DbType(set.DbType.String()) != *dbType {
+			return nil
+		}
+		_, err := client.ExtensionSetting.Update().
+			Where(extensionsetting.PackageEQ(pkg), extensionsetting.KeyEQ(*key)).
+			SetTitle(*title).
+			SetNillableValue(safeString(setting["value"])).
+			SetNillableDefaultValue(safeString(setting["defaultValue"])).
+			SetNillableDescription(safeString(setting["description"])).
+			SetNillableOptions(jsonString(setting["options"])).
+			Save(ctx)
+		if err != nil {
+			log.Printf("[RegisterSetting] Error updating setting: %v", err)
+		}
+		return err
+	}
 
 	if dbType == nil {
 		if t := safeString(setting["type"]); t != nil {

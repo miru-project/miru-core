@@ -411,20 +411,17 @@ func filterToJsLiteral(p *proto.FilterSelection) string {
 		}
 		first = false
 		fmt.Fprintf(&buf, "%q:", name)
-		if len(vals) == 0 {
-			buf.WriteString(`""`)
-		} else if len(vals) == 1 {
-			fmt.Fprintf(&buf, "%q", vals[0])
-		} else {
-			buf.WriteByte('[')
-			for i, v := range vals {
-				if i > 0 {
-					buf.WriteByte(',')
-				}
-				fmt.Fprintf(&buf, "%q", v)
+		// Always emit an array: V1 extensions index filter values
+		// (filter["categories"][0]), so a bare string would give a
+		// single character and break category/list lookups.
+		buf.WriteByte('[')
+		for i, v := range vals {
+			if i > 0 {
+				buf.WriteByte(',')
 			}
-			buf.WriteByte(']')
+			fmt.Fprintf(&buf, "%q", v)
 		}
+		buf.WriteByte(']')
 	}
 	buf.WriteByte('}')
 	return buf.String()

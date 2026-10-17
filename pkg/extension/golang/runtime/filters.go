@@ -46,16 +46,32 @@ type RangeFilter struct {
 	DefaultMin, DefaultMax int32
 }
 
-// FilterDefinition is the typed union of the three filter variants. Exactly
-// one of its three fields is non-nil; consumers switch on which one.
+// TextFilter is a free-form text filter: the user types an arbitrary string
+// and the host sends it back verbatim as a single selection value.
 //
-// Concrete shapes (SelectFilter / MultiSelectFilter / RangeFilter) are what
-// an extension's CreateFilter entry point returns. The host converts each
-// to the matching proto.ExtensionFilter oneof variant.
+// Hint is optional placeholder text for the input control. An empty Hint
+// means the UI shows the title instead.
+//
+// Use TextFilter for values the extension cannot enumerate (e.g. an author
+// name, an ISBN, a subreddit) where a keyword alone would be ambiguous
+// because the extension has other free-text parameters.
+type TextFilter struct {
+	Title   string
+	Default string
+	Hint    string
+}
+
+// FilterDefinition is the typed union of the four filter variants. Exactly
+// one of its fields is non-nil; consumers switch on which one.
+//
+// Concrete shapes (SelectFilter / MultiSelectFilter / RangeFilter /
+// TextFilter) are what an extension's CreateFilter entry point returns. The
+// host converts each to the matching proto.ExtensionFilter oneof variant.
 type FilterDefinition struct {
 	Select      *SelectFilter
 	MultiSelect *MultiSelectFilter
 	Range       *RangeFilter
+	Text        *TextFilter
 }
 
 // Title returns the human-readable title of whichever variant is set.
@@ -67,6 +83,8 @@ func (f FilterDefinition) Title() string {
 		return f.MultiSelect.Title
 	case f.Range != nil:
 		return f.Range.Title
+	case f.Text != nil:
+		return f.Text.Title
 	}
 	return ""
 }
@@ -162,6 +180,30 @@ func (b *RangeBuilder) Build() FilterDefinition {
 	return FilterDefinition{Range: &b.f}
 }
 
+// TextBuilder builds a TextFilter.
+type TextBuilder struct {
+	f TextFilter
+}
+
+// NewText starts building a TextFilter with the given title and (optional)
+// default value. Hint is optional placeholder text.
+//
+//	sdk.NewText("Author", "").Hint("e.g. Fujimoto").Build()
+func NewText(title, def string) *TextBuilder {
+	return &TextBuilder{f: TextFilter{Title: title, Default: def}}
+}
+
+// Hint sets the placeholder text shown inside the input control.
+func (b *TextBuilder) Hint(hint string) *TextBuilder {
+	b.f.Hint = hint
+	return b
+}
+
+// Build returns the constructed TextFilter wrapped in a FilterDefinition.
+func (b *TextBuilder) Build() FilterDefinition {
+	return FilterDefinition{Text: &b.f}
+}
+
 // FilterDefinitionToProto converts a FilterDefinition into the proto oneof
 // representation used on the wire (proto.ExtensionFilter). It is the single
 // place the typed filter variants become the protobuf message; the endpoint
@@ -206,6 +248,15 @@ func FilterDefinitionToProto(fd FilterDefinition) *proto.ExtensionFilter {
 				Max:        r.Max,
 				DefaultMin: r.DefaultMin,
 				DefaultMax: r.DefaultMax,
+			},
+		}
+	case fd.Text != nil:
+		t := fd.Text
+		out.Kind = &proto.ExtensionFilter_Text{
+			Text: &proto.TextFilter{
+				Title:   t.Title,
+				Default: t.Default,
+				Hint:    t.Hint,
 			},
 		}
 	}

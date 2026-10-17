@@ -186,11 +186,6 @@ func (_c *ExtensionSettingCreate) check() error {
 	if _, ok := _c.mutation.DefaultValue(); !ok {
 		return &ValidationError{Name: "default_value", err: errors.New(`ent: missing required field "ExtensionSetting.default_value"`)}
 	}
-	if v, ok := _c.mutation.DefaultValue(); ok {
-		if err := extensionsetting.DefaultValueValidator(v); err != nil {
-			return &ValidationError{Name: "default_value", err: fmt.Errorf(`ent: validator failed for field "ExtensionSetting.default_value": %w`, err)}
-		}
-	}
 	if _, ok := _c.mutation.DbType(); !ok {
 		return &ValidationError{Name: "db_type", err: errors.New(`ent: missing required field "ExtensionSetting.db_type"`)}
 	}

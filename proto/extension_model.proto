@@ -46,6 +46,20 @@ message RangeFilter {
   int32 default_max = 5;
 }
 
+// TextFilter is a free-form text filter: the user types an arbitrary string
+// and the host sends it back verbatim. There is no options map and no
+// min/max, so the selection carries exactly one value (the typed string).
+//
+// Named after its value shape (like SelectFilter = one of many,
+// RangeFilter = numeric bounds) rather than its control, because the control
+// differs per platform: a tile that opens a text-input popup on touch, and
+// the same tile + popover on desktop. Hint is optional placeholder text.
+message TextFilter {
+  string title = 1;
+  string default = 2;
+  string hint = 3;
+}
+
 // ExtensionFilter is the typed filter definition returned by CreateFilter.
 // Exactly one of its variants is set; consumers switch on the oneof.
 message ExtensionFilter {
@@ -53,6 +67,7 @@ message ExtensionFilter {
     SelectFilter select = 1;
     MultiSelectFilter multi_select = 2;
     RangeFilter range = 3;
+    TextFilter text = 4;
   }
 }
 

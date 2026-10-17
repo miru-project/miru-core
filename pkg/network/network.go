@@ -305,8 +305,28 @@ func parseCookie(cookie string) map[string]string {
 	return cookieMap
 }
 
+// encodeNonASCIIRequestURI percent-encodes any byte above 0x7F in the
+// path/query part of a request target. Servers and CDNs (Cloudflare) return
+// 400 for raw multi-byte UTF-8 in the request line, but extensions commonly
+// interpolate raw keywords into search URLs, so this normalizes them before
+// the request is sent. All ASCII bytes (including existing '%') are left
+// untouched, so already-encoded URLs pass through unchanged.
+func encodeNonASCIIRequestURI(rawURL string) string {
+	var b strings.Builder
+	b.Grow(len(rawURL) + 16)
+	for i := 0; i < len(rawURL); i++ {
+		c := rawURL[i]
+		if c > 0x7F {
+			fmt.Fprintf(&b, "%%%02X", c)
+		} else {
+			b.WriteByte(c)
+		}
+	}
+	return b.String()
+}
+
 func prepareRequest(req *fasthttp.Request, reqUrl string, option *RequestOptions) (*fasthttp.Client, error) {
-	req.SetRequestURI(reqUrl)
+	req.SetRequestURI(encodeNonASCIIRequestURI(reqUrl))
 	req.Header.SetMethod(checkRequestMethod(option.Method))
 
 	// Set headers

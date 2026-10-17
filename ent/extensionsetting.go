@@ -24,7 +24,7 @@ type ExtensionSetting struct {
 	Key string `json:"key,omitempty"`
 	// Value
 	Value *string `json:"value,omitempty"`
-	// Default value
+	// Default value; may be empty
 	DefaultValue *string `json:"default_value,omitempty"`
 	// Type stored as string: input, radio, toggle
 	DbType extensionsetting.DbType `json:"db_type,omitempty"`

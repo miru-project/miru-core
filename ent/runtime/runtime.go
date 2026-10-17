@@ -119,8 +119,6 @@ func init() {
 	extensionsettingDescDefaultValue := extensionsettingFields[4].Descriptor()
 	// extensionsetting.DefaultDefaultValue holds the default value on creation for the default_value field.
 	extensionsetting.DefaultDefaultValue = extensionsettingDescDefaultValue.Default.(string)
-	// extensionsetting.DefaultValueValidator is a validator for the "default_value" field. It is called by the builders before save.
-	extensionsetting.DefaultValueValidator = extensionsettingDescDefaultValue.Validators[0].(func(string) error)
 	favoriteFields := schema.Favorite{}.Fields()
 	_ = favoriteFields
 	// favoriteDescPackage is the schema descriptor for package field.
