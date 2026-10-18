@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/miru-project/miru-core/pkg/extension"
@@ -151,11 +152,120 @@ func CreateFilter(pkg string, filter *proto.FilterSelection) (map[string]*proto.
 	if err != nil {
 		return nil, err
 	}
-	decoded, err := Unmarshal[map[string]*proto.ExtensionFilter](res)
-	if err != nil {
-		return nil, err
+	return filtersFromJs(res)
+}
+
+// filtersFromJs converts the raw object an extension's createFilter returns
+// (map[string]map[string]any with {title, default, min, max, options, hint})
+// into the typed proto oneof filters. It must adapt by VALUE SHAPE because
+// mapstructure cannot populate a protobuf oneof (an interface field) from a
+// plain JS map -- decoding straight into map[string]*proto.ExtensionFilter
+// yields empty filters with Kind == nil, which is exactly the "filter has no
+// content" symptom. A max/min > 1 means multi-select; everything else with
+// options is a plain select.
+func filtersFromJs(res any) (map[string]*proto.ExtensionFilter, error) {
+	raw, ok := res.(map[string]any)
+	if !ok {
+		return nil, fmt.Errorf("createFilter result is not an object: %T", res)
 	}
-	return *decoded, nil
+	out := make(map[string]*proto.ExtensionFilter, len(raw))
+	for name, entry := range raw {
+		def, ok := entry.(map[string]any)
+		if !ok {
+			continue
+		}
+		out[name] = extensionFilterFromJs(def)
+	}
+	return out, nil
+}
+
+func jsString(m map[string]any, key string) string {
+	if v, ok := m[key].(string); ok {
+		return v
+	}
+	return ""
+}
+
+func jsInt(m map[string]any, key string) int32 {
+	switch v := m[key].(type) {
+	case int64:
+		return int32(v)
+	case float64:
+		return int32(v)
+	case int:
+		return int32(v)
+	case string:
+		n, _ := strconv.Atoi(v)
+		return int32(n)
+	}
+	return 0
+}
+
+// jsOptions normalises the options map: keys stay as-is, values may be plain
+// strings (JS shorthand: {"home": "主页"}) or already-shaped objects
+// ({"label": "..."}).
+func jsOptions(m map[string]any) map[string]*proto.FilterOption {
+	raw, ok := m["options"].(map[string]any)
+	if !ok {
+		return nil
+	}
+	out := make(map[string]*proto.FilterOption, len(raw))
+	for k, v := range raw {
+		switch label := v.(type) {
+		case string:
+			out[k] = &proto.FilterOption{Label: label}
+		case map[string]any:
+			out[k] = &proto.FilterOption{Label: jsString(label, "label")}
+		}
+	}
+	return out
+}
+
+func extensionFilterFromJs(def map[string]any) *proto.ExtensionFilter {
+	opts := jsOptions(def)
+	title := jsString(def, "title")
+	min, max := jsInt(def, "min"), jsInt(def, "max")
+	if max > 1 {
+		// multi-select: default is a repeated string
+		var defaults []string
+		switch d := def["default"].(type) {
+		case string:
+			if d != "" {
+				defaults = []string{d}
+			}
+		case []any:
+			for _, item := range d {
+				if s, ok := item.(string); ok && s != "" {
+					defaults = append(defaults, s)
+				}
+			}
+		}
+		return &proto.ExtensionFilter{
+			Kind: &proto.ExtensionFilter_MultiSelect{
+				MultiSelect: &proto.MultiSelectFilter{
+					Title: title, Min: min, Max: max, Default: defaults, Options: opts,
+				},
+			},
+		}
+	}
+	if _, hasOpts := def["options"]; !hasOpts && jsString(def, "hint") != "" || (hasOpts && opts == nil) {
+		// free-text filter: no usable options
+		return &proto.ExtensionFilter{
+			Kind: &proto.ExtensionFilter_Text{
+				Text: &proto.TextFilter{
+					Title: title, Default: jsString(def, "default"), Hint: jsString(def, "hint"),
+				},
+			},
+		}
+	}
+	defStr := jsString(def, "default")
+	return &proto.ExtensionFilter{
+		Kind: &proto.ExtensionFilter_Select{
+			Select: &proto.SelectFilter{
+				Title: title, Default: defStr, Options: opts,
+			},
+		},
+	}
 }
 
 // handleMediaType resolves magnet:/torrent links embedded in a watch (v1) or
@@ -383,6 +493,7 @@ func toStringMap(raw any) map[string]string {
 	}
 	return out
 }
+
 // filterToJsLiteral converts a proto.FilterSelection into a JavaScript object
 // literal string that can be embedded in a goja eval. The shape mirrors
 // what the JS extension runtime already expects:
