@@ -92,6 +92,13 @@ class Extension {
     }
   }
 
+  // openWebView: request through a random real-browser identity
+  // (TLS fingerprint / JA3-JA4 + matching User-Agent), returns
+  // { status, headers, data, identity: { profile, userAgent } }
+  async openWebView(url, options) {
+    return await openWebView(url, options);
+  }
+
   querySelector(content, selector) {
     const {parseHTML} = require("linkedom")
     const { document } = parseHTML(content);
@@ -226,5 +233,11 @@ const Miru = {
     } catch (e) {
       return message;
     }
+  },
+  // openWebView: request through a random real-browser identity
+  // (TLS fingerprint / JA3-JA4 + matching User-Agent), returns
+  // { status, headers, data, identity: { profile, userAgent } }
+  openWebView: async (url, options) => {
+    return await openWebView(url, options);
   },
 }

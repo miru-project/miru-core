@@ -433,9 +433,9 @@ func request(reqUrl string, option *RequestOptions, readPreference func(*fasthtt
 }
 
 func checkRequestMethod(method string) string {
-	switch method {
+	switch strings.ToUpper(method) {
 	case "GET", "POST", "PUT", "DELETE", "PATCH":
-		return method
+		return strings.ToUpper(method)
 	default:
 		return "GET"
 	}

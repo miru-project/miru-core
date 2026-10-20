@@ -70,11 +70,41 @@ func LoadExtensionRepo() ([]*ent.ExtensionRepoSetting, error) {
 	return repo, nil
 }
 
-func SaveExtensionRepo(repoUrl string, name string) error {
-	if _, err := url.Parse(repoUrl); err != nil {
-		return fmt.Errorf("invalid repository URL: %s", repoUrl)
+// NormalizeRepoURL maps a GitHub page URL onto the raw file it serves, so a
+// repo pasted as https://github.com/owner/repo/blob/main/index.json fetches
+// the JSON instead of the HTML page GitHub returns for /blob/. Other hosts
+// (raw.githubusercontent.com, self-hosted indexes) pass through untouched,
+// query strings included, so token-authenticated URLs keep working.
+func NormalizeRepoURL(raw string) string {
+	trimmed := strings.TrimSpace(raw)
+	u, err := url.Parse(trimmed)
+	if err != nil || u.Host == "" {
+		return trimmed
 	}
-	return db.SetRepository(name, repoUrl)
+	if strings.TrimPrefix(u.Hostname(), "www.") != "github.com" {
+		return trimmed
+	}
+	// /owner/repo/(blob|raw)/<ref>/<path...>
+	segs := strings.Split(strings.Trim(u.Path, "/"), "/")
+	if len(segs) < 5 || (segs[2] != "blob" && segs[2] != "raw") {
+		return trimmed
+	}
+	rawPath := strings.Join(append([]string{segs[0], segs[1]}, segs[3:]...), "/")
+	return "https://raw.githubusercontent.com/" + rawPath
+}
+
+func SaveExtensionRepo(repoUrl string, name string) error {
+	normalized := NormalizeRepoURL(repoUrl)
+	if _, err := url.Parse(normalized); err != nil {
+		return fmt.Errorf("invalid repository URL: %s", normalized)
+	}
+	if err := db.SetRepository(name, normalized); err != nil {
+		return err
+	}
+	// The cached index no longer describes the configured set; installs must
+	// refetch instead of resolving against a stale map.
+	fetchedExtensionRepo = nil
+	return nil
 }
 
 func FetchExtensionRepo() (map[string][]GithubExtension, map[string]error, error) {
@@ -85,7 +115,9 @@ func FetchExtensionRepo() (map[string][]GithubExtension, map[string]error, error
 	fetchedExtensionRepo = make(map[string][]GithubExtension)
 	err := make(map[string]error)
 	for _, rep := range repo {
-		req, e := network.Request[string](rep.Link, &network.RequestOptions{Method: "GET"}, network.ReadAll)
+		// GitHub page URLs are normalized for the request only; the map keeps
+		// the stored link as its key because that is what callers look up.
+		req, e := network.Request[string](NormalizeRepoURL(rep.Link), &network.RequestOptions{Method: "GET"}, network.ReadAll)
 		if e != nil {
 			log.Println("Failed to fetch extension repository", rep.Link, ":", e)
 			err[rep.Link] = e
@@ -116,7 +148,7 @@ func extensionSourceURL(repoUrl string, ext GithubExtension) (string, error) {
 	if abs, e := url.Parse(rel); e == nil && abs.IsAbs() {
 		return abs.String(), nil
 	}
-	link, e := url.Parse(repoUrl)
+	link, e := url.Parse(NormalizeRepoURL(repoUrl))
 	if e != nil {
 		return "", fmt.Errorf("invalid repository URL: %s", repoUrl)
 	}
@@ -164,9 +196,15 @@ func DownloadExtension(repoUrl string, pkg string) error {
 	return fmt.Errorf("package %s not found in repository %s", pkg, repoUrl)
 }
 
+// RemoveExtensionRepo drops the repo row and the cached index, so the next
+// fetch (and installs, which resolve packages against that cache) no longer
+// see the removed repo.
 func RemoveExtensionRepo(id string) error {
-	return db.RemoveExtensionRepo(id)
-
+	if err := db.RemoveExtensionRepo(id); err != nil {
+		return err
+	}
+	fetchedExtensionRepo = nil
+	return nil
 }
 
 // RemoveExtension deletes the extension source of pkg. Both runtimes share one

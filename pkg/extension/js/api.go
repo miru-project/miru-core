@@ -155,6 +155,36 @@ func AsyncCallBack(api *ExtApi, pkg string, evalStr string) (any, error) {
 	return nil, result.err
 }
 
+// mapJSBodyOptions folds the JS-conventional body options into the network
+// layer's request_body key: axios-style `data` (string sent as-is, any other
+// JSON value encoded as JSON — the contract the original JavaScriptCore runtime
+// served V1 extensions) and fetch-style `body` (string). An explicit
+// request_body already present in opts always wins.
+func mapJSBodyOptions(opts map[string]any) {
+	if opts == nil {
+		return
+	}
+	if _, explicit := opts["request_body"]; explicit {
+		return
+	}
+	if v, has := opts["data"]; has {
+		switch d := v.(type) {
+		case string:
+			opts["request_body"] = d
+		default:
+			if b, err := json.Marshal(d); err == nil {
+				opts["request_body"] = string(b)
+			}
+		}
+		return
+	}
+	if v, has := opts["body"]; has {
+		if s, ok := v.(string); ok {
+			opts["request_body"] = s
+		}
+	}
+}
+
 func (api *ExtApi) setFunction(vm *goja.Runtime, name string, fn any) {
 	if e := vm.Set(name, fn); e != nil {
 		log.Println("Error setting function:", api.Ext.Pkg, name, e)
@@ -251,6 +281,9 @@ func (api *ExtApi) registerFunction(vm *goja.Runtime, job Job) {
 
 		var requestOptions network.RequestOptions
 		if opt != nil {
+			if optMap, ok := opt.(map[string]any); ok {
+				mapJSBodyOptions(optMap)
+			}
 			jsonData, e := json.Marshal(opt)
 			if e != nil {
 				panic("Error marshalling options to JSON:" + e.Error())
@@ -290,5 +323,79 @@ func (api *ExtApi) registerFunction(vm *goja.Runtime, job Job) {
 			panic(err.Error())
 		}
 		return res.Body
+	})
+
+	// openWebView(url, options) - fetches a page impersonating a randomly
+	// selected real browser (TLS fingerprint + User-Agent + headers from one
+	// coherent webview identity, see network.OpenWebview). Options: headers,
+	// method, body, timeout, profile (pin instead of random).
+	api.service.createSingleChannel(vm, "openWebView", &job, func(call goja.FunctionCall, resolve func(any) error) any {
+		url := call.Argument(0).ToString().String()
+		url = strings.ReplaceAll(url, "&amp;", "&")
+
+		requestOptions := network.RequestOptions{
+			Headers: make(map[string]string),
+			Method:  "GET",
+		}
+		if len(call.Arguments) > 1 && !goja.IsUndefined(call.Argument(1)) && call.Argument(1) != nil {
+			if m, ok := call.Argument(1).Export().(map[string]any); ok {
+				if v, ok := m["method"].(string); ok {
+					requestOptions.Method = v
+				}
+				if v, ok := m["headers"].(map[string]any); ok {
+					for k, val := range v {
+						requestOptions.Headers[k] = fmt.Sprint(val)
+					}
+				}
+				if v, ok := m["body"].(string); ok {
+					requestOptions.RequestBody = v
+				}
+				if v, ok := m["timeout"].(float64); ok {
+					requestOptions.Timeout = int(v)
+				} else if v, ok := m["timeout"].(int64); ok {
+					requestOptions.Timeout = int(v)
+				}
+				if v, ok := m["profile"].(string); ok && v != "" {
+					requestOptions.TLSConfig = &network.TLSConfig{Profile: v}
+				}
+			}
+		}
+
+		start := time.Now()
+		res, identity, err := network.OpenWebview(url, &requestOptions)
+		duration := time.Since(start).Milliseconds()
+
+		if event.GlobalBus.HasSubscribers() {
+			status := res.StatusCode
+			resHeaders := fmt.Sprintf("%v", res.Headers)
+			go func(s int, h string) {
+				event.SendDevNetwork(&proto.DevNetworkEvent{
+					Package:         pkg,
+					Url:             url,
+					Method:          requestOptions.Method,
+					Status:          int32(s),
+					Duration:        duration,
+					Timestamp:       time.Now().UnixMilli(),
+					RequestHeaders:  fmt.Sprintf("%v", requestOptions.Headers),
+					RequestBody:     requestOptions.RequestBody,
+					ResponseHeaders: h,
+					ResponseBody:    res.Body,
+				})
+			}(status, resHeaders)
+		}
+
+		if err != nil {
+			panic(err.Error())
+		}
+
+		return map[string]any{
+			"status":  res.StatusCode,
+			"headers": res.Headers,
+			"data":    res.Body,
+			"identity": map[string]any{
+				"profile":   identity.Profile,
+				"userAgent": identity.UserAgent,
+			},
+		}
 	})
 }

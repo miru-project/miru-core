@@ -3760,7 +3760,7 @@ func init() {
 		Declarations: decs,
 	}
 	// "github.com/miru-project/miru-core/pkg/extension/golang/runtime"
-	decs = make(native.Declarations, 55)
+	decs = make(native.Declarations, 57)
 	decs["BangumiWatchType"] = reflect.TypeFor[runtime_2.BangumiWatchType]()
 	decs["DeleteCache"] = runtime_2.DeleteCache
 	decs["ExtensionAllMirror"] = reflect.TypeFor[runtime_2.ExtensionAllMirror]()
@@ -3785,13 +3785,14 @@ func init() {
 	decs["FilterSelection"] = reflect.TypeFor[runtime_2.FilterSelection]()
 	decs["FilterSelectionBuilder"] = reflect.TypeFor[runtime_2.FilterSelectionBuilder]()
 	decs["FirstSelection"] = runtime_2.FirstSelection
-	decs["GetCache"] = runtime_2.GetCache
 	decs["GetCookies"] = runtime_2.GetCookies
 	decs["GetSetting"] = runtime_2.GetSetting
 	decs["HLS"] = runtime_2.HLS
 	decs["HasSelection"] = runtime_2.HasSelection
 	decs["MP4"] = runtime_2.MP4
 	decs["Magnet"] = runtime_2.Magnet
+	decs["MiruStateGet"] = runtime_2.MiruStateGet
+	decs["MiruStatePut"] = runtime_2.MiruStatePut
 	decs["MultiSelectBuilder"] = reflect.TypeFor[runtime_2.MultiSelectBuilder]()
 	decs["MultiSelectFilter"] = reflect.TypeFor[runtime_2.MultiSelectFilter]()
 	decs["NewFilterSelection"] = runtime_2.NewFilterSelection
@@ -3799,11 +3800,11 @@ func init() {
 	decs["NewRange"] = runtime_2.NewRange
 	decs["NewSelect"] = runtime_2.NewSelect
 	decs["NewText"] = runtime_2.NewText
+	decs["OpenWebView"] = runtime_2.OpenWebView
 	decs["ProxyURL"] = runtime_2.ProxyURL
 	decs["RangeBuilder"] = reflect.TypeFor[runtime_2.RangeBuilder]()
 	decs["RangeFilter"] = reflect.TypeFor[runtime_2.RangeFilter]()
 	decs["RegisterSetting"] = runtime_2.RegisterSetting
-	decs["SaveCache"] = runtime_2.SaveCache
 	decs["SelectFilter"] = reflect.TypeFor[runtime_2.SelectFilter]()
 	decs["SelectFilterBuilder"] = reflect.TypeFor[runtime_2.SelectFilterBuilder]()
 	decs["SelectionsOf"] = runtime_2.SelectionsOf
@@ -3816,6 +3817,7 @@ func init() {
 	decs["TextBuilder"] = reflect.TypeFor[runtime_2.TextBuilder]()
 	decs["TextFilter"] = reflect.TypeFor[runtime_2.TextFilter]()
 	decs["Torrent"] = runtime_2.Torrent
+	decs["WebviewResponse"] = reflect.TypeFor[runtime_2.WebviewResponse]()
 	packages["github.com/miru-project/miru-core/pkg/extension/golang/runtime"] = native.Package{
 		Name:         "runtime",
 		Declarations: decs,
@@ -3844,7 +3846,6 @@ func init() {
 	decs["FilterSelection"] = reflect.TypeFor[sdk.FilterSelection]()
 	decs["FilterSelectionBuilder"] = reflect.TypeFor[sdk.FilterSelectionBuilder]()
 	decs["FirstSelection"] = &sdk.FirstSelection
-	decs["GetCache"] = &sdk.GetCache
 	decs["GetCookies"] = &sdk.GetCookies
 	decs["GetSetting"] = &sdk.GetSetting
 	decs["HLS"] = &sdk.HLS
@@ -3858,10 +3859,10 @@ func init() {
 	decs["NewRange"] = &sdk.NewRange
 	decs["NewSelect"] = &sdk.NewSelect
 	decs["NewText"] = &sdk.NewText
+	decs["OpenWebView"] = &sdk.OpenWebView
 	decs["RangeBuilder"] = reflect.TypeFor[sdk.RangeBuilder]()
 	decs["RangeFilter"] = reflect.TypeFor[sdk.RangeFilter]()
 	decs["RegisterSetting"] = &sdk.RegisterSetting
-	decs["SaveCache"] = &sdk.SaveCache
 	decs["SelectFilter"] = reflect.TypeFor[sdk.SelectFilter]()
 	decs["SelectFilterBuilder"] = reflect.TypeFor[sdk.SelectFilterBuilder]()
 	decs["SelectionsOf"] = &sdk.SelectionsOf
@@ -3872,6 +3873,7 @@ func init() {
 	decs["SettingToggle"] = &sdk.SettingToggle
 	decs["TLSConfig"] = reflect.TypeFor[sdk.TLSConfig]()
 	decs["Torrent"] = &sdk.Torrent
+	decs["WebviewResponse"] = reflect.TypeFor[sdk.WebviewResponse]()
 	packages["github.com/miru-project/miru-core/pkg/extension/golang/sdk"] = native.Package{
 		Name:         "sdk",
 		Declarations: decs,

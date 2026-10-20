@@ -62,6 +62,13 @@ const Miru = {
     }
   },
 
+  // openWebView: request through a random real-browser identity
+  // (TLS fingerprint / JA3-JA4 + matching User-Agent), returns
+  // { status, headers, data, identity: { profile, userAgent } }
+  openWebView: async (url, options) => {
+    return await openWebView(url, options);
+  },
+
 }
 var latest = () => {
   throw new Error("not implement latest");

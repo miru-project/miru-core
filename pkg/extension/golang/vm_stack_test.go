@@ -38,8 +38,8 @@ func TestScriggoBuildErrorHasStackTrace(t *testing.T) {
 //
 //	Latest -> middle -> innerBoom -> panic("boom in innerBoom")
 //
-// The Load hook is required by the Go runtime; here it just seeds the
-// cross-function cache via sdk.SaveCache so the extension compiles and loads.
+// The Load hook seeds a package variable (captured automatically by the
+// host), mirroring what real stateful extensions do.
 const stackTraceSrc = `
 // ==MiruExtension==
 // @name Stack Trace Test
@@ -51,6 +51,8 @@ import (
 	sdk "github.com/miru-project/miru-core/pkg/extension/golang/sdk"
 )
 
+var seeded string
+
 func innerBoom() string {
 	panic("boom in innerBoom")
 }
@@ -60,7 +62,7 @@ func middle() string {
 }
 
 func Load() {
-	sdk.SaveCache("stacktraceext", "k", "v")
+	seeded = "v"
 }
 
 func Latest(pkg string, page int) ([]sdk.ExtensionListItem, error) {

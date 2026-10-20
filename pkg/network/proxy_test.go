@@ -76,6 +76,7 @@ func TestProxySchemeSingleSourceOfTruth(t *testing.T) {
 
 func TestGetProxyURLFromDBPreservesScheme(t *testing.T) {
 	initTestDB(t)
+	t.Cleanup(func() { db.SetAppSetting("Proxy", "") })
 	db.SetAppSetting("Proxy", "socks5://1.2.3.4:1080")
 	got := getProxyURL(nil)
 	assert.Equal(t, "socks5://1.2.3.4:1080", got)

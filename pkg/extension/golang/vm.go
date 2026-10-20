@@ -116,9 +116,10 @@ func (r *Runtime) LoadExtension(ext *extension.Extension) error {
 	log.Printf("Extension loaded (V%s) [GO]: %s %s", apiVersion, ext.Name, ext.Pkg)
 
 	// Run the Load entry point once. Load takes no arguments, exactly mirroring
-	// the JavaScript runtime's load() hook. Any cross-function state an
-	// extension wants to seed here is written with sdk.SaveCache, keyed by the
-	// extension's own package name (which the author already knows). Extensions
+	// the JavaScript runtime's load() hook. Any cross-call state an extension
+	// wants to seed here lives in its PACKAGE-LEVEL VARIABLES, which the host
+	// captures after every call and restores before the next one (automatic
+	// state capture -- see state_capture.go). Extensions
 	// that do not declare Load are skipped and loaded lazily on the first
 	// request instead.
 	if _, err := prog.program.Call("Load"); err != nil {
@@ -166,6 +167,13 @@ func NewScriggoVM(scriggoFile *Scriggofile) *ScriggoVM {
 // backed by a map, and scriggo.Build compiles entirely in memory, so there is
 // no need to materialize a temporary directory or file on disk.
 //
+// Before building, the source is instrumented for AUTOMATIC state capture
+// (state_capture.go): entry points are bracketed with a persisted-variable
+// load/save so package-level state survives the per-call VM recycling, the
+// same way the JavaScript runtime snapshots its state. If the instrumented
+// build fails for any reason, the original source is built instead, so
+// instrumentation can never break a working extension.
+//
 // When pkg is non-empty the per-package native packages map is used so host
 // primitives (fmt.Print / Fetch) emit dev-dashboard events tagged with the
 // correct package. When pkg is empty the global packages map is used as-is.
@@ -174,18 +182,32 @@ func (v *ScriggoVM) Compile(pkg string, name string, source any) (*Program, erro
 	switch s := source.(type) {
 	case string:
 		fsys = scriggo.Files{"main.go": []byte(s)}
+		if instrumented := instrumentStateCapture(pkg, s); instrumented != s {
+			fsys["main.go"] = []byte(instrumented)
+			p, err := v.build(fsys, pkg)
+			if err == nil {
+				return &Program{program: p}, nil
+			}
+			log.Println("state-capture build failed for", pkg, "- compiling the uninstrumented source:", err)
+			fsys["main.go"] = []byte(s)
+		}
 	case scriggo.Files:
 		fsys = s
 	default:
 		return nil, fmt.Errorf("unsupported source type %T", source)
 	}
 
-	pkgs := packagesForPkg(pkg)
-	p, err := scriggo.Build(fsys, &scriggo.BuildOptions{Packages: pkgs})
+	p, err := v.build(fsys, pkg)
 	if err != nil {
 		return nil, withStackTrace("scriggo build", err)
 	}
 	return &Program{program: p}, nil
+}
+
+// build runs scriggo.Build with the per-package native packages map.
+func (v *ScriggoVM) build(fsys scriggo.Files, pkg string) (*scriggo.Program, error) {
+	pkgs := packagesForPkg(pkg)
+	return scriggo.Build(fsys, &scriggo.BuildOptions{Packages: pkgs})
 }
 
 // Run executes a compiled Scriggo program.

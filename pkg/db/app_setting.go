@@ -8,6 +8,7 @@ import (
 
 	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/ent/appsetting"
+	"github.com/miru-project/miru-core/ent/extensionreposetting"
 	"github.com/miru-project/miru-core/ext"
 )
 
@@ -90,7 +91,7 @@ func (a *AppSetting) Delete(key string) error {
 }
 
 func SetDefaultRepository() error {
-	return SetRepository("Official Miru Extension", "https://raw.githubusercontent.com/appdevelpo/repo/refs/heads/miru_alpha/index.json")
+	return SetRepository("Miru AlphaExtension", "https://raw.githubusercontent.com/appdevelpo/repo/refs/heads/miru_alpha/index.json")
 }
 
 func SetRepository(name string, url string) error {
@@ -99,9 +100,12 @@ func SetRepository(name string, url string) error {
 		Exec(context.Background())
 }
 
+// RemoveExtensionRepo deletes the single repository whose link matches url.
+// The predicate is mandatory: Delete().Where() without one deletes every row,
+// which silently wipes all other configured repositories.
 func RemoveExtensionRepo(url string) error {
 	_, e := ext.EntClient().ExtensionRepoSetting.Delete().
-		Where().
+		Where(extensionreposetting.LinkEQ(url)).
 		Exec(context.Background())
 	return e
 }

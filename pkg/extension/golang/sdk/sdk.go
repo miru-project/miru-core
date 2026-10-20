@@ -34,10 +34,10 @@
 // Load takes no arguments, exactly like the JavaScript runtime's load() hook.
 // It is invoked by the host exactly once, when the extension is first loaded,
 // and is the place to do one-time setup. Because every request (Search /
-// Latest / ...) compiles and runs a FRESH Scriggo VM, any state Load (or any
-// other function) wants to share across calls must be stored through SaveCache
-// / GetCache -- keyed by the extension's own package name, which the author
-// already knows -- see below.
+// Latest / ...) compiles and runs a FRESH Scriggo VM, any state the extension
+// wants to share across calls must live in PACKAGE-LEVEL VARIABLES: the host
+// captures every package-level variable after each call and restores it before
+// the next one, exactly like the JavaScript runtime. No cache API is needed.
 package sdk
 
 import "github.com/miru-project/miru-core/pkg/extension/golang/runtime"
@@ -149,6 +149,20 @@ var (
 // default. See the host runtime for the full contract.
 var Fetch = runtime.Fetch
 
+// WebviewResponse is the result of OpenWebView: raw body, status, response
+// headers, and the browser identity (tls-client profile + User-Agent) the
+// call used. Err is non-empty on failure.
+type WebviewResponse = runtime.WebviewResponse
+
+// OpenWebView performs an HTTP request impersonating a randomly selected real
+// browser (webview): the TLS fingerprint (JA3/JA4), the User-Agent and the
+// default browser headers all come from the same coherent identity, so
+// JA3/JA4-fencing CDNs see a genuine browser visit. Mirrors the JavaScript
+// runtime's Miru.openWebView. The identity actually used is returned in the
+// result (Profile / UserAgent), so later requests or mirror headers can stay
+// consistent with the same browser.
+var OpenWebView = runtime.OpenWebView
+
 // Filter builders. These are the ergonomic constructors an extension's
 // CreateFilter entry point uses to return sdk.FilterDefinition values
 // without the verbose map[string]FilterOption{...} literal.
@@ -160,17 +174,6 @@ var (
 	// NewFilterSelection builds a Filter (the frontend's filter selection).
 	NewFilterSelection = runtime.NewFilterSelection
 )
-
-// SaveCache stores a cross-function variable for this package. The store is
-// keyed by package name then variable key. Values are plain Go
-// values (strings, numbers, slices, maps, structs); avoid storing a value that
-// would break the Scriggo VM when passed back into a function call -- e.g. a
-// function value or a channel tied to a goroutine that has exited.
-var SaveCache = runtime.SaveCache
-
-// GetCache reads a cross-function variable previously stored with SaveCache.
-// The second return value reports whether the key was present.
-var GetCache = runtime.GetCache
 
 // Filter helpers let extensions read individual filters from the strongly-typed
 // sdk.Filter passed to Search / CreateFilter, by the filter name declared in

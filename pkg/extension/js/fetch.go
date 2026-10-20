@@ -179,6 +179,7 @@ func (api *ExtApi) initFetch(vm *goja.Runtime, job *Job) {
 
 		if optsVal != nil {
 			if m, ok := optsVal.(map[string]any); ok {
+				mapJSBodyOptions(m)
 				if v, ok := m["method"].(string); ok {
 					requestOptions.Method = v
 				}

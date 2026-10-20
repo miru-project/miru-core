@@ -222,3 +222,32 @@ func entries(dir string) []string {
 	}
 	return names
 }
+
+// A repo pasted as a GitHub page URL must still fetch its index and sources,
+// so /blob/ page links are rewritten to raw.githubusercontent.com. Other hosts
+// pass through untouched, query string included, so token-authenticated
+// mirrors keep working.
+func TestNormalizeRepoURL(t *testing.T) {
+	cases := map[string]string{
+		// The exact link GitHub shows when copying a file URL.
+		"https://github.com/miru-project/repo/blob/main/index.json": "https://raw.githubusercontent.com/miru-project/repo/main/index.json",
+		// /raw/ is the same page family.
+		"https://github.com/miru-project/repo/raw/main/index.json": "https://raw.githubusercontent.com/miru-project/repo/main/index.json",
+		// Some copy links append ?raw=true.
+		"https://github.com/miru-project/repo/blob/main/index.json?raw=true": "https://raw.githubusercontent.com/miru-project/repo/main/index.json",
+		// Plain http and www links normalize too.
+		"http://www.github.com/o/r/blob/main/index.json": "https://raw.githubusercontent.com/o/r/main/index.json",
+		// Raw links and self-hosted indexes stay untouched.
+		"https://raw.githubusercontent.com/appdevelpo/repo/refs/heads/miru_alpha/index.json": "https://raw.githubusercontent.com/appdevelpo/repo/refs/heads/miru_alpha/index.json",
+		"https://miru-repo.example.com/index.json":                                           "https://miru-repo.example.com/index.json",
+		// A non-GitHub host must keep its query string (tokens live there).
+		"https://mirror.example.com/index.json?token=abc": "https://mirror.example.com/index.json?token=abc",
+		// A GitHub link that is not a file link stays as-is.
+		"https://github.com/miru-project/repo": "https://github.com/miru-project/repo",
+	}
+	for input, want := range cases {
+		if got := NormalizeRepoURL(input); got != want {
+			t.Errorf("NormalizeRepoURL(%q) = %q, want %q", input, got, want)
+		}
+	}
+}

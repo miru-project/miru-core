@@ -97,6 +97,54 @@ func Fetch(url, method string, headers map[string]string, body string, tls *TLSC
 	return res.Body, res.StatusCode, ""
 }
 
+// WebviewResponse is the result of OpenWebView: the raw response body, HTTP
+// status, response headers, and the browser identity (tls-client profile +
+// User-Agent) the call used. Err is non-empty on failure.
+type WebviewResponse struct {
+	Body      string            `json:"body"`
+	Status    int               `json:"status"`
+	Headers   map[string]string `json:"headers,omitempty"`
+	Profile   string            `json:"profile"`
+	UserAgent string            `json:"userAgent"`
+	Err       string            `json:"err,omitempty"`
+}
+
+// OpenWebView performs an HTTP request impersonating a randomly selected real
+// browser (webview): the TLS fingerprint (JA3/JA4), the User-Agent and the
+// default browser headers all come from the same coherent identity, so
+// JA3/JA4-fencing CDNs (Cloudflare) see a genuine browser visit instead of a
+// Go client. The identity actually used is returned in the result, so
+// extensions can echo the same User-Agent on later requests or mirror
+// headers. Mirrors the JavaScript runtime's Miru.openWebView.
+//
+// Like Fetch, it exists as a host primitive because the Scriggo Go-subset
+// cannot reach the tls-client fingerprint stack itself (interface-method
+// calls are not emittable).
+func OpenWebView(url, method string, headers map[string]string, body string) WebviewResponse {
+	opts := &network.RequestOptions{
+		Headers: headers,
+		Method:  method,
+	}
+	if body != "" {
+		opts.RequestBody = body
+	}
+	res, identity, err := network.OpenWebview(url, opts)
+	if err != nil {
+		return WebviewResponse{
+			Profile:   identity.Profile,
+			UserAgent: identity.UserAgent,
+			Err:       err.Error(),
+		}
+	}
+	return WebviewResponse{
+		Body:      res.Body,
+		Status:    res.StatusCode,
+		Headers:   res.Headers,
+		Profile:   identity.Profile,
+		UserAgent: identity.UserAgent,
+	}
+}
+
 // ProxyURL converts a raw media/stream URL into a host-relative proxy path that
 // the miru backend will fetch server-side on behalf of the client. The target
 // URL, the per-request headers (e.g. a Referer the browser cannot set on a

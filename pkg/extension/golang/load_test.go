@@ -14,10 +14,12 @@ import (
 func TestHandleReloadInvalidatesCaches(t *testing.T) {
 	const pkg = "reloadtest"
 
-	// Seed cross-call state via the runtime cache.
-	runtime.SaveCache(pkg, "token", "stale")
-	if _, ok := runtime.GetCache(pkg, "token"); !ok {
-		t.Fatalf("precondition failed: cache seed missing")
+	// Seed cross-call state the way the generated capture bridge stores it.
+	seed := "stale"
+	runtime.MiruStatePut(pkg, "__miru_var.token", &seed)
+	var got string
+	if !runtime.MiruStateGet(pkg, "__miru_var.token", &got) || got != "stale" {
+		t.Fatalf("precondition failed: state seed missing")
 	}
 
 	// Seed a per-package native packages entry.
@@ -29,9 +31,10 @@ func TestHandleReloadInvalidatesCaches(t *testing.T) {
 	// Act: simulate the watcher firing because the .go file changed.
 	HandleReload(pkg)
 
-	// The cross-call cache for the package must be gone.
-	_, stillCached := runtime.GetCache(pkg, "token")
-	assert.False(t, stillCached, "HandleReload must invalidate the per-package cross-call cache")
+	// The captured cross-call state for the package must be gone.
+	var still string
+	assert.False(t, runtime.MiruStateGet(pkg, "__miru_var.token", &still),
+		"HandleReload must invalidate the per-package captured state")
 
 	// The per-package native packages map must be gone too.
 	_, stillPkg := pkgPackages.Load(pkg)
