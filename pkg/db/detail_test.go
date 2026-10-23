@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/miru-project/miru-core/ent"
 	"github.com/miru-project/miru-core/ent/enttest"
 	"github.com/miru-project/miru-core/ext"
 	"github.com/stretchr/testify/assert"
@@ -73,4 +74,43 @@ func TestDetail(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, newDownloaded, fetched.Downloaded)
 	})
+}
+
+// TestUpsertDetailTagsPreservation proves the tag column survives an upsert
+// from a client that does not carry tags, and is replaced when it does.
+func TestUpsertDetailTagsPreservation(t *testing.T) {
+	client := enttest.Open(t, "sqlite3", "file:enttags?mode=memory&cache=shared&_fk=1&_pragma=foreign_keys(1)")
+	defer client.Close()
+	ext.SetEntClientForTest(client)
+	defer ext.SetEntClientForTest(nil)
+
+	ctx := context.Background()
+	pkg := "com.example.tags"
+	url := "http://example.com/detail/tags"
+
+	_, err := client.Detail.Create().
+		SetPackage(pkg).
+		SetDetailUrl(url).
+		SetTitle("Tagged").
+		SetTags([]string{"action", "comedy"}).
+		Save(ctx)
+	assert.NoError(t, err)
+
+	// Upsert WITHOUT tags (older frontend / partial refresh) keeps them.
+	d := &ent.Detail{Package: pkg, DetailUrl: url}
+	_, err = UpsertDetail(d)
+	assert.NoError(t, err)
+	fetched, err := GetDetailByPackageAndUrl(pkg, url)
+	assert.NoError(t, err)
+	assert.Equal(t, []string{"action", "comedy"}, fetched.Tags,
+		"an upsert that omits tags must not wipe the stored list")
+
+	// Upsert WITH tags replaces them.
+	newTitle := "Tagged v2"
+	d2 := &ent.Detail{Package: pkg, DetailUrl: url, Title: &newTitle, Tags: []string{"drama"}}
+	_, err = UpsertDetail(d2)
+	assert.NoError(t, err)
+	fetched, err = GetDetailByPackageAndUrl(pkg, url)
+	assert.NoError(t, err)
+	assert.Equal(t, []string{"drama"}, fetched.Tags)
 }

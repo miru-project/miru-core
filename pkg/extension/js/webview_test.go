@@ -3,7 +3,7 @@ package js
 import (
 	"encoding/json"
 	"fmt"
-	"net"
+	"net/http"
 	"testing"
 	"time"
 
@@ -25,17 +25,23 @@ type peetWebview struct {
 	} `json:"tls"`
 }
 
-// webviewNetworkAvailable reports whether the live fingerprint probe host is
-// reachable (the LAN resolver here can take >5s to answer, hence the generous
-// timeout), so tests skip instead of failing offline.
+// webviewNetworkAvailable reports whether the live fingerprint probe service
+// is actually answering (TCP connect alone can succeed while the server
+// hangs), so tests skip instead of failing when the probe is down or
+// rate-limiting.
 func webviewNetworkAvailable(t *testing.T) bool {
 	t.Helper()
-	conn, err := net.DialTimeout("tcp", "tls.peet.ws:443", 15*time.Second)
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Get("https://tls.peet.ws/api/all")
 	if err != nil {
-		t.Logf("network unreachable, skipping live webview test: %v", err)
+		t.Logf("fingerprint probe service unreachable, skipping live webview test: %v", err)
 		return false
 	}
-	conn.Close()
+	resp.Body.Close()
+	if resp.StatusCode != 200 {
+		t.Logf("fingerprint probe service returned %d, skipping live webview test", resp.StatusCode)
+		return false
+	}
 	return true
 }
 
@@ -110,11 +116,12 @@ func callOpenWebView(t *testing.T, loop *eventloop.EventLoop, options string) st
 	return r.text
 }
 
-// TestOpenWebViewRandomSpoofFingerprint is the live one-shot spoof check for
-// the JS host primitive: one RANDOM identity, and the probe server must report
-// exactly that browser (User-Agent echo + recorded JA3 hash / JA4 of the
-// profile), proving the TLS ClientHello was impersonated, not the Go default.
-func TestOpenWebViewRandomSpoofFingerprint(t *testing.T) {
+// TestOpenWebViewDefaultSpoofFingerprint is the live one-shot spoof check for
+// the JS host primitive: one request through the install's default browser
+// identity, and the probe server must report exactly that browser (User-Agent
+// echo + recorded JA3 hash / JA4 of the profile), proving the TLS ClientHello
+// was impersonated, not the Go default.
+func TestOpenWebViewDefaultSpoofFingerprint(t *testing.T) {
 	if !webviewNetworkAvailable(t) {
 		t.Skip("requires network access to tls.peet.ws")
 	}
@@ -135,6 +142,10 @@ func TestOpenWebViewRandomSpoofFingerprint(t *testing.T) {
 	}
 	if envelope.Status != 200 {
 		t.Fatalf("expected 200, got %d", envelope.Status)
+	}
+	if envelope.Identity.Profile != network.DefaultWebviewIdentity().Profile {
+		t.Fatalf("openWebView must use the per-install default identity: got %q, want %q",
+			envelope.Identity.Profile, network.DefaultWebviewIdentity().Profile)
 	}
 
 	var peet peetWebview

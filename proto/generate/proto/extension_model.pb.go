@@ -601,6 +601,7 @@ type ExtensionDetail struct {
 	Desc          *string                  `protobuf:"bytes,3,opt,name=desc,proto3,oneof" json:"desc,omitempty"`
 	Episodes      []*ExtensionEpisodeGroup `protobuf:"bytes,4,rep,name=episodes,proto3" json:"episodes,omitempty"`
 	Headers       map[string]string        `protobuf:"bytes,5,rep,name=headers,proto3" json:"headers,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Tags          []string                 `protobuf:"bytes,6,rep,name=tags,proto3" json:"tags,omitempty"` // genres/categories for the detail page chips
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -666,6 +667,13 @@ func (x *ExtensionDetail) GetEpisodes() []*ExtensionEpisodeGroup {
 func (x *ExtensionDetail) GetHeaders() map[string]string {
 	if x != nil {
 		return x.Headers
+	}
+	return nil
+}
+
+func (x *ExtensionDetail) GetTags() []string {
+	if x != nil {
+		return x.Tags
 	}
 	return nil
 }
@@ -1966,13 +1974,14 @@ const file_proto_extension_model_proto_rawDesc = "" +
 	"\fmulti_select\x18\x02 \x01(\v2\x17.miru.MultiSelectFilterH\x00R\vmultiSelect\x12)\n" +
 	"\x05range\x18\x03 \x01(\v2\x11.miru.RangeFilterH\x00R\x05range\x12&\n" +
 	"\x04text\x18\x04 \x01(\v2\x10.miru.TextFilterH\x00R\x04textB\x06\n" +
-	"\x04kind\"\xb0\x02\n" +
+	"\x04kind\"\xc4\x02\n" +
 	"\x0fExtensionDetail\x12\x19\n" +
 	"\x05title\x18\x01 \x01(\tH\x00R\x05title\x88\x01\x01\x12\x19\n" +
 	"\x05cover\x18\x02 \x01(\tH\x01R\x05cover\x88\x01\x01\x12\x17\n" +
 	"\x04desc\x18\x03 \x01(\tH\x02R\x04desc\x88\x01\x01\x127\n" +
 	"\bepisodes\x18\x04 \x03(\v2\x1b.miru.ExtensionEpisodeGroupR\bepisodes\x12<\n" +
-	"\aheaders\x18\x05 \x03(\v2\".miru.ExtensionDetail.HeadersEntryR\aheaders\x1a:\n" +
+	"\aheaders\x18\x05 \x03(\v2\".miru.ExtensionDetail.HeadersEntryR\aheaders\x12\x12\n" +
+	"\x04tags\x18\x06 \x03(\tR\x04tags\x1a:\n" +
 	"\fHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01B\b\n" +

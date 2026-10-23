@@ -30,6 +30,7 @@ func LoadApiV1(ext *Ext) {
 
 func (api *ExtApi) loadExtensionV1(pkg string) {
 	if _, e := AsyncCallBack(api, pkg, "ext.load()"); e != nil {
+		log.Println("Extension load error:", pkg, "load():", e)
 		ApiPkgCache.SetError(pkg, e.Error())
 	}
 }

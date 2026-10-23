@@ -106,6 +106,7 @@ func Detail(pkg, url string) (*sdk.ExtensionDetail, error) {
 		Title: "Example Detail",
 		Desc:  "Example description",
 		URL:   url,
+		Tags:  []string{"example", "fixture"},
 	}, nil
 }
 

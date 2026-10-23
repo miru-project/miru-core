@@ -613,6 +613,16 @@ func TrackIdsNotNil() predicate.Detail {
 	return predicate.Detail(sql.FieldNotNull(FieldTrackIds))
 }
 
+// TagsIsNil applies the IsNil predicate on the "tags" field.
+func TagsIsNil() predicate.Detail {
+	return predicate.Detail(sql.FieldIsNull(FieldTags))
+}
+
+// TagsNotNil applies the NotNil predicate on the "tags" field.
+func TagsNotNil() predicate.Detail {
+	return predicate.Detail(sql.FieldNotNull(FieldTags))
+}
+
 // HasTrackers applies the HasEdge predicate on the "trackers" edge.
 func HasTrackers() predicate.Detail {
 	return predicate.Detail(func(s *sql.Selector) {

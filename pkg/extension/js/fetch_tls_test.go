@@ -127,9 +127,10 @@ func requestPeet(t *testing.T, loop *eventloop.EventLoop, tlsConfig string) *pee
 	return parsePeet(t, r.text)
 }
 
-// TestFetchWithoutTLS verifies the default (fasthttp) transport is used when no
-// tls_config is supplied: it speaks HTTP/1.1 and does NOT advertise the h2 ALPN
-// protocol (no browser impersonation).
+// TestFetchWithoutTLS verifies the default (fasthttp) transport is used when
+// no tls_config is supplied: it speaks HTTP/1.1 and does NOT advertise the h2
+// ALPN protocol (no browser impersonation). Browser impersonation is opt-in
+// via tls_config or the openWebView primitive.
 func TestFetchWithoutTLS(t *testing.T) {
 	network.Init()
 	vm, loop := newFetchVM(t)
@@ -148,8 +149,8 @@ func TestFetchWithoutTLS(t *testing.T) {
 
 // TestFetchWithTLS verifies that supplying tls_config routes the request through
 // the browser-impersonating tls-client and that the intended profile is actually
-// applied: the server must observe an HTTP/2 (h2) ALPN negotiation, which only
-// the chrome_133 fingerprint produces.
+// applied: the server must observe an HTTP/2 (h2) ALPN negotiation, which the
+// browser fingerprint profiles (chrome_133 here) produce.
 func TestFetchWithTLS(t *testing.T) {
 	network.Init()
 	vm, loop := newFetchVM(t)

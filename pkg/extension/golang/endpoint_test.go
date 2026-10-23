@@ -129,6 +129,9 @@ func TestDetailEndpoint(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, detail)
 	assert.Equal(t, "Example Detail", *detail.Title)
+	// Tags must survive the Scriggo VM boundary, so Go extensions can feed
+	// the detail-page chips exactly like the JS runtime does.
+	assert.Equal(t, []string{"example", "fixture"}, detail.Tags)
 }
 
 func TestWatchEndpoint(t *testing.T) {

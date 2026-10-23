@@ -187,6 +187,24 @@ func (_u *DetailUpdate) ClearTrackIds() *DetailUpdate {
 	return _u
 }
 
+// SetTags sets the "tags" field.
+func (_u *DetailUpdate) SetTags(v []string) *DetailUpdate {
+	_u.mutation.SetTags(v)
+	return _u
+}
+
+// AppendTags appends value to the "tags" field.
+func (_u *DetailUpdate) AppendTags(v []string) *DetailUpdate {
+	_u.mutation.AppendTags(v)
+	return _u
+}
+
+// ClearTags clears the value of the "tags" field.
+func (_u *DetailUpdate) ClearTags() *DetailUpdate {
+	_u.mutation.ClearTags()
+	return _u
+}
+
 // AddTrackerIDs adds the "trackers" edge to the Tracker entity by IDs.
 func (_u *DetailUpdate) AddTrackerIDs(ids ...int) *DetailUpdate {
 	_u.mutation.AddTrackerIDs(ids...)
@@ -339,6 +357,17 @@ func (_u *DetailUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.TrackIdsCleared() {
 		_spec.ClearField(detail.FieldTrackIds, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.Tags(); ok {
+		_spec.SetField(detail.FieldTags, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedTags(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, detail.FieldTags, value)
+		})
+	}
+	if _u.mutation.TagsCleared() {
+		_spec.ClearField(detail.FieldTags, field.TypeJSON)
 	}
 	if _u.mutation.TrackersCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -563,6 +592,24 @@ func (_u *DetailUpdateOne) ClearTrackIds() *DetailUpdateOne {
 	return _u
 }
 
+// SetTags sets the "tags" field.
+func (_u *DetailUpdateOne) SetTags(v []string) *DetailUpdateOne {
+	_u.mutation.SetTags(v)
+	return _u
+}
+
+// AppendTags appends value to the "tags" field.
+func (_u *DetailUpdateOne) AppendTags(v []string) *DetailUpdateOne {
+	_u.mutation.AppendTags(v)
+	return _u
+}
+
+// ClearTags clears the value of the "tags" field.
+func (_u *DetailUpdateOne) ClearTags() *DetailUpdateOne {
+	_u.mutation.ClearTags()
+	return _u
+}
+
 // AddTrackerIDs adds the "trackers" edge to the Tracker entity by IDs.
 func (_u *DetailUpdateOne) AddTrackerIDs(ids ...int) *DetailUpdateOne {
 	_u.mutation.AddTrackerIDs(ids...)
@@ -745,6 +792,17 @@ func (_u *DetailUpdateOne) sqlSave(ctx context.Context) (_node *Detail, err erro
 	}
 	if _u.mutation.TrackIdsCleared() {
 		_spec.ClearField(detail.FieldTrackIds, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.Tags(); ok {
+		_spec.SetField(detail.FieldTags, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedTags(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, detail.FieldTags, value)
+		})
+	}
+	if _u.mutation.TagsCleared() {
+		_spec.ClearField(detail.FieldTags, field.TypeJSON)
 	}
 	if _u.mutation.TrackersCleared() {
 		edge := &sqlgraph.EdgeSpec{

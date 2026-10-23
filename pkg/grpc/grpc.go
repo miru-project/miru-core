@@ -443,6 +443,7 @@ func toProtoDetail(d *ent.Detail) *proto.Detail {
 		Headers:    d.Headers,
 		TrackIds:   d.TrackIds,
 		Trackers:   trackers,
+		Tags:       d.Tags,
 	}
 }
 

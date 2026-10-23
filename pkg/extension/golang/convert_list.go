@@ -115,6 +115,7 @@ func toDetail(v any) *proto.ExtensionDetail {
 		Desc:     &desc,
 		Episodes: toEpisodeGroups(anyField(rv, "Chapters")),
 		Headers:  mapStrField(rv, "Headers"),
+		Tags:     strSliceField(rv, "Tags"),
 	}
 }
 

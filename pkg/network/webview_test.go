@@ -2,7 +2,7 @@ package network
 
 import (
 	"encoding/json"
-	"net"
+	"net/http"
 	"strings"
 	"testing"
 	"time"
@@ -22,16 +22,22 @@ type peetWebview struct {
 	} `json:"tls"`
 }
 
-// webviewAvailable reports whether the live fingerprint probe host is
-// reachable, so tests skip instead of failing offline.
+// webviewAvailable reports whether the live fingerprint probe service is
+// actually answering (TCP connect alone can succeed while the server hangs),
+// so tests skip instead of failing when the probe is down or rate-limiting.
 func webviewAvailable(t *testing.T) bool {
 	t.Helper()
-	conn, err := net.DialTimeout("tcp", "tls.peet.ws:443", 15*time.Second)
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Get("https://tls.peet.ws/api/all")
 	if err != nil {
-		t.Logf("network unreachable, skipping live webview test: %v", err)
+		t.Logf("fingerprint probe service unreachable, skipping live webview test: %v", err)
 		return false
 	}
-	conn.Close()
+	resp.Body.Close()
+	if resp.StatusCode != 200 {
+		t.Logf("fingerprint probe service returned %d, skipping live webview test", resp.StatusCode)
+		return false
+	}
 	return true
 }
 
@@ -87,35 +93,30 @@ func TestWebviewProfilesCoherent(t *testing.T) {
 	}
 }
 
-// TestRandomWebviewIdentity checks the random picker only ever returns
-// identities from the table.
-func TestRandomWebviewIdentity(t *testing.T) {
-	for i := 0; i < 16; i++ {
-		id := RandomWebviewIdentity()
-		if _, ok := webviewByProfile[id.Profile]; !ok {
-			t.Fatalf("random identity %q is not a known webview profile", id.Profile)
-		}
-		if id.UserAgent == "" {
-			t.Fatalf("random identity %q has empty user agent", id.Profile)
+// TestDefaultWebviewIdentity checks that the per-install identity is stable
+// across calls and always comes from the curated table.
+func TestDefaultWebviewIdentity(t *testing.T) {
+	first := DefaultWebviewIdentity()
+	if _, ok := webviewByProfile[first.Profile]; !ok {
+		t.Fatalf("default identity %q is not a known webview profile", first.Profile)
+	}
+	if first.UserAgent == "" {
+		t.Fatalf("default identity %q has empty user agent", first.Profile)
+	}
+	for i := 0; i < 8; i++ {
+		if got := DefaultWebviewIdentity(); got != first {
+			t.Fatalf("default identity changed between calls: %v -> %v", first, got)
 		}
 	}
 }
 
-// clearProxySetting drops an app-level proxy left in the shared test DB by
-// other tests in this package (one process, one DB), so the live webview
-// requests dial directly. Safe when no DB is initialized.
-func clearProxySetting() {
-	defer func() { _ = recover() }()
-	_ = db.SetAppSetting("Proxy", "")
-}
-
-// TestOpenWebviewRandomSpoofFingerprint is the live one-shot spoof check: it
-// opens https://tls.peet.ws/api/all through one RANDOM webview identity and
-// asserts the server observed exactly that browser - the echoed User-Agent
-// matches the identity, and the reported JA3 hash / JA4 match the recorded
-// fingerprint of the picked profile (i.e. the TLS ClientHello was really
-// spoofed, not the Go default).
-func TestOpenWebviewRandomSpoofFingerprint(t *testing.T) {
+// TestOpenWebviewDefaultSpoofFingerprint is the live one-shot spoof check: it
+// opens https://tls.peet.ws/api/all through the install's default browser
+// identity and asserts the server observed exactly that browser - the echoed
+// User-Agent matches the identity, and the reported JA3 hash / JA4 match the
+// recorded fingerprint of the picked profile (i.e. the TLS ClientHello was
+// really spoofed, not the Go default).
+func TestOpenWebviewDefaultSpoofFingerprint(t *testing.T) {
 	if !webviewAvailable(t) {
 		t.Skip("requires network access to tls.peet.ws")
 	}
@@ -128,6 +129,10 @@ func TestOpenWebviewRandomSpoofFingerprint(t *testing.T) {
 	}
 	if res.StatusCode != 200 {
 		t.Fatalf("expected 200, got %d", res.StatusCode)
+	}
+	if identity.Profile != DefaultWebviewIdentity().Profile {
+		t.Fatalf("OpenWebview must use the per-install default identity: got %q, want %q",
+			identity.Profile, DefaultWebviewIdentity().Profile)
 	}
 
 	var peet peetWebview
@@ -152,6 +157,14 @@ func TestOpenWebviewRandomSpoofFingerprint(t *testing.T) {
 		t.Fatalf("profile %s: expected h2 impersonation, got http_version %q", identity.Profile, peet.HTTPVersion)
 	}
 	t.Logf("spoofed identity: profile=%s ua=%q ja3_hash=%s ja4=%s", identity.Profile, identity.UserAgent, ja3, ja4)
+}
+
+// clearProxySetting drops an app-level proxy left in the shared test DB by
+// other tests in this package (one process, one DB), so the live webview
+// requests dial directly. Safe when no DB is initialized.
+func clearProxySetting() {
+	defer func() { _ = recover() }()
+	_ = db.SetAppSetting("Proxy", "")
 }
 
 // TestOpenWebviewPinnedProfile verifies a caller can pin one identity instead

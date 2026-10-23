@@ -36,6 +36,8 @@ type Detail struct {
 	Headers *string `json:"headers,omitempty"`
 	// Map of provider to tracking ID
 	TrackIds map[string]string `json:"track_ids,omitempty"`
+	// Genres/categories for detail page chips
+	Tags []string `json:"tags,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DetailQuery when eager-loading is set.
 	Edges        DetailEdges `json:"edges"`
@@ -65,7 +67,7 @@ func (*Detail) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case detail.FieldDownloaded, detail.FieldTrackIds:
+		case detail.FieldDownloaded, detail.FieldTrackIds, detail.FieldTags:
 			values[i] = new([]byte)
 		case detail.FieldID:
 			values[i] = new(sql.NullInt64)
@@ -155,6 +157,14 @@ func (_m *Detail) assignValues(columns []string, values []any) error {
 					return fmt.Errorf("unmarshal field track_ids: %w", err)
 				}
 			}
+		case detail.FieldTags:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field tags", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Tags); err != nil {
+					return fmt.Errorf("unmarshal field tags: %w", err)
+				}
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -232,6 +242,9 @@ func (_m *Detail) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("track_ids=")
 	builder.WriteString(fmt.Sprintf("%v", _m.TrackIds))
+	builder.WriteString(", ")
+	builder.WriteString("tags=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Tags))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -62,6 +62,10 @@ func (Detail) Fields() []ent.Field {
 		field.JSON("track_ids", map[string]string{}).
 			Optional().
 			Comment("Map of provider to tracking ID"),
+
+		field.JSON("tags", []string{}).
+			Optional().
+			Comment("Genres/categories for detail page chips"),
 	}
 }
 

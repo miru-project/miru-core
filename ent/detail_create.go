@@ -116,6 +116,12 @@ func (_c *DetailCreate) SetTrackIds(v map[string]string) *DetailCreate {
 	return _c
 }
 
+// SetTags sets the "tags" field.
+func (_c *DetailCreate) SetTags(v []string) *DetailCreate {
+	_c.mutation.SetTags(v)
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *DetailCreate) SetID(v int) *DetailCreate {
 	_c.mutation.SetID(v)
@@ -265,6 +271,10 @@ func (_c *DetailCreate) createSpec() (*Detail, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.TrackIds(); ok {
 		_spec.SetField(detail.FieldTrackIds, field.TypeJSON, value)
 		_node.TrackIds = value
+	}
+	if value, ok := _c.mutation.Tags(); ok {
+		_spec.SetField(detail.FieldTags, field.TypeJSON, value)
+		_node.Tags = value
 	}
 	if nodes := _c.mutation.TrackersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -481,6 +491,24 @@ func (u *DetailUpsert) UpdateTrackIds() *DetailUpsert {
 // ClearTrackIds clears the value of the "track_ids" field.
 func (u *DetailUpsert) ClearTrackIds() *DetailUpsert {
 	u.SetNull(detail.FieldTrackIds)
+	return u
+}
+
+// SetTags sets the "tags" field.
+func (u *DetailUpsert) SetTags(v []string) *DetailUpsert {
+	u.Set(detail.FieldTags, v)
+	return u
+}
+
+// UpdateTags sets the "tags" field to the value that was provided on create.
+func (u *DetailUpsert) UpdateTags() *DetailUpsert {
+	u.SetExcluded(detail.FieldTags)
+	return u
+}
+
+// ClearTags clears the value of the "tags" field.
+func (u *DetailUpsert) ClearTags() *DetailUpsert {
+	u.SetNull(detail.FieldTags)
 	return u
 }
 
@@ -704,6 +732,27 @@ func (u *DetailUpsertOne) UpdateTrackIds() *DetailUpsertOne {
 func (u *DetailUpsertOne) ClearTrackIds() *DetailUpsertOne {
 	return u.Update(func(s *DetailUpsert) {
 		s.ClearTrackIds()
+	})
+}
+
+// SetTags sets the "tags" field.
+func (u *DetailUpsertOne) SetTags(v []string) *DetailUpsertOne {
+	return u.Update(func(s *DetailUpsert) {
+		s.SetTags(v)
+	})
+}
+
+// UpdateTags sets the "tags" field to the value that was provided on create.
+func (u *DetailUpsertOne) UpdateTags() *DetailUpsertOne {
+	return u.Update(func(s *DetailUpsert) {
+		s.UpdateTags()
+	})
+}
+
+// ClearTags clears the value of the "tags" field.
+func (u *DetailUpsertOne) ClearTags() *DetailUpsertOne {
+	return u.Update(func(s *DetailUpsert) {
+		s.ClearTags()
 	})
 }
 
@@ -1092,6 +1141,27 @@ func (u *DetailUpsertBulk) UpdateTrackIds() *DetailUpsertBulk {
 func (u *DetailUpsertBulk) ClearTrackIds() *DetailUpsertBulk {
 	return u.Update(func(s *DetailUpsert) {
 		s.ClearTrackIds()
+	})
+}
+
+// SetTags sets the "tags" field.
+func (u *DetailUpsertBulk) SetTags(v []string) *DetailUpsertBulk {
+	return u.Update(func(s *DetailUpsert) {
+		s.SetTags(v)
+	})
+}
+
+// UpdateTags sets the "tags" field to the value that was provided on create.
+func (u *DetailUpsertBulk) UpdateTags() *DetailUpsertBulk {
+	return u.Update(func(s *DetailUpsert) {
+		s.UpdateTags()
+	})
+}
+
+// ClearTags clears the value of the "tags" field.
+func (u *DetailUpsertBulk) ClearTags() *DetailUpsertBulk {
+	return u.Update(func(s *DetailUpsert) {
+		s.ClearTags()
 	})
 }
 

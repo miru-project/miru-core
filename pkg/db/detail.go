@@ -40,7 +40,11 @@ func UpsertDetail(d *ent.Detail) (*ent.Detail, error) {
 
 	// IMPORTANT: Use proper bulk upsert or OnConflict.
 	// Use the style from history.go for consistency
-	id, err := client.Detail.Create().
+	// Tags are only written when the caller supplied them: an upsert from a
+	// client that does not carry tags (older frontend, partial refresh) must
+	// not wipe the stored list, which ResolveWithNewValues would otherwise
+	// overwrite with an empty value on conflict.
+	create := client.Detail.Create().
 		SetNillableTitle(d.Title).
 		SetNillableCover(d.Cover).
 		SetNillableDesc(d.Desc).
@@ -49,7 +53,11 @@ func UpsertDetail(d *ent.Detail) (*ent.Detail, error) {
 		SetNillableEpisodes(d.Episodes).
 		SetNillableHeaders(d.Headers).
 		SetDownloaded(d.Downloaded).
-		SetTrackIds(d.TrackIds).
+		SetTrackIds(d.TrackIds)
+	if d.Tags != nil {
+		create = create.SetTags(d.Tags)
+	}
+	id, err := create.
 		OnConflict(
 			sql.ConflictColumns(detail.FieldPackage, detail.FieldDetailUrl),
 			sql.ResolveWithNewValues(),

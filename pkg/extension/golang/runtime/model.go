@@ -211,6 +211,8 @@ type ExtensionDetail struct {
 	Desc        string                  `json:"desc,omitempty"`
 	Chapters    []ExtensionEpisodeGroup `json:"chapters,omitempty"`
 	Headers     map[string]string       `json:"headers,omitempty"`
+	// Tags are the genres/categories rendered as chips on the detail page.
+	Tags []string `json:"tags,omitempty"`
 }
 
 // ExtensionEpisode is a single episode inside an episode group. Unlike a

@@ -33,6 +33,7 @@ func (s *MiruCoreServer) UpsertDetail(ctx context.Context, req *proto.UpsertDeta
 		Episodes:   req.Episodes,
 		Headers:    req.Headers,
 		TrackIds:   req.TrackIds,
+		Tags:       req.Tags,
 	}
 
 	saved, err := db.UpsertDetail(d)

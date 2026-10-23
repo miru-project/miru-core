@@ -43,6 +43,22 @@ async function watch(url) {
   };
 }
 
+async function detail(url) {
+  return {
+    title: "V2 Detail",
+    url: url,
+    cover: "https://example.com/cover.jpg",
+    desc: "V2 watch/mirror example detail",
+    tags: ["Bangumi", "Example"],
+    episodes: [
+      {
+        title: "Streams",
+        urls: [{ name: "Mirror 1", url: "https://mirror1.example.com/stream.m3u8" }],
+      },
+    ],
+  };
+}
+
 async function mirror(url) {
   const decoded = decode_url(url);
   return {

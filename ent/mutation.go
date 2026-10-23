@@ -441,6 +441,8 @@ type DetailMutation struct {
 	episodes         *string
 	headers          *string
 	track_ids        *map[string]string
+	tags             *[]string
+	appendtags       []string
 	clearedFields    map[string]struct{}
 	trackers         map[int]struct{}
 	removedtrackers  map[int]struct{}
@@ -985,6 +987,71 @@ func (m *DetailMutation) ResetTrackIds() {
 	delete(m.clearedFields, detail.FieldTrackIds)
 }
 
+// SetTags sets the "tags" field.
+func (m *DetailMutation) SetTags(s []string) {
+	m.tags = &s
+	m.appendtags = nil
+}
+
+// Tags returns the value of the "tags" field in the mutation.
+func (m *DetailMutation) Tags() (r []string, exists bool) {
+	v := m.tags
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTags returns the old "tags" field's value of the Detail entity.
+// If the Detail object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DetailMutation) OldTags(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTags is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTags requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTags: %w", err)
+	}
+	return oldValue.Tags, nil
+}
+
+// AppendTags adds s to the "tags" field.
+func (m *DetailMutation) AppendTags(s []string) {
+	m.appendtags = append(m.appendtags, s...)
+}
+
+// AppendedTags returns the list of values that were appended to the "tags" field in this mutation.
+func (m *DetailMutation) AppendedTags() ([]string, bool) {
+	if len(m.appendtags) == 0 {
+		return nil, false
+	}
+	return m.appendtags, true
+}
+
+// ClearTags clears the value of the "tags" field.
+func (m *DetailMutation) ClearTags() {
+	m.tags = nil
+	m.appendtags = nil
+	m.clearedFields[detail.FieldTags] = struct{}{}
+}
+
+// TagsCleared returns if the "tags" field was cleared in this mutation.
+func (m *DetailMutation) TagsCleared() bool {
+	_, ok := m.clearedFields[detail.FieldTags]
+	return ok
+}
+
+// ResetTags resets all changes to the "tags" field.
+func (m *DetailMutation) ResetTags() {
+	m.tags = nil
+	m.appendtags = nil
+	delete(m.clearedFields, detail.FieldTags)
+}
+
 // AddTrackerIDs adds the "trackers" edge to the Tracker entity by ids.
 func (m *DetailMutation) AddTrackerIDs(ids ...int) {
 	if m.trackers == nil {
@@ -1073,7 +1140,7 @@ func (m *DetailMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DetailMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 10)
 	if m.title != nil {
 		fields = append(fields, detail.FieldTitle)
 	}
@@ -1101,6 +1168,9 @@ func (m *DetailMutation) Fields() []string {
 	if m.track_ids != nil {
 		fields = append(fields, detail.FieldTrackIds)
 	}
+	if m.tags != nil {
+		fields = append(fields, detail.FieldTags)
+	}
 	return fields
 }
 
@@ -1127,6 +1197,8 @@ func (m *DetailMutation) Field(name string) (ent.Value, bool) {
 		return m.Headers()
 	case detail.FieldTrackIds:
 		return m.TrackIds()
+	case detail.FieldTags:
+		return m.Tags()
 	}
 	return nil, false
 }
@@ -1154,6 +1226,8 @@ func (m *DetailMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldHeaders(ctx)
 	case detail.FieldTrackIds:
 		return m.OldTrackIds(ctx)
+	case detail.FieldTags:
+		return m.OldTags(ctx)
 	}
 	return nil, fmt.Errorf("unknown Detail field %s", name)
 }
@@ -1226,6 +1300,13 @@ func (m *DetailMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetTrackIds(v)
 		return nil
+	case detail.FieldTags:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTags(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Detail field %s", name)
 }
@@ -1277,6 +1358,9 @@ func (m *DetailMutation) ClearedFields() []string {
 	if m.FieldCleared(detail.FieldTrackIds) {
 		fields = append(fields, detail.FieldTrackIds)
 	}
+	if m.FieldCleared(detail.FieldTags) {
+		fields = append(fields, detail.FieldTags)
+	}
 	return fields
 }
 
@@ -1312,6 +1396,9 @@ func (m *DetailMutation) ClearField(name string) error {
 	case detail.FieldTrackIds:
 		m.ClearTrackIds()
 		return nil
+	case detail.FieldTags:
+		m.ClearTags()
+		return nil
 	}
 	return fmt.Errorf("unknown Detail nullable field %s", name)
 }
@@ -1346,6 +1433,9 @@ func (m *DetailMutation) ResetField(name string) error {
 		return nil
 	case detail.FieldTrackIds:
 		m.ResetTrackIds()
+		return nil
+	case detail.FieldTags:
+		m.ResetTags()
 		return nil
 	}
 	return fmt.Errorf("unknown Detail field %s", name)

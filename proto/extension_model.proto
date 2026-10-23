@@ -77,6 +77,7 @@ message ExtensionDetail {
   optional string desc = 3;
   repeated ExtensionEpisodeGroup episodes = 4;
   map<string, string> headers = 5;
+  repeated string tags = 6; // genres/categories for the detail page chips
 }
 
 message ExtensionEpisodeGroup {

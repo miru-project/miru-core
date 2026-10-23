@@ -30,6 +30,7 @@ export default class extends Extension {
       url: url,
       cover: "https://example.com/cover.jpg",
       desc: "A test extension",
+      tags: ["Action", "Adventure"],
       episodes: [
         {
           title: "Streams",

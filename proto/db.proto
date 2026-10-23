@@ -24,6 +24,7 @@ message UpsertDetailRequest {
   optional string episodes = 7; // JSON
   optional string headers = 8;  // JSON
   map<string, string> track_ids = 9;
+  repeated string tags = 10;
 }
 
 message UpsertDetailResponse { Detail detail = 1; }

@@ -154,7 +154,7 @@ func requestWithTLSClient(requrl string, option *RequestOptions) (Response[strin
 		tls_client.WithTimeoutSeconds(getTimeoutSeconds(option)),
 	}
 
-	if proxy := getProxyURL(option); proxy != "" {
+	if proxy := getProxyURL(option); proxy != "" && proxyEnabled() {
 		options = append(options, tls_client.WithProxyUrl(proxy))
 	}
 
@@ -172,6 +172,11 @@ func requestWithTLSClient(requrl string, option *RequestOptions) (Response[strin
 	}
 	defer client.CloseIdleConnections()
 
+	// Percent-encode any non-ASCII byte in the request target, exactly like
+	// the plain fasthttp transport does (Cloudflare answers 400 for raw
+	// multi-byte UTF-8 in the request line; extensions interpolate raw
+	// keywords into search URLs).
+	requrl = encodeNonASCIIRequestURI(requrl)
 	req, err := fhttp.NewRequest(checkRequestMethod(option.Method), requrl, readerForBody(option))
 	if err != nil {
 		return Response[string]{}, err
@@ -180,8 +185,16 @@ func requestWithTLSClient(requrl string, option *RequestOptions) (Response[strin
 	for k, v := range option.Headers {
 		req.Header.Set(k, v)
 	}
-	if cfg.UserAgent != "" {
-		req.Header.Set("User-Agent", cfg.UserAgent)
+	if req.Header.Get("User-Agent") == "" {
+		// The caller's User-Agent header (already set above) wins. Otherwise
+		// use the TLS profile's own UA when one is known, falling back to a
+		// same-browser-family UA so the header never contradicts the JA3/JA4
+		// fingerprint being sent.
+		ua := cfg.UserAgent
+		if ua == "" {
+			ua = coherentUserAgent(cfg.Profile)
+		}
+		req.Header.Set("User-Agent", ua)
 	}
 
 	resp, err := client.Do(req)
@@ -256,7 +269,7 @@ func readerForBody(option *RequestOptions) io.Reader {
 // encoding is present the raw body is returned.
 func readDecompressed(resp *http.Response) ([]byte, error) {
 	contentEncoding := resp.Header.Get("Content-Encoding")
-	raw, err := io.ReadAll(resp.Body)
+	raw, err := readAllCapped(resp.Body, maxBodySize)
 	if err != nil {
 		return nil, err
 	}
@@ -264,30 +277,44 @@ func readDecompressed(resp *http.Response) ([]byte, error) {
 	switch strings.ToLower(contentEncoding) {
 	case "gzip":
 		if gz, err := gzip.NewReader(bytes.NewReader(raw)); err == nil {
-			if dec, err := io.ReadAll(gz); err == nil {
+			if dec, err := readAllCapped(gz, maxBodySize); err == nil {
 				return dec, nil
 			}
 		}
 	case "deflate":
 		if zr, err := zlib.NewReader(bytes.NewReader(raw)); err == nil {
-			if dec, err := io.ReadAll(zr); err == nil {
+			if dec, err := readAllCapped(zr, maxBodySize); err == nil {
 				return dec, nil
 			}
 		}
 	case "br":
-		if dec, err := io.ReadAll(brotli.NewReader(bytes.NewReader(raw))); err == nil {
+		if dec, err := readAllCapped(brotli.NewReader(bytes.NewReader(raw)), maxBodySize); err == nil {
 			return dec, nil
 		}
 	case "zstd":
-		if dec, err := zstd.NewReader(bytes.NewReader(raw)); err == nil {
-			out, err := io.ReadAll(dec)
-			dec.Close()
+		if zr, err := zstd.NewReader(bytes.NewReader(raw)); err == nil {
+			out, err := readAllCapped(zr, maxBodySize)
+			zr.Close()
 			if err == nil {
 				return out, nil
 			}
 		}
 	}
 	return raw, nil
+}
+
+// readAllCapped reads r fully but fails as soon as more than limit bytes
+// arrive, so a huge response can never buffer without bound (the plain
+// fasthttp transport gets the same guarantee from ReadAll).
+func readAllCapped(r io.Reader, limit int) ([]byte, error) {
+	data, err := io.ReadAll(io.LimitReader(r, int64(limit)+1))
+	if err != nil {
+		return nil, err
+	}
+	if len(data) > limit {
+		return nil, fmt.Errorf("response body too large: exceeds %d byte limit", limit)
+	}
+	return data, nil
 }
 
 func parseCookie(cookie string) map[string]string {
@@ -541,6 +568,14 @@ type TLSConfig struct {
 	InsecureSkipVerify bool   `json:"insecureSkipVerify,omitempty"`
 }
 
+// defaultUserAgent is the User-Agent used when neither the caller nor the
+// extension sets one. Plain fasthttp requests used to go out with no
+// User-Agent at all (or the library default), which user-agent-filtering
+// edge CDNs (e.g. Cloudflare on hanime1.me) answer with 403 challenge pages
+// even though the same request with a browser UA passes. Extensions that set
+// their own User-Agent header always override it.
+const defaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
+
 func dnsResolve() {
 	addrs, err := net.LookupHost("www.google.com")
 	if len(addrs) != 0 && err == nil {
@@ -561,10 +596,10 @@ func dnsResolve() {
 func Init() {
 	defaultClient = &fasthttp.Client{
 		MaxIdemponentCallAttempts: 2,
-		// Name:                      "Mozilla/5.0 (X11; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0",
-		MaxIdleConnDuration: 90 * time.Second,
-		ReadTimeout:         30 * time.Second,
-		WriteTimeout:        30 * time.Second,
+		Name:                      defaultUserAgent,
+		MaxIdleConnDuration:       90 * time.Second,
+		ReadTimeout:               30 * time.Second,
+		WriteTimeout:              30 * time.Second,
 		Dial: func(addr string) (net.Conn, error) {
 			return tcpDialer.DialTimeout(addr, 15*time.Second)
 		},

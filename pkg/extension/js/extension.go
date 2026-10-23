@@ -106,6 +106,7 @@ func InitRuntime(extPath string, f embed.FS) {
 		if r := recover(); r != nil {
 			if err, ok := r.(map[string]string); ok {
 				for pkg, msg := range err {
+					log.Println("Extension load error:", pkg, msg)
 					ApiPkgCache.SetError(pkg, msg)
 				}
 				return
@@ -135,7 +136,7 @@ func loadExtApi(ext *Ext) {
 func compileExtension(ext *Ext) (*goja.Program, error) {
 	compile, e := goja.Compile(ext.Pkg+".js", *ext.Context, true)
 	if e != nil {
-		log.Println("Error compiling extension:", e)
+		log.Println("Extension load error:", ext.Pkg, "compile:", e)
 		ext.Error = e.Error()
 		ApiPkgCache.Store(ext.Pkg, &ExtApi{Ext: ext, service: nil})
 		return nil, e

@@ -79,10 +79,17 @@ func evictOldestProxyClient() {
 	}
 }
 
+// proxyEnabled reports whether a resolved proxy URL should actually be used:
+// the app-level "ProxyActivate" toggle set to "false" disables proxying for
+// every transport (fasthttp and tls-client alike).
+func proxyEnabled() bool {
+	enable, _ := db.GetAPPSetting("ProxyActivate")
+	return enable != "false"
+}
+
 func PrepareProxy(option *RequestOptions, targetURL string) (*fasthttp.Client, error) {
 	proxy := getProxyURL(option)
-	enableProxy, _ := db.GetAPPSetting("ProxyActivate")
-	if proxy == "" || enableProxy == "false" {
+	if proxy == "" || !proxyEnabled() {
 		logger.Println("request to:", targetURL)
 		return defaultClient, nil
 	}

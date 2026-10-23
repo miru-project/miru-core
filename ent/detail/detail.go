@@ -30,6 +30,8 @@ const (
 	FieldHeaders = "headers"
 	// FieldTrackIds holds the string denoting the track_ids field in the database.
 	FieldTrackIds = "track_ids"
+	// FieldTags holds the string denoting the tags field in the database.
+	FieldTags = "tags"
 	// EdgeTrackers holds the string denoting the trackers edge name in mutations.
 	EdgeTrackers = "trackers"
 	// Table holds the table name of the detail in the database.
@@ -53,6 +55,7 @@ var Columns = []string{
 	FieldEpisodes,
 	FieldHeaders,
 	FieldTrackIds,
+	FieldTags,
 }
 
 var (

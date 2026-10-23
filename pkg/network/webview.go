@@ -3,7 +3,10 @@ package network
 import (
 	"crypto/rand"
 	"math/big"
+	"strings"
+	"sync"
 
+	tls_profiles "github.com/bogdanfinn/tls-client/profiles"
 	log "github.com/miru-project/miru-core/pkg/logger"
 )
 
@@ -43,24 +46,6 @@ var webviewProfiles = []webviewProfile{
 		},
 		ja3Hash: "f984bd5bc7358922cde86ed4471a2e89",
 		ja4:     "t13d1516h2_8daaf6152771_806a8c22fdea",
-	},
-	{
-		Profile:   "chrome_133",
-		UserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
-		Headers: map[string]string{
-			"Accept":                    chromeAcceptHeader,
-			"Accept-Language":           "en-US,en;q=0.9",
-			"Sec-Ch-Ua":                 `"Chromium";v="133", "Google Chrome";v="133", "Not-A.Brand";v="99"`,
-			"Sec-Ch-Ua-Mobile":          "?0",
-			"Sec-Ch-Ua-Platform":        `"Windows"`,
-			"Sec-Fetch-Dest":            "document",
-			"Sec-Fetch-Mode":            "navigate",
-			"Sec-Fetch-Site":            "none",
-			"Sec-Fetch-User":            "?1",
-			"Upgrade-Insecure-Requests": "1",
-		},
-		ja3Hash: "74e530e488a43fddd78be75918be78c7",
-		ja4:     "t13d1516h2_8daaf6152771_d8a2da3f94cd",
 	},
 	{
 		Profile:   "firefox_148",
@@ -123,26 +108,68 @@ var webviewByProfile = func() map[string]webviewProfile {
 	return m
 }()
 
-// WebviewIdentity is the randomly selected browser identity an OpenWebview
-// call used. Callers receive it so later requests (or watch/mirror headers)
-// can stay consistent with the same browser.
+// familyUserAgents maps a browser family (chrome / firefox / safari) to the
+// User-Agent of its newest curated profile, so a request whose TLS fingerprint
+// comes from a non-curated tls-client profile can still carry a UA from the
+// same browser family.
+var familyUserAgents = func() map[string]string {
+	m := make(map[string]string)
+	for _, p := range webviewProfiles {
+		family, _, _ := strings.Cut(p.Profile, "_")
+		if _, ok := m[family]; !ok {
+			m[family] = p.UserAgent
+		}
+	}
+	return m
+}()
+
+// coherentUserAgent returns a User-Agent belonging to the same browser family
+// as the given tls-client profile, so the UA never contradicts the JA3/JA4
+// fingerprint actually sent. Curated webview profiles return their recorded
+// UA; other profiles fall back to a same-family UA; unknown names get the
+// default (Chrome) UA, which matches the tls-client default profile.
+func coherentUserAgent(profile string) string {
+	if p, ok := webviewByProfile[profile]; ok {
+		return p.UserAgent
+	}
+	family, _, _ := strings.Cut(profile, "_")
+	if ua, ok := familyUserAgents[family]; ok {
+		return ua
+	}
+	return defaultUserAgent
+}
+
+// WebviewIdentity is the browser identity an OpenWebview call used. Callers
+// receive it so later requests (or watch/mirror headers) can stay consistent
+// with the same browser.
 type WebviewIdentity struct {
 	Profile   string `json:"profile"`
 	UserAgent string `json:"userAgent"`
 }
 
-// RandomWebviewIdentity picks one browser identity at random (crypto/rand).
-func RandomWebviewIdentity() WebviewIdentity {
-	n, err := rand.Int(rand.Reader, big.NewInt(int64(len(webviewProfiles))))
-	if err != nil {
-		// crypto/rand failure: fall back to the first profile rather than
-		// failing the request; the identity is still a valid browser.
-		log.Println("webview: crypto/rand failed, falling back to first profile:", err)
-		p := webviewProfiles[0]
-		return WebviewIdentity{Profile: p.Profile, UserAgent: p.UserAgent}
-	}
-	p := webviewProfiles[n.Int64()]
-	return WebviewIdentity{Profile: p.Profile, UserAgent: p.UserAgent}
+// defaultIdentity is chosen ONCE per install (crypto/rand over the profile
+// table) and then stays fixed for the process lifetime: every request presents
+// the same coherent browser (same TLS fingerprint, User-Agent and header set),
+// which is what a real browser session looks like. A per-call random identity
+// would hop fingerprints while reusing the same cookies -- more bot-like, not
+// less -- and one flagged fingerprint would only burn a single install.
+var (
+	defaultIdentityOnce sync.Once
+	defaultIdentity     WebviewIdentity
+)
+
+// DefaultWebviewIdentity returns this install's browser identity.
+func DefaultWebviewIdentity() WebviewIdentity {
+	defaultIdentityOnce.Do(func() {
+		n, err := rand.Int(rand.Reader, big.NewInt(int64(len(webviewProfiles))))
+		if err != nil {
+			log.Println("webview: crypto/rand failed, falling back to first profile:", err)
+			n = big.NewInt(0)
+		}
+		p := webviewProfiles[n.Int64()]
+		defaultIdentity = WebviewIdentity{Profile: p.Profile, UserAgent: p.UserAgent}
+	})
+	return defaultIdentity
 }
 
 // KnownWebviewFingerprint returns the JA3 hash and JA4 a real browser with the
@@ -156,41 +183,44 @@ func KnownWebviewFingerprint(profile string) (ja3Hash, ja4 string, ok bool) {
 	return p.ja3Hash, p.ja4, true
 }
 
-// OpenWebview issues an HTTP request impersonating a randomly selected real
-// browser (webview): the TLS fingerprint (JA3/JA4), the User-Agent and the
-// default browser headers all come from the same identity, so JA3/JA4-fencing
-// CDNs (Cloudflare) see a genuine browser visit instead of a Go client.
+// OpenWebview issues an HTTP request impersonating a real browser (webview):
+// the TLS fingerprint (JA3/JA4), the User-Agent and the default browser
+// headers all come from the same identity, so JA3/JA4-fencing CDNs
+// (Cloudflare) see a genuine browser visit instead of a Go client.
 //
-// option may carry Headers / Method / RequestBody / Timeout; caller headers
-// win over the identity defaults. A non-nil option.TLSConfig with a known
-// Profile pins that identity instead of picking one at random (UserAgent in
-// TLSConfig overrides the identity's). Redirect / verify flags in TLSConfig
-// are honored. The request always goes through the browser-impersonating
-// tls-client transport. The identity actually used is returned alongside the
-// response.
+// The identity is the install's fixed default (DefaultWebviewIdentity) unless
+// option pins one via TLSConfig.Profile: curated webview profiles bring their
+// full coherent header set, while any other valid tls-client profile name is
+// honored as a raw fingerprint with a same-family User-Agent. Caller headers
+// win over the identity defaults, and the User-Agent precedence is: caller
+// header > TLSConfig.UserAgent > the pinned/default profile's own UA. Redirect
+// / verify flags in TLSConfig are honored. The request always goes through
+// the browser-impersonating tls-client transport. The identity actually used
+// is returned alongside the response.
 func OpenWebview(reqURL string, option *RequestOptions) (Response[string], WebviewIdentity, error) {
 	if option == nil {
 		option = &RequestOptions{}
 	}
 
-	// Random identity by default; a known pinned profile selects its own
-	// coherent identity. Caller headers are kept: clone the option and merge
-	// the identity defaults underneath them.
-	profile := webviewProfiles[0]
-	n, err := rand.Int(rand.Reader, big.NewInt(int64(len(webviewProfiles))))
-	if err != nil {
-		log.Println("webview: crypto/rand failed, falling back to first profile:", err)
-	} else {
-		profile = webviewProfiles[n.Int64()]
+	// The install's fixed identity by default; a pinned profile selects its
+	// own coherent identity. Caller headers are kept: clone the option and
+	// merge the identity defaults underneath them.
+	profile, ok := webviewByProfile[DefaultWebviewIdentity().Profile]
+	if !ok {
+		profile = webviewProfiles[0]
 	}
 	if option.TLSConfig != nil && option.TLSConfig.Profile != "" {
-		if p, ok := webviewByProfile[option.TLSConfig.Profile]; ok {
+		if p, pinned := webviewByProfile[option.TLSConfig.Profile]; pinned {
 			profile = p
+		} else if _, raw := tls_profiles.MappedTLSClients[option.TLSConfig.Profile]; raw {
+			// Not a curated webview profile but a valid tls-client
+			// fingerprint: honor it without a recorded browser header set.
+			profile = webviewProfile{Profile: option.TLSConfig.Profile}
 		} else {
-			log.Println("webview: unknown pinned profile", option.TLSConfig.Profile, "- using random identity")
+			log.Println("webview: unknown pinned profile", option.TLSConfig.Profile, "- using the install default identity")
 		}
 	}
-	identity := WebviewIdentity{Profile: profile.Profile, UserAgent: profile.UserAgent}
+	identity := WebviewIdentity{Profile: profile.Profile}
 
 	merged := make(map[string]string, len(profile.Headers)+len(option.Headers)+1)
 	for k, v := range profile.Headers {
@@ -199,11 +229,18 @@ func OpenWebview(reqURL string, option *RequestOptions) (Response[string], Webvi
 	for k, v := range option.Headers {
 		merged[k] = v
 	}
-	userAgent := identity.UserAgent
+	// User-Agent precedence: explicit caller header > TLSConfig.UserAgent >
+	// the profile's own UA, so the header never contradicts the JA3/JA4
+	// fingerprint unless the caller explicitly asked for it.
+	userAgent := coherentUserAgent(identity.Profile)
 	if option.TLSConfig != nil && option.TLSConfig.UserAgent != "" {
 		userAgent = option.TLSConfig.UserAgent
 	}
+	if v, ok := option.Headers["User-Agent"]; ok && strings.TrimSpace(v) != "" {
+		userAgent = v
+	}
 	merged["User-Agent"] = userAgent
+	identity.UserAgent = userAgent
 
 	wo := *option
 	wo.Headers = merged

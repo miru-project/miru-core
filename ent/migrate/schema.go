@@ -32,6 +32,7 @@ var (
 		{Name: "episodes", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "headers", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "track_ids", Type: field.TypeJSON, Nullable: true},
+		{Name: "tags", Type: field.TypeJSON, Nullable: true},
 	}
 	// DetailsTable holds the schema information for the "details" table.
 	DetailsTable = &schema.Table{
